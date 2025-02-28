@@ -15,7 +15,7 @@
 #
 FORKNAME			 = MAGIS
 # The target to build, see VALID_TARGETS below
-TARGET		?= PRIMUSX
+TARGET		?= PRIMUSX2
 
 BUILD_TYPE  ?= BIN
 
@@ -537,6 +537,7 @@ PRIMUSX2_SRC = \
 		   drivers/light_led_stm32f30x.c \
 		   drivers/flash_m25p16.cpp \
 		   drivers/pwm_mapping.cpp \
+			 drivers/ina219.cpp \
 		   drivers/pwm_output.cpp \
 		   drivers/pwm_rx.cpp \
 		   drivers/serial_uart.c \

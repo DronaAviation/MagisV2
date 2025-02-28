@@ -187,7 +187,7 @@ void uwbUpdate ( ) {
 
   if ( GPIO.read ( Pin8 ) ) {    // When UWB TAG gets new data GPIO 8 on UNIBUS gets HIGH: works as a ready flag
 
-    LED_M_TOGGLE;                // Toggling green LED for data received indication
+    LED_B_TOGGLE;                // Toggling green LED for data received indication
 
     UART.write ( UART2, getPos, 2 );
 
@@ -399,7 +399,7 @@ void annexCode ( void ) {
     reset_FSI ( Armed );
     if ( IS_RC_MODE_ACTIVE ( BOXARM ) == 0 ) {
 
-      // LED_L_ON;
+      // LED_G_ON;
       if ( ! STATE ( SMALL_ANGLE ) || ! isCalibrated ) {
         DISABLE_ARMING_FLAG ( OK_TO_ARM );
         reset_FSI ( Ok_to_arm );
@@ -750,7 +750,6 @@ void executePeriodicTasks ( void ) {
 #endif
       //        if(useRangingSensor)
       //            getRange();
-
 
       break;
   }
@@ -1138,8 +1137,6 @@ void loop ( void ) {
 
     userCode ( );
 
-
-
     /* used in localisation
      if (command_verify()){
 
@@ -1163,7 +1160,6 @@ void loop ( void ) {
 #ifdef OPTIC_FLOW
     selectVelOrPosmode ( );
 #endif
-
 
 #ifdef GTUNE
     updateGtuneState ( );

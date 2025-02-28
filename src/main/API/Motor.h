@@ -1,7 +1,6 @@
 /*PlutoX API V.1.0
  */
 
-
 #pragma once
 
 #include <stdint.h>
@@ -42,6 +41,8 @@ class Motor_P {
   void set ( reverse_motor_e motor, int16_t pwmValue );
   void setDirection ( reverse_motor_e motor, motor_direction_e direction );
 };
+
+void reverseMotorGPIOInit ( void );
 
 extern Motor_P Motor;
 

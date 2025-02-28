@@ -50,6 +50,7 @@
 #include "drivers/flash.h"
 #include "drivers/sonar_hcsr04.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/ina219.h"
 #include "rx/rx.h"
 
 #include "io/serial.h"
@@ -106,7 +107,6 @@
 #include "API/Localisation.h"
 #include "API/Motor.h"
 
-
 extern uint32_t previousTime;
 extern uint8_t motorControlEnable;
 
@@ -153,7 +153,6 @@ uint32_t SetSysClock ( bool overclock );
 #ifdef __cplusplus
 }
 #endif
-
 
 typedef enum {
   SYSTEM_STATE_INITIALISING  = 0,
@@ -414,6 +413,10 @@ void init ( void ) {
     failureFlag |= ( 1 << FAILURE_BARO );
   }
 #endif
+
+  // TODO: INA219 Integrate properly
+  //! battery INA219
+  INA219_Init ( );
   if ( clockcheck == 1 ) {
     // failure if running on internal clock
     // LEDz_ON;   //PA6
@@ -433,21 +436,19 @@ void init ( void ) {
 
   // LED sequence for start
   LED_R_ON;
-  LED_M_OFF;
+  LED_B_OFF;
   for ( i = 0; i < 15; i++ ) {
     LED_R_TOGGLE;
-    LED_M_TOGGLE;
-    LED_L_TOGGLE;
+    LED_B_TOGGLE;
+    LED_G_TOGGLE;
     delay ( 25 );
     BEEP_ON;
     delay ( 25 );
     BEEP_OFF;
   }
-  LED_M_OFF;
+  LED_B_OFF;
   LED_R_OFF;
-  LED_L_OFF;
-
-
+  LED_G_OFF;
 
 #ifdef MAG
   if ( sensors ( SENSOR_MAG ) )
@@ -458,8 +459,6 @@ void init ( void ) {
 
   mspInit ( &masterConfig.serialConfig );
 
-
-
 #ifdef USE_CLI
   cliInit ( &masterConfig.serialConfig );
 #endif
@@ -467,8 +466,6 @@ void init ( void ) {
   failsafeInit ( &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
 
   rxInit ( &masterConfig.rxConfig, currentProfile->modeActivationConditions );
-
-
 
 #ifdef GPS
   if ( feature ( FEATURE_GPS ) ) {
@@ -520,8 +517,6 @@ void init ( void ) {
     accSetCalibrationCycles ( CALIBRATING_ACC_CYCLES );
   }
 
-
-
   updateGains ( );
   gyroSetCalibrationCycles ( CALIBRATING_GYRO_CYCLES );
 #ifdef BARO
@@ -529,8 +524,6 @@ void init ( void ) {
   baroCalibrate ( );
   baroInit ( );
 #endif
-
-
 
   // start all timers
   // TODO - not implemented yet
@@ -581,7 +574,6 @@ void init ( void ) {
 
 #endif
 
-
   // spi.Init();
   // spi.Settings(MODE0, 562, LSBFIRST);
 
@@ -593,25 +585,18 @@ void init ( void ) {
 
   updatePosGains ( );
 
-
   resetUser ( );
-
-
 
   plutoInit ( );
 
-
-
   timerDataConfiguration ( );
-
 
   delay ( 300 );
 
-
+  // TODO: Proper call and init for the new reverse motor setup
+  reverseMotorGPIOInit ( );
 
   timerInit ( );    // timer must be initialized before any channel is allocated
-
-
 
   // when using airplane/wing mixer, servo/motor outputs are remapped
   if ( masterConfig.mixerMode == MIXER_AIRPLANE
@@ -657,18 +642,13 @@ void init ( void ) {
 
   pwmRxInit ( masterConfig.inputFilteringMode );
 
-
-
   pwmOutputConfiguration_t *pwmOutputConfiguration = pwmInit ( &pwm_params );
-
-
 
   mixerUsePWMOutputConfiguration ( pwmOutputConfiguration );
 
   if ( OledEnable ) {
     OledStartUpInit ( );
   }
-
 
 #if defined( PRIMUSX ) || defined( PRIMUSX2 )
   unibusAdcInit ( );
@@ -708,12 +688,9 @@ int main ( void ) {
 
   // PWM.init(Pin13, 50);
 
-
   while ( 1 ) {
 
     loop ( );
-
-
 
     processLoopback ( );
   }

@@ -160,13 +160,13 @@ static bool m25p16_readIdentification()
         case JEDEC_ID_MICRON_M25P16:
             geometry.sectors = 32;
             geometry.pagesPerSector = 256;
-            LED_L_ON;
+            LED_G_ON;
             break;
         case JEDEC_ID_MICRON_N25Q064:
         case JEDEC_ID_WINBOND_W25Q64:
             geometry.sectors = 128;
             geometry.pagesPerSector = 256;
-            LED_M_ON;
+            LED_B_ON;
             break;
         case JEDEC_ID_MICRON_N25Q128:
         case JEDEC_ID_WINBOND_W25Q128:

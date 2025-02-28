@@ -18,7 +18,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
 #include "platform.h"
 #include "build_config.h"
 #include "debug.h"
@@ -36,61 +35,49 @@
 
 #include "serial.h"
 
+void serialPrint ( serialPort_t *instance, const char *str ) {
+  uint8_t ch;
 
-void serialPrint(serialPort_t *instance, const char *str)
-{
-    uint8_t ch;
+  uint8_t c = 0;
+  while ( ( ch = *( str++ ) ) != 0 ) {
+    // LED_G_ON;
+    // 	 lprint("ch:"+ch,2000);
+    serialWrite ( instance, ch );
+    c++;
+  }
 
-    uint8_t c=0;
-    while ((ch = *(str++)) != 0) {
-    	//LED_L_ON;
-   // 	 lprint("ch:"+ch,2000);
-        serialWrite(instance, ch);
-        c++;
-    }
-
-   // lprint("c:"+c,2000);
-    c=0;
-
+  // lprint("c:"+c,2000);
+  c = 0;
 }
 
-uint32_t serialGetBaudRate(serialPort_t *instance)
-{
-    return instance->baudRate;
+uint32_t serialGetBaudRate ( serialPort_t *instance ) {
+  return instance->baudRate;
 }
 
-void serialWrite(serialPort_t *instance, uint8_t ch)
-{
-    instance->vTable->serialWrite(instance, ch);
+void serialWrite ( serialPort_t *instance, uint8_t ch ) {
+  instance->vTable->serialWrite ( instance, ch );
 }
 
-uint8_t serialRxBytesWaiting(serialPort_t *instance)
-{
-    return instance->vTable->serialTotalRxWaiting(instance);
+uint8_t serialRxBytesWaiting ( serialPort_t *instance ) {
+  return instance->vTable->serialTotalRxWaiting ( instance );
 }
 
-uint8_t serialTxBytesFree(serialPort_t *instance)
-{
-    return instance->vTable->serialTotalTxFree(instance);
+uint8_t serialTxBytesFree ( serialPort_t *instance ) {
+  return instance->vTable->serialTotalTxFree ( instance );
 }
 
-uint8_t serialRead(serialPort_t *instance)
-{
-    return instance->vTable->serialRead(instance);
+uint8_t serialRead ( serialPort_t *instance ) {
+  return instance->vTable->serialRead ( instance );
 }
 
-void serialSetBaudRate(serialPort_t *instance, uint32_t baudRate)
-{
-    instance->vTable->serialSetBaudRate(instance, baudRate);
+void serialSetBaudRate ( serialPort_t *instance, uint32_t baudRate ) {
+  instance->vTable->serialSetBaudRate ( instance, baudRate );
 }
 
-bool isSerialTransmitBufferEmpty(serialPort_t *instance)
-{
-    return instance->vTable->isSerialTransmitBufferEmpty(instance);
+bool isSerialTransmitBufferEmpty ( serialPort_t *instance ) {
+  return instance->vTable->isSerialTransmitBufferEmpty ( instance );
 }
 
-void serialSetMode(serialPort_t *instance, portMode_t mode)
-{
-    instance->vTable->setMode(instance, mode);
+void serialSetMode ( serialPort_t *instance, portMode_t mode ) {
+  instance->vTable->setMode ( instance, mode );
 }
-

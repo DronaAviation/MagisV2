@@ -123,7 +123,6 @@ struct Rev_Motor_Gpio {
 // Initialize an array of Motor structs
 Rev_Motor_Gpio motors_gpio [ 4 ];
 
-
 void Motor_P::initReverseMotor ( reverse_motor_e motor ) {
 
   timerHardware_t timerHardware;
@@ -180,10 +179,9 @@ void Motor_P::initReverseMotor ( reverse_motor_e motor ) {
       timerHardware                   = { TIM2, GPIOA, Pin_1, TIM_Channel_2, TIM2_IRQn, 1, Mode_AF_PP, GPIO_PinSource1, GPIO_AF_1 };
       motors_gpio [ 1 ].gpio          = GPIOB;
       motors_gpio [ 1 ].pin           = Pin_5;
-      motors_gpio [ 1 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB2
+      motors_gpio [ 1 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB;
 #endif
-                                                  cfg.pin
-                = motors_gpio [ 1 ].pin;
+      cfg.pin   = motors_gpio [ 1 ].pin;
       cfg.mode  = Mode_Out_PP;
       cfg.speed = Speed_2MHz;
       RCC_AHBPeriphClockCmd ( motors_gpio [ 1 ].RCC_AHBPeriph, ENABLE );
@@ -257,7 +255,6 @@ void Motor_P::initReverseMotor ( reverse_motor_e motor ) {
   }
 }
 
-
 void Motor_P::set ( std_motor_e motor, int16_t pwmValue ) {
   bool morto_arm_stat;
   pwmValue = constrain ( pwmValue, 1000, 2000 );
@@ -319,8 +316,6 @@ void Motor_P::set ( reverse_motor_e motor, int16_t pwmValue ) {
   }
 }
 
-
-
 void Motor_P::setDirection ( reverse_motor_e motor, motor_direction_e direction ) {
   // Check if the motor index is within the valid range
   if ( motor >= 0 && motor < sizeof ( motors_gpio ) / sizeof ( Rev_Motor_Gpio ) ) {
@@ -331,14 +326,21 @@ void Motor_P::setDirection ( reverse_motor_e motor, motor_direction_e direction 
   }
 }
 
-
-
 #if defined( PRIMUSX2 )
 void reverseMotorGPIOInit ( void ) {
+  GPIO_TypeDef *gpio;
+  gpio_config_t cfg;
+  // M1
+  gpio      = GPIOB;
+  cfg.pin   = Pin_4;
+  cfg.mode  = Mode_Out_PP;
+  cfg.speed = Speed_2MHz;
+  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
+  gpioInit ( gpio, &cfg );
+  digitalHi ( GPIOB, Pin_4 );
 
   // M2
-  gpio = GPIOB;
-
+  gpio      = GPIOB;
   cfg.pin   = Pin_5;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
@@ -347,6 +349,15 @@ void reverseMotorGPIOInit ( void ) {
   digitalLo ( GPIOB, Pin_5 );
 
   // M3
+  gpio      = GPIOB;
+  cfg.pin   = Pin_6;
+  cfg.mode  = Mode_Out_PP;
+  cfg.speed = Speed_2MHz;
+  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
+  gpioInit ( gpio, &cfg );
+  digitalHi ( GPIOB, Pin_6 );
+
+  // M4
   gpio = GPIOB;
 
   cfg.pin   = Pin_7;
@@ -356,18 +367,25 @@ void reverseMotorGPIOInit ( void ) {
   gpioInit ( gpio, &cfg );
   digitalLo ( GPIOB, Pin_7 );
 
-  // M4
-  gpio = GPIOB;
-
-  cfg.pin   = Pin_6;
+  // M5
+  gpio      = GPIOB;
+  cfg.pin   = Pin_0;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
   RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
   gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_6 );
+  digitalHi ( GPIOB, Pin_0 );
+
+  // M6
+  gpio      = GPIOB;
+  cfg.pin   = Pin_1;
+  cfg.mode  = Mode_Out_PP;
+  cfg.speed = Speed_2MHz;
+  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
+  gpioInit ( gpio, &cfg );
+  digitalLo ( GPIOB, Pin_1 );
 }
 
 #endif
-
 
 Motor_P Motor;
