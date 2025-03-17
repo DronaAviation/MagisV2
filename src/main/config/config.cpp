@@ -75,7 +75,7 @@
 #include "API/RxConfig.h"
 #include "API/PlutoPilot.h"
 
-#define BRUSHED_MOTORS_PWM_RATE   18000
+#define BRUSHED_MOTORS_PWM_RATE   18000 //! new change
 #define BRUSHLESS_MOTORS_PWM_RATE 400
 
 #ifdef __cplusplus

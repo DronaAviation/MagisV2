@@ -521,8 +521,8 @@ void init ( void ) {
   gyroSetCalibrationCycles ( CALIBRATING_GYRO_CYCLES );
 #ifdef BARO
   baroSetCalibrationCycles ( CALIBRATING_BARO_CYCLES );
-  baroCalibrate ( );
   baroInit ( );
+  baroCalibrate ( );
 #endif
 
   // start all timers

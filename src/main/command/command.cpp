@@ -66,7 +66,6 @@
 #include "../API/Utils.h"
 #include "mw.h"
 
-
 uint8_t current_command = 0;
 uint8_t command_status  = 2;
 
@@ -79,42 +78,31 @@ bool setTakeOffTimer    = true;
 bool isTookOff          = false;
 bool isTakeOffHeightSet = false;
 
-
 uint32_t loopTime;
 uint32_t takeOffLoopTime;
 int32_t takeOffThrottle = 950;
 int8_t checkVelocity    = -8;
 
-
 uint16_t takeOffHeight = 120;
-uint16_t landThrottle  = 1200;
+uint16_t landThrottle  = 1300; //! new change
 bool isUserLandCommand = false;
 
 Interval takeoffTimer;
 Interval posSetTimer;
 
-
-
 void takeOff ( ) {
 
   if ( command_status != FINISHED ) {
 
-
-
     if ( ARMING_FLAG ( ARMED ) ) {
-
 
       //            if(takeoffTimer.set(1000, false)){
 
-
-
       current_command = NONE;
-      command_status  = ABORT;
+      command_status  = FINISHED;
       isTookOff       = true;
 
       //            }
-
-
 
     } else {
       if ( IS_RC_MODE_ACTIVE ( BOXARM ) ) {
@@ -142,11 +130,7 @@ void takeOff ( ) {
 }
 void land ( ) {
 
-
-
   if ( command_status != FINISHED ) {
-
-
 
     isLanding = true;
 
@@ -166,7 +150,6 @@ void land ( ) {
       setLandTimer = true;
     } else {
 
-
       if ( ABS ( accADC [ 2 ] ) > 8500 ) {
 
         command_status = FINISHED;
@@ -180,10 +163,7 @@ void land ( ) {
         return;
       }
 
-
-
       if ( ABS ( ( int32_t ) ( millis ( ) - loopTime ) ) <= 28000 ) {
-
 
         if ( getEstVelocity ( ) > -8 ) {
 
@@ -221,8 +201,6 @@ void executeCommand ( ) {
 
     case B_FLIP:
 
-
-
       if ( flipState == 0 && FLIGHT_MODE ( MAG_MODE ) ) {
 
         flipDirection = 0;
@@ -232,13 +210,9 @@ void executeCommand ( ) {
       current_command = NONE;
       command_status  = FINISHED;
 
-
-
       break;
 
     case F_FLIP:
-
-
 
       break;
 
@@ -247,7 +221,6 @@ void executeCommand ( ) {
       break;
 
     case L_FLIP:
-
 
       break;
 

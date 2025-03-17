@@ -23,8 +23,6 @@ extern "C" {
 
 bool icp10111Detect(baro_t *baro);
 
-
-
 #ifdef __cplusplus
 }
 #endif

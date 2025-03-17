@@ -150,11 +150,14 @@ bool crashRecoveryCheck = false;
 static bool isRXDataNew;
 static bool isBatteryLow = false;
 uint32_t arm_time        = 0;
+uint32_t TakeOffTime     = 0;
 
 bool isBlackboxOn = false;
 
 // bool isFlipDone=false;
 // bool startStable=false;
+
+bool TakeOffFlag = false;
 
 enum {
   ALIGN_GYRO  = 0,
@@ -342,12 +345,23 @@ void annexCode ( void ) {
   }
 
   if ( limitAltitude ( ) && rcData [ THROTTLE ] > 1500 ) {
+
     rcData [ THROTTLE ] = 1500;
   }
 
   if ( isLanding ) {
     rcData [ THROTTLE ] = landThrottle;
   }
+// ! come back here
+  // if ( TakeOffFlag ) {
+  //   if ( millis ( ) - TakeOffTime >= 1000 ) {
+  //     TakeOffFlag = false;    // Stop the task after 100ms
+  //     LED_R_OFF;
+  //   } else {
+  //     LED_R_ON;
+  //     rcCommand [ THROTTLE ] = 2000;
+  //   }
+  // }
 
   tmp                    = constrain ( rcData [ THROTTLE ], masterConfig.rxConfig.mincheck, PWM_RANGE_MAX );
   tmp                    = ( uint32_t ) ( tmp - masterConfig.rxConfig.mincheck ) * PWM_RANGE_MIN / ( PWM_RANGE_MAX - masterConfig.rxConfig.mincheck );    // [MINCHECK;2000] -> [0;1000]
@@ -487,6 +501,7 @@ void mwDisarm ( void ) {
 
   if ( current_command != NONE )
     command_status = FINISHED;
+  TakeOffFlag        = false;
   isLanding          = false;
   setLandTimer       = true;
   setTakeOffAlt      = false;
@@ -496,9 +511,10 @@ void mwDisarm ( void ) {
   isTakeOffHeightSet = false;
   takeOffThrottle    = 950;
   takeOffHeight      = 120;
-  landThrottle       = 1200;
+  landThrottle       = 1300; //! new change
   flipState          = 0;
   arm_time           = 0;
+  TakeOffTime        = 0;
   reset_FSI ( LowBattery_inFlight );
   reset_FSI ( Signal_loss );
 
@@ -533,10 +549,13 @@ void mwArm ( void ) {
     }
     if ( ! ARMING_FLAG ( PREVENT_ARMING ) ) {
       ENABLE_ARMING_FLAG ( ARMED );
+      if ( ! TakeOffFlag ) {
+        TakeOffFlag = true;
+        TakeOffTime = millis ( );
+      }
       if ( isUserHeadFreeHoldSet ) {
 
         headFreeModeHold = userHeadFreeHoldHeading;
-
       } else
         headFreeModeHold = heading;
 
@@ -995,6 +1014,8 @@ void userCode ( ) {
           callOnPilotStart  = false;
           callonPilotFinish = true;
         }
+        Graph.red ( getEstAltitude ( ), 1 );
+        Graph.green ( ( float ) getBaroPressure ( ), 1 );
 
         plutoLoop ( );
       }
