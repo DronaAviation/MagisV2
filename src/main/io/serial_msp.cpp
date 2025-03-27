@@ -155,24 +155,21 @@ extern "C" {
 
 #define MSP_PROTOCOL_VERSION                0
 
-#define API_VERSION_MAJOR                   2    // increment when major changes are made
-#define API_VERSION_MINOR                   0    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
-#define API_VERSION_LENGTH                  2
 
 #define MULTIWII_IDENTIFIER                 "MWII";
 #define CLEANFLIGHT_IDENTIFIER              "CLFL"
 #define BASEFLIGHT_IDENTIFIER               "BAFL";
-#define MAGIS_IDENTIFIER                    "MAGIS"
 
-#define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 5
+
+#define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 8
 static const char *const flightControllerIdentifier = MAGIS_IDENTIFIER;    // 4 UPPER CASE alpha numeric characters that identify the flight controller.
 
 #define FLIGHT_CONTROLLER_VERSION_LENGTH 3
 #define FLIGHT_CONTROLLER_VERSION_MASK   0xFFF
 
 static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
-#define BOARD_IDENTIFIER_LENGTH        7    // 4 UPPER CASE alpha numeric characters that identify the board being used.
+#define BOARD_IDENTIFIER_LENGTH       9    // 4 UPPER CASE alpha numeric characters that identify the board being used.
 #define BOARD_HARDWARE_REVISION_LENGTH 2
 
 /*
@@ -195,7 +192,7 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 
 #define MSP_API_VERSION 1    // out message
 #define MSP_FC_VARIANT  2    // out message
-#define MSP_FC_VERSION  3    // out message
+#define MSP_FC_FW_VERSION  3    // out message
 #define MSP_BOARD_INFO  4    // out message
 #define MSP_BUILD_INFO  5    // out message
 
@@ -760,12 +757,12 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       }
       break;
 
-    case MSP_FC_VERSION:
+    case MSP_FC_FW_VERSION:
       headSerialReply ( FLIGHT_CONTROLLER_VERSION_LENGTH );
 
-      serialize8 ( FC_VERSION_MAJOR );
-      serialize8 ( FC_VERSION_MINOR );
-      serialize8 ( FC_VERSION_PATCH_LEVEL );
+      serialize8 ( FC_FW_VERSION_MAJOR );
+      serialize8 ( FC_FW_VERSION_MINOR );
+      serialize8 ( FC_FW_VERSION_PATCH_LEVEL );
       break;
 
     case MSP_BOARD_INFO:

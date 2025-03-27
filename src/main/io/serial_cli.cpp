@@ -2173,7 +2173,7 @@ static void cliVersion(char *cmdline)
 
     printf("# Cleanflight/%s %s %s / %s (%s)",
         targetName,
-        FC_VERSION_STRING,
+        FC_FW_VERSION_STRING,
         buildDate,
         buildTime,
         shortGitRevision

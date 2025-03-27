@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 1st Mar 2025                                           #
+ #  Last Modified: Fri, 28th Mar 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -47,6 +47,7 @@ bool INA219_Config ( uint16_t RST, uint16_t BRNG, uint16_t PG, uint16_t BADC, ui
 }
 
 void INA219_Init ( void ) {
+  // INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
   while ( ! INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) ) ) {
     LED_R_TOGGLE;
     LED_B_TOGGLE;

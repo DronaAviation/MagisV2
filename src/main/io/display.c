@@ -285,7 +285,7 @@ void showWelcomePage(void)
 {
     uint8_t rowIndex = PAGE_TITLE_LINE_COUNT;
 
-    tfp_sprintf(lineBuffer, "v%s (%s)", FC_VERSION_STRING, shortGitRevision);
+    tfp_sprintf(lineBuffer, "v%s (%s)", FC_FW_VERSION_STRING, shortGitRevision);
     i2c_OLED_set_line(rowIndex++);
     i2c_OLED_send_string(lineBuffer);
 

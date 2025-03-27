@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define TARGET_BOARD_IDENTIFIER "PRIMUSX2"
+#define TARGET_BOARD_IDENTIFIER "PRIMUS X2"
 
 /* #define LED0_GPIO   GPIOB
  #define LED0_PIN    Pin_4 // Blue LEDs - PB4
@@ -32,18 +32,19 @@ extern "C" {
 // #define BEEP_PERIPHERAL RCC_AHBPeriph_GPIOA
 #define LED_R
 #define LED0_GPIO       GPIOC
-#define LED0_PIN        Pin_14    // PC14 (LED)	//Red
+#define LED0_PIN        Pin_13    // PC14 (LED)	//Red
 #define LED0_PERIPHERAL RCC_AHBPeriph_GPIOC
 
 #define LED_G
 #define LED1_GPIO       GPIOC
-#define LED1_PIN        Pin_13    // PC13 (LED)	//Green
+#define LED1_PIN        Pin_15    // PC13 (LED)	//Green
 #define LED1_PERIPHERAL RCC_AHBPeriph_GPIOC
 
 #define LED_B
 #define LED2_GPIO                  GPIOC
-#define LED2_PIN                   Pin_15    // PC15 (LED)	//Blue
+#define LED2_PIN                   Pin_14    // PC15 (LED)	//Blue
 #define LED2_PERIPHERAL            RCC_AHBPeriph_GPIOC
+
 #define USABLE_TIMER_CHANNEL_COUNT 5
 
 #define M25P16_CS_GPIO             GPIOB
