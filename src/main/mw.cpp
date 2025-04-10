@@ -15,6 +15,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -190,7 +192,7 @@ void uwbUpdate ( ) {
 
   if ( GPIO.read ( Pin8 ) ) {    // When UWB TAG gets new data GPIO 8 on UNIBUS gets HIGH: works as a ready flag
 
-    LED_B_TOGGLE;                // Toggling green LED for data received indication
+    LED_B_TOGGLE;    // Toggling green LED for data received indication
 
     UART.write ( UART2, getPos, 2 );
 
@@ -352,7 +354,7 @@ void annexCode ( void ) {
   if ( isLanding ) {
     rcData [ THROTTLE ] = landThrottle;
   }
-// ! come back here
+  // ! come back here
   // if ( TakeOffFlag ) {
   //   if ( millis ( ) - TakeOffTime >= 1000 ) {
   //     TakeOffFlag = false;    // Stop the task after 100ms
@@ -366,9 +368,9 @@ void annexCode ( void ) {
   tmp                    = constrain ( rcData [ THROTTLE ], masterConfig.rxConfig.mincheck, PWM_RANGE_MAX );
   tmp                    = ( uint32_t ) ( tmp - masterConfig.rxConfig.mincheck ) * PWM_RANGE_MIN / ( PWM_RANGE_MAX - masterConfig.rxConfig.mincheck );    // [MINCHECK;2000] -> [0;1000]
   tmp2                   = tmp / 100;
-  rcCommand [ THROTTLE ] = lookupThrottleRC [ tmp2 ] + ( tmp - tmp2 * 100 ) * ( lookupThrottleRC [ tmp2 + 1 ] - lookupThrottleRC [ tmp2 ] ) / 100;        // [0;1000] -> expo -> [MINTHROTTLE;MAXTHROTTLE]
+  rcCommand [ THROTTLE ] = lookupThrottleRC [ tmp2 ] + ( tmp - tmp2 * 100 ) * ( lookupThrottleRC [ tmp2 + 1 ] - lookupThrottleRC [ tmp2 ] ) / 100;    // [0;1000] -> expo -> [MINTHROTTLE;MAXTHROTTLE]
 
-  if ( isLocalisationOn && ARMING_FLAG ( ARMED ) ) {                                                                                                      // for localisation
+  if ( isLocalisationOn && ARMING_FLAG ( ARMED ) ) {    // for localisation
     rcCommand [ ROLL ]  = getrcDataRoll ( );
     rcCommand [ PITCH ] = getrcDataPitch ( );
 
@@ -511,7 +513,7 @@ void mwDisarm ( void ) {
   isTakeOffHeightSet = false;
   takeOffThrottle    = 950;
   takeOffHeight      = 120;
-  landThrottle       = 1300; //! new change
+  landThrottle       = 1300;    //! new change
   flipState          = 0;
   arm_time           = 0;
   TakeOffTime        = 0;
@@ -574,7 +576,7 @@ void mwArm ( void ) {
 #endif
       disarmAt = millis ( ) + masterConfig.auto_disarm_delay * 1000;    // start disarm timeout, will be extended when throttle is nonzero
 
-	                      // beep to indicate arming
+      // beep to indicate arming
 #ifdef GPS
       if ( feature ( FEATURE_GPS ) && STATE ( GPS_FIX ) && GPS_numSat >= 5 )
         beeper ( BEEPER_ARMING_GPS_FIX );
@@ -1062,6 +1064,8 @@ void userCode ( ) {
 }
 
 void loop ( void ) {
+
+  ESP_Dealy_ON ( );
 
   static uint32_t loopTime;
 #if defined( BARO ) || defined( SONAR )

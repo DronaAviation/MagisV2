@@ -27,9 +27,9 @@ extern "C" {
 
 #define API_VERSION_LENGTH     2
 
-#define FC_FW_VERSION_MAJOR       0    // increment when a major release is made (big new feature, etc)
-#define FC_FW_VERSION_MINOR       1    // increment when a minor release is made (small new feature, change etc)
-#define FC_FW_VERSION_PATCH_LEVEL 4    // increment when a bug is fixed
+#define FC_FW_VERSION_MAJOR       1    // increment when a major release is made (big new feature, etc)
+#define FC_FW_VERSION_MINOR       0    // increment when a minor release is made (small new feature, change etc)
+#define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
 
 #define STR_HELPER( x )        #x
 #define STR( x )               STR_HELPER ( x )

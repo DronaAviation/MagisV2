@@ -19,9 +19,9 @@ TARGET		?= PRIMUSX2
 
 BUILD_TYPE  ?= BIN
 
-LIB_MAJOR_VERSION?= 0
+LIB_MAJOR_VERSION?= 1
 
-LIB_MINOR_VERSION?= 3
+LIB_MINOR_VERSION?= 1
 
 FW_Version = 1.0.0
 
@@ -869,6 +869,14 @@ CPPCHECK         = cppcheck $(CSOURCES) --enable=all --platform=unix64 \
 		   $(addprefix -I,$(INCLUDE_DIRS)) \
 		   -I/usr/include -I/usr/include/linux
 
+
+## all         : default task; compile C code, build firmware
+
+ifeq ($(BUILD_TYPE),BIN)
+all: binary
+else 
+all: libcreate
+endif
 #
 # Things we will build
 #
@@ -928,14 +936,6 @@ $(OBJECT_DIR)/$(TARGET)/%.o: %.S
 
 
 libcreate: libs/libpluto_$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).a
-
-## all         : default task; compile C code, build firmware
-
-ifeq ($(BUILD_TYPE),BIN)
-all: binary
-else 
-all: libcreate
-endif
 
 ## clean       : clean up all temporary / machine-generated files
 clean:

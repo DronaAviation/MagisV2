@@ -23,6 +23,9 @@
 
 #include "build_config.h"
 
+#include "API/RxConfig.h"
+#include "API/PlutoPilot.h"
+
 #include "common/color.h"
 #include "common/axis.h"
 #include "common/maths.h"
@@ -72,8 +75,6 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#include "API/RxConfig.h"
-#include "API/PlutoPilot.h"
 
 #define BRUSHED_MOTORS_PWM_RATE   18000 //! new change
 #define BRUSHLESS_MOTORS_PWM_RATE 400

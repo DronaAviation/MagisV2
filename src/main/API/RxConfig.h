@@ -3,25 +3,18 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: API                                                               #
+ #  Project: MagisV2                                                           #
  #  File: \RxConfig.h                                                          #
  #  Created Date: Tue, 16th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 21st Jan 2025                                          #
+ #  Last Modified: Wed, 2nd Apr 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
-
-
-
-
-
-
-
 #pragma once
 
 
@@ -74,6 +67,9 @@ class Rc_Rx_Config_P {
 };
 
 extern Rc_Rx_Config_P Receiver;
+
+void ESP_Init ( void );
+void ESP_Dealy_ON ( void );
 
 #ifdef __cplusplus
 }

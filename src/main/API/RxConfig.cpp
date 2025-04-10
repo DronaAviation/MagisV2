@@ -3,12 +3,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: API                                                               #
+ #  Project: MagisV2                                                           #
  #  File: \RxConfig.cpp                                                        #
  #  Created Date: Tue, 26th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 21st Jan 2025                                          #
+ #  Last Modified: Thu, 3rd Apr 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -16,12 +16,9 @@
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
 
-
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-
 
 #include "platform.h"
 
@@ -29,6 +26,8 @@
 #include "common/axis.h"
 #include "common/maths.h"
 
+#include "drivers/gpio.h"
+#include "drivers/system.h"
 #include "drivers/sensor.h"
 #include "drivers/accgyro.h"
 #include "drivers/compass.h"
@@ -44,7 +43,6 @@
 #include "io/serial.h"
 #include "io/rc_controls.h"
 
-
 #include "telemetry/telemetry.h"
 
 #include "flight/mixer.h"
@@ -52,7 +50,6 @@
 #include "flight/imu.h"
 #include "flight/failsafe.h"
 #include "flight/navigation.h"
-
 
 #include "config/runtime_config.h"
 #include "config/config.h"
@@ -62,7 +59,6 @@
 
 #include "PlutoPilot.h"
 #include "RxConfig.h"
-
 
 // Global variables to store device mode configuration
 uint8_t DevModeAUX       = 0;    // Auxiliary channel for device mode
@@ -215,8 +211,6 @@ void Rc_Rx_Config_P::configureHeadfreeMode ( rx_channel_e rxChannel, uint16_t mi
   }
 }
 
-
-
 /**
  * @brief Configures the device mode with specified parameters.
  *
@@ -237,5 +231,41 @@ void Rc_Rx_Config_P::configureDevMode ( rx_channel_e rxChannel, uint16_t minRang
   }
 }
 
-
 Rc_Rx_Config_P Receiver;
+
+void ESP_ON ( void ) {
+  digitalLo ( GPIOB, Pin_3 );
+}
+
+void ESP_OFF ( ) {
+  digitalHi ( GPIOB, Pin_3 );
+}
+
+unsigned long Sys_Start_Time;
+bool functionExecuted = false;
+
+void ESP_Init ( void ) {
+  GPIO_TypeDef *gpio;
+  gpio_config_t cfg;
+  gpio      = GPIOB;
+  cfg.pin   = Pin_3;
+  cfg.mode  = Mode_Out_PP;
+  cfg.speed = Speed_2MHz;
+  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
+  gpioInit ( gpio, &cfg );
+  ESP_ON ( );
+  // delay ( 100 );
+  // ESP_OFF ( );
+  Sys_Start_Time = millis ( );
+}
+
+void ESP_Dealy_ON ( void ) {
+  // if ( ! functionExecuted && millis ( ) - Sys_Start_Time >= 2000 ) {
+  //   ESP_ON ( );
+  //   delay ( 100 );
+  //   ESP_OFF ( );
+  //   delay ( 100 );
+  //   ESP_ON ( );
+  //   functionExecuted = true;    // Ensure it runs only once
+  // }
+}

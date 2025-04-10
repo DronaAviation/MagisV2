@@ -106,6 +106,7 @@
 #include "API/Peripheral.h"
 #include "API/Localisation.h"
 #include "API/Motor.h"
+#include "API/RxConfig.h"
 
 extern uint32_t previousTime;
 extern uint8_t motorControlEnable;
@@ -201,6 +202,10 @@ void init ( void ) {
   latchActiveFeatures ( );
 
   ledInit ( );
+
+
+  //TODO: ESP Dealy Enable Integration
+  ESP_Init ( );
 
 #ifdef SPEKTRUM_BIND
   if ( feature ( FEATURE_RX_SERIAL ) ) {
