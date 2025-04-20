@@ -34,78 +34,67 @@
 #include "accgyro_mpu.h"
 #include "accgyro_icm20948.h"
 
-
 extern uint16_t acc_1G;
 extern uint8_t mpuLowPassFilter;
 
-bool icm20948AccDetect(acc_t *acc)
-{
-    if (mpuDetectionResult.sensor != MPU_ICM_20948) {
-        return false;
-    }
+bool icm20948AccDetect ( acc_t *acc ) {
+  if ( mpuDetectionResult.sensor != MPU_ICM_20948 ) {
+    return false;
+  }
 
-    acc->init = icm20948AccInit;
-    acc->read = mpuAccRead;
+  acc->init = icm20948AccInit;
+  acc->read = mpuAccRead;
 
-    return true;
+  return true;
 }
 
-bool icm20948GyroDetect(gyro_t *gyro)
-{
-    if (mpuDetectionResult.sensor != MPU_ICM_20948) {
-        return false;
-    }
+bool icm20948GyroDetect ( gyro_t *gyro ) {
+  if ( mpuDetectionResult.sensor != MPU_ICM_20948 ) {
+    return false;
+  }
 
-    gyro->init = icm20948GyroInit;
-    gyro->read = mpuGyroRead;
+  gyro->init = icm20948GyroInit;
+  gyro->read = mpuGyroRead;
 
-    // 16.4 dps/lsb scalefactor
-    gyro->scale = 1.0f / 16.4f;
+  // 16.4 dps/lsb scalefactor
+  // gyro->scale = 1.0f / 16.4f;
+  gyro->scale = 1.0f / 131.0f;
 
-    return true;
+  return true;
 }
 
-void icm20948AccInit(void)
-{
-    mpuIntExtiInit();
+void icm20948AccInit ( void ) {
+  mpuIntExtiInit ( );
 
-    acc_1G = 512 * 8;
+  acc_1G = 512 * 8;
 }
 
-void icm20948GyroInit(uint16_t lpf)
-{
-    mpuIntExtiInit();
+void icm20948GyroInit ( uint16_t lpf ) {
+  mpuIntExtiInit ( );
 
+  bool ack = false;
 
-    bool ack=false;
+  mpuConfiguration.write ( 0x7F, 0x20 );
 
-    mpuConfiguration.write(0x7F, 0x20);
+  delay ( 20 );
 
-    delay(20);
+  mpuConfiguration.write ( 0x01, ( 0x06 | ( 0b00011000 | 0x01 ) ) );    // gyro lpf and rate
+  // mpuConfiguration.write ( 0x01, 0xD8 );    // gyro lpf and rate
 
-    mpuConfiguration.write(0x01, (0x06 | (0b00011000 | 0x01))); //gyro lpf and rate
+  delay ( 10 );
 
-    delay(10);
+  mpuConfiguration.write ( 0x00, 0x00 );    // gyro sample rate
 
+  delay ( 10 );
 
-    mpuConfiguration.write(0x00, 0x00); //gyro sample rate
+  mpuConfiguration.write(0x14, (0x04 | ( 0b00110000 | 0x01))); //acc lpf and rate
+  // mpuConfiguration.write ( 0x14, 0b00110001 );    // acc lpf and rate
 
-    delay(10);
+  delay ( 10 );
 
+  mpuConfiguration.write ( 0x10, 0x00 );    // acc sample rate higher byte
 
-    mpuConfiguration.write(0x14, (0x04 | ( 0b00110000 | 0x01))); //acc lpf and rate
+  delay ( 10 );
 
-    delay(10);
-
-
-    mpuConfiguration.write(0x10, 0x00); //acc sample rate higher byte
-
-    delay(10);
-
-
-    mpuConfiguration.write(0x11, 0x00); //acc sample rate lower byte
-
-
-
-
+  mpuConfiguration.write ( 0x11, 0x00 );    // acc sample rate lower byte
 }

@@ -7,40 +7,37 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\flight\filter.h                                            #
- #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  File: \src\main\sensors\power.h                                            #
+ #  Created Date: Wed, 16th Apr 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 20th Apr 2025                                          #
+ #  Last Modified: Wed, 16th Apr 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
+
+#ifndef BATTERY_VOLTAGE_H
+#define BATTERY_VOLTAGE_H
+
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef float filterStatePt1_t;
+#define BATTERY_BUFFER_SIZE 50
 
-float filterApplyPt1 ( float input, filterStatePt1_t *state, uint8_t f_cut );
+void battery_voltage_init ( void );
 
-//!
-//!  NEW : Bi-Quad Filter integration
-//!
+void battery_voltage_update ( uint16_t adc_reading );
 
-typedef struct {
-  float b0, b1, b2, a1, a2;
-  float x1, x2, y1, y2;
-} biquad_t;
-
-void biquadInitLPF ( biquad_t *filter, float cutoffFreq, float sampleRate );
-float biquadApply ( biquad_t *filter, float x );
-
-extern biquad_t accBiquad [ XYZ_AXIS_COUNT ];     // X, Y, Z
-extern biquad_t gyroBiquad [ XYZ_AXIS_COUNT ];    // Optional, if you want to filter gyro too
+uint16_t ProcessedVoltage ( void );
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif    // BATTERY_VOLTAGE_H

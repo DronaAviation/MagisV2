@@ -75,8 +75,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-
-#define BRUSHED_MOTORS_PWM_RATE   18000 //! new change
+#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */18000    //! NEW - 36000 old value related to motor  try 32000
 #define BRUSHLESS_MOTORS_PWM_RATE 400
 
 #ifdef __cplusplus
@@ -175,21 +174,21 @@ static void resetPidProfile ( pidProfile_t *pidProfile ) {
   pidProfile->D8 [ PIDYAW ]   = 50;     // 0;
   pidProfile->P8 [ PIDALT ]   = 100;
   pidProfile->I8 [ PIDALT ]   = 0;
-  pidProfile->D8 [ PIDALT ]   = 30;     // 0;
+  pidProfile->D8 [ PIDALT ]   = 30;    // 0;
 
-  pidProfile->P8 [ PIDPOS ] = 80;       // POSHOLD_P * 100;
-  pidProfile->I8 [ PIDPOS ] = 0;        // POSHOLD_I * 100;
+  pidProfile->P8 [ PIDPOS ] = 80;    // POSHOLD_P * 100;
+  pidProfile->I8 [ PIDPOS ] = 0;     // POSHOLD_I * 100;
   pidProfile->D8 [ PIDPOS ] = 0;
 
-  pidProfile->P8 [ PIDPOSR ] = 30;      // POSHOLD_RATE_P * 10;
-  pidProfile->I8 [ PIDPOSR ] = 2;       // POSHOLD_RATE_I * 100;
-  pidProfile->D8 [ PIDPOSR ] = 5;       // POSHOLD_RATE_D * 1000;
+  pidProfile->P8 [ PIDPOSR ] = 30;    // POSHOLD_RATE_P * 10;
+  pidProfile->I8 [ PIDPOSR ] = 2;     // POSHOLD_RATE_I * 100;
+  pidProfile->D8 [ PIDPOSR ] = 5;     // POSHOLD_RATE_D * 1000;
 
-  pidProfile->P8 [ PIDNAVR ] = 25;      // NAV_P * 10;
-  pidProfile->I8 [ PIDNAVR ] = 33;      // NAV_I * 100;
-  pidProfile->D8 [ PIDNAVR ] = 83;      // NAV_D * 1000;
+  pidProfile->P8 [ PIDNAVR ] = 25;    // NAV_P * 10;
+  pidProfile->I8 [ PIDNAVR ] = 33;    // NAV_I * 100;
+  pidProfile->D8 [ PIDNAVR ] = 83;    // NAV_D * 1000;
 
-  pidProfile->P8 [ PIDLEVEL ] = 40;     // 90;
+  pidProfile->P8 [ PIDLEVEL ] = 40;    // 90;
   pidProfile->I8 [ PIDLEVEL ] = 10;
   pidProfile->D8 [ PIDLEVEL ] = 100;
   pidProfile->P8 [ PIDMAG ]   = 40;
@@ -288,11 +287,11 @@ void resetBatteryConfig ( batteryConfig_t *batteryConfig ) {
   batteryConfig->vbatscale              = VBAT_SCALE_DEFAULT;
   batteryConfig->vbatresdivval          = VBAT_RESDIVVAL_DEFAULT;
   batteryConfig->vbatresdivmultiplier   = VBAT_RESDIVMULTIPLIER_DEFAULT;
-  batteryConfig->vbatmaxcellvoltage     = 43;                        // 43
-  batteryConfig->vbatmincellvoltage     = 35;                        // 33
-  batteryConfig->vbatwarningcellvoltage = 36;                        // 35
-  batteryConfig->currentMeterOffset     = 16;                        // pluto default 0
-  batteryConfig->currentMeterScale      = 30;                        // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
+  batteryConfig->vbatmaxcellvoltage     = 43;    // 43
+  batteryConfig->vbatmincellvoltage     = 35;    // 33
+  batteryConfig->vbatwarningcellvoltage = 36;    // 35
+  batteryConfig->currentMeterOffset     = 16;    // pluto default 0
+  batteryConfig->currentMeterScale      = 30;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
   batteryConfig->batteryCapacity        = 350;
   batteryConfig->currentMeterType       = CURRENT_SENSOR_VIRTUAL;    // ADC to VIRTUAL
 }
@@ -503,7 +502,8 @@ static void resetConf ( void ) {
   resetRollAndPitchTrims ( &currentProfile->accelerometerTrims );
 
   currentProfile->mag_declination = 0;
-  currentProfile->acc_lpf_factor  = 4;    // krish
+  currentProfile->acc_lpf_factor  = 8;    //! NEW : Old Value 4
+  currentProfile->gyro_lpf_factor = 10;    //! NEW : Gyro LPF Filter
   currentProfile->accz_lpf_cutoff = 5.0f;
   currentProfile->accDeadband.xy  = 40;
   currentProfile->accDeadband.z   = 40;
@@ -753,6 +753,7 @@ void activateConfig ( void ) {
   imuRuntimeConfig.gyro_cmpf_factor  = masterConfig.gyro_cmpf_factor;
   imuRuntimeConfig.gyro_cmpfm_factor = masterConfig.gyro_cmpfm_factor;
   imuRuntimeConfig.acc_lpf_factor    = currentProfile->acc_lpf_factor;
+  imuRuntimeConfig.gyro_lpf_factor   = currentProfile->gyro_lpf_factor;    //! NEW : Gyro LPF Filter
   imuRuntimeConfig.acc_unarmedcal    = currentProfile->acc_unarmedcal;
   ;
   imuRuntimeConfig.small_angle = masterConfig.small_angle;
@@ -771,10 +772,7 @@ void activateConfig ( void ) {
 
 void validateAndFixConfig ( void ) {
 
-
   plutoRxConfig ( );
-
-
 
   if ( ! ( featureConfigured ( FEATURE_RX_PARALLEL_PWM ) || featureConfigured ( FEATURE_RX_PPM ) || featureConfigured ( FEATURE_RX_SERIAL ) || featureConfigured ( FEATURE_RX_MSP ) ) ) {
     featureSet ( FEATURE_RX_PARALLEL_PWM );    // Consider changing the default to PPM
@@ -796,8 +794,6 @@ void validateAndFixConfig ( void ) {
     featureClear ( FEATURE_RX_PARALLEL_PWM );
     featureClear ( FEATURE_RX_PPM );
   }
-
-
 
   if ( featureConfigured ( FEATURE_RX_PARALLEL_PWM ) ) {
 #if defined( STM32F10X )
