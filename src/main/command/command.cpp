@@ -84,7 +84,7 @@ int32_t takeOffThrottle = 950;
 int8_t checkVelocity    = -8;
 
 uint16_t takeOffHeight = 120;
-uint16_t landThrottle  = 1300; //! new change
+uint16_t landThrottle  = 1300; //! NEW - 1200 old value
 bool isUserLandCommand = false;
 
 Interval takeoffTimer;

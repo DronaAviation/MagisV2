@@ -71,6 +71,7 @@
 #include "sensors/acceleration.h"
 #include "sensors/gyro.h"
 #include "sensors/battery.h"
+#include "sensors/power.h"
 #include "sensors/boardalignment.h"
 #include "sensors/initialisation.h"
 
@@ -203,8 +204,7 @@ void init ( void ) {
 
   ledInit ( );
 
-
-  //TODO: ESP Dealy Enable Integration
+  //! NEW : ESP Delayed WiFi Integration
   ESP_Init ( );
 
 #ifdef SPEKTRUM_BIND
@@ -419,9 +419,10 @@ void init ( void ) {
   }
 #endif
 
-  // TODO: INA219 Integrate properly
-  //! battery INA219
-  INA219_Init ( );
+  //! NEW : INA219 INIT
+  INA219_Init ( );    // TODO: INA219 Integrate properly
+  battery_voltage_init ( );
+
   if ( clockcheck == 1 ) {
     // failure if running on internal clock
     // LEDz_ON;   //PA6
@@ -598,7 +599,7 @@ void init ( void ) {
 
   delay ( 300 );
 
-  // TODO: Proper call and init for the new reverse motor setup
+  //! NEW : New Reverse motor setup for PrimusX2
   reverseMotorGPIOInit ( );
 
   timerInit ( );    // timer must be initialized before any channel is allocated

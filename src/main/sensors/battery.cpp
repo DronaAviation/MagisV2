@@ -1,19 +1,23 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\sensors\battery.cpp                                        #
+ #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Sun, 20th Apr 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include "stdbool.h"
 #include "stdint.h"
@@ -29,6 +33,7 @@
 #include "config/config.h"
 
 #include "sensors/battery.h"
+#include "sensors/power.h"
 
 #include "rx/rx.h"
 
@@ -36,7 +41,7 @@
 #include "flight/lowpass.h"
 #include "io/beeper.h"
 
-#include "drivers/ina219.h"
+// #include "drivers/ina219.h"
 
 #define VBATT_PRESENT_THRESHOLD_MV 10
 #define VBATT_LPF_FREQ             10
@@ -69,14 +74,15 @@ uint16_t batteryAdcToVoltage ( uint16_t src ) {
 static void updateBatteryVoltage ( void ) {
   uint16_t vbatSample;
   uint16_t vbatFiltered;
-
+  //! Old Adc battery detection
   // store the battery voltage with some other recent battery voltage readings
   // vbatSample = vbatLatestADC = adcGetChannel(ADC_BATTERY);
   //   vbatFiltered = (uint16_t) lowpassFixed(&lowpassFilter, vbatSample, VBATT_LPF_FREQ);
   // vbat = batteryAdcToVoltage(vbatFiltered);
   // vbat = batteryAdcToVoltage(3628);
-
-  vbat = bus_voltage ( );
+  //! NEW : INA219 Battery Measuring
+  // vbat = bus_voltage ( );
+  vbat = ProcessedVoltage ( );
 }
 
 #define VBATTERY_STABLE_DELAY 40

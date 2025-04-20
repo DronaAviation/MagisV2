@@ -15,8 +15,6 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -85,6 +83,7 @@
 #include "flight/posEstimate.h"
 #include "flight/posControl.h"
 #include "flight/opticflow.h"
+#include "flight/motor.h"
 
 #include "config/runtime_config.h"
 #include "config/config.h"
@@ -1065,12 +1064,21 @@ void userCode ( ) {
 
 void loop ( void ) {
 
+  // if ( IS_RC_MODE_ACTIVE ( BOXARM ) ) {
+  //   motor_disarmed [ 0 ] = motor_disarmed [ 1 ] = motor_disarmed [ 2 ] = motor_disarmed [ 3 ] = 1800;
+  // }
+  MotroWakeUp ( );
+
   ESP_Dealy_ON ( );
 
   static uint32_t loopTime;
 #if defined( BARO ) || defined( SONAR )
   static bool haveProcessedAnnexCodeOnce = false;
 #endif
+
+  //!
+  //!  NEW : Bi-Quad Filter integration
+  //!
 
   OledStartUpPage ( );
 
@@ -1138,7 +1146,7 @@ void loop ( void ) {
       flip ( false );
     }
 #endif
-
+    //! NEW : Disabled this Section
     // Gyro Low Pass
     if ( currentProfile->pidProfile.gyro_cut_hz ) {
       int axis;

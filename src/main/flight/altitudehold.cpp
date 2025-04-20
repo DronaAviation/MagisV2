@@ -1,19 +1,23 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software. If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\flight\altitudehold.cpp                                    #
+ #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Sun, 20th Apr 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -332,8 +336,8 @@ static void applyMultirotorAltHold ( void ) {
   // If the drone is landed and disarmed, reset altitude to zero
   if ( ! ARMING_FLAG ( ARMED ) ) {    // Check if the drone is disarmed
     if ( ABS ( VelocityZ ) < 5 && ABS ( accel_ef_z ) < 0.05f ) {
-      EstAlt  = 0;
-      AltHold = 0;
+      EstAlt           = 0;
+      AltHold          = 0;
       _position_base_z = 0;
     }
   }
@@ -551,18 +555,18 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   result += errorVelocityI / 8192.0f;
 
   // D-Term: Use filtered acceleration to reduce noise
-  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 ); //old 
+  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 ); //old
 
-  // float filteredAccZ = 0.8f * accZ_old + 0.2f * accZ_tmp;    // TODO: new line test
-  float filteredAccZ = 0.85f * accZ_old + 0.15f * accZ_tmp;    // TODO: new line test
-  // float filteredAccZ = 0.9f * accZ_old + 0.1f * accZ_tmp;    // TODO: new line test
-  // float filteredAccZ = 0.95f * accZ_old + 0.05f * accZ_tmp;    // TODO: new line test
-  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 512, -150, 150 );    // TODO: new line test
+  // float filteredAccZ = 0.8f * accZ_old + 0.2f * accZ_tmp;    // TODO: TEST
+  float filteredAccZ = 0.85f * accZ_old + 0.15f * accZ_tmp;    // TODO: TEST
+  // float filteredAccZ = 0.9f * accZ_old + 0.1f * accZ_tmp;    // TODO: TEST
+  // float filteredAccZ = 0.95f * accZ_old + 0.05f * accZ_tmp;    // TODO: TEST
+  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 512, -150, 150 );    // TODO: TEST
 
-  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 550, -100, 100 );    // TODO: new line test
-  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 550, -120, 120 );    // TODO: new line test
+  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 550, -100, 100 );    // TODO: TEST
+  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 550, -120, 120 );    // TODO: TEST
   result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 512, -150, 150 );    // default
-  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 500, -140, 140 );    // TODO: new line test
+  // result -= constrain ( pidProfile->D8 [ PIDVEL ] * filteredAccZ / 500, -140, 140 );    // TODO: TEST
 
   // Debugging values
   // velControlDebug [ 0 ] = result;
@@ -689,7 +693,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
 
   // set vario
   vario = applyDeadband ( vel_tmp, 5 );
-  if ( 1 )    //!(ABS(rcData[THROTTLE] - initialThrottleHold) > rcControlsConfig->alt_hold_deadband))
+  if ( 1 )    //(ABS(rcData[THROTTLE] - initialThrottleHold) > rcControlsConfig->alt_hold_deadband))
   {
     altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( vel_tmp, accZ_tmp, accZ_old );
   }    // dronadrona_1200am
@@ -783,7 +787,8 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   // Handle long gaps in updates
   if ( dTime > 2 * UPDATE_FREQUENCY ) {
     imuResetAccelerationSum ( 1 );
-    _velocity_z *= 0.5f;    // Reduce velocity drift instead of full reset //TODO: new line test
+    //! NEW : Reduce velocity drift instead of full reset
+    _velocity_z *= 0.5f;    // TODO: TEST
   }
 
   // // 🚀 **Trigger altitude reset ONCE when arming**
@@ -819,7 +824,10 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
 
   imuResetAccelerationSum ( 1 );    // Check position of this
 
-  // Apply velocity decay to prevent drift //! new change test
+  //!
+  //! NEW : Test the new integration
+  //!
+  // Apply velocity decay to prevent drift
   _velocity_z *= 0.99f;
   if ( abs ( accel_ef_z ) < 0.05f ) {
     _velocity_z = 0;    // Reset velocity if no movement detected
@@ -828,8 +836,10 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   // Handle initial sensor instability
   if ( first_velocity_reads <= 5 ) {
     first_velocity_reads++;
-    if ( first_velocity_reads == 6 )                // TODO: new line test
-      setAltitude ( baroCalculateAltitude ( ) );    // Force-set altitude//TODO: new line test
+
+    //! NEW : Force-set Altitude depending on the condition
+    if ( first_velocity_reads == 6 )
+      setAltitude ( baroCalculateAltitude ( ) );    // Force-set altitude
     return;
   }
 

@@ -264,6 +264,7 @@ COMMON_SRC = build_config.cpp \
 		   flight/filter.cpp \
 		   flight/navigation.cpp\
 		   flight/gps_conversion.c\
+		   flight/motor.cpp\
 		   drivers/bus_i2c_soft.cpp \
 		   drivers/serial.cpp\
 		   drivers/sound_beeper.c \
@@ -289,6 +290,7 @@ COMMON_SRC = build_config.cpp \
 		   rx/xbus.cpp \
 		   sensors/acceleration.cpp \
 		   sensors/battery.cpp \
+		   sensors/power.cp \
 		   sensors/boardalignment.cpp \
 		   sensors/compass.cpp \
 		   sensors/gyro.cpp \

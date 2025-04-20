@@ -131,15 +131,15 @@ public:
 */
 
 typedef enum SPImode_s {
-    MODE0 = 0,     //!<SPI mode 1
-    MODE1,         //!<SPI mode 2
-    MODE2,         //!<SPI mode 3
-    MODE3          //!<SPI mode 4
+    MODE0 = 0,     //<SPI mode 1
+    MODE1,         //<SPI mode 2
+    MODE2,         //<SPI mode 3
+    MODE3          //<SPI mode 4
 } SPImode_t;
 
 typedef enum SPIfirst_bit_s {
-    LSBFIRST = 0,  //!<Specifies that data transfer starts from LSB bit.
-    MSBFIRST       //!<Specifies that data transfer starts from MSB bit.
+    LSBFIRST = 0,  //<Specifies that data transfer starts from LSB bit.
+    MSBFIRST       //<Specifies that data transfer starts from MSB bit.
 } SPIfirst_bit_t;
 
 
