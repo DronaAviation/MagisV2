@@ -204,8 +204,8 @@ void init ( void ) {
 
   ledInit ( );
 
-  //! NEW : ESP Delayed WiFi Integration
-  ESP_Init ( );
+  // ESP WIFI Control
+  STM_PB3_ESP_IO14_Init ( );
 
 #ifdef SPEKTRUM_BIND
   if ( feature ( FEATURE_RX_SERIAL ) ) {

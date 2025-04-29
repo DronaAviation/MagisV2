@@ -1069,7 +1069,6 @@ void loop ( void ) {
   // }
   MotroWakeUp ( );
 
-  ESP_Dealy_ON ( );
 
   static uint32_t loopTime;
 #if defined( BARO ) || defined( SONAR )

@@ -3,30 +3,32 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-MechAsh-Dev                                               #
  #  File: \RxConfig.h                                                          #
  #  Created Date: Tue, 16th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 2nd Apr 2025                                           #
+ #  Last Modified: Tue, 29th Apr 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
-#pragma once
-
-
-#include <stdint.h>
+#ifndef RX_CONFIG_H
+#define RX_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
 typedef enum {
   Rx_ESP,
-  Rx_PPM
+  Rx_PPM,
+  Rx_CAM
 } rx_mode_e;
 
 typedef enum {
@@ -45,32 +47,21 @@ typedef enum {
   Rx_AUX5,
 } rx_channel_e;
 
-
 extern uint8_t DevModeAUX;
 extern uint16_t DevModeMinRange;
 extern uint16_t DevModeMaxRange;
 
+void Receiver_Mode ( rx_mode_e rxMode );
+void Receiver_Config_Arm ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
+void Receiver_Config_Mode_Angle ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
+void Receiver_Config_Mode_Baro ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
+void Receiver_Config_Mode_Mag ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
+void Receiver_Config_Mode_HeadFree ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
+void Receiver_Config_Mode_Dev ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
 
-class Rc_Rx_Config_P {
- private:
-  void configAUX ( flight_mode flightMode, rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  
-
- public:
-  void rxMode ( rx_mode_e rxMode );
-  void configureArmMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  void configureModeANGLE ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  void configureModeBARO ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  void configureMagMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  void configureHeadfreeMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-  void configureDevMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange );
-};
-
-extern Rc_Rx_Config_P Receiver;
-
-void ESP_Init ( void );
-void ESP_Dealy_ON ( void );
+void STM_PB3_ESP_IO14_Init ( void );
 
 #ifdef __cplusplus
 }
+#endif
 #endif
