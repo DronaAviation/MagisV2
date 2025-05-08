@@ -100,34 +100,8 @@ extern bool isUserHeadFreeHoldSet;
 void userEnabledLand ( );
 void resetUserRCflag ( void );
 
-#define UB_ADC1_CHANNEL_COUNT 2
-#define UB_ADC2_CHANNEL_COUNT 2
-#define UB_ADC3_CHANNEL_COUNT 1
-#define UB_ADC4_CHANNEL_COUNT 3
 
-typedef enum {
-  UB_ADC1_IN3,
-  UB_ADC1_IN4,
-  UB_ADC2_IN1,
-  UB_ADC2_IN2,
-  UB_ADC3_IN5,
-  UB_ADC4_IN3,
-  UB_ADC4_IN4,
-  UB_ADC4_IN5,
 
-} Unibus_AdcChannel;
-
-#define UB_ADC_CHANNEL_COUNT 8
-
-extern bool isADCEnable [ UB_ADC_CHANNEL_COUNT ];
-extern uint8_t adcDmaIndex [ UB_ADC_CHANNEL_COUNT ];
-
-extern volatile uint16_t adc1Values [ UB_ADC1_CHANNEL_COUNT ];
-extern volatile uint16_t adc2Values [ UB_ADC2_CHANNEL_COUNT ];
-extern volatile uint16_t adc3Values [ UB_ADC3_CHANNEL_COUNT ];
-extern volatile uint16_t adc4Values [ UB_ADC4_CHANNEL_COUNT ];
-
-void unibusAdcInit ( void );
 void xRangingInit ( void );
 
 int getGPIOport ( unibus_e pin );
@@ -135,7 +109,7 @@ GPIO_Pin getGPIOpin ( unibus_e pin );
 uint32_t getGPIOclock ( unibus_e pin );
 uint8_t getGPIOpinSource ( unibus_e pin );
 uint16_t getTimerCh ( unibus_e pin );
-uint8_t getADCCh ( unibus_e pin );
+
 
 
 void resetUser ( void );

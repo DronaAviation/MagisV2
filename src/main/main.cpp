@@ -656,8 +656,9 @@ void init ( void ) {
     OledStartUpInit ( );
   }
 
-#if defined( PRIMUSX ) || defined( PRIMUSX2 )
-  unibusAdcInit ( );
+#ifdef PRIMUSX2
+
+  APIAdcInit ( );
   xRangingInit ( );
   if ( localisationType == UWB ) {
     UART.init ( UART2, BAUD_RATE_115200 );

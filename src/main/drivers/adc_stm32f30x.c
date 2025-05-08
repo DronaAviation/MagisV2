@@ -54,18 +54,18 @@ void adcInit(drv_adc_config_t *init)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-#ifdef VBAT_ADC_GPIO
-    if (init->enableVBat) {
-        GPIO_InitStructure.GPIO_Pin = VBAT_ADC_GPIO_PIN;
-        GPIO_Init(VBAT_ADC_GPIO, &GPIO_InitStructure);
+// #ifdef VBAT_ADC_GPIO
+//     if (init->enableVBat) {
+//         GPIO_InitStructure.GPIO_Pin = VBAT_ADC_GPIO_PIN;
+//         GPIO_Init(VBAT_ADC_GPIO, &GPIO_InitStructure);
 
-        adcConfig[ADC_BATTERY].adcChannel = VBAT_ADC_CHANNEL;
-        adcConfig[ADC_BATTERY].dmaIndex = adcChannelCount;
-        adcConfig[ADC_BATTERY].sampleTime = ADC_SampleTime_601Cycles5;
-        adcConfig[ADC_BATTERY].enabled = true;
-        adcChannelCount++;
-    }
-#endif
+//         adcConfig[ADC_BATTERY].adcChannel = VBAT_ADC_CHANNEL;
+//         adcConfig[ADC_BATTERY].dmaIndex = adcChannelCount;
+//         adcConfig[ADC_BATTERY].sampleTime = ADC_SampleTime_601Cycles5;
+//         adcConfig[ADC_BATTERY].enabled = true;
+//         adcChannelCount++;
+//     }
+// #endif
 
 #ifdef RSSI_ADC_GPIO
     if (init->enableRSSI) {

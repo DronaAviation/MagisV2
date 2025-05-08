@@ -269,6 +269,7 @@ DRONA_COMMAND = command/command.cpp \
 
 DRONA_API =	API/Specifiers.cpp \
 		    		API/Peripheral.cpp \
+		    		API-Src/Peripheral-ADC.cpp \
 		    		API/XRanging.cpp \
 						API/Sensor.cpp \
 						API/Control.cpp \
@@ -349,8 +350,9 @@ CFLAGS	=	$(ARCH_FLAGS) \
 		   		$(addprefix -D,$(OPTIONS)) \
 		   		$(addprefix -I,$(INCLUDE_DIRS)) \
 		   		$(DEBUG_FLAGS) \
-		   		-std=gnu99 \
+		   		-std=gnu17 \
 		   		-Wall -Wextra -Wunsafe-loop-optimizations -Wdouble-promotion \
+					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
 		   		-ffat-lto-objects\
@@ -366,8 +368,9 @@ CCFLAGS	=	$(ARCH_FLAGS) \
 		   		$(addprefix -D,$(OPTIONS)) \
 		   		$(addprefix -I,$(INCLUDE_DIRS)) \
 		   		$(DEBUG_FLAGS) \
-		   		-std=gnu++98 \
+		   		-std=gnu++17 \
 		   		-Wall -Wextra -Wunsafe-loop-optimizations -Wdouble-promotion \
+					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
 		   		-ffat-lto-objects\

@@ -516,11 +516,11 @@ pwmOutputConfiguration_t *pwmInit(drv_pwm_config_t *init)
 
 #endif
 
-#ifdef VBAT_ADC_GPIO
-        if (init->useVbat && timerHardwarePtr->gpio == VBAT_ADC_GPIO && timerHardwarePtr->pin == VBAT_ADC_GPIO_PIN) {
-            continue;
-        }
-#endif
+// #ifdef VBAT_ADC_GPIO
+//         if (init->useVbat && timerHardwarePtr->gpio == VBAT_ADC_GPIO && timerHardwarePtr->pin == VBAT_ADC_GPIO_PIN) {
+//             continue;
+//         }
+// #endif
 
 #ifdef RSSI_ADC_GPIO
         if (init->useRSSIADC && timerHardwarePtr->gpio == RSSI_ADC_GPIO && timerHardwarePtr->pin == RSSI_ADC_GPIO_PIN) {

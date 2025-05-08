@@ -1,27 +1,24 @@
-/*
- * This file is part of Magis.
- *
- * Magis is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Magis is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-
-
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2-MechAsh-Dev                                               #
+ #  File: \src\main\API\Peripheral.cpp                                         #
+ #  Created Date: Thu, 8th May 2025                                            #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Thu, 8th May 2025                                           #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 #include "Peripheral.h"
-
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
 
 #include "platform.h"
 #include "build_config.h"
@@ -546,114 +543,7 @@ void GPIO_P::write(unibus_e pin_number, GPIO_State_e STATE)
     }
 }
 
-void ADC_P::init(unibus_e pin_number)
-{
 
-    switch (pin_number) {
-
-        case Pin8:
-
-        isADCEnable[UB_ADC2_IN2]= true;
-
-        break;
-
-        case Pin13:
-
-        isADCEnable[UB_ADC2_IN1]= true;
-        break;
-
-        case Pin14:
-
-        isADCEnable[UB_ADC4_IN3]= true;
-        break;
-
-        case Pin15:
-
-        isADCEnable[UB_ADC3_IN5]= true;
-        break;
-
-        case Pin16:
-
-        isADCEnable[UB_ADC4_IN4]= true;
-        break;
-
-        case Pin17:
-
-        isADCEnable[UB_ADC4_IN5]= true;
-        break;
-
-        case Pin18:
-
-        isADCEnable[UB_ADC1_IN4]= true;
-        break;
-
-        case Pin19:
-
-        isADCEnable[UB_ADC1_IN3]= true;
-        break;
-
-        default:
-
-        break;
-
-    }
-
-}
-
-uint16_t ADC_P::read(unibus_e pin_number)
-{
-
-    switch (pin_number) {
-
-        case Pin8:
-
-        return adc2Values[adcDmaIndex[UB_ADC2_IN2]];
-
-        break;
-
-        case Pin13:
-
-        return adc2Values[adcDmaIndex[UB_ADC2_IN1]];
-        break;
-
-        case Pin14:
-
-        return adc4Values[adcDmaIndex[UB_ADC4_IN3]];
-        break;
-
-        case Pin15:
-
-        return adc3Values[adcDmaIndex[UB_ADC3_IN5]];
-        break;
-
-        case Pin16:
-
-        return adc4Values[adcDmaIndex[UB_ADC4_IN4]];
-        break;
-
-        case Pin17:
-
-        return adc4Values[adcDmaIndex[UB_ADC4_IN5]];
-        break;
-
-        case Pin18:
-
-        return adc1Values[adcDmaIndex[UB_ADC1_IN4]];
-        break;
-
-        case Pin19:
-
-        return adc1Values[adcDmaIndex[UB_ADC1_IN3]];
-        break;
-
-        default:
-
-        return 0;
-        break;
-
-    }
-
-}
 
 static serialPort_t* uart2;
 static serialPort_t* uart3;
@@ -1546,8 +1436,6 @@ void SPI_P::write( uint8_t register_address, uint8_t data)
 
 
 GPIO_P GPIO;
-ADC_P ADC;
-UART_P UART;
 I2C_P I2C;
 PWM_P PWM;
 SPI_P SPI;

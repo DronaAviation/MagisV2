@@ -93,869 +93,867 @@
 #include "Utils.h"
 #include "API-Utils.h"
 
-uint8_t resetCounter = 0;
-uint8_t intLogCounter = 0;
-uint8_t floatLogCounter = 0;
-int16_t appHeading = 0;
-int16_t AUX3_VALUE = 1500;
-int16_t userHeading = 0;
-uint32_t userLoopFrequency = 100000;
-uint32_t autoRcTimerLoop = 0;
-int32_t user_GPS_coord[2];
-int32_t MOTOR_ARRAY[4] = { 0 };
-int32_t app_GPS_coord[2];
-int32_t RC_ARRAY[4] = { 0 };
+uint8_t resetCounter       = 0;
+uint8_t intLogCounter      = 0;
+uint8_t floatLogCounter    = 0;
+int16_t appHeading         = 0;
+int16_t AUX3_VALUE         = 1500;
+int16_t userHeading        = 0;
+uint32_t userLoopFrequency = 1000000;
+uint32_t autoRcTimerLoop   = 0;
+int32_t user_GPS_coord [ 2 ];
+int32_t MOTOR_ARRAY [ 4 ] = { 0 };
+int32_t app_GPS_coord [ 2 ];
+int32_t RC_ARRAY [ 4 ] = { 0 };
 
-bool runUserCode = false;
-bool OledEnable =false;
-bool useAutoRC = false;
-bool developerMode = false;
-bool External_RC_FLAG[4] = { true, true, true, true };
-bool userRCflag[4] = { false, false, false, false };
-bool callibrateAccelero = true;
-bool FlightStatusEnabled = true;
-bool hasTakeOff = true;
-bool AutoAccCalibration = false;
-bool callOnPilotStart = true;
-bool callonPilotFinish = false;
-bool fsLowBattery = true;
-bool fsInFlightLowBattery = true;
-bool fsCrash = true;
-bool isUserHeadingSet = false;
-bool isUserGPSCoordSet = false;
-bool startShieldRanging = false;
-bool reverseReferenceFrame = false;
-bool motorMixer = true;
-bool isLocalisationOn = false;
-bool DONT_USE_STATUS_LED = false;
+bool runUserCode            = false;
+bool OledEnable             = false;
+bool useAutoRC              = false;
+bool developerMode          = false;
+bool External_RC_FLAG [ 4 ] = { true, true, true, true };
+bool userRCflag [ 4 ]       = { false, false, false, false };
+bool callibrateAccelero     = true;
+bool FlightStatusEnabled    = true;
+bool hasTakeOff             = true;
+bool AutoAccCalibration     = false;
+bool callOnPilotStart       = true;
+bool callonPilotFinish      = false;
+bool fsLowBattery           = true;
+bool fsInFlightLowBattery   = true;
+bool fsCrash                = true;
+bool isUserHeadingSet       = false;
+bool isUserGPSCoordSet      = false;
+bool startShieldRanging     = false;
+bool reverseReferenceFrame  = false;
+bool motorMixer             = true;
+bool isLocalisationOn       = false;
+bool DONT_USE_STATUS_LED    = false;
 
-bool isPwmInit[11] = { false };
-bool isUserFlightModeSet[6] = { false };
-bool isXLaserInit[5] = { false };
+bool isPwmInit [ 11 ]          = { false };
+bool isUserFlightModeSet [ 6 ] = { false };
+bool isXLaserInit [ 5 ]        = { false };
 
-int32_t userDesiredAngle[3] = { 0 };
-int32_t userDesiredRate[3] = { 0 };
-int32_t userMotorPwm[4] = { 0 };
-int32_t userSetVelocity = 0;
+int32_t userDesiredAngle [ 3 ]  = { 0 };
+int32_t userDesiredRate [ 3 ]   = { 0 };
+int32_t userMotorPwm [ 4 ]      = { 0 };
+int32_t userSetVelocity         = 0;
 int16_t userHeadFreeHoldHeading = 0;
-bool isUserDesiredAngle[3] = { false };
-bool isUserDesiredRate[3] = { false };
-bool isUserMotorPwm[4] = { false };
-bool isUserSetVelocity = false;
-bool isUserHeadFreeHoldSet = false;
+bool isUserDesiredAngle [ 3 ]   = { false };
+bool isUserDesiredRate [ 3 ]    = { false };
+bool isUserMotorPwm [ 4 ]       = { false };
+bool isUserSetVelocity          = false;
+bool isUserHeadFreeHoldSet      = false;
 
-bool isADCEnable[UB_ADC_CHANNEL_COUNT] = { false };
-uint8_t adcDmaIndex[UB_ADC_CHANNEL_COUNT];
 
-volatile uint16_t adc1Values[UB_ADC1_CHANNEL_COUNT];
-volatile uint16_t adc2Values[UB_ADC2_CHANNEL_COUNT];
-volatile uint16_t adc3Values[UB_ADC3_CHANNEL_COUNT];
-volatile uint16_t adc4Values[UB_ADC4_CHANNEL_COUNT];
 
-void resetUserRCflag(void)
-{
-    if ((int32_t)(micros() - autoRcTimerLoop) >= 0) {
+void resetUserRCflag ( void ) {
+  if ( ( int32_t ) ( micros ( ) - autoRcTimerLoop ) >= 0 ) {
 
-        for (int i = 0; i < 4; i++)
-            userRCflag[i] = 0;
+    for ( int i = 0; i < 4; i++ )
+      userRCflag [ i ] = 0;
 
-        autoRcTimerLoop = micros() + 100000;
-    }
+    autoRcTimerLoop = micros ( ) + 100000;
+  }
 }
 
-void resetUser(void)
-{
-    rcData[AUX2] = 1200;
+void resetUser ( void ) {
+  rcData [ AUX2 ] = 1200;
 }
 
 
 
-void unibusAdc1init(void)
-{
+// Extracting GPIO port from unibus pin number
+int getGPIOport ( unibus_e pin ) {
+  int x = 99;
 
-    if (isADCEnable[UB_ADC1_IN3] || isADCEnable[UB_ADC1_IN4]) {
+  switch ( pin ) {
+    case Pin2:
+    case Pin3:
+    case Pin8:
+    case Pin10:
+    case Pin13:
+    case Pin18:
+    case Pin19:
+      x = 1;    // GPIOA
+      break;
 
-        ADC_InitTypeDef ADC_InitStructure;
-        DMA_InitTypeDef DMA_InitStructure;
-        GPIO_InitTypeDef GPIO_InitStructure;
+    case Pin4:
+    case Pin5:
+    case Pin6:
+    case Pin7:
+    case Pin9:
+    case Pin12:
+    case Pin14:
+    case Pin15:
+    case Pin16:
+    case Pin17:
+      x = 2;    // GPIOB
+      break;
 
-        uint8_t adcChannelCount = 0;
+    case Pin1:
+    case Pin11:
+    case Pin20:
+      break;
+  }
 
-        GPIO_StructInit(&GPIO_InitStructure);
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
-        if (isADCEnable[UB_ADC1_IN3]) {
-
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-            adcDmaIndex[UB_ADC1_IN3] = adcChannelCount;
-            adcChannelCount++;
-        }
-
-        if (isADCEnable[UB_ADC1_IN4]) {
-
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-            adcDmaIndex[UB_ADC1_IN4] = adcChannelCount;
-            adcChannelCount++;
-        }
-
-        RCC_ADCCLKConfig (RCC_ADC34PLLCLK_Div256); // 72 MHz divided by 256 = 281.25 kHz
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_ADC12, ENABLE);
-
-        DMA_DeInit (DMA1_Channel1);
-
-        DMA_StructInit(&DMA_InitStructure);
-        DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & ADC1->DR;
-        DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) adc1Values;
-        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-        DMA_InitStructure.DMA_BufferSize = adcChannelCount;
-        DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-        DMA_InitStructure.DMA_MemoryInc =
-        adcChannelCount > 1 ?
-        DMA_MemoryInc_Enable : DMA_MemoryInc_Disable;
-        DMA_InitStructure.DMA_PeripheralDataSize =
-        DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-        DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-        DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-
-        DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-
-        DMA_Cmd(DMA1_Channel1, ENABLE);
-
-        // calibrate
-
-        ADC_VoltageRegulatorCmd(ADC1, ENABLE);
-        delay(10);
-        ADC_SelectCalibrationMode(ADC1, ADC_CalibrationMode_Single);
-        ADC_StartCalibration (ADC1);
-        while (ADC_GetCalibrationStatus(ADC1) != RESET)
-        ;
-        ADC_VoltageRegulatorCmd(ADC1, DISABLE);
-
-        ADC_CommonInitTypeDef ADC_CommonInitStructure;
-
-        ADC_CommonStructInit(&ADC_CommonInitStructure);
-        ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_CommonInitStructure.ADC_Clock = ADC_Clock_SynClkModeDiv4;
-        ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_1;
-        ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
-        ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-        ADC_CommonInit(ADC1, &ADC_CommonInitStructure);
-
-        ADC_StructInit(&ADC_InitStructure);
-
-        ADC_InitStructure.ADC_ContinuousConvMode =
-        ADC_ContinuousConvMode_Enable;
-        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ExternalTrigConvEvent =
-        ADC_ExternalTrigConvEvent_0;
-        ADC_InitStructure.ADC_ExternalTrigEventEdge =
-        ADC_ExternalTrigEventEdge_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_OverrunMode = ADC_OverrunMode_Disable;
-        ADC_InitStructure.ADC_AutoInjMode = ADC_AutoInjec_Disable;
-        ADC_InitStructure.ADC_NbrOfRegChannel = adcChannelCount;
-
-        ADC_Init(ADC1, &ADC_InitStructure);
-
-        if (isADCEnable[UB_ADC1_IN3])
-        ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 1,
-                ADC_SampleTime_601Cycles5);
-
-        if (isADCEnable[UB_ADC1_IN4])
-        ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1,
-                ADC_SampleTime_601Cycles5);
-
-        ADC_Cmd(ADC1, ENABLE);
-
-        while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_RDY))
-        ;
-
-        ADC_DMAConfig(ADC1, ADC_DMAMode_Circular);
-
-        ADC_DMACmd(ADC1, ENABLE);
-
-        ADC_StartConversion(ADC1);
-
-        //  LED.set(BLUE,ON);
-
-    }
-
+  return x;
 }
 
-void unibusAdc2init(void)
-{
+GPIO_Pin getGPIOpin ( unibus_e pin ) {
+  GPIO_Pin x;
 
-    if (isADCEnable[UB_ADC2_IN1] || isADCEnable[UB_ADC2_IN2] ) {
+  switch ( pin ) {
+    case Pin12:
+      x = Pin_0;
+      break;
 
-        ADC_InitTypeDef ADC_InitStructure;
-        DMA_InitTypeDef DMA_InitStructure;
-        GPIO_InitTypeDef GPIO_InitStructure;
+    case Pin19:
+      x = Pin_2;
+      break;
 
-        uint8_t adcChannelCount = 0;
+    case Pin9:
+    case Pin18:
+      x = Pin_3;
+      break;
 
-        GPIO_StructInit(&GPIO_InitStructure);
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    case Pin13:
+      x = Pin_4;
+      break;
 
-        if (isADCEnable[UB_ADC2_IN1]) {
+    case Pin8:
+      x = Pin_5;
+      break;
 
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
+    case Pin7:
+    case Pin10:
+      x = Pin_8;
+      break;
 
-            adcDmaIndex[UB_ADC2_IN1] = adcChannelCount;
-            adcChannelCount++;
-        }
+    case Pin6:
+      x = Pin_9;
+      break;
 
-        if (isADCEnable[UB_ADC2_IN2]) {
+    case Pin4:
+      x = Pin_10;
+      break;
 
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
+    case Pin5:
+      x = Pin_11;
+      break;
 
-            adcDmaIndex[UB_ADC2_IN2] = adcChannelCount;
-            adcChannelCount++;
-        }
+    case Pin14:
+      x = Pin_12;
+      break;
 
-        RCC_ADCCLKConfig (RCC_ADC34PLLCLK_Div256); // 72 MHz divided by 256 = 281.25 kHz
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC12, ENABLE);
+    case Pin2:
+    case Pin15:
+      x = Pin_13;
+      break;
 
-        DMA_DeInit (DMA2_Channel1);
+    case Pin3:
+    case Pin16:
+      x = Pin_14;
+      break;
 
-        DMA_StructInit(&DMA_InitStructure);
-        DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & ADC2->DR;
-        DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) adc2Values;
-        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-        DMA_InitStructure.DMA_BufferSize = adcChannelCount;
-        DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-        DMA_InitStructure.DMA_MemoryInc =
-        adcChannelCount > 1 ?
-        DMA_MemoryInc_Enable : DMA_MemoryInc_Disable;
-        DMA_InitStructure.DMA_PeripheralDataSize =
-        DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-        DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-        DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+    case Pin17:
+      x = Pin_15;
+      break;
 
-        DMA_Init(DMA2_Channel1, &DMA_InitStructure);
+    case Pin1:
+    case Pin11:
+    case Pin20:
+      break;
+  }
 
-        DMA_Cmd(DMA2_Channel1, ENABLE);
-
-        // calibrate
-
-        ADC_VoltageRegulatorCmd(ADC2, ENABLE);
-        delay(10);
-        ADC_SelectCalibrationMode(ADC2, ADC_CalibrationMode_Single);
-        ADC_StartCalibration (ADC2);
-        while (ADC_GetCalibrationStatus(ADC2) != RESET)
-        ;
-        ADC_VoltageRegulatorCmd(ADC2, DISABLE);
-
-        ADC_CommonInitTypeDef ADC_CommonInitStructure;
-
-        ADC_CommonStructInit(&ADC_CommonInitStructure);
-        ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_CommonInitStructure.ADC_Clock = ADC_Clock_SynClkModeDiv4;
-        ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_1;
-        ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
-        ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-        ADC_CommonInit(ADC2, &ADC_CommonInitStructure);
-
-        ADC_StructInit(&ADC_InitStructure);
-
-        ADC_InitStructure.ADC_ContinuousConvMode =
-        ADC_ContinuousConvMode_Enable;
-        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ExternalTrigConvEvent =
-        ADC_ExternalTrigConvEvent_0;
-        ADC_InitStructure.ADC_ExternalTrigEventEdge =
-        ADC_ExternalTrigEventEdge_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_OverrunMode = ADC_OverrunMode_Disable;
-        ADC_InitStructure.ADC_AutoInjMode = ADC_AutoInjec_Disable;
-        ADC_InitStructure.ADC_NbrOfRegChannel = adcChannelCount;
-
-        ADC_Init(ADC2, &ADC_InitStructure);
-
-        if (isADCEnable[UB_ADC2_IN1])
-        ADC_RegularChannelConfig(ADC2, ADC_Channel_1, 1,
-                ADC_SampleTime_601Cycles5);
-
-        if (isADCEnable[UB_ADC2_IN2])
-        ADC_RegularChannelConfig(ADC2, ADC_Channel_2, 1,
-                ADC_SampleTime_601Cycles5);
-
-        ADC_Cmd(ADC2, ENABLE);
-
-        while (!ADC_GetFlagStatus(ADC2, ADC_FLAG_RDY))
-        ;
-
-        ADC_DMAConfig(ADC2, ADC_DMAMode_Circular);
-
-        ADC_DMACmd(ADC2, ENABLE);
-
-        ADC_StartConversion(ADC2);
-
-    }
-
+  return x;
 }
 
-void unibusAdc3init(void)
-{
+uint32_t getGPIOclock ( unibus_e pin ) {
+  uint32_t x = 99;
+  switch ( pin ) {
+    case Pin2:
+    case Pin3:
+    case Pin8:
+    case Pin10:
+    case Pin13:
+    case Pin18:
+    case Pin19:
+      x = RCC_AHBPeriph_GPIOA;
+      break;
 
-    if (isADCEnable[UB_ADC3_IN5]) {
+    case Pin4:
+    case Pin5:
+    case Pin6:
+    case Pin7:
+    case Pin9:
+    case Pin12:
+    case Pin14:
+    case Pin15:
+    case Pin16:
+    case Pin17:
+      x = RCC_AHBPeriph_GPIOB;
+      break;
 
-        ADC_InitTypeDef ADC_InitStructure;
-        DMA_InitTypeDef DMA_InitStructure;
-        GPIO_InitTypeDef GPIO_InitStructure;
-
-        uint8_t adcChannelCount = 0;
-
-        GPIO_StructInit(&GPIO_InitStructure);
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
-        if (isADCEnable[UB_ADC3_IN5]) {
-
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
-            GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-            adcDmaIndex[UB_ADC3_IN5] = adcChannelCount;
-            adcChannelCount++;
-        }
-
-        RCC_ADCCLKConfig (RCC_ADC34PLLCLK_Div256); // 72 MHz divided by 256 = 281.25 kHz
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC34, ENABLE);
-
-        DMA_DeInit (DMA2_Channel5);
-
-        DMA_StructInit(&DMA_InitStructure);
-        DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & ADC3->DR;
-        DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) adc3Values;
-        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-        DMA_InitStructure.DMA_BufferSize = adcChannelCount;
-        DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-        DMA_InitStructure.DMA_MemoryInc =
-        adcChannelCount > 1 ?
-        DMA_MemoryInc_Enable : DMA_MemoryInc_Disable;
-        DMA_InitStructure.DMA_PeripheralDataSize =
-        DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-        DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-        DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-
-        DMA_Init(DMA2_Channel5, &DMA_InitStructure);
-
-        DMA_Cmd(DMA2_Channel5, ENABLE);
-
-        // calibrate
-
-        ADC_VoltageRegulatorCmd(ADC3, ENABLE);
-        delay(10);
-        ADC_SelectCalibrationMode(ADC3, ADC_CalibrationMode_Single);
-        ADC_StartCalibration (ADC3);
-        while (ADC_GetCalibrationStatus(ADC3) != RESET)
-        ;
-        ADC_VoltageRegulatorCmd(ADC3, DISABLE);
-
-        ADC_CommonInitTypeDef ADC_CommonInitStructure;
-
-        ADC_CommonStructInit(&ADC_CommonInitStructure);
-        ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_CommonInitStructure.ADC_Clock = ADC_Clock_SynClkModeDiv4;
-        ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_1;
-        ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
-        ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-        ADC_CommonInit(ADC3, &ADC_CommonInitStructure);
-
-        ADC_StructInit(&ADC_InitStructure);
-
-        ADC_InitStructure.ADC_ContinuousConvMode =
-        ADC_ContinuousConvMode_Enable;
-        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ExternalTrigConvEvent =
-        ADC_ExternalTrigConvEvent_0;
-        ADC_InitStructure.ADC_ExternalTrigEventEdge =
-        ADC_ExternalTrigEventEdge_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_OverrunMode = ADC_OverrunMode_Disable;
-        ADC_InitStructure.ADC_AutoInjMode = ADC_AutoInjec_Disable;
-        ADC_InitStructure.ADC_NbrOfRegChannel = adcChannelCount;
-
-        ADC_Init(ADC3, &ADC_InitStructure);
-
-        if (isADCEnable[UB_ADC3_IN5])
-        ADC_RegularChannelConfig(ADC3, ADC_Channel_5, 1,
-                ADC_SampleTime_601Cycles5);
-
-        ADC_Cmd(ADC3, ENABLE);
-
-        while (!ADC_GetFlagStatus(ADC3, ADC_FLAG_RDY))
-        ;
-
-        ADC_DMAConfig(ADC3, ADC_DMAMode_Circular);
-
-        ADC_DMACmd(ADC3, ENABLE);
-
-        ADC_StartConversion(ADC3);
-
-    }
-
+    case Pin1:
+    case Pin11:
+    case Pin20:
+      break;
+  }
+  return x;
 }
 
-void unibusAdc4init(void)
-{
+uint8_t getGPIOpinSource ( unibus_e pin ) {
+  uint8_t x = 99;
+  switch ( pin ) {
+    case Pin12:
+      x = GPIO_PinSource0;
+      break;
 
-    if (isADCEnable[UB_ADC4_IN3]||isADCEnable[UB_ADC4_IN4]
-            || isADCEnable[UB_ADC4_IN5]) {
+    case Pin19:
+      x = GPIO_PinSource2;
+      break;
 
-        ADC_InitTypeDef ADC_InitStructure;
-        DMA_InitTypeDef DMA_InitStructure;
-        GPIO_InitTypeDef GPIO_InitStructure;
+    case Pin9:
+    case Pin18:
+      x = GPIO_PinSource3;
+      break;
 
-        uint8_t adcChannelCount = 0;
+    case Pin13:
+      x = GPIO_PinSource4;
+      break;
 
-        GPIO_StructInit(&GPIO_InitStructure);
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    case Pin8:
+      x = GPIO_PinSource5;
+      break;
 
-        if (isADCEnable[UB_ADC4_IN3]) {
+    case Pin7:
+    case Pin10:
+      x = GPIO_PinSource8;
+      break;
 
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-            GPIO_Init(GPIOB, &GPIO_InitStructure);
+    case Pin6:
+      x = GPIO_PinSource9;
+      break;
 
-            adcDmaIndex[UB_ADC4_IN3] = adcChannelCount;
-            adcChannelCount++;
-        }
+    case Pin4:
+      x = GPIO_PinSource10;
+      break;
 
-        if (isADCEnable[UB_ADC4_IN4]) {
+    case Pin5:
+      x = GPIO_PinSource11;
+      break;
 
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-            GPIO_Init(GPIOB, &GPIO_InitStructure);
+    case Pin14:
+      x = GPIO_PinSource12;
+      break;
 
-            adcDmaIndex[UB_ADC4_IN4] = adcChannelCount;
-            adcChannelCount++;
-        }
+    case Pin2:
+    case Pin15:
+      x = GPIO_PinSource13;
+      break;
 
-        if (isADCEnable[UB_ADC4_IN5]) {
+    case Pin3:
+    case Pin16:
+      x = GPIO_PinSource14;
+      break;
 
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-            GPIO_Init(GPIOB, &GPIO_InitStructure);
+    case Pin17:
+      x = GPIO_PinSource15;
+      break;
 
-            adcDmaIndex[UB_ADC4_IN5] = adcChannelCount;
-            adcChannelCount++;
-        }
+    case Pin1:
+    case Pin11:
+    case Pin20:
+      break;
+  }
 
-        RCC_ADCCLKConfig (RCC_ADC34PLLCLK_Div256); // 72 MHz divided by 256 = 281.25 kHz
-        RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC34, ENABLE);
-
-        DMA_DeInit (DMA2_Channel2);
-
-        DMA_StructInit(&DMA_InitStructure);
-        DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & ADC4->DR;
-        DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) adc4Values;
-        DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-        DMA_InitStructure.DMA_BufferSize = adcChannelCount;
-        DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-        DMA_InitStructure.DMA_MemoryInc =
-        adcChannelCount > 1 ?
-        DMA_MemoryInc_Enable : DMA_MemoryInc_Disable;
-        ;
-        DMA_InitStructure.DMA_PeripheralDataSize =
-        DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-        DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-        DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-        DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-
-        DMA_Init(DMA2_Channel2, &DMA_InitStructure);
-
-        DMA_Cmd(DMA2_Channel2, ENABLE);
-
-        // calibrate
-
-        ADC_VoltageRegulatorCmd(ADC4, ENABLE);
-        delay(10);
-        ADC_SelectCalibrationMode(ADC4, ADC_CalibrationMode_Single);
-        ADC_StartCalibration (ADC4);
-        while (ADC_GetCalibrationStatus(ADC4) != RESET)
-        ;
-        ADC_VoltageRegulatorCmd(ADC4, DISABLE);
-
-        ADC_CommonInitTypeDef ADC_CommonInitStructure;
-
-        ADC_CommonStructInit(&ADC_CommonInitStructure);
-        ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-        ADC_CommonInitStructure.ADC_Clock = ADC_Clock_SynClkModeDiv4;
-        ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_1;
-        ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
-        ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-        ADC_CommonInit(ADC4, &ADC_CommonInitStructure);
-
-        ADC_StructInit(&ADC_InitStructure);
-
-        ADC_InitStructure.ADC_ContinuousConvMode =
-        ADC_ContinuousConvMode_Enable;
-        ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-        ADC_InitStructure.ADC_ExternalTrigConvEvent =
-        ADC_ExternalTrigConvEvent_0;
-        ADC_InitStructure.ADC_ExternalTrigEventEdge =
-        ADC_ExternalTrigEventEdge_None;
-        ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-        ADC_InitStructure.ADC_OverrunMode = ADC_OverrunMode_Disable;
-        ADC_InitStructure.ADC_AutoInjMode = ADC_AutoInjec_Disable;
-        ADC_InitStructure.ADC_NbrOfRegChannel = adcChannelCount;
-
-        ADC_Init(ADC4, &ADC_InitStructure);
-
-        if (isADCEnable[UB_ADC4_IN3])
-        ADC_RegularChannelConfig(ADC4, ADC_Channel_3, 1,
-                ADC_SampleTime_601Cycles5);
-
-        if (isADCEnable[UB_ADC4_IN4])
-        ADC_RegularChannelConfig(ADC4, ADC_Channel_4, 1,
-                ADC_SampleTime_601Cycles5);
-
-        if (isADCEnable[UB_ADC4_IN5])
-        ADC_RegularChannelConfig(ADC4, ADC_Channel_5, 1,
-                ADC_SampleTime_601Cycles5);
-
-        ADC_Cmd(ADC4, ENABLE);
-
-        while (!ADC_GetFlagStatus(ADC4, ADC_FLAG_RDY))
-        ;
-
-        ADC_DMAConfig(ADC4, ADC_DMAMode_Circular);
-
-        ADC_DMACmd(ADC4, ENABLE);
-
-        ADC_StartConversion(ADC4);
-
-    }
-
+  return x;
 }
 
-void unibusAdcInit(void)
-{
+uint16_t getTimerCh ( unibus_e pin ) {
+  uint16_t temp = 99;
 
-    unibusAdc1init();
-    unibusAdc2init();
-    unibusAdc3init();
-    unibusAdc4init();
+  switch ( pin ) {
+    case Pin8:
+    case Pin10:
+      temp = TIM_Channel_1;
+      break;
 
+    case Pin3:
+    case Pin9:
+    case Pin13:
+      temp = TIM_Channel_2;
+      break;
+
+    case Pin2:
+    case Pin4:
+    case Pin12:
+    case Pin19:
+      temp = TIM_Channel_3;
+      break;
+
+    case Pin5:
+    case Pin18:
+      temp = TIM_Channel_4;
+      break;
+
+    case Pin1:
+    case Pin6:
+    case Pin7:
+    case Pin11:
+    case Pin14:
+    case Pin15:
+    case Pin16:
+    case Pin17:
+    case Pin20:
+      break;
+  }
+
+  return temp;
 }
 
-//Extracting GPIO port from unibus pin number
-int getGPIOport(unibus_e pin)
-{
-    int x = 99;
+uint8_t getADCCh ( unibus_e pin ) {
+  uint8_t temp = 99;
 
-    switch (pin) {
-        case Pin2:
-        case Pin3:
-        case Pin8:
-        case Pin10:
-        case Pin13:
-        case Pin18:
-        case Pin19:
-        x = 1; //GPIOA
-        break;
+  switch ( pin ) {
+    case Pin13:
+      temp = ADC_Channel_1;
+      break;
 
-        case Pin4:
-        case Pin5:
-        case Pin6:
-        case Pin7:
-        case Pin9:
-        case Pin12:
-        case Pin14:
-        case Pin15:
-        case Pin16:
-        case Pin17:
-        x = 2;//GPIOB
-        break;
+    case Pin8:
+      temp = ADC_Channel_2;
+      break;
 
-        case Pin1:
-        case Pin11:
-        case Pin20:
-        break;
-    }
+    case Pin14:
+    case Pin19:
+      temp = ADC_Channel_3;
+      break;
 
-    return x;
+    case Pin16:
+    case Pin18:
+      temp = ADC_Channel_4;
+      break;
+
+    case Pin15:
+    case Pin17:
+      temp = ADC_Channel_5;
+      break;
+
+    case Pin12:
+      temp = ADC_Channel_12;
+      break;
+
+    case Pin1:
+    case Pin2:
+    case Pin3:
+    case Pin4:
+    case Pin5:
+    case Pin6:
+    case Pin7:
+    case Pin9:
+    case Pin10:
+    case Pin11:
+    case Pin20:
+      // shouldn't be allowed by IDE
+      break;
+  }
+
+  return temp;
 }
 
-GPIO_Pin getGPIOpin(unibus_e pin)
-{
-    GPIO_Pin x;
+// void _Adc1init ( void ) {
 
-    switch (pin) {
-        case Pin12:
-        x = Pin_0;
-        break;
+//   if ( _isAdcEnable [ ADC1_IN4 ] || _isAdcEnable [ ADC1_IN3 ] ) {
 
-        case Pin19:
-        x = Pin_2;
-        break;
+//     ADC_InitTypeDef ADC_InitStructure;
+//     DMA_InitTypeDef DMA_InitStructure;
+//     GPIO_InitTypeDef GPIO_InitStructure;
 
-        case Pin9:
-        case Pin18:
-        x = Pin_3;
-        break;
+//     uint8_t adcChannelCount = 0;
 
-        case Pin13:
-        x = Pin_4;
-        break;
+//     GPIO_StructInit ( &GPIO_InitStructure );
+//     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+//     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-        case Pin8:
-        x = Pin_5;
-        break;
+//     if ( _isAdcEnable [ ADC1_IN4 ] ) {
 
-        case Pin7:
-        case Pin10:
-        x = Pin_8;
-        break;
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+//       GPIO_Init ( GPIOA, &GPIO_InitStructure );
 
-        case Pin6:
-        x = Pin_9;
-        break;
+//       _adcDmaIndex [ ADC1_IN4 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-        case Pin4:
-        x = Pin_10;
-        break;
+//     if ( _isAdcEnable [ ADC1_IN3 ] ) {
 
-        case Pin5:
-        x = Pin_11;
-        break;
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+//       GPIO_Init ( GPIOA, &GPIO_InitStructure );
 
-        case Pin14:
-        x = Pin_12;
-        break;
+//       _adcDmaIndex [ ADC1_IN3 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-        case Pin2:
-        case Pin15:
-        x = Pin_13;
-        break;
+//     RCC_ADCCLKConfig ( RCC_ADC34PLLCLK_Div256 );    // 72 MHz divided by 256 = 281.25 kHz
+//     RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_ADC12, ENABLE );
 
-        case Pin3:
-        case Pin16:
-        x = Pin_14;
-        break;
+//     DMA_DeInit ( DMA1_Channel1 );
 
-        case Pin17:
-        x = Pin_15;
-        break;
+//     DMA_StructInit ( &DMA_InitStructure );
+//     DMA_InitStructure.DMA_PeripheralBaseAddr = ( uint32_t ) &ADC1->DR;
+//     DMA_InitStructure.DMA_MemoryBaseAddr     = ( uint32_t ) _adc1Values;
+//     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralSRC;
+//     DMA_InitStructure.DMA_BufferSize         = adcChannelCount;
+//     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+//     DMA_InitStructure.DMA_MemoryInc          = adcChannelCount > 1 ?
+//                                                          DMA_MemoryInc_Enable :
+//                                                          DMA_MemoryInc_Disable;
+//     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+//     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+//     DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
+//     DMA_InitStructure.DMA_Priority           = DMA_Priority_High;
+//     DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
 
-        case Pin1:
-        case Pin11:
-        case Pin20:
-        break;
-    }
+//     DMA_Init ( DMA1_Channel1, &DMA_InitStructure );
 
-    return x;
-}
+//     DMA_Cmd ( DMA1_Channel1, ENABLE );
 
-uint32_t getGPIOclock(unibus_e pin)
-{
-    uint32_t x = 99;
-    switch (pin) {
-        case Pin2:
-        case Pin3:
-        case Pin8:
-        case Pin10:
-        case Pin13:
-        case Pin18:
-        case Pin19:
-        x = RCC_AHBPeriph_GPIOA;
-        break;
+//     ADC_CommonInitTypeDef ADC_CommonInitStructure;
 
-        case Pin4:
-        case Pin5:
-        case Pin6:
-        case Pin7:
-        case Pin9:
-        case Pin12:
-        case Pin14:
-        case Pin15:
-        case Pin16:
-        case Pin17:
-        x = RCC_AHBPeriph_GPIOB;
-        break;
+//     ADC_CommonStructInit ( &ADC_CommonInitStructure );
+//     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;
+//     ADC_CommonInitStructure.ADC_Clock            = ADC_Clock_SynClkModeDiv4;
+//     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;
+//     ADC_CommonInitStructure.ADC_DMAMode          = ADC_DMAMode_Circular;
+//     ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
+//     ADC_CommonInit ( ADC1, &ADC_CommonInitStructure );
 
-        case Pin1:
-        case Pin11:
-        case Pin20:
-        break;
-    }
-    return x;
-}
+//     ADC_StructInit ( &ADC_InitStructure );
 
-uint8_t getGPIOpinSource(unibus_e pin)
-{
-    uint8_t x = 99;
-    switch (pin) {
-        case Pin12:
-        x = GPIO_PinSource0;
-        break;
+//     ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Enable;
+//     ADC_InitStructure.ADC_Resolution            = ADC_Resolution_12b;
+//     ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
+//     ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
+//     ADC_InitStructure.ADC_DataAlign             = ADC_DataAlign_Right;
+//     ADC_InitStructure.ADC_OverrunMode           = ADC_OverrunMode_Disable;
+//     ADC_InitStructure.ADC_AutoInjMode           = ADC_AutoInjec_Disable;
+//     ADC_InitStructure.ADC_NbrOfRegChannel       = adcChannelCount;
 
-        case Pin19:
-        x = GPIO_PinSource2;
-        break;
+//     ADC_Init ( ADC1, &ADC_InitStructure );
 
-        case Pin9:
-        case Pin18:
-        x = GPIO_PinSource3;
-        break;
+//     uint8_t rank = 1;
 
-        case Pin13:
-        x = GPIO_PinSource4;
-        break;
+//     if ( _isAdcEnable [ ADC1_IN3 ] )
+//       ADC_RegularChannelConfig ( ADC1, ADC_Channel_3, rank++, ADC_SampleTime_601Cycles5 );
 
-        case Pin8:
-        x = GPIO_PinSource5;
-        break;
+//     if ( _isAdcEnable [ ADC1_IN4 ] )
+//       ADC_RegularChannelConfig ( ADC1, ADC_Channel_4, rank++, ADC_SampleTime_601Cycles5 );
 
-        case Pin7:
-        case Pin10:
-        x = GPIO_PinSource8;
-        break;
+//     ADC_Cmd ( ADC1, ENABLE );
 
-        case Pin6:
-        x = GPIO_PinSource9;
-        break;
+//     while ( ! ADC_GetFlagStatus ( ADC1, ADC_FLAG_RDY ) );
 
-        case Pin4:
-        x = GPIO_PinSource10;
-        break;
+//     ADC_DMAConfig ( ADC1, ADC_DMAMode_Circular );
 
-        case Pin5:
-        x = GPIO_PinSource11;
-        break;
+//     ADC_DMACmd ( ADC1, ENABLE );
 
-        case Pin14:
-        x = GPIO_PinSource12;
-        break;
+//     ADC_StartConversion ( ADC1 );
 
-        case Pin2:
-        case Pin15:
-        x = GPIO_PinSource13;
-        break;
+//     //  LED.set(BLUE,ON);
+//   }
+// }
 
-        case Pin3:
-        case Pin16:
-        x = GPIO_PinSource14;
-        break;
+// void _Adc2init ( void ) {
 
-        case Pin17:
-        x = GPIO_PinSource15;
-        break;
+//   if ( _isAdcEnable [ ADC2_IN12 ] || _isAdcEnable [ ADC2_IN1 ] || _isAdcEnable [ ADC2_IN2 ] || _isAdcEnable [ ADC2_IN4 ] ) {
 
-        case Pin1:
-        case Pin11:
-        case Pin20:
-        break;
-    }
+//     ADC_InitTypeDef ADC_InitStructure;
+//     DMA_InitTypeDef DMA_InitStructure;
+//     GPIO_InitTypeDef GPIO_InitStructure;
 
-    return x;
-}
+//     uint8_t adcChannelCount = 0;
 
-uint16_t getTimerCh(unibus_e pin)
-{
-    uint16_t temp = 99;
+//     GPIO_StructInit ( &GPIO_InitStructure );
+//     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+//     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
-    switch (pin) {
-        case Pin8:
-        case Pin10:
-        temp = TIM_Channel_1;
-        break;
+//     if ( _isAdcEnable [ ADC2_IN12 ] ) {
 
-        case Pin3:
-        case Pin9:
-        case Pin13:
-        temp = TIM_Channel_2;
-        break;
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
 
-        case Pin2:
-        case Pin4:
-        case Pin12:
-        case Pin19:
-        temp = TIM_Channel_3;
-        break;
+//       _adcDmaIndex [ ADC2_IN1 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-        case Pin5:
-        case Pin18:
-        temp = TIM_Channel_4;
-        break;
+//     if ( _isAdcEnable [ ADC2_IN1 ] ) {
 
-        case Pin1:
-        case Pin6:
-        case Pin7:
-        case Pin11:
-        case Pin14:
-        case Pin15:
-        case Pin16:
-        case Pin17:
-        case Pin20:
-        break;
-    }
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+//       GPIO_Init ( GPIOA, &GPIO_InitStructure );
 
-    return temp;
-}
+//       _adcDmaIndex [ ADC2_IN1 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-uint8_t getADCCh(unibus_e pin)
-{
-    uint8_t temp = 99;
+//     if ( _isAdcEnable [ ADC2_IN2 ] ) {
 
-    switch (pin) {
-        case Pin13:
-        temp = ADC_Channel_1;
-        break;
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+//       GPIO_Init ( GPIOA, &GPIO_InitStructure );
 
-        case Pin8:
-        temp = ADC_Channel_2;
-        break;
+//       _adcDmaIndex [ ADC2_IN2 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-        case Pin14:
-        case Pin19:
-        temp = ADC_Channel_3;
-        break;
+//     if ( _isAdcEnable [ ADC2_IN4 ] ) {
 
-        case Pin16:
-        case Pin18:
-        temp = ADC_Channel_4;
-        break;
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+//       GPIO_Init ( GPIOA, &GPIO_InitStructure );
 
-        case Pin15:
-        case Pin17:
-        temp = ADC_Channel_5;
-        break;
+//       _adcDmaIndex [ ADC2_IN2 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
 
-        case Pin12:
-        temp = ADC_Channel_12;
-        break;
+//     RCC_ADCCLKConfig ( RCC_ADC34PLLCLK_Div256 );    // 72 MHz divided by 256 = 281.25 kHz
+//     RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC12, ENABLE );
 
-        case Pin1:
-        case Pin2:
-        case Pin3:
-        case Pin4:
-        case Pin5:
-        case Pin6:
-        case Pin7:
-        case Pin9:
-        case Pin10:
-        case Pin11:
-        case Pin20:
-        //shouldn't be allowed by IDE
-        break;
-    }
+//     DMA_DeInit ( DMA2_Channel1 );
 
-    return temp;
-}
+//     DMA_StructInit ( &DMA_InitStructure );
+//     DMA_InitStructure.DMA_PeripheralBaseAddr = ( uint32_t ) &ADC2->DR;
+//     DMA_InitStructure.DMA_MemoryBaseAddr     = ( uint32_t ) _adc2Values;
+//     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralSRC;
+//     DMA_InitStructure.DMA_BufferSize         = adcChannelCount;
+//     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+//     DMA_InitStructure.DMA_MemoryInc          = adcChannelCount > 1 ?
+//                                                          DMA_MemoryInc_Enable :
+//                                                          DMA_MemoryInc_Disable;
+//     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+//     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+//     DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
+//     DMA_InitStructure.DMA_Priority           = DMA_Priority_High;
+//     DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
 
+//     DMA_Init ( DMA2_Channel1, &DMA_InitStructure );
 
+//     DMA_Cmd ( DMA2_Channel1, ENABLE );
 
+//     ADC_CommonInitTypeDef ADC_CommonInitStructure;
+
+//     ADC_CommonStructInit ( &ADC_CommonInitStructure );
+//     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;
+//     ADC_CommonInitStructure.ADC_Clock            = ADC_Clock_SynClkModeDiv4;
+//     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;
+//     ADC_CommonInitStructure.ADC_DMAMode          = ADC_DMAMode_Circular;
+//     ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
+//     ADC_CommonInit ( ADC2, &ADC_CommonInitStructure );
+
+//     ADC_StructInit ( &ADC_InitStructure );
+
+//     ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Enable;
+//     ADC_InitStructure.ADC_Resolution            = ADC_Resolution_12b;
+//     ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
+//     ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
+//     ADC_InitStructure.ADC_DataAlign             = ADC_DataAlign_Right;
+//     ADC_InitStructure.ADC_OverrunMode           = ADC_OverrunMode_Disable;
+//     ADC_InitStructure.ADC_AutoInjMode           = ADC_AutoInjec_Disable;
+//     ADC_InitStructure.ADC_NbrOfRegChannel       = adcChannelCount;
+
+//     ADC_Init ( ADC2, &ADC_InitStructure );
+
+//     uint8_t rank = 1;
+
+//     if ( _isAdcEnable [ ADC2_IN12 ] )
+//       ADC_RegularChannelConfig ( ADC2, ADC_Channel_12, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC2_IN1 ] )
+//       ADC_RegularChannelConfig ( ADC2, ADC_Channel_1, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC2_IN2 ] )
+//       ADC_RegularChannelConfig ( ADC2, ADC_Channel_2, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC2_IN4 ] )
+//       ADC_RegularChannelConfig ( ADC2, ADC_Channel_4, rank++, ADC_SampleTime_601Cycles5 );
+
+//     ADC_Cmd ( ADC2, ENABLE );
+
+//     while ( ! ADC_GetFlagStatus ( ADC2, ADC_FLAG_RDY ) );
+
+//     ADC_DMAConfig ( ADC2, ADC_DMAMode_Circular );
+
+//     ADC_DMACmd ( ADC2, ENABLE );
+
+//     ADC_StartConversion ( ADC2 );
+//     LED.set ( BLUE, ON );
+//   }
+// }
+
+// void _Adc3init ( void ) {
+
+//   if ( _isAdcEnable [ ADC3_IN5 ] || _isAdcEnable [ ADC3_IN2 ] ) {
+
+//     ADC_InitTypeDef ADC_InitStructure;
+//     DMA_InitTypeDef DMA_InitStructure;
+//     GPIO_InitTypeDef GPIO_InitStructure;
+
+//     uint8_t adcChannelCount = 0;
+
+//     GPIO_StructInit ( &GPIO_InitStructure );
+//     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+//     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+//     if ( _isAdcEnable [ ADC3_IN5 ] ) {
+
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
+
+//       _adcDmaIndex [ ADC3_IN5 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
+//     if ( _isAdcEnable [ ADC3_IN2 ] ) {
+
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
+
+//       _adcDmaIndex [ ADC3_IN2 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
+
+//     RCC_ADCCLKConfig ( RCC_ADC34PLLCLK_Div256 );    // 72 MHz divided by 256 = 281.25 kHz
+//     RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC34, ENABLE );
+
+//     DMA_DeInit ( DMA2_Channel5 );
+
+//     DMA_StructInit ( &DMA_InitStructure );
+//     DMA_InitStructure.DMA_PeripheralBaseAddr = ( uint32_t ) &ADC3->DR;
+//     DMA_InitStructure.DMA_MemoryBaseAddr     = ( uint32_t ) _adc3Values;
+//     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralSRC;
+//     DMA_InitStructure.DMA_BufferSize         = adcChannelCount;
+//     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+//     DMA_InitStructure.DMA_MemoryInc          = adcChannelCount > 1 ?
+//                                                          DMA_MemoryInc_Enable :
+//                                                          DMA_MemoryInc_Disable;
+//     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+//     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+//     DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
+//     DMA_InitStructure.DMA_Priority           = DMA_Priority_High;
+//     DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
+
+//     DMA_Init ( DMA2_Channel5, &DMA_InitStructure );
+
+//     DMA_Cmd ( DMA2_Channel5, ENABLE );
+
+//     ADC_CommonInitTypeDef ADC_CommonInitStructure;
+
+//     ADC_CommonStructInit ( &ADC_CommonInitStructure );
+//     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;
+//     ADC_CommonInitStructure.ADC_Clock            = ADC_Clock_SynClkModeDiv4;
+//     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;
+//     ADC_CommonInitStructure.ADC_DMAMode          = ADC_DMAMode_Circular;
+//     ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
+//     ADC_CommonInit ( ADC3, &ADC_CommonInitStructure );
+
+//     ADC_StructInit ( &ADC_InitStructure );
+
+//     ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Enable;
+//     ADC_InitStructure.ADC_Resolution            = ADC_Resolution_12b;
+//     ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
+//     ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
+//     ADC_InitStructure.ADC_DataAlign             = ADC_DataAlign_Right;
+//     ADC_InitStructure.ADC_OverrunMode           = ADC_OverrunMode_Disable;
+//     ADC_InitStructure.ADC_AutoInjMode           = ADC_AutoInjec_Disable;
+//     ADC_InitStructure.ADC_NbrOfRegChannel       = adcChannelCount;
+
+//     ADC_Init ( ADC3, &ADC_InitStructure );
+
+//     uint8_t rank = 1;
+
+//     if ( _isAdcEnable [ ADC3_IN5 ] )
+//       ADC_RegularChannelConfig ( ADC3, ADC_Channel_5, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC3_IN2 ] )
+//       ADC_RegularChannelConfig ( ADC3, ADC_Channel_2, rank++, ADC_SampleTime_601Cycles5 );
+
+//     ADC_Cmd ( ADC3, ENABLE );
+
+//     while ( ! ADC_GetFlagStatus ( ADC3, ADC_FLAG_RDY ) );
+
+//     ADC_DMAConfig ( ADC3, ADC_DMAMode_Circular );
+
+//     ADC_DMACmd ( ADC3, ENABLE );
+
+//     ADC_StartConversion ( ADC3 );
+//   }
+// }
+
+// void _Adc4init ( void ) {
+
+//   if ( _isAdcEnable [ ADC4_IN5 ] || _isAdcEnable [ ADC4_IN4 ] || _isAdcEnable [ ADC4_IN3 ] ) {
+
+//     ADC_InitTypeDef ADC_InitStructure;
+//     DMA_InitTypeDef DMA_InitStructure;
+//     GPIO_InitTypeDef GPIO_InitStructure;
+
+//     uint8_t adcChannelCount = 0;
+
+//     GPIO_StructInit ( &GPIO_InitStructure );
+//     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+//     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+//     if ( _isAdcEnable [ ADC4_IN5 ] ) {
+
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
+
+//       _adcDmaIndex [ ADC4_IN5 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
+
+//     if ( _isAdcEnable [ ADC4_IN4 ] ) {
+
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
+
+//       _adcDmaIndex [ ADC4_IN4 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
+
+//     if ( _isAdcEnable [ ADC4_IN3 ] ) {
+
+//       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+//       GPIO_Init ( GPIOB, &GPIO_InitStructure );
+
+//       _adcDmaIndex [ ADC4_IN3 ] = adcChannelCount;
+//       adcChannelCount++;
+//     }
+
+//     RCC_ADCCLKConfig ( RCC_ADC34PLLCLK_Div256 );    // 72 MHz divided by 256 = 281.25 kHz
+//     RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_DMA2 | RCC_AHBPeriph_ADC34, ENABLE );
+
+//     DMA_DeInit ( DMA2_Channel2 );
+
+//     DMA_StructInit ( &DMA_InitStructure );
+//     DMA_InitStructure.DMA_PeripheralBaseAddr = ( uint32_t ) &ADC4->DR;
+//     DMA_InitStructure.DMA_MemoryBaseAddr     = ( uint32_t ) _adc4Values;
+//     DMA_InitStructure.DMA_DIR                = DMA_DIR_PeripheralSRC;
+//     DMA_InitStructure.DMA_BufferSize         = adcChannelCount;
+//     DMA_InitStructure.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+//     DMA_InitStructure.DMA_MemoryInc          = adcChannelCount > 1 ?
+//                                                          DMA_MemoryInc_Enable :
+//                                                          DMA_MemoryInc_Disable;
+//     ;
+//     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+//     DMA_InitStructure.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+//     DMA_InitStructure.DMA_Mode               = DMA_Mode_Circular;
+//     DMA_InitStructure.DMA_Priority           = DMA_Priority_High;
+//     DMA_InitStructure.DMA_M2M                = DMA_M2M_Disable;
+
+//     DMA_Init ( DMA2_Channel2, &DMA_InitStructure );
+
+//     DMA_Cmd ( DMA2_Channel2, ENABLE );
+
+//     ADC_CommonInitTypeDef ADC_CommonInitStructure;
+
+//     ADC_CommonStructInit ( &ADC_CommonInitStructure );
+//     ADC_CommonInitStructure.ADC_Mode             = ADC_Mode_Independent;
+//     ADC_CommonInitStructure.ADC_Clock            = ADC_Clock_SynClkModeDiv4;
+//     ADC_CommonInitStructure.ADC_DMAAccessMode    = ADC_DMAAccessMode_1;
+//     ADC_CommonInitStructure.ADC_DMAMode          = ADC_DMAMode_Circular;
+//     ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
+//     ADC_CommonInit ( ADC4, &ADC_CommonInitStructure );
+
+//     ADC_StructInit ( &ADC_InitStructure );
+
+//     ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Enable;
+//     ADC_InitStructure.ADC_Resolution            = ADC_Resolution_12b;
+//     ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
+//     ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
+//     ADC_InitStructure.ADC_DataAlign             = ADC_DataAlign_Right;
+//     ADC_InitStructure.ADC_OverrunMode           = ADC_OverrunMode_Disable;
+//     ADC_InitStructure.ADC_AutoInjMode           = ADC_AutoInjec_Disable;
+//     ADC_InitStructure.ADC_NbrOfRegChannel       = adcChannelCount;
+
+//     ADC_Init ( ADC4, &ADC_InitStructure );
+
+//     uint8_t rank = 1;
+
+//     if ( _isAdcEnable [ ADC4_IN5 ] )
+//       ADC_RegularChannelConfig ( ADC4, ADC_Channel_5, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC4_IN4 ] )
+//       ADC_RegularChannelConfig ( ADC4, ADC_Channel_4, rank++, ADC_SampleTime_601Cycles5 );
+
+//     if ( _isAdcEnable [ ADC4_IN3 ] )
+//       ADC_RegularChannelConfig ( ADC4, ADC_Channel_3, rank++, ADC_SampleTime_601Cycles5 );
+
+//     ADC_Cmd ( ADC4, ENABLE );
+
+//     while ( ! ADC_GetFlagStatus ( ADC4, ADC_FLAG_RDY ) );
+
+//     ADC_DMAConfig ( ADC4, ADC_DMAMode_Circular );
+
+//     ADC_DMACmd ( ADC4, ENABLE );
+
+//     ADC_StartConversion ( ADC4 );
+//   }
+// }
+
+// void _AdcInit ( void ) {
+
+//   _Adc1init ( );
+//   _Adc2init ( );
+//   _Adc3init ( );
+//   _Adc4init ( );
+// }
+
+// void Peripheral_M::init ( peripheral_adc_pin _adc_pin ) {
+//   // Define a mapping from peripheral_adc_pin values to isADCEnable indices
+//   static const int adcMapping [] = {
+//     [ADC_1]  = ADC2_IN12,
+//     [ADC_2]  = ADC4_IN5,
+//     [ADC_3]  = ADC4_IN4,
+//     [ADC_4]  = ADC3_IN5,
+//     [ADC_5]  = ADC4_IN3,
+//     [ADC_6]  = ADC2_IN1,
+//     [ADC_7]  = ADC2_IN2,
+//     [ADC_8]  = ADC1_IN4,
+//     [ADC_9]  = ADC1_IN3,
+//     [ADC_10] = ADC2_IN4,
+//     [ADC_11] = ADC3_IN2
+//   };
+
+//   // Check if _adc_pin is within valid range
+//   // if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_11 ) {
+//   _isAdcEnable [ adcMapping [ _adc_pin ] ] = true;
+//   // }
+
+//   // Log, assert, or halt
+//   // static_assert ( ! ADC_7, "Error: ADC_7 cannot be enabled due to conflict with ADC1." );
+// }
+
+// uint16_t Peripheral_M::read ( peripheral_adc_pin _adc_pin ) {
+//   switch ( _adc_pin ) {
+//     case ADC_1:
+//       return _adc2Values [ _adcDmaIndex [ ADC2_IN12 ] ];
+//     case ADC_2:
+//       return _adc4Values [ _adcDmaIndex [ ADC4_IN5 ] ];
+//     case ADC_3:
+//       return _adc4Values [ _adcDmaIndex [ ADC4_IN4 ] ];
+//     case ADC_4:
+//       return _adc3Values [ _adcDmaIndex [ ADC3_IN5 ] ];
+//     case ADC_5:
+//       return _adc4Values [ _adcDmaIndex [ ADC4_IN3 ] ];
+//     case ADC_6:
+//       return _adc2Values [ _adcDmaIndex [ ADC2_IN1 ] ];
+//     case ADC_7:
+//       return _adc2Values [ _adcDmaIndex [ ADC2_IN2 ] ];
+//     case ADC_8:
+//       return _adc1Values [ _adcDmaIndex [ ADC1_IN4 ] ];
+//     case ADC_9:
+//       return _adc1Values [ _adcDmaIndex [ ADC1_IN3 ] ];
+//     case ADC_10:
+//       return _adc2Values [ _adcDmaIndex [ ADC2_IN4 ] ];
+//     case ADC_11:
+//       return _adc3Values [ _adcDmaIndex [ ADC3_IN2 ] ];
+//     default:
+//       return 0;
+//   }
+// }
