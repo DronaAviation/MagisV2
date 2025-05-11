@@ -25,7 +25,7 @@
 #
 ###############################################################################
 # User-configurable options
-FORKNAME	=	MAGIS
+FORKNAME	=	MAGISV2
 TARGET	?=	PRIMUSX2
 BUILD_TYPE	?= BIN
 LIB_MAJOR_VERSION	=	1
