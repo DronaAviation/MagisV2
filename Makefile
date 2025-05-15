@@ -13,7 +13,7 @@
 ###############################################################################
 # Things that the user might override on the commandline
 #
-FORKNAME			 = MAGIS
+FORKNAME			 = MAGISV2
 # The target to build, see VALID_TARGETS below
 TARGET		?= PRIMUSX2
 
