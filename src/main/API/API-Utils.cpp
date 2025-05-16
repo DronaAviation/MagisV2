@@ -113,7 +113,6 @@ bool developerMode          = false;
 bool External_RC_FLAG [ 4 ] = { true, true, true, true };
 bool userRCflag [ 4 ]       = { false, false, false, false };
 bool callibrateAccelero     = true;
-bool FlightStatusEnabled    = true;
 bool hasTakeOff             = true;
 bool AutoAccCalibration     = false;
 bool callOnPilotStart       = true;

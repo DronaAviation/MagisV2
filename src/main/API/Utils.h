@@ -23,33 +23,6 @@
 extern "C" {
 #endif
 
-typedef enum {
-  RED = 0,
-  GREEN,
-  BLUE
-
-} led_e;
-
-typedef enum {
-  OFF = 0,
-  ON,
-  TOGGLE
-
-} led_state_e;
-
-typedef enum {
-
-  ACTIVATE = 0,
-  DEACTIVATE
-
-} flightstatus_state_e;
-
-class LED_P {
- public:
-  void set ( led_e LED, led_state_e STATE );
-
-  void flightStatus ( flightstatus_state_e STATE );
-};
 
 class Graph_P {
  public:
@@ -101,7 +74,6 @@ uint32_t micros ( void );
 
 uint32_t millis ( void );
 
-extern LED_P LED;
 extern Graph_P Graph;
 extern Monitor_P Monitor;
 extern Oled_P Oled;

@@ -64,7 +64,6 @@ extern bool useAutoRC;
 extern bool External_RC_FLAG [ 4 ];
 extern bool userRCflag [ 4 ];
 extern bool callibrateAccelero;
-extern bool FlightStatusEnabled;
 extern bool hasTakeOff;
 extern bool AutoAccCalibration;
 extern bool callOnPilotStart;

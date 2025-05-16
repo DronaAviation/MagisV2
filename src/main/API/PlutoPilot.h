@@ -20,6 +20,7 @@
 
 #include "API/RxConfig.h"
 #include "API/Peripheral.h"
+#include "API/Status-LED.h"
 
 void plutoRxConfig ( void );
 

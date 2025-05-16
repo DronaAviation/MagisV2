@@ -23,13 +23,13 @@ extern "C" {
 #define MAGIS_IDENTIFIER       "MAGIS V2"
 
 #define API_VERSION_MAJOR      0    // increment when major changes are made
-#define API_VERSION_MINOR      6    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+#define API_VERSION_MINOR      7    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
 #define API_VERSION_LENGTH     2
 
 #define FC_FW_VERSION_MAJOR       1    // increment when a major release is made (big new feature, etc)
 #define FC_FW_VERSION_MINOR       1    // increment when a minor release is made (small new feature, change etc)
-#define FC_FW_VERSION_PATCH_LEVEL 2    // increment when a bug is fixed
+#define FC_FW_VERSION_PATCH_LEVEL 3    // increment when a bug is fixed
 
 #define STR_HELPER( x )        #x
 #define STR( x )               STR_HELPER ( x )

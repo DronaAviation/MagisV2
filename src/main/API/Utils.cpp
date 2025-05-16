@@ -175,33 +175,6 @@ void debugPrint ( const char *msg, int number ) {
   serialize8Debug ( checksum );
 }
 
-// ###########################################//
-
-void LED_P::set ( led_e LED, led_state_e STATE ) {
-
-  ledOperator ( LED, STATE );
-}
-
-void LED_P::flightStatus ( flightstatus_state_e STATE ) {
-
-  switch ( STATE ) {
-
-    case DEACTIVATE:
-
-      FlightStatusEnabled = false;
-      ledOperator ( RED, OFF );
-      ledOperator ( GREEN, OFF );
-      ledOperator ( BLUE, OFF );
-
-      break;
-
-    case ACTIVATE:
-
-      FlightStatusEnabled = true;
-
-      break;
-  }
-}
 
 void Graph_P::red ( double value, uint8_t precision ) {
 
@@ -314,7 +287,6 @@ void Oled_P::print ( uint8_t col, uint8_t row, const char *string ) {
   }
 }
 
-LED_P LED;
 Graph_P Graph;
 Monitor_P Monitor;
 Oled_P Oled;

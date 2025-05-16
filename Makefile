@@ -269,6 +269,7 @@ DRONA_COMMAND = command/command.cpp \
 
 DRONA_API =	API/Specifiers.cpp \
 		    		API/Peripheral.cpp \
+						API-Src/Status-LED.cpp \
 		    		API-Src/Peripheral-ADC.cpp \
 		    		API/XRanging.cpp \
 						API/Sensor.cpp \
