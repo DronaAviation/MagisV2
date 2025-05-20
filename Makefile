@@ -277,7 +277,7 @@ DRONA_API =	API/Specifiers.cpp \
 						API/Estimate.cpp \
 						API/Utils.cpp \
 						API/User.cpp \
-						API/Motor.cpp \
+						API-Src/Motor.cpp \
 						API/API-Utils.cpp \
 						API/RxConfig.cpp \
 						API/Localisation.cpp \

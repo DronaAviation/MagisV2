@@ -34,6 +34,8 @@
 #include "flight/motor.h"
 #include "flight/mixer.h"
 
+#include "API/Motor.h"
+
 bool hasInitialBoostCompleted = false;    // Flags whether the initial 100ms motor boost is complete
 
 bool initialBoostResetDone = false;    // Flags whether the boost logic has been reset after disarming
@@ -65,118 +67,113 @@ void setAllMotors ( int pwmValue ) {
  * - If disarmed or arm mode is not active, motors reset to 1000 and boost logic is cleared.
  */
 void MotroWakeUp ( void ) {
-    // Get the current time in milliseconds
-    currentMillis = millis();
+  // Get the current time in milliseconds
+  currentMillis = millis ( );
+  
 
-    // Read the raw state of the arm switch and the system readiness status
-    bool armSwitchRaw     = IS_RC_MODE_ACTIVE(BOXARM);
-    bool isSystemReady    = status_FSI(Ok_to_arm);
-    bool isCurrentlyArmed = ARMING_FLAG(ARMED);
+  // Read the raw state of the arm switch and the system readiness status
+  bool armSwitchRaw     = IS_RC_MODE_ACTIVE ( BOXARM );
+  bool isSystemReady    = status_FSI ( Ok_to_arm );
+  bool isCurrentlyArmed = ARMING_FLAG ( ARMED );
 
-    // Static variables for debouncing and boost control
-    static bool armSwitchDebounced          = false; // Debounced state of the arm switch
-    static bool boostActive                 = false; // Flag indicating if boost is currently active
-    static uint32_t lastArmSwitchChangeTime = 0;    // Timestamp of the last change in arm switch state
-    static bool lastArmSwitchRaw            = false; // Last recorded state of the raw arm switch
+  // Static variables for debouncing and boost control
+  static bool armSwitchDebounced          = false;    // Debounced state of the arm switch
+  static bool boostActive                 = false;    // Flag indicating if boost is currently active
+  static uint32_t lastArmSwitchChangeTime = 0;        // Timestamp of the last change in arm switch state
+  static bool lastArmSwitchRaw            = false;    // Last recorded state of the raw arm switch
 
-    // Debounce logic: Update the last change time if the arm switch state has changed
-    if (armSwitchRaw != lastArmSwitchRaw) {
-        lastArmSwitchChangeTime = currentMillis; // Record the time of the change
-        lastArmSwitchRaw        = armSwitchRaw;   // Update the last raw state
+  // Debounce logic: Update the last change time if the arm switch state has changed
+  if ( armSwitchRaw != lastArmSwitchRaw ) {
+    lastArmSwitchChangeTime = currentMillis;    // Record the time of the change
+    lastArmSwitchRaw        = armSwitchRaw;     // Update the last raw state
+  }
+
+  // Check if the arm switch state has been stable for at least 200ms
+  if ( ( currentMillis - lastArmSwitchChangeTime ) >= 200 ) {
+    armSwitchDebounced = armSwitchRaw;    // Set the debounced state
+  }
+
+  // Core logic for motor control based on debounced arm input
+  if ( isSystemReady && armSwitchDebounced && ! isCurrentlyArmed ) {
+    // If the system is ready and the arm switch is activated
+    if ( usingMotorAPI ) {
+      Motor_setDir ( M5, ANTICLOCK_WISE );
+      Motor_setDir ( M6, CLOCK_WISE );
+      Motor_setDir ( M5, ANTICLOCK_WISE );
+      Motor_setDir ( M8, CLOCK_WISE );
+      usingMotorAPI = false;
     }
-
-    // Check if the arm switch state has been stable for at least 200ms
-    if ((currentMillis - lastArmSwitchChangeTime) >= 200) {
-        armSwitchDebounced = armSwitchRaw; // Set the debounced state
+    if ( ! hasInitialBoostCompleted && ! boostActive ) {
+      initialBoostStartTime = currentMillis;    // Start boost timer
+      boostActive           = true;             // Activate boost
+      setAllMotors ( 1650 );                    // Set motors to a higher throttle for boost
+    } else if ( boostActive && currentMillis - initialBoostStartTime >= 100 ) {
+      // If boost is active and has been running for 100ms
+      hasInitialBoostCompleted = true;     // Mark boost as completed
+      initialBoostResetDone    = false;    // Prepare for potential reset
+      boostActive              = false;    // Deactivate boost
+    } else if ( hasInitialBoostCompleted ) {
+      // If boost has been completed, set motors to a lower throttle
+      setAllMotors ( 1100 );            // Maintain a safe operating throttle
+      initialBoostResetDone = false;    // Allow for a reset if needed
     }
+  }
 
-    // Core logic for motor control based on debounced arm input
-    if (isSystemReady && armSwitchDebounced && !isCurrentlyArmed) {
-        // If the system is ready and the arm switch is activated
-        if (!hasInitialBoostCompleted && !boostActive) {
-            initialBoostStartTime = currentMillis; // Start boost timer
-            boostActive           = true;           // Activate boost
-            setAllMotors(1650);  // Set motors to a higher throttle for boost
-        } else if (boostActive && currentMillis - initialBoostStartTime >= 100) {
-            // If boost is active and has been running for 100ms
-            hasInitialBoostCompleted = true;       // Mark boost as completed
-            initialBoostResetDone    = false;      // Prepare for potential reset
-            boostActive              = false;       // Deactivate boost
-        } else if (hasInitialBoostCompleted) {
-            // If boost has been completed, set motors to a lower throttle
-            setAllMotors(1100);   // Maintain a safe operating throttle
-            initialBoostResetDone = false; // Allow for a reset if needed
-        }
-    }
-
-    // Reset logic if disarmed or arm mode is off (using debounced value)
-    if ((!armSwitchDebounced || !isSystemReady) && !initialBoostResetDone) {
-        hasInitialBoostCompleted = false; // Reset completion status
-        initialBoostStartTime    = 0;     // Reset boost start time
-        boostActive              = false;   // Deactivate boost
-        setAllMotors(1000);     // Set motors to a safe disarmed throttle
-        initialBoostResetDone = true; // Mark reset as done
-    }
+  // Reset logic if disarmed or arm mode is off (using debounced value)
+  if ( ( ! armSwitchDebounced || ! isSystemReady ) && ! initialBoostResetDone ) {
+    hasInitialBoostCompleted = false;    // Reset completion status
+    initialBoostStartTime    = 0;        // Reset boost start time
+    boostActive              = false;    // Deactivate boost
+    setAllMotors ( 1000 );               // Set motors to a safe disarmed throttle
+    initialBoostResetDone = true;        // Mark reset as done
+  }
 }
 
-#if defined( PRIMUSX2 )
 void reverseMotorGPIOInit ( void ) {
   GPIO_TypeDef *gpio;
   gpio_config_t cfg;
+
+  motors_gpio [ 2 ].gpio          = GPIOB;
+  motors_gpio [ 2 ].pin           = Pin_4;
+  motors_gpio [ 2 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB;
   // M1
-  gpio      = GPIOB;
-  cfg.pin   = Pin_4;
+  cfg.pin   = motors_gpio [ 2 ].pin;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_4 );
+  RCC_AHBPeriphClockCmd ( motors_gpio [ 2 ].RCC_AHBPeriph, ENABLE );
+  gpioInit ( motors_gpio [ 2 ].gpio, &cfg );
+  digitalHi ( motors_gpio [ 2 ].gpio, motors_gpio [ 2 ].pin );
 
+  motors_gpio [ 3 ].gpio          = GPIOB;
+  motors_gpio [ 3 ].pin           = Pin_5;
+  motors_gpio [ 3 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB;
   // M2
-  gpio      = GPIOB;
-  cfg.pin   = Pin_5;
+  cfg.pin   = motors_gpio [ 3 ].pin;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_5 );
+  RCC_AHBPeriphClockCmd ( motors_gpio [ 3 ].RCC_AHBPeriph, ENABLE );
+  gpioInit ( motors_gpio [ 3 ].gpio, &cfg );
+  digitalLo ( motors_gpio [ 3 ].gpio, motors_gpio [ 3 ].pin );
 
+  motors_gpio [ 4 ].gpio          = GPIOB;
+  motors_gpio [ 4 ].pin           = Pin_6;
+  motors_gpio [ 4 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB;
   // M3
-  gpio      = GPIOB;
-  cfg.pin   = Pin_6;
+  cfg.pin   = motors_gpio [ 4 ].pin;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_6 );
+  RCC_AHBPeriphClockCmd ( motors_gpio [ 4 ].RCC_AHBPeriph, ENABLE );
+  gpioInit ( motors_gpio [ 4 ].gpio, &cfg );
+  digitalHi ( motors_gpio [ 4 ].gpio, motors_gpio [ 4 ].pin );
 
+  motors_gpio [ 5 ].gpio          = GPIOB;
+  motors_gpio [ 5 ].pin           = Pin_7;
+  motors_gpio [ 5 ].RCC_AHBPeriph = RCC_AHBPeriph_GPIOB;
   // M4
-  gpio = GPIOB;
-
-  cfg.pin   = Pin_7;
+  cfg.pin   = motors_gpio [ 5 ].pin;
   cfg.mode  = Mode_Out_PP;
   cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_7 );
-
-  // M5
-  gpio      = GPIOB;
-  cfg.pin   = Pin_0;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_0 );
-
-  // M6
-  gpio      = GPIOB;
-  cfg.pin   = Pin_1;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_1 );
+  RCC_AHBPeriphClockCmd ( motors_gpio [ 5 ].RCC_AHBPeriph, ENABLE );
+  gpioInit ( motors_gpio [ 5 ].gpio, &cfg );
+  digitalLo ( motors_gpio [ 5 ].gpio, motors_gpio [ 5 ].pin );
 }
-
-#endif

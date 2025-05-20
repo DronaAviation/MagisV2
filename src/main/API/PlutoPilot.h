@@ -21,6 +21,7 @@
 #include "API/RxConfig.h"
 #include "API/Peripheral.h"
 #include "API/Status-LED.h"
+#include "API/Motor.h"
 
 void plutoRxConfig ( void );
 
