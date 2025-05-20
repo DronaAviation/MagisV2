@@ -78,6 +78,7 @@
 #include "telemetry/telemetry.h"
 #include "blackbox/blackbox.h"
 
+#include "flight/motor.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -106,7 +107,6 @@
 #include "API/Utils.h"
 #include "API/Peripheral.h"
 #include "API/Localisation.h"
-#include "API/Motor.h"
 #include "API/RxConfig.h"
 
 extern uint32_t previousTime;

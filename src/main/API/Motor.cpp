@@ -326,66 +326,6 @@ void Motor_P::setDirection ( reverse_motor_e motor, motor_direction_e direction 
   }
 }
 
-#if defined( PRIMUSX2 )
-void reverseMotorGPIOInit ( void ) {
-  GPIO_TypeDef *gpio;
-  gpio_config_t cfg;
-  // M1
-  gpio      = GPIOB;
-  cfg.pin   = Pin_4;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_4 );
 
-  // M2
-  gpio      = GPIOB;
-  cfg.pin   = Pin_5;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_5 );
-
-  // M3
-  gpio      = GPIOB;
-  cfg.pin   = Pin_6;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_6 );
-
-  // M4
-  gpio = GPIOB;
-
-  cfg.pin   = Pin_7;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_7 );
-
-  // M5
-  gpio      = GPIOB;
-  cfg.pin   = Pin_0;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalHi ( GPIOB, Pin_0 );
-
-  // M6
-  gpio      = GPIOB;
-  cfg.pin   = Pin_1;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  digitalLo ( GPIOB, Pin_1 );
-}
-
-#endif
 
 Motor_P Motor;

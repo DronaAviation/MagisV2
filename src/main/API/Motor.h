@@ -42,7 +42,7 @@ class Motor_P {
   void setDirection ( reverse_motor_e motor, motor_direction_e direction );
 };
 
-void reverseMotorGPIOInit ( void );
+
 
 extern Motor_P Motor;
 
