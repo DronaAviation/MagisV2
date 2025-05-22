@@ -271,6 +271,7 @@ DRONA_API =	API/Specifiers.cpp \
 		    		API/Peripheral.cpp \
 						API-Src/Status-LED.cpp \
 		    		API-Src/Peripheral-ADC.cpp \
+		    		API-Src/Peripheral-GPIO.cpp \
 		    		API/XRanging.cpp \
 						API/Sensor.cpp \
 						API/Control.cpp \

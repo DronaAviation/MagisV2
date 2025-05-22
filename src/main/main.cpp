@@ -106,6 +106,7 @@
 #include "API/API-Utils.h"
 #include "API/Utils.h"
 #include "API/Peripheral.h"
+#include "API/Peripherals.h"
 #include "API/Localisation.h"
 #include "API/RxConfig.h"
 
@@ -662,7 +663,7 @@ void init ( void ) {
   xRangingInit ( );
   if ( localisationType == UWB ) {
     UART.init ( UART2, BAUD_RATE_115200 );
-    GPIO.init ( Pin8, INPUT_PD );
+    Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );
   }
   // if(useRangingSensor)
   //     ranging_init();

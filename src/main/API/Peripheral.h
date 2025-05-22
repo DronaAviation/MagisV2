@@ -11,7 +11,7 @@
  #  Created Date: Thu, 8th May 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 8th May 2025                                           #
+ #  Last Modified: Thu, 22nd May 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -34,27 +34,7 @@ extern "C" {
 extern bool gpioReset;
 extern bool changeAdress;
 
-typedef enum {
-  INPUT,
-  INPUT_PU,
-  INPUT_PD,
-  OUTPUT,
-} GPIO_Mode_e;
 
-typedef enum {
-  STATE_LOW,
-  STATE_HIGH,
-  STATE_TOGGLE
-} GPIO_State_e;
-
-class GPIO_P {
- public:
-  void init ( unibus_e pin_number, GPIO_Mode_e mode );
-
-  bool read ( unibus_e pin_number );
-
-  void write ( unibus_e pin_number, GPIO_State_e STATE );
-};
 
 typedef enum {
   UART2,
@@ -150,29 +130,12 @@ class SPI_P {
   void write ( uint8_t register_address, uint8_t data );
 };
 
-extern GPIO_P GPIO;
+
 extern UART_P UART;
 extern I2C_P I2C;
 extern PWM_P PWM;
 extern SPI_P SPI;
 
-typedef enum peripheral_gpio {
-  GPIO_1,
-  GPIO_2,
-  GPIO_3,
-  GPIO_4,
-  GPIO_5,
-  GPIO_6,
-  GPIO_7,
-  GPIO_8,
-  GPIO_9,
-  GPIO_10,
-  GPIO_11,
-  GPIO_12,
-  GPIO_13,
-  GPIO_14,
-  GPIO_15
-} peripheral_gpio_pin;
 
 typedef enum peripheral_adc {
   ADC_1,
@@ -202,18 +165,7 @@ typedef enum peripheral_adc_channel {
   ADC3_IN1
 } Peripheral_ADC_Channel;
 
-typedef enum peripheral_pwm {
-  PWM_1,
-  PWM_2,
-  PWM_3,
-  PWM_4,
-  PWM_5,
-  PWM_6,
-  PWM_7,
-  PWM_8,
-  PWM_9,
-  PWM_10
-} peripheral_pwm_pin;
+
 
 #define ADC_CHANNEL_COUNT 11
 
@@ -243,4 +195,6 @@ extern Peripheral_M Peripheral;
 #ifdef __cplusplus
 }
 #endif
+
+
 #endif

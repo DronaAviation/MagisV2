@@ -15,10 +15,9 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 #include "API-Utils.h"
 #include "Peripheral.h"
+#include "Peripherals.h"
 #include "XRanging.h"
 
 LaserSensor laserLEFT;
@@ -27,211 +26,186 @@ LaserSensor laserFRONT;
 LaserSensor laserBACK;
 LaserSensor laserEXTERNAL;
 
-void XRanging_P::init(void)
-{
+void XRanging_P::init ( void ) {
 
-    isXLaserInit[LEFT] = true;
-    isXLaserInit[RIGHT] = true;
-    isXLaserInit[FRONT] = true;
-    isXLaserInit[BACK] = true;
-
+  isXLaserInit [ LEFT ]  = true;
+  isXLaserInit [ RIGHT ] = true;
+  isXLaserInit [ FRONT ] = true;
+  isXLaserInit [ BACK ]  = true;
 }
 
-void XRanging_P::init(laser_e laser)
-{
+void XRanging_P::init ( laser_e laser ) {
 
-    isXLaserInit[laser] = true;
-
+  isXLaserInit [ laser ] = true;
 }
 
+int16_t XRanging_P::getRange ( laser_e laser ) {
 
-int16_t XRanging_P::getRange(laser_e laser)
-{
-
-    switch (laser) {
+  switch ( laser ) {
 
     case LEFT:
-        if (isXLaserInit[laser])
+      if ( isXLaserInit [ laser ] )
 
-            return laserLEFT.startRanging();
+        return laserLEFT.startRanging ( );
 
-        else
-            return -1;
+      else
+        return -1;
 
-        break;
+      break;
 
     case RIGHT:
-        if (isXLaserInit[laser])
+      if ( isXLaserInit [ laser ] )
 
-            return laserRIGHT.startRanging();
+        return laserRIGHT.startRanging ( );
 
-        else
-            return -1;
+      else
+        return -1;
 
-        break;
+      break;
 
     case FRONT:
-        if (isXLaserInit[laser])
+      if ( isXLaserInit [ laser ] )
 
-            return laserFRONT.startRanging();
+        return laserFRONT.startRanging ( );
 
-        else
-            return -1;
+      else
+        return -1;
 
-        break;
+      break;
 
     case BACK:
-        if (isXLaserInit[laser])
+      if ( isXLaserInit [ laser ] )
 
-            return laserBACK.startRanging();
+        return laserBACK.startRanging ( );
 
-        else
-            return -1;
+      else
+        return -1;
 
-        break;
-
+      break;
 
     case EXTERNAL:
-        if (isXLaserInit[laser])
+      if ( isXLaserInit [ laser ] )
 
-            return laserEXTERNAL.startRanging();
-//            return NewSensorRange;
+        return laserEXTERNAL.startRanging ( );
+      //            return NewSensorRange;
 
-        else
-            return -1;
+      else
+        return -1;
 
-        break;
-
-    }
-
+      break;
+  }
 }
 
-void xRangingInit(void)
-{
+void xRangingInit ( void ) {
 
-    uint8_t address = 42;
+  uint8_t address = 42;
 
-    if (isXLaserInit[LEFT]) {
-        delay(10);
+  if ( isXLaserInit [ LEFT ] ) {
+    delay ( 10 );
 
-        GPIO.init(Pin15, OUTPUT); //LEFT
-        GPIO.write(Pin15, STATE_LOW);
+    Peripheral_Init ( GPIO_5, OUTPUT );        // LEFT
+    Peripheral_Write ( GPIO_5, STATE_LOW );    // GPIO.write(Pin15, STATE_LOW);
+  }
 
-    }
+  if ( isXLaserInit [ RIGHT ] ) {
+    delay ( 10 );
 
-    if (isXLaserInit[RIGHT]) {
-        delay(10);
+    Peripheral_Init ( GPIO_7, OUTPUT );        // RIGHT
+    Peripheral_Write ( GPIO_7, STATE_LOW );    // GPIO.write(Pin13, STATE_LOW);
+  }
 
-        GPIO.init(Pin13, OUTPUT); //RIGHT
-        GPIO.write(Pin13, STATE_LOW);
+  if ( isXLaserInit [ FRONT ] ) {
+    delay ( 10 );
+    Peripheral_Init ( GPIO_10, OUTPUT );        // FRONT
+    Peripheral_Write ( GPIO_10, STATE_LOW );    // GPIO.write(Pin10, STATE_LOW);
+  }
 
-    }
+  if ( isXLaserInit [ BACK ] ) {
+    delay ( 10 );
+    Peripheral_Init ( GPIO_11, OUTPUT );        // BACK
+    Peripheral_Write ( GPIO_11, STATE_LOW );    // GPIO.write(Pin9, STATE_LOW);
+  }
+  
+  if ( isXLaserInit [ EXTERNAL ] ) {
+    //        delay(10);
+    // GPIO.write(Pin9, STATE_LOW);
+    //        GPIO.init(Pin8, OUTPUT);  //BACK
+    //        GPIO.write(Pin8, STATE_LOW);
+  }
 
-    if (isXLaserInit[FRONT]) {
-        delay(10);
-        GPIO.init(Pin10, OUTPUT);  // FRONT
-        GPIO.write(Pin10, STATE_LOW);
+  if ( isXLaserInit [ LEFT ] ) {
 
-    }
+    delay ( 30 );
 
-    if (isXLaserInit[BACK]) {
-        delay(10);
-        GPIO.init(Pin9, OUTPUT);  //BACK
-        GPIO.write(Pin9, STATE_LOW);
+    Peripheral_Write ( GPIO_5, STATE_HIGH );
+    delay ( 30 );
 
-    }
+    laserLEFT.init ( );
+    delay ( 30 );
 
+    laserLEFT.setAddress ( address );
 
-    if (isXLaserInit[EXTERNAL]){
-//        delay(10);
-//        GPIO.init(Pin8, OUTPUT);  //BACK
-//        GPIO.write(Pin8, STATE_LOW);
+    address++;
+  }
 
-    }
+  if ( isXLaserInit [ RIGHT ] ) {
 
+    delay ( 30 );
 
-    if (isXLaserInit[LEFT]) {
+    Peripheral_Write ( GPIO_7, STATE_HIGH );
+    delay ( 30 );
 
-        delay(30);
+    laserRIGHT.init ( );
+    delay ( 30 );
+    laserRIGHT.setAddress ( address );
 
-        GPIO.write(Pin15, STATE_HIGH);
-        delay(30);
+    address++;
+  }
 
-        laserLEFT.init();
-        delay(30);
+  if ( isXLaserInit [ FRONT ] ) {
 
-        laserLEFT.setAddress(address);
+    delay ( 30 );
 
-        address++;
+    // GPIO.write(Pin10, STATE_HIGH);
+    delay ( 30 );
 
-    }
+    laserFRONT.init ( );
+    delay ( 30 );
+    laserFRONT.setAddress ( address );
 
-    if (isXLaserInit[RIGHT]) {
+    address++;
+  }
 
-        delay(30);
+  if ( isXLaserInit [ BACK ] ) {
+    delay ( 30 );
 
-        GPIO.write(Pin13, STATE_HIGH);
-        delay(30);
+    // GPIO.write(Pin9, STATE_HIGH);
+    delay ( 30 );
 
-        laserRIGHT.init();
-        delay(30);
-        laserRIGHT.setAddress(address);
+    laserBACK.init ( );
+    delay ( 30 );
+    laserBACK.setAddress ( address );
 
-        address++;
-    }
+    address++;
+  }
 
-    if (isXLaserInit[FRONT]) {
+  if ( isXLaserInit [ EXTERNAL ] ) {
 
-        delay(30);
+    //        delay(30);
+    //
+    //        GPIO.write(Pin8, STATE_HIGH);
+    //        delay(30);
 
-        GPIO.write(Pin10, STATE_HIGH);
-        delay(30);
+    laserEXTERNAL.init ( );
+    //   useRangingSensor=true;
+    //      delay(30);
+    //
+    //        laserEXTERNAL.setAddress(address);
+    //
+    //        address++;
+  }
 
-        laserFRONT.init();
-        delay(30);
-        laserFRONT.setAddress(address);
-
-        address++;
-
-    }
-
-    if (isXLaserInit[BACK]) {
-        delay(30);
-
-        GPIO.write(Pin9, STATE_HIGH);
-        delay(30);
-
-        laserBACK.init();
-        delay(30);
-        laserBACK.setAddress(address);
-
-        address++;
-
-    }
-
-
-    if (isXLaserInit[EXTERNAL]) {
-
-//        delay(30);
-//
-//        GPIO.write(Pin8, STATE_HIGH);
-//        delay(30);
-
-        laserEXTERNAL.init();
-     //   useRangingSensor=true;
-  //      delay(30);
-//
-//        laserEXTERNAL.setAddress(address);
-//
-//        address++;
-
-    }
-
-
-
-    delay(30);
-
+  delay ( 30 );
 }
 
 XRanging_P XRanging;
-
