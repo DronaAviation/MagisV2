@@ -63,10 +63,10 @@ jobs:
 
       - name: Print release step output
         run: |
-         echo "::group::Print release step output"
-         echo "release.outputs.result="
-         printf '%s\n' "${{ steps.release.outputs.result }}"
-         echo "::endgroup::"
+          echo "::group::Print release step output"
+          echo "release.outputs.result="
+          printf '%s\n' "${{ steps.release.outputs.result }}"
+          echo "::endgroup::"
 
       - name: Debug release output length
         run: |
