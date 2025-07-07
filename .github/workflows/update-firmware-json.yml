@@ -61,12 +61,11 @@ jobs:
         env:
           TAG_NAME: ${{ env.TAG_NAME }}
 
-      - name: Print release step output (file)
+      - name: Print release step output
         run: |
           echo "::group::Print release step output"
-          printf "%s" "${{ steps.release.outputs.result }}" > release_result.txt
           echo "release.outputs.result (below):"
-          cat release_result.txt
+          printf '${{ steps.release.outputs.result }}'
           echo "::endgroup::"
 
       - name: Write release.json
