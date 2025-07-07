@@ -77,7 +77,7 @@ jobs:
             echo "${{ steps.release.outputs.result }}" > release.json
             echo "Wrote release info to release.json"
           fi
-          echo "::endgroup::"s
+          echo "::endgroup::"
 
       - name: Debug release.json
         run: |
