@@ -71,14 +71,16 @@ jobs:
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
-          if [ -z "${{ steps.release.outputs.result }}" ]; then
+          RELEASE_OUTPUT='${{ steps.release.outputs.result }}'
+          if [ -z "$RELEASE_OUTPUT" ]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
-            echo "${{ steps.release.outputs.result }}" > release.json
+            echo "$RELEASE_OUTPUT" > release.json
             echo "Wrote release info to release.json"
           fi
           echo "::endgroup::"
+
 
 
       - name: Debug release.json
