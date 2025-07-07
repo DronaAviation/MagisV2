@@ -65,13 +65,13 @@ jobs:
         run: |
           echo "::group::Print release step output"
           echo "release.outputs.result (below):"
-          printf "%s\n" "${{ steps.release.outputs.result }}"
+          printf '${{ steps.release.outputs.result }}'
           echo "::endgroup::"
 
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
-          if [ -z "${{ steps.release.outputs.result }}" ] || [ "${{ steps.release.outputs.result }}" = "null" ]; then
+          if [ -z '${{ steps.release.outputs.result }}' ] || [ '${{ steps.release.outputs.result }}' = "null" ]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
@@ -136,4 +136,4 @@ jobs:
           echo "::group::Debug meta repo contents"
           ls -l meta/
           git -C meta log --oneline -n 3
-          echo "::endgroup::"
+          echo "::endgroup::"  
