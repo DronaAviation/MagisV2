@@ -64,16 +64,10 @@ jobs:
       - name: Print release step output
         run: |
           echo "::group::Print release step output"
-          echo "release.outputs.result="
-          printf '%s\n' "${{ steps.release.outputs.result }}"
+          echo "release.outputs.result=${{ steps.release.outputs.result }}"
           echo "::endgroup::"
 
-      - name: Debug release output length
-        run: |
-          echo "::group::Debug release output length"
-          echo "Length: $(printf "%s" "${{ steps.release.outputs.result }}" | wc -c)"
-          echo "::endgroup::"
-
+     
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
