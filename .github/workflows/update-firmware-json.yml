@@ -64,10 +64,11 @@ jobs:
       - name: Print release step output
         run: |
           echo "::group::Print release step output"
-          echo "release.outputs.result=${{ steps.release.outputs.result }}"
+          echo 'release.outputs.result<<EOF'
+          echo "${{ steps.release.outputs.result }}"
+          echo 'EOF'
           echo "::endgroup::"
 
-     
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
