@@ -64,9 +64,8 @@ jobs:
       - name: Print release step output
         run: |
           echo "::group::Print release step output"
-          echo 'release.outputs.result<<EOF'
-          echo "${{ steps.release.outputs.result }}"
-          echo 'EOF'
+          echo "release.outputs.result (below):"
+          printf "%s\n" "${{ steps.release.outputs.result }}"
           echo "::endgroup::"
 
       - name: Write release.json
