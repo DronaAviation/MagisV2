@@ -92,8 +92,6 @@ jobs:
         run: |
           echo "::group::Write release.json"
 
-          RELEASE_JSON="${{ steps.release.outputs.result }}"
-
           if [ -z "$RELEASE_JSON" ] || [ "$RELEASE_JSON" = "null" ]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
@@ -103,6 +101,8 @@ jobs:
           fi
 
           echo "::endgroup::"
+        env:
+          RELEASE_JSON: ${{ steps.release.outputs.result }} 
           
       
       - name: Show release.json info
