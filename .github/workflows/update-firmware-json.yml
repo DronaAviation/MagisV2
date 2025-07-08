@@ -72,11 +72,13 @@ jobs:
         run: |
           echo "::group::Write release.json"
 
-          if [[ "${{ steps.release.outputs.result }}" == "" || "${{ steps.release.outputs.result }}" == "null" ]]; then
+          RELEASE_JSON='${{ steps.release.outputs.result }}'
+
+          if [ -z "$RELEASE_JSON" ] || [ "$RELEASE_JSON" = "null" ]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
-            printf "%s" "${{ steps.release.outputs.result }}" > release.json
+            echo "$RELEASE_JSON" > release.json
             echo "Wrote release info to release.json"
           fi
 
@@ -94,13 +96,25 @@ jobs:
           tail -c 1000 release.json
           echo "::endgroup::"
 
-
-
       - name: Debug release.json
         run: |
           echo "::group::Debug release.json"
           cat release.json
           echo "::endgroup::"
+
+      - name: Validate release assets structure
+        run: |
+          echo "::group::Validate release asset fields"
+          missing=$(jq '[.assets[] | select((.name == null) or (.browser_download_url == null))] | length' release.json)
+          if [ "$missing" -gt 0 ]; then
+             echo "❌ Some assets are missing 'name' or 'browser_download_url'."
+             jq '[.assets[] | select((.name == null) or (.browser_download_url == null))]' release.json
+             exit 1
+          else
+             echo "✅ All assets have valid 'name' and 'browser_download_url'."
+          fi
+          echo "::endgroup::"
+
 
       - name: Generate firmware.json
         run: |
