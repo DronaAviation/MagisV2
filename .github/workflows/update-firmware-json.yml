@@ -65,22 +65,35 @@ jobs:
         run: |
           echo "::group::Print release step output"
           echo "release.outputs.result (below):"
-          printf "%s\n" "${{ steps.release.outputs.result }}"
+          printf '${{ steps.release.outputs.result }}'
           echo "::endgroup::"
 
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
-          RELEASE_OUTPUT="${{ steps.release.outputs.result }}"
-          if [ -z "$RELEASE_OUTPUT" ] || [ "$RELEASE_OUTPUT" = "null" ]; then
+          if [ -z "${{ steps.release.outputs.result }}" ] || [ "${{ steps.release.outputs.result }}" = "null" ]; then 
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
             printf "%s" "${{ steps.release.outputs.result }}" > release.json
-            echo "Wrote full release metadata to release.json"
+            echo "Wrote release info to release.json"
           fi
 
           echo "::endgroup::"
+          
+      
+      - name: Show release.json info
+        run: |
+          echo "::group::Preview release.json"
+          echo "File size (bytes):"
+          wc -c release.json
+          echo "File content (first 1000 characters):"
+          head -c 1000 release.json
+          echo "File content (last 1000 characters):"
+          tail -c 1000 release.json
+          echo "::endgroup::"
+
+
 
       - name: Debug release.json
         run: |
@@ -138,4 +151,4 @@ jobs:
           echo "::group::Debug meta repo contents"
           ls -l meta/
           git -C meta log --oneline -n 3
-          echo "::endgroup::"
+          echo "::endgroup::"   
