@@ -72,7 +72,7 @@ jobs:
         run: |
           echo "::group::Write release.json"
 
-          RELEASE_JSON='${{ steps.release.outputs.result }}'
+          RELEASE_JSON="${{ steps.release.outputs.result }}"
 
           if [ -z "$RELEASE_JSON" ] || [ "$RELEASE_JSON" = "null" ]; then
             echo '{}' > release.json
