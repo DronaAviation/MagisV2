@@ -63,8 +63,10 @@ jobs:
 
       - name: Dump release.outputs.result to temp file
         run: |
-          echo "${{ steps.release.outputs.result }}" > raw_release_output.txt
-        
+          printf "%s" "$RELEASE_JSON" > raw_release_output.txt
+        env:
+          RELEASE_JSON: ${{ steps.release.outputs.result }}
+
       - name: Print release step output
         run: |
           echo "::group::Print release step output"
