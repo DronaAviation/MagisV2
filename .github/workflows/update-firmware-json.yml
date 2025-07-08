@@ -61,12 +61,30 @@ jobs:
         env:
           TAG_NAME: ${{ env.TAG_NAME }}
 
+      - name: Dump release.outputs.result to temp file
+        run: |
+          echo "${{ steps.release.outputs.result }}" > raw_release_output.txt
+        
       - name: Print release step output
         run: |
           echo "::group::Print release step output"
-          echo "release.outputs.result (below):"
-          printf "%s\n" "${{ steps.release.outputs.result }}"
+          echo "First 500 chars:"
+          head -c 500 raw_release_output.txt
+          echo 
+          echo "Byte size:"
+          wc -c < raw_release_output.txt
           echo "::endgroup::"
+
+      - name: Validate raw JSON
+        run: |
+          echo "::group::Validate raw JSON"
+          if jq empty raw_release_output.txt; then
+             echo "JSON is valid"
+          else
+             echo "JSON is invalid"
+             cat raw_release_output.txt
+             exit 1
+          fi
 
       - name: Write release.json
         run: |
