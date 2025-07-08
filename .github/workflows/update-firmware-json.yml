@@ -65,18 +65,17 @@ jobs:
         run: |
           echo "::group::Print release step output"
           echo "release.outputs.result (below):"
-          echo "${{ steps.release.outputs.result }}"
+          printf '${{ steps.release.outputs.result }}'
           echo "::endgroup::"
 
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
-          RELEASE_OUTPUT=$(echo '${{ steps.release.outputs.result }}')
-          if [ -z "$RELEASE_OUTPUT" ]; then
+          if [ -z '${{ steps.release.outputs.result }}' ] || [ '${{ steps.release.outputs.result }}' = "null" ]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
-            echo "$RELEASE_OUTPUT" > release.json
+            printf "%s" "${{ steps.release.outputs.result }}" > release.json
             echo "Wrote release info to release.json"
           fi
           echo "::endgroup::"
@@ -90,21 +89,25 @@ jobs:
       - name: Generate firmware.json
         run: |
           echo "::group::Generate firmware.json"
-          set -e
-          jq empty release.json || { echo "Invalid JSON in release.json"; cat release.json; exit 1; }
-
-          jq -r --arg version "$TAG_NAME" '
-            {
-              version: $version,
-              firmwares: (
-                [ .assets[] | { key: (.name | split("_")[0]), value: { filename: .name, url: .browser_download_url } } ]
-                | from_entries
-              )
-            }
-          ' release.json > firmware.json
-
-          echo "Generated firmware.json:"
-          cat firmware.json
+          set -x
+          if jq empty release.json; then
+            jq -r --arg version "$TAG_NAME" '
+              {
+                version: $version,
+                firmwares: (
+                  [ .assets[] | { key: (.name | split("_")[0]), value: { filename: .name, url: .browser_download_url } } ]
+                  | from_entries
+                )
+              }
+            ' release.json > firmware.json
+            echo "Generated firmware.json:"
+            cat firmware.json
+          else
+            echo "release.json is not valid JSON. Exiting."
+            cat release.json
+            exit 1
+          fi
+          set +x
           echo "::endgroup::"
 
       - name: Clone Update-automation-firmware repo
@@ -121,7 +124,9 @@ jobs:
           cd meta
           git config user.name "GitHub Action"
           git config user.email "actions@github.com"
+          git status
           git add firmware.json
+          git status
           git commit -m "Update firmware metadata for $TAG_NAME" || echo "No changes to commit"
           git push
           echo "::endgroup::"
@@ -131,4 +136,4 @@ jobs:
           echo "::group::Debug meta repo contents"
           ls -l meta/
           git -C meta log --oneline -n 3
-          echo "::endgroup::"
+          echo "::endgroup::"   
