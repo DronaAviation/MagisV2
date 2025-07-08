@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "::group::Print release step output"
           echo "release.outputs.result (below):"
-          printf '${{ steps.release.outputs.result }}'
+          printf "%s\n" "${{ steps.release.outputs.result }}"
           echo "::endgroup::"
 
       - name: Write release.json
@@ -76,9 +76,10 @@ jobs:
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
-            printf "%s" "$RELEASE_OUTPUT" > release.json
-            echo "Wrote release info to release.json"
+            printf "%s" "${{ steps.release.outputs.result }}" > release.json
+            echo "Wrote full release metadata to release.json"
           fi
+
           echo "::endgroup::"
 
       - name: Debug release.json
@@ -137,4 +138,4 @@ jobs:
           echo "::group::Debug meta repo contents"
           ls -l meta/
           git -C meta log --oneline -n 3
-          echo "::endgroup::"   
+          echo "::endgroup::"
