@@ -78,7 +78,7 @@ jobs:
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
-            echo "$RELEASE_JSON" > release.json
+            printf '%s' "$RELEASE_JSON" > release.json
             echo "Wrote release info to release.json"
           fi
 
