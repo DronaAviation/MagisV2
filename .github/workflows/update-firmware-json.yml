@@ -71,7 +71,8 @@ jobs:
       - name: Write release.json
         run: |
           echo "::group::Write release.json"
-          if [ -z "${{ steps.release.outputs.result }}" ] || [ "${{ steps.release.outputs.result }}" = "null" ]; then 
+
+          if [[ "${{ steps.release.outputs.result }}" == "" || "${{ steps.release.outputs.result }}" == "null" ]]; then
             echo '{}' > release.json
             echo "No release info, wrote empty JSON"
           else
