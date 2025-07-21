@@ -249,11 +249,18 @@ void apmBaroRead ( uint32_t currentTime ) {
 void icp10111BaroUpdate ( uint32_t currentTime ) {
 
   uint32_t ctime = currentTime / 1000;
+  
+  // Ensure a measurement is always running
+  static bool measurementStarted = false;
+  if (!measurementStarted) {
+      baro.measurment_start(VERY_ACCURATE);
+      measurementStarted = true;
+  }
 
-  if ( baro.read ( ctime, &baroPressure, &baroTemperature ) ) {
-
-    _last_update = millis ( );
-    // baro.measurment_start ( VERY_ACCURATE );
+  if (baro.read(ctime, &baroPressure, &baroTemperature)) {
+      _last_update = millis();
+      // Start the next measurement immediately after successful read
+      baro.measurment_start(VERY_ACCURATE);
   }
 }
 
@@ -460,6 +467,12 @@ void baroCalibrate ( void ) {
   apmBaroCalibrate ( );
 
   #endif
+}
+// Add this function near the existing baroCalibrate() function
+void baroResetGroundLevel(void) {
+    // Quick ground level reset (single reading)
+    baroGroundPressure = getBaroPressure();
+    baroGroundTemperature = getBaroTemperature();
 }
 
 #endif /* BARO */

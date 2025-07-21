@@ -543,6 +543,7 @@ void mwArm ( void ) {
 
   if ( ( ARMING_FLAG ( OK_TO_ARM ) || netAccMagnitude < 2 ) && isCalibrated && ! isBatteryLow ) {
     if ( ARMING_FLAG ( ARMED ) ) {
+      baroResetGroundLevel( );
       return;
     }
     if ( IS_RC_MODE_ACTIVE ( BOXFAILSAFE ) ) {
