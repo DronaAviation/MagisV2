@@ -60,8 +60,6 @@ float getBaroTemperature(void);
 uint32_t getBaroLastUpdate(void);
 void performBaroCalibrationCycle(void);
 void baroCalibrate(void);
-// Add this declaration with other barometer function declarations
-void baroResetGroundLevel(void);
 
 
 #endif

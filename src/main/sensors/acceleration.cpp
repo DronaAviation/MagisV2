@@ -26,7 +26,7 @@
 #include "common/color.h"
 #include "common/utils.h"
 
-#include "drivers/light_led.h"
+
 #include "drivers/system.h"
 #include "drivers/sensor.h"
 #include "drivers/accgyro.h"
@@ -459,9 +459,11 @@ void calibrate_accel(float trim_roll, float trim_pitch)
 //    accel_scale[1]=1;
 //    accel_scale[2]=1;
 
-    ledOperator ( LEDr, LED_OFF );
-    ledOperator ( LEDg, LED_OFF );
-    ledOperator ( LEDb, LED_OFF );
+
+
+    LED.set(RED, OFF);
+    LED.set(GREEN, OFF);
+    LED.set(BLUE, OFF);
 
     delay(3000);
 
@@ -478,47 +480,51 @@ void calibrate_accel(float trim_roll, float trim_pitch)
         switch ( i ) {
             case 0:
 
-              ledOperator ( LEDr, LED_ON );
-              ledOperator ( LEDg, LED_OFF );
-              ledOperator ( LEDb, LED_OFF );
+                LED.set(RED, ON);
+                LED.set(GREEN, OFF);
+                LED.set(BLUE, OFF);
 
-              break;
+                break;
             case 1:
 
-              ledOperator ( LEDr, LED_OFF );
-              ledOperator ( LEDg, LED_ON );
-              ledOperator ( LEDb, LED_OFF );
+                LED.set(RED, OFF);
+                LED.set(GREEN, ON);
+                LED.set(BLUE, OFF);
 
-              break;
+
+                break;
             case 2:
 
-              ledOperator ( LEDr, LED_OFF );
-              ledOperator ( LEDg, LED_OFF );
-              ledOperator ( LEDb, LED_ON );
+                LED.set(RED, OFF);
+                LED.set(GREEN, OFF);
+                LED.set(BLUE, ON);
 
-              break;
+
+                break;
             case 3:
 
-              ledOperator ( LEDr, LED_ON );
-              ledOperator ( LEDg, LED_ON );
-              ledOperator ( LEDb, LED_OFF );
+                LED.set(RED, ON);
+                LED.set(GREEN, ON);
+                LED.set(BLUE, OFF);
 
-              break;
+
+                break;
             case 4:
 
-              ledOperator ( LEDr, LED_ON );
-              ledOperator ( LEDg, LED_OFF );
-              ledOperator ( LEDb, LED_ON );
+                LED.set(RED, ON);
+                LED.set(GREEN, OFF);
+                LED.set(BLUE, ON);
 
-              break;
+
+                break;
             default:    // default added to avoid compiler warning
             case 5:
+                LED.set(RED, OFF);
+                LED.set(GREEN, ON);
+                LED.set(BLUE, ON);
 
-              ledOperator ( LEDr, LED_OFF );
-              ledOperator ( LEDg, LED_ON );
-              ledOperator ( LEDb, LED_ON );
 
-              break;
+                break;
         }
 
 
@@ -612,16 +618,16 @@ void calibrate_accel(float trim_roll, float trim_pitch)
     	flightAccelCalData->accel_scale[1]=new_scaling[1];
     	flightAccelCalData->accel_scale[2]=new_scaling[2];
 
-      ledOperator ( LEDr, LED_ON);
-      ledOperator ( LEDg, LED_ON );
-      ledOperator ( LEDb, LED_ON );
+        LED.set(RED, ON);
+        LED.set(GREEN, ON);
+        LED.set(BLUE, ON);
 
-      saveConfigAndNotify ( );
+        saveConfigAndNotify();
 
-      delay ( 4000 );
+        delay(4000);
 
-      calibratingA = 0;
-      return;
+        calibratingA=0;
+    	return;
 
     }else {
 
@@ -636,9 +642,9 @@ void calibrate_accel(float trim_roll, float trim_pitch)
     }
 
 
-    ledOperator ( LEDr, LED_TOGGLE );
-    ledOperator ( LEDg, LED_OFF );
-    ledOperator ( LEDb, LED_OFF );
+    LED.set(RED, TOGGLE);
+    LED.set(GREEN, OFF);
+    LED.set(BLUE, OFF);
 
     delay(4000);
 
