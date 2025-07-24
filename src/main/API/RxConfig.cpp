@@ -3,24 +3,21 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-MechAsh-Dev                                               #
  #  File: \RxConfig.cpp                                                        #
  #  Created Date: Tue, 26th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 3rd Apr 2025                                           #
+ #  Last Modified: Tue, 29th Apr 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
-*******************************************************************************/
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-
+ *******************************************************************************/
 #include "platform.h"
+
+#include "API/RxConfig.h"
 
 #include "common/color.h"
 #include "common/axis.h"
@@ -53,19 +50,19 @@
 
 #include "config/runtime_config.h"
 #include "config/config.h"
-
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#include "PlutoPilot.h"
-#include "RxConfig.h"
+// #include "API/PlutoPilot.h"
 
 // Global variables to store device mode configuration
 uint8_t DevModeAUX       = 0;    // Auxiliary channel for device mode
 uint16_t DevModeMinRange = 0;    // Minimum range for device mode
 uint16_t DevModeMaxRange = 0;    // Maximum range for device mode
 
-rx_mode_e RxMode = Rx_ESP;
+bool AuxChangeEnable = false;     // Indicates if auxiliary channel changes are allowed
+bool ESP_WiFi_Status = true;      // current selested ESP Wi-Fi connection status
+rx_mode_e RxMode     = Rx_ESP;    // Current selected receiver mode
 
 /**
  * Configures auxiliary channels for a specific flight mode.
@@ -75,7 +72,7 @@ rx_mode_e RxMode = Rx_ESP;
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configAUX ( flight_mode flightMode, rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Aux_Config ( flight_mode flightMode, rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   switch ( flightMode ) {
     case Mode_ARM:
       currentProfile->modeActivationConditions [ 0 ] = { ( boxId_e ) BOXARM, rxChannel - NON_AUX_CHANNEL_COUNT, CHANNEL_VALUE_TO_STEP ( minRange ), CHANNEL_VALUE_TO_STEP ( maxRange ) };
@@ -97,55 +94,62 @@ void Rc_Rx_Config_P::configAUX ( flight_mode flightMode, rx_channel_e rxChannel,
   }
 }
 
-bool AuxChangeEnable = false;
-
 /**
- * Configures the receiver mode and sets up auxiliary channels accordingly.
+ * @brief Configures the receiver mode and sets up auxiliary channels accordingly.
  *
- * @param rxMode The receiver mode to configure (e.g., Rx_ESP, Rx_PPM).
+ * Sets the feature flags, auxiliary channel configuration, and developer mode settings
+ * depending on the selected receiver mode.
+ *
+ * @param[in] rxMode The receiver mode to configure (e.g., Rx_ESP, Rx_PPM, Rx_CAM).
  */
-void Rc_Rx_Config_P::rxMode ( rx_mode_e rxMode ) {
+void Receiver_Mode ( rx_mode_e rxMode ) {
+  // Clear all conflicting features before setting new ones
+  featureClear ( FEATURE_RX_SERIAL );
+  featureClear ( FEATURE_RX_PARALLEL_PWM );
+  featureClear ( FEATURE_RX_PPM );
+  featureClear ( FEATURE_RX_MSP );
+
   switch ( rxMode ) {
     case Rx_ESP:
+    case Rx_CAM: {
       AuxChangeEnable = false;
       featureSet ( FEATURE_RX_MSP );
-      featureClear ( FEATURE_RX_SERIAL );
-      featureClear ( FEATURE_RX_PARALLEL_PWM );
-      featureClear ( FEATURE_RX_PPM );
 
-      // Configure auxiliary channels for various modes
-      configAUX ( Mode_ARM, Rx_AUX4, 1300, 2100 );
-      configAUX ( Mode_ANGLE, Rx_AUX4, 900, 2100 );
-      configAUX ( Mode_BARO, Rx_AUX3, 1300, 2100 );
-      configAUX ( Mode_MAG, Rx_AUX1, 900, 1300 );
-      configAUX ( Mode_HEADFREE, Rx_AUX1, 1300, 1700 );
-      DevModeAUX      = Rx_AUX2;    // Set the auxiliary channel
-      DevModeMinRange = 1450;       // Set the minimum range
-      DevModeMaxRange = 1550;       // Set the maximum range
+      Receiver_Aux_Config ( Mode_ARM, Rx_AUX4, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_ANGLE, Rx_AUX4, 900, 2100 );
+      Receiver_Aux_Config ( Mode_BARO, Rx_AUX3, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_MAG, Rx_AUX1, 900, 1300 );
+      Receiver_Aux_Config ( Mode_HEADFREE, Rx_AUX1, 1300, 1700 );
+
+      DevModeAUX      = Rx_AUX2;
+      DevModeMinRange = 1450;
+      DevModeMaxRange = 1550;
+
+      ESP_WiFi_Status = ( rxMode == Rx_ESP ); /* ? true : false; */ /* ( rxMode == Rx_ESP ) ;*/    // True only if Rx_ESP
       break;
+    }
 
-    case Rx_PPM:
+    case Rx_PPM: {
       AuxChangeEnable = true;
-
       featureSet ( FEATURE_RX_PPM );
-      featureClear ( FEATURE_RX_SERIAL );
-      featureClear ( FEATURE_RX_PARALLEL_PWM );
-      featureClear ( FEATURE_RX_MSP );
 
-      // Configure auxiliary channels for various modes
-      configAUX ( Mode_ARM, Rx_AUX2, 1300, 2100 );
-      configAUX ( Mode_ANGLE, Rx_AUX2, 900, 2100 );
-      configAUX ( Mode_BARO, Rx_AUX3, 1300, 2100 );
-      configAUX ( Mode_MAG, Rx_AUX1, 900, 1300 );
-      configAUX ( Mode_HEADFREE, Rx_AUX1, 1300, 1700 );
-      configureDevMode ( Rx_AUX4, 1500, 2100 );
+      Receiver_Aux_Config ( Mode_ARM, Rx_AUX2, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_ANGLE, Rx_AUX2, 900, 2100 );
+      Receiver_Aux_Config ( Mode_BARO, Rx_AUX3, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_MAG, Rx_AUX1, 900, 1300 );
+      Receiver_Aux_Config ( Mode_HEADFREE, Rx_AUX1, 1300, 1700 );
+
+      Receiver_Config_Mode_Dev ( Rx_AUX4, 1500, 2100 );
+
+      ESP_WiFi_Status = true;
       break;
+    }
 
     default:
+      // Unknown receiver mode; no action taken
       break;
   }
 }
-
 /**
  * Configures ARM mode if auxiliary change is enabled.
  *
@@ -153,9 +157,9 @@ void Rc_Rx_Config_P::rxMode ( rx_mode_e rxMode ) {
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configureArmMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Arm ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   if ( AuxChangeEnable ) {
-    configAUX ( Mode_ARM, rxChannel, minRange, maxRange );
+    Receiver_Aux_Config ( Mode_ARM, rxChannel, minRange, maxRange );
   }
 }
 
@@ -166,9 +170,9 @@ void Rc_Rx_Config_P::configureArmMode ( rx_channel_e rxChannel, uint16_t minRang
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configureModeANGLE ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Mode_Angle ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   if ( AuxChangeEnable ) {
-    configAUX ( Mode_ANGLE, rxChannel, minRange, maxRange );
+    Receiver_Aux_Config ( Mode_ANGLE, rxChannel, minRange, maxRange );
   }
 }
 
@@ -179,9 +183,9 @@ void Rc_Rx_Config_P::configureModeANGLE ( rx_channel_e rxChannel, uint16_t minRa
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configureModeBARO ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Mode_Baro ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   if ( AuxChangeEnable ) {
-    configAUX ( Mode_BARO, rxChannel, minRange, maxRange );
+    Receiver_Aux_Config ( Mode_BARO, rxChannel, minRange, maxRange );
   }
 }
 
@@ -192,9 +196,9 @@ void Rc_Rx_Config_P::configureModeBARO ( rx_channel_e rxChannel, uint16_t minRan
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configureMagMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Mode_Mag ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   if ( AuxChangeEnable ) {
-    configAUX ( Mode_MAG, rxChannel, minRange, maxRange );
+    Receiver_Aux_Config ( Mode_MAG, rxChannel, minRange, maxRange );
   }
 }
 
@@ -205,9 +209,9 @@ void Rc_Rx_Config_P::configureMagMode ( rx_channel_e rxChannel, uint16_t minRang
  * @param minRange The minimum range value for activation.
  * @param maxRange The maximum range value for activation.
  */
-void Rc_Rx_Config_P::configureHeadfreeMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Mode_HeadFree ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   if ( AuxChangeEnable ) {
-    configAUX ( Mode_HEADFREE, rxChannel, minRange, maxRange );
+    Receiver_Aux_Config ( Mode_HEADFREE, rxChannel, minRange, maxRange );
   }
 }
 
@@ -222,7 +226,7 @@ void Rc_Rx_Config_P::configureHeadfreeMode ( rx_channel_e rxChannel, uint16_t mi
  * @param minRange The minimum range value for the device mode.
  * @param maxRange The maximum range value for the device mode.
  */
-void Rc_Rx_Config_P::configureDevMode ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
+void Receiver_Config_Mode_Dev ( rx_channel_e rxChannel, uint16_t minRange, uint16_t maxRange ) {
   // Check if change in auxiliary settings is enabled
   if ( AuxChangeEnable ) {
     DevModeAUX      = rxChannel;    // Set the auxiliary channel
@@ -231,41 +235,42 @@ void Rc_Rx_Config_P::configureDevMode ( rx_channel_e rxChannel, uint16_t minRang
   }
 }
 
-Rc_Rx_Config_P Receiver;
+// Rc_Rx_Config_P Receiver;
 
-void ESP_ON ( void ) {
-  digitalLo ( GPIOB, Pin_3 );
+/**
+ * @brief Turns on the ESP WiFi by setting GPIOB Pin_3 to low.
+ */
+void ESP_WiFi_ON ( void ) {
+  digitalLo ( GPIOB, Pin_3 );    // Set GPIOB Pin_3 to low to turn on WiFi
 }
 
-void ESP_OFF ( ) {
-  digitalHi ( GPIOB, Pin_3 );
+/**
+ * @brief Turns off the ESP WiFi by setting GPIOB Pin_3 to high.
+ */
+void ESP_WiFi_OFF ( void ) {
+  digitalHi ( GPIOB, Pin_3 );    // Set GPIOB Pin_3 to high to turn off WiFi
 }
 
-unsigned long Sys_Start_Time;
-bool functionExecuted = false;
-
-void ESP_Init ( void ) {
+/**
+ * @brief Initializes GPIOB Pin_3 for ESP IO14 with specific configurations.
+ *
+ * This function configures the GPIO pin PB3 as an output with push-pull mode
+ * and a speed of 2MHz. It also enables the clock for GPIOB and sets the initial
+ * state of the WiFi based on the current status.
+ */
+void STM_PB3_ESP_IO14_Init ( void ) {
   GPIO_TypeDef *gpio;
   gpio_config_t cfg;
-  gpio      = GPIOB;
-  cfg.pin   = Pin_3;
-  cfg.mode  = Mode_Out_PP;
-  cfg.speed = Speed_2MHz;
-  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-  gpioInit ( gpio, &cfg );
-  ESP_ON ( );
-  // delay ( 100 );
-  // ESP_OFF ( );
-  Sys_Start_Time = millis ( );
-}
+  gpio      = GPIOB;                                        // Select GPIO port B
+  cfg.pin   = Pin_3;                                        // Configure pin 3
+  cfg.mode  = Mode_Out_PP;                                  // Set mode to output push-pull
+  cfg.speed = Speed_2MHz;                                   // Set speed to 2MHz
+  RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );    // Enable clock for GPIOB
+  gpioInit ( gpio, &cfg );                                  // Initialize GPIO with the specified configuration
 
-void ESP_Dealy_ON ( void ) {
-  // if ( ! functionExecuted && millis ( ) - Sys_Start_Time >= 2000 ) {
-  //   ESP_ON ( );
-  //   delay ( 100 );
-  //   ESP_OFF ( );
-  //   delay ( 100 );
-  //   ESP_ON ( );
-  //   functionExecuted = true;    // Ensure it runs only once
-  // }
+  if ( ! ESP_WiFi_Status ) {    // Check if WiFi is off
+    ESP_WiFi_OFF ( );           // Turn off WiFi
+  } else {
+    ESP_WiFi_ON ( );    // Turn on WiFi
+  }
 }

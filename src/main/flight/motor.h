@@ -11,7 +11,7 @@
  #  Created Date: Tue, 15th Apr 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 20th Apr 2025                                          #
+ #  Last Modified: Tue, 20th May 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,6 +26,8 @@ extern "C" {
 #endif
 
 void MotroWakeUp ( void );
+
+void reverseMotorGPIOInit ( void );
 
 #ifdef __cplusplus
 }

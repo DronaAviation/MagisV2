@@ -78,6 +78,7 @@
 #include "telemetry/telemetry.h"
 #include "blackbox/blackbox.h"
 
+#include "flight/motor.h"
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -105,8 +106,8 @@
 #include "API/API-Utils.h"
 #include "API/Utils.h"
 #include "API/Peripheral.h"
+#include "API/Peripherals.h"
 #include "API/Localisation.h"
-#include "API/Motor.h"
 #include "API/RxConfig.h"
 
 extern uint32_t previousTime;
@@ -204,8 +205,8 @@ void init ( void ) {
 
   ledInit ( );
 
-  //! NEW : ESP Delayed WiFi Integration
-  ESP_Init ( );
+  // ESP WIFI Control
+  STM_PB3_ESP_IO14_Init ( );
 
 #ifdef SPEKTRUM_BIND
   if ( feature ( FEATURE_RX_SERIAL ) ) {
@@ -656,12 +657,13 @@ void init ( void ) {
     OledStartUpInit ( );
   }
 
-#if defined( PRIMUSX ) || defined( PRIMUSX2 )
-  unibusAdcInit ( );
+#ifdef PRIMUSX2
+
+  APIAdcInit ( );
   xRangingInit ( );
   if ( localisationType == UWB ) {
     UART.init ( UART2, BAUD_RATE_115200 );
-    GPIO.init ( Pin8, INPUT_PD );
+    Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );
   }
   // if(useRangingSensor)
   //     ranging_init();

@@ -158,6 +158,9 @@ bool icp10111Detect ( baro_t *baro ) {
   _meas_start    = millis ( );
   _data_ready    = false;
 
+  // Start the first measurement immediately after detection
+  icp10111_measureStart(VERY_ACCURATE);
+
   return true;
 }
 
@@ -231,7 +234,7 @@ void icp10111_calculate ( float *pressure, float *temperature, uint32_t raw_p, u
 }
 
 static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temperature ) {
-
+// icp10111_measureStart(VERY_ACCURATE);
   if ( _data_ready ) {
     return true;    // Data is already processed, no need to read again
   }

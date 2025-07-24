@@ -18,8 +18,11 @@
 #ifndef _PlutoPilot_H_
 #define _PlutoPilot_H_
 
-#include <stdint.h>
-#include "RxConfig.h"
+#include "API/RxConfig.h"
+#include "API/Peripheral.h"
+#include "API/Peripherals.h"
+#include "API/Status-LED.h"
+#include "API/Motor.h"
 
 void plutoRxConfig ( void );
 

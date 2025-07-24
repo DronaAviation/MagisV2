@@ -24,7 +24,7 @@
 
 #include "config/runtime_config.h"
 
-#include "API/API-Utils.h"
+#include "API/Status-LED.h"
 #include "io/beeper.h"
 #include "drivers/light_led.h"
 #include "drivers/system.h"
@@ -99,7 +99,7 @@ void flightStatusIndicator ( void ) {
   static uint8_t counter       = 0;
   static uint8_t toggle_switch = 1;
   LedTime                      = millis ( );                                            // indicates the current time in milliseconds//
-  if ( ( int32_t ) ( LedTime - ActiveTime ) >= delay_time && FlightStatusEnabled ) {    // LedTime - ActiveTime is the time for which the LED should be ON//
+  if ( ( int32_t ) ( LedTime - ActiveTime ) >= delay_time && LedStatusState ) {    // LedTime - ActiveTime is the time for which the LED should be ON//
     counter++;
     switch ( leastSignificantBit ( flightIndicatorFlag ) ) {
       case Accel_Gyro_Calibration: {
