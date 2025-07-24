@@ -1,0 +1,189 @@
+name: Update Firmware Metadata
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Firmware tag name'
+        required: true
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout MagisV2 repository
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: |
+          echo "::group::Install jq"
+          sudo apt-get update && sudo apt-get install -y jq
+          jq --version
+          echo "::endgroup::"
+
+      - name: Set tag name
+        id: set_tag
+        run: |
+          echo "::group::Set tag name"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "Set tag name from release event: ${{ github.ref_name }}"
+          else
+            echo "TAG_NAME=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+            echo "Set tag name from workflow_dispatch input: ${{ github.event.inputs.tag_name }}"
+          fi
+          echo "::endgroup::"
+
+      - name: Debug tag name
+        run: echo "TAG_NAME is $TAG_NAME"
+
+      - name: Get release info
+        id: release
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          result-encoding: string
+          script: |
+            core.startGroup('Get Release Info');
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: process.env.TAG_NAME
+            });
+            core.info(`Release fetched: ${JSON.stringify(release.data, null, 2)}`);
+            const json = JSON.stringify(release.data);
+            core.setOutput('result', json);
+            core.endGroup();
+            return json;
+        env:
+          TAG_NAME: ${{ env.TAG_NAME }}
+
+      - name: Dump release.outputs.result to temp file
+        run: |
+          printf "%s" "$RELEASE_JSON" > raw_release_output.txt
+        env:
+          RELEASE_JSON: ${{ steps.release.outputs.result }}
+
+      - name: Print release step output
+        run: |
+          echo "::group::Print release step output"
+          echo "First 500 chars:"
+          head -c 500 raw_release_output.txt
+          echo 
+          echo "Byte size:"
+          wc -c < raw_release_output.txt
+          echo "::endgroup::"
+
+      - name: Validate raw JSON
+        run: |
+          echo "::group::Validate raw JSON"
+          if jq empty raw_release_output.txt; then
+             echo "JSON is valid"
+          else
+             echo "JSON is invalid"
+             cat raw_release_output.txt
+             exit 1
+          fi
+
+      - name: Write release.json
+        run: |
+          echo "::group::Write release.json"
+
+          if [ -z "$RELEASE_JSON" ] || [ "$RELEASE_JSON" = "null" ]; then
+            echo '{}' > release.json
+            echo "No release info, wrote empty JSON"
+          else
+            printf "%s" "$RELEASE_JSON" > release.json
+            echo "Wrote release info to release.json"
+          fi
+
+          echo "::endgroup::"
+        env:
+          RELEASE_JSON: ${{ steps.release.outputs.result }} 
+          
+      
+      - name: Show release.json info
+        run: |
+          echo "::group::Preview release.json"
+          echo "File size (bytes):"
+          wc -c release.json
+          echo "File content (first 1000 characters):"
+          head -c 1000 release.json
+          echo "File content (last 1000 characters):"
+          tail -c 1000 release.json
+          echo "::endgroup::"
+
+      - name: Debug release.json
+        run: |
+          echo "::group::Debug release.json"
+          cat release.json
+          echo "::endgroup::"
+
+      - name: Validate release assets structure
+        run: |
+          echo "::group::Validate release asset fields"
+          missing=$(jq '[.assets[] | select((.name == null) or (.browser_download_url == null))] | length' release.json)
+          if [ "$missing" -gt 0 ]; then
+             echo "❌ Some assets are missing 'name' or 'browser_download_url'."
+             jq '[.assets[] | select((.name == null) or (.browser_download_url == null))]' release.json
+             exit 1
+          else
+             echo "✅ All assets have valid 'name' and 'browser_download_url'."
+          fi
+          echo "::endgroup::"
+
+
+      - name: Generate firmware.json
+        run: |
+          echo "::group::Generate firmware.json"
+          set -x
+          if jq empty release.json; then
+            jq -r --arg version "$TAG_NAME" '
+              {
+                version: $version,
+                firmwares: (
+                  [ .assets[] | { key: (.name | split("_")[0]), value: { filename: .name, url: .browser_download_url } } ]
+                  | from_entries
+                )
+              }
+            ' release.json > firmware.json
+            echo "Generated firmware.json:"
+            cat firmware.json
+          else
+            echo "release.json is not valid JSON. Exiting."
+            cat release.json
+            exit 1
+          fi
+          set +x
+          echo "::endgroup::"
+
+      - name: Clone Update-automation-firmware repo
+        uses: actions/checkout@v4
+        with:
+          repository: DronaAviation/Update-automation-firmware
+          token: ${{ secrets.PAT_TOKEN }}
+          path: meta
+
+      - name: Copy and Commit firmware.json
+        run: |
+          echo "::group::Copy and Commit firmware.json"
+          cp firmware.json meta/
+          cd meta
+          git config user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git status
+          git add firmware.json
+          git status
+          git commit -m "Update firmware metadata for $TAG_NAME" || echo "No changes to commit"
+          git push
+          echo "::endgroup::"
+
+      - name: Debug meta repo contents
+        run: |
+          echo "::group::Debug meta repo contents"
+          ls -l meta/
+          git -C meta log --oneline -n 3
+          echo "::endgroup::"   
