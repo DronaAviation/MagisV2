@@ -78,7 +78,9 @@
 #include "telemetry/telemetry.h"
 #include "blackbox/blackbox.h"
 
-#include "flight/motor.h"
+#ifdef PRIMUSX2
+  #include "flight/motor.h"
+#endif
 #include "flight/pid.h"
 #include "flight/imu.h"
 #include "flight/mixer.h"
@@ -600,9 +602,9 @@ void init ( void ) {
 
   delay ( 300 );
 
-  //! NEW : New Reverse motor setup for PrimusX2
+#ifdef PRIMUSX2
   reverseMotorGPIOInit ( );
-
+#endif
   timerInit ( );    // timer must be initialized before any channel is allocated
 
   // when using airplane/wing mixer, servo/motor outputs are remapped
@@ -657,7 +659,7 @@ void init ( void ) {
     OledStartUpInit ( );
   }
 
-#ifdef PRIMUSX2
+#if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
 
   APIAdcInit ( );
   xRangingInit ( );

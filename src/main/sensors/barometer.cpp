@@ -100,7 +100,7 @@ void icp10111BaroInit ( void ) {
 
 void baroInit ( void ) {
 
-  #if defined( PRIMUSX2 )
+  #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
 
   icp10111BaroInit ( );
 
@@ -266,7 +266,7 @@ void icp10111BaroUpdate ( uint32_t currentTime ) {
 
 void baroUpdate ( uint32_t currentTime ) {
 
-  #if defined( PRIMUSX2 )
+  #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
 
   icp10111BaroUpdate ( currentTime );
 
@@ -334,7 +334,7 @@ float icp10111BaroCalculateAltitude ( void ) {
 
 float baroCalculateAltitude ( void ) {
 
-  #if defined( PRIMUSX2 )
+  #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
 
   return icp10111BaroCalculateAltitude ( );
 
@@ -458,7 +458,7 @@ void icp10111BaroCalibrate ( void ) {
 
 void baroCalibrate ( void ) {
 
-  #if defined( PRIMUSX2 )
+  #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
 
   icp10111BaroCalibrate ( );
 

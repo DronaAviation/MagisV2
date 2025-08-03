@@ -118,7 +118,7 @@ void timerDataConfiguration ( ) {
   #define TIMER_AHB_PERIPHERALS  ( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB )
 #endif
 
-#if defined( PRIMUSX2 )
+#if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
   // Virtual Motor 1 Actual Motor M7
   timerHardware_t T1 = { TIM3, GPIOB, Pin_0, TIM_Channel_3, TIM3_IRQn, 1, Mode_AF_PP, GPIO_PinSource0, GPIO_AF_2 };    // PWM3  - PB10 - TIM2_CH3, USART3_TX (AF7)
   // Virtual Motor 2 Actual Motor M8
