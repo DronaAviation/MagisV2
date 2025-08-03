@@ -100,7 +100,7 @@
 static serialPort_t *mspSerialPort;
 
 // uint16_t cycleTime; // FIXME dependency on mw.c
-extern uint16_t rssi;             // FIXME dependency on mw.c
+extern uint16_t rssi;    // FIXME dependency on mw.c
 
 uint16_t debug_e11;
 extern uint16_t vbatLatestADC;    // adding to read adc
@@ -155,12 +155,9 @@ extern "C" {
 
 #define MSP_PROTOCOL_VERSION                0
 
-
-
 #define MULTIWII_IDENTIFIER                 "MWII";
 #define CLEANFLIGHT_IDENTIFIER              "CLFL"
 #define BASEFLIGHT_IDENTIFIER               "BAFL";
-
 
 #define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 8
 static const char *const flightControllerIdentifier = MAGIS_IDENTIFIER;    // 4 UPPER CASE alpha numeric characters that identify the flight controller.
@@ -169,7 +166,12 @@ static const char *const flightControllerIdentifier = MAGIS_IDENTIFIER;    // 4 
 #define FLIGHT_CONTROLLER_VERSION_MASK   0xFFF
 
 static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
-#define BOARD_IDENTIFIER_LENGTH       9    // 4 UPPER CASE alpha numeric characters that identify the board being used.
+#if defined( PRIMUSX2 ) || defined( PRIMUS_V5 )
+  #define BOARD_IDENTIFIER_LENGTH 9    // Used for PRIMUSX2 and PRIMUS_V5
+#elif defined( PRIMUS_X2_v1 )
+  #define BOARD_IDENTIFIER_LENGTH 12    // Used for PRIMUS_X2_v1
+#endif
+
 #define BOARD_HARDWARE_REVISION_LENGTH 2
 
 /*
@@ -190,11 +192,11 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 
 */
 
-#define MSP_API_VERSION 1    // out message
-#define MSP_FC_VARIANT  2    // out message
-#define MSP_FC_FW_VERSION  3    // out message
-#define MSP_BOARD_INFO  4    // out message
-#define MSP_BUILD_INFO  5    // out message
+#define MSP_API_VERSION   1    // out message
+#define MSP_FC_VARIANT    2    // out message
+#define MSP_FC_FW_VERSION 3    // out message
+#define MSP_BOARD_INFO    4    // out message
+#define MSP_BUILD_INFO    5    // out message
 
 //
 // MSP commands for Cleanflight original features
@@ -390,7 +392,7 @@ extern int16_t motor_disarmed [ MAX_SUPPORTED_MOTORS ];
 // cause reboot after MSP processing complete
 static bool isRebootScheduled = false;
 
-int16_t debug_e2;                  // drona
+int16_t debug_e2;    // drona
 extern rollAndPitchInclination_t inclination;
 extern int16_t accSmooth [ 3 ];    // drona pras2
 
@@ -741,8 +743,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 
   switch ( cmdMSP ) {
     case MSP_API_VERSION:
-      headSerialReply ( 1 +    // protocol version length
-                        API_VERSION_LENGTH );
+      headSerialReply ( 1 + API_VERSION_LENGTH );
       serialize8 ( MSP_PROTOCOL_VERSION );
 
       serialize8 ( API_VERSION_MAJOR );
@@ -970,7 +971,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
     case MSP_ANALOG:
       headSerialReply ( 7 );
       serialize8 ( ( uint8_t ) constrain ( vbat, 0, 255 ) );
-      serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );           // milliamp hours drawn from battery
+      serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );    // milliamp hours drawn from battery
       serialize16 ( rssi );
       if ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput ) {
         serialize16 ( ( uint16_t ) constrain ( amperage * 10, 0, 0xFFFF ) );    // send amperage in 0.001 A steps. Negative range is truncated to zero
@@ -1170,7 +1171,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
         serialize16 ( debug [ i ] );    // 4 variables are here for general monitoring purpose
       break;
 
-                                        // Additional commands that are not compatible with MultiWii
+      // Additional commands that are not compatible with MultiWii
     case MSP_ACC_TRIM:
       headSerialReply ( 4 );
       serialize16 ( currentProfile->accelerometerTrims.values.pitch );
@@ -1532,7 +1533,7 @@ static bool processInCommand ( void ) {
       masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
       break;
     case MSP_SET_MOTOR:
-      for ( i = 0; i < 8; i++ )                                         // FIXME should this use MAX_MOTORS or MAX_SUPPORTED_MOTORS instead of 8
+      for ( i = 0; i < 8; i++ )    // FIXME should this use MAX_MOTORS or MAX_SUPPORTED_MOTORS instead of 8
         motor_disarmed [ i ] = read16 ( );
       break;
 
@@ -1632,10 +1633,10 @@ static bool processInCommand ( void ) {
       GPS_coord [ LON ] = read32 ( );
       GPS_altitude      = read16 ( );
       GPS_speed         = read16 ( );
-      GPS_update |= 2;       // New data signalisation to GPS functions // FIXME Magic Numbers
+      GPS_update |= 2;    // New data signalisation to GPS functions // FIXME Magic Numbers
       break;
     case MSP_SET_WP:
-      wp_no = read8 ( );     // get the wp number
+      wp_no = read8 ( );    // get the wp number
       lat   = read32 ( );
       lon   = read32 ( );
       alt   = read32 ( );    // to set altitude (cm)
@@ -1648,8 +1649,8 @@ static bool processInCommand ( void ) {
         DISABLE_FLIGHT_MODE ( GPS_HOME_MODE );    // with this flag, GPS_set_next_wp will be called in the next loop -- OK with SERIAL GPS / OK with I2C GPS
         ENABLE_STATE ( GPS_FIX_HOME );
         if ( alt != 0 )
-          AltHold = alt;                          // temporary implementation to test feature with apps
-      } else if ( wp_no == 16 ) {                 // OK with SERIAL GPS  --  NOK for I2C GPS / needs more code dev in order to inject GPS coord inside I2C GPS
+          AltHold = alt;             // temporary implementation to test feature with apps
+      } else if ( wp_no == 16 ) {    // OK with SERIAL GPS  --  NOK for I2C GPS / needs more code dev in order to inject GPS coord inside I2C GPS
         GPS_hold [ LAT ] = lat;
         GPS_hold [ LON ] = lon;
         if ( alt != 0 )
@@ -1739,9 +1740,9 @@ static bool processInCommand ( void ) {
 #endif
 
       featureClearAll ( );
-      featureSet ( read32 ( ) );                                // features bitmap
+      featureSet ( read32 ( ) );    // features bitmap
 
-      masterConfig.rxConfig.serialrx_provider = read8 ( );      // serialrx_type
+      masterConfig.rxConfig.serialrx_provider = read8 ( );    // serialrx_type
 
       masterConfig.boardAlignment.rollDegrees  = read16 ( );    // board_align_roll
       masterConfig.boardAlignment.pitchDegrees = read16 ( );    // board_align_pitch

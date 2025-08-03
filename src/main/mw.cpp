@@ -83,8 +83,9 @@
 #include "flight/posEstimate.h"
 #include "flight/posControl.h"
 #include "flight/opticflow.h"
-#include "flight/motor.h"
-
+#ifdef PRIMUSX2
+  #include "flight/motor.h"
+#endif
 #include "config/runtime_config.h"
 #include "config/config.h"
 #include "config/config_profile.h"
@@ -543,7 +544,7 @@ void mwArm ( void ) {
 
   if ( ( ARMING_FLAG ( OK_TO_ARM ) || netAccMagnitude < 2 ) && isCalibrated && ! isBatteryLow ) {
     if ( ARMING_FLAG ( ARMED ) ) {
-      baroResetGroundLevel( );
+      baroResetGroundLevel ( );
       return;
     }
     if ( IS_RC_MODE_ACTIVE ( BOXFAILSAFE ) ) {
@@ -1068,8 +1069,9 @@ void loop ( void ) {
   // if ( IS_RC_MODE_ACTIVE ( BOXARM ) ) {
   //   motor_disarmed [ 0 ] = motor_disarmed [ 1 ] = motor_disarmed [ 2 ] = motor_disarmed [ 3 ] = 1800;
   // }
+#ifdef PRIMUSX2
   MotroWakeUp ( );
-
+#endif
 
   static uint32_t loopTime;
 #if defined( BARO ) || defined( SONAR )

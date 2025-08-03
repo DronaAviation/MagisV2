@@ -26,7 +26,7 @@
 ###############################################################################
 # User-configurable options
 FORKNAME	=	MAGISV2
-TARGET	?=	PRIMUSX2
+TARGET	?=	
 BUILD_TYPE	?= BIN
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
@@ -50,14 +50,14 @@ OPTIONS	?= 	'__FORKNAME__="$(FORKNAME)"' \
 
 # Configure default flash sizes for the targets
 ifeq ($(FLASH_SIZE),)
-	ifeq ($(TARGET),PRIMUSX2)
+	ifeq ($(TARGET),$(filter $(TARGET),PRIMUSX2 PRIMUS_V5 PRIMUS_X2_v1))
 		FLASH_SIZE = 256
 	else
 		$(error FLASH_SIZE not configured for target)
 	endif
 endif
 
-VALID_TARGETS	=	PRIMUSX2
+VALID_TARGETS	=	PRIMUSX2 PRIMUS_V5 PRIMUS_X2_v1
 
 ###############################################################################
 # Directorie
@@ -97,7 +97,7 @@ VPATH := 	$(VPATH) \
 CSOURCES	:=	$(shell find $(SRC_DIR) -name '*.c')
 
 # MCU and Peripheral settings for PRIMUSX2
-ifeq ($(TARGET),PRIMUSX2)
+ifeq ($(TARGET),$(filter $(TARGET),PRIMUSX2 PRIMUS_V5 PRIMUS_X2_v1))
 
 STDPERIPH_DIR = $(ROOT)/lib/main/STM32F30x_StdPeriph_Driver
 
@@ -313,6 +313,20 @@ PRIMUSX2_DRIVERS = 	drivers/adc.cpp \
 PRIMUSX2_SENSORS = 	sensors/barometer.cpp \
 
 PRIMUSX2_SRC = 	startup_stm32f30x_md_gcc.S \
+		  					$(COMMON_SRC) \
+      					$(DRONA_SRC) \
+		  					$(RANGING_SRC) \
+		  					$(PRIMUSX2_DRIVERS) \
+		  					$(PRIMUSX2_SENSORS) \
+
+PRIMUS_X2_v1_SRC = 	startup_stm32f30x_md_gcc.S \
+		  					$(COMMON_SRC) \
+      					$(DRONA_SRC) \
+		  					$(RANGING_SRC) \
+		  					$(PRIMUSX2_DRIVERS) \
+		  					$(PRIMUSX2_SENSORS) \
+
+PRIMUS_V5_SRC = 	startup_stm32f30x_md_gcc.S \
 		  					$(COMMON_SRC) \
       					$(DRONA_SRC) \
 		  					$(RANGING_SRC) \
