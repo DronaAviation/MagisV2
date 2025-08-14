@@ -389,19 +389,20 @@ void annexCode ( void ) {
     rcCommand [ PITCH ]     = rcCommand_PITCH;
   }
 
-  if ( feature ( FEATURE_VBAT ) ) {
+  if ( feature ( FEATURE_INA219_VBAT ) ) {
     if ( cmp32 ( currentTime, vbatLastServiced ) >= VBATINTERVAL ) {
       vbatLastServiced = currentTime;
-      updateBattery ( );
+      updateINA219Voltage ( );
     }
   }
 
-  if ( feature ( FEATURE_CURRENT_METER ) ) {
-    int32_t ibatTimeSinceLastServiced = cmp32 ( currentTime, ibatLastServiced );
+  if ( feature ( FEATURE_INA219_CBAT ) ) {
+    // int32_t ibatTimeSinceLastServiced = cmp32 ( currentTime, ibatLastServiced );
 
-    if ( ibatTimeSinceLastServiced >= IBATINTERVAL ) {
+    if ( cmp32 ( currentTime, ibatLastServiced ) >= IBATINTERVAL ) {
       ibatLastServiced = currentTime;
-      updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
+      // updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
+      updateINA219Current ( );
     }
   }
 

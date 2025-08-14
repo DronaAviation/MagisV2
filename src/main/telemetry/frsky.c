@@ -423,7 +423,7 @@ static void sendFuelLevel(void)
     sendDataHead(ID_FUEL_LEVEL);
 
     if (batteryConfig->batteryCapacity > 0) {
-        serialize16((uint16_t)calculateBatteryCapacityRemainingPercentage());
+        // serialize16((uint16_t)calculateBatteryCapacityRemainingPercentage());
     } else {
         serialize16((uint16_t)constrain(mAhDrawn, 0, 0xFFFF));
     }
@@ -517,7 +517,7 @@ void handleFrSkyTelemetry(rxConfig_t *rxConfig, uint16_t deadband3d_throttle)
         sendTemperature1();
         sendThrottleOrBatterySizeAsRpm(rxConfig, deadband3d_throttle);
 
-        if (feature(FEATURE_VBAT)) {
+        if (feature(FEATURE_INA219_VBAT)) {
             sendVoltage();
             sendVoltageAmp();
             sendAmperage();

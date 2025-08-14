@@ -30,7 +30,7 @@ TARGET	?=
 BUILD_TYPE	?= BIN
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.0.0
+FW_Version	=	2.1.0
 API_Version	=	0.9.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
@@ -199,7 +199,6 @@ MAIN_RX = rx/rx.cpp \
 
 MAIN_SENSOR = sensors/acceleration.cpp \
 		   				sensors/battery.cpp \
-		   				sensors/power.cp \
 		   				sensors/boardalignment.cpp \
 		   				sensors/compass.cpp \
 		   				sensors/gyro.cpp \

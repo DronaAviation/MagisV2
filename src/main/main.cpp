@@ -271,11 +271,11 @@ void init ( void ) {
   // #ifdef STM32F303xC
   // pwm_params.useUART3 = doesConfigurationUsePort(SERIAL_PORT_USART3);
   // #endif
-  // pwm_params.useVbat = feature(FEATURE_VBAT);
+  // pwm_params.useVbat = feature(FEATURE_INA219_VBAT);
   // pwm_params.useSoftSerial = feature(FEATURE_SOFTSERIAL);
   // pwm_params.useParallelPWM = feature(FEATURE_RX_PARALLEL_PWM);
   // pwm_params.useRSSIADC = feature(FEATURE_RSSI_ADC);
-  // pwm_params.useCurrentMeterADC = feature(FEATURE_CURRENT_METER)
+  // pwm_params.useCurrentMeterADC = feature(FEATURE_INA219_CBAT)
   //         && masterConfig.batteryConfig.currentMeterType
   //                 == CURRENT_SENSOR_VIRTUAL; //REMEMBER REMEMBER
   // pwm_params.useLEDStrip = feature(FEATURE_LED_STRIP);
@@ -380,9 +380,9 @@ void init ( void ) {
 #ifdef USE_ADC
   drv_adc_config_t adc_params;
 
-  adc_params.enableVBat         = feature ( FEATURE_VBAT );
+  adc_params.enableVBat         = feature ( FEATURE_INA219_VBAT );
   adc_params.enableRSSI         = feature ( FEATURE_RSSI_ADC );
-  adc_params.enableCurrentMeter = feature ( FEATURE_CURRENT_METER );
+  adc_params.enableCurrentMeter = feature ( FEATURE_INA219_CBAT );
   adc_params.enableExternal1    = false;
   #ifdef OLIMEXINO
   adc_params.enableExternal1 = true;
@@ -424,7 +424,6 @@ void init ( void ) {
 
   //! NEW : INA219 INIT
   INA219_Init ( );    // TODO: INA219 Integrate properly
-  battery_voltage_init ( );
 
   if ( clockcheck == 1 ) {
     // failure if running on internal clock
@@ -553,7 +552,7 @@ void init ( void ) {
 
   // Now that everything has powered up the voltage and cell count be determined.
 
-  if ( feature ( FEATURE_VBAT | FEATURE_CURRENT_METER ) )
+  if ( feature ( FEATURE_INA219_VBAT | FEATURE_INA219_CBAT ) )
     batteryInit ( &masterConfig.batteryConfig );
 
 #ifdef DISPLAY
@@ -620,13 +619,12 @@ void init ( void ) {
 #ifdef STM32F303xC
   pwm_params.useUART3 = doesConfigurationUsePort ( SERIAL_PORT_USART3 );
 #endif
-  pwm_params.useVbat            = feature ( FEATURE_VBAT );
+  pwm_params.useVbat            = feature ( FEATURE_INA219_VBAT );
   pwm_params.useSoftSerial      = feature ( FEATURE_SOFTSERIAL );
   pwm_params.useParallelPWM     = feature ( FEATURE_RX_PARALLEL_PWM );
   pwm_params.useRSSIADC         = feature ( FEATURE_RSSI_ADC );
-  pwm_params.useCurrentMeterADC = feature ( FEATURE_CURRENT_METER )
-                                  && masterConfig.batteryConfig.currentMeterType
-                                               == CURRENT_SENSOR_VIRTUAL;    // REMEMBER REMEMBER
+  pwm_params.useCurrentMeterADC = feature ( FEATURE_INA219_CBAT )
+                                  && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_INA219;    // REMEMBER REMEMBER
   pwm_params.useLEDStrip = feature ( FEATURE_LED_STRIP );
   pwm_params.usePPM      = feature ( FEATURE_RX_PPM );
   pwm_params.useSerialRx = feature ( FEATURE_RX_SERIAL );
@@ -660,7 +658,6 @@ void init ( void ) {
   }
 
 #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
-
   APIAdcInit ( );
   xRangingInit ( );
   if ( localisationType == UWB ) {

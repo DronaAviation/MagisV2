@@ -1,6 +1,10 @@
 // Do not remove the include below
 #include "PlutoPilot.h"
 
+#include "Utils.h"
+
+#include "sensors/battery.h"
+
 /**
  * Configures Pluto's receiver to use PPM or default ESP mode; activate the line matching your setup.
  * AUX channel configurations is only for PPM recievers if no custom configureMode function is called this are the default setup
@@ -31,6 +35,13 @@ void onLoopStart ( void ) {
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
+  Monitor.println ( "Power Monitoring" );
+  Monitor.println ( "CellCount: ", BatteryCellCount ( ) );
+  Monitor.println ( "Est-mAh: ", InitialBatteryCap ( ) );
+  Monitor.println ( "BusV: ", ProcessedINA219Voltage ( ) );
+  Monitor.println ( "mA: ", amperage );
+  Monitor.println ( "mAh: ", mAhDrawn );
+  Monitor.println ( "mAh Remain: ", mAhRemain );
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode

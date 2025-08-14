@@ -143,6 +143,7 @@ extern "C" {
 
 #define BOARD_HAS_VOLTAGE_DIVIDER
 
+
 #define VBAT_ADC_GPIO        GPIOB	//TODO: check Vbat working, connected to internal ADC
 #define VBAT_ADC_GPIO_PIN    GPIO_Pin_0
 #define VBAT_ADC_CHANNEL     ADC_Channel_12

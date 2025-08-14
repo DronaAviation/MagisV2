@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 16th Apr 2025                                          #
+ #  Last Modified: Fri, 8th Aug 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -59,6 +59,13 @@ uint16_t bus_voltage ( void ) {
   uint16_t busVoltageReg = INA219_RegRead ( INA219_REG_BUSVOLTAGE );
   if ( busVoltageReg & 0x01 ) return 0xFFFF;
   return ( ( busVoltageReg >> 3 ) * 4 ) / 100;    // Now returning in millivolts
+}
+
+int16_t shunt_voltage ( void ) {
+  uint16_t raw      = INA219_RegRead ( INA219_REG_SHUNTVOLTAGE );
+  int16_t signedRaw = ( int16_t ) raw;    // sign-extend
+  // LSB = 10 µV → return in mV
+  return ( signedRaw * 10 ) / 1000;
 }
 
 /* void configureINA219 ( ) {
