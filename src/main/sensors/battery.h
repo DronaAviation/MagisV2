@@ -10,10 +10,10 @@
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
  #  File: \src\main\sensors\battery.h                                          #
- #  Created Date: Sat, 22nd Feb 2025                                            #
+ #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Fri, 22nd Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -76,30 +76,17 @@ extern uint16_t amperageLatestADC;
 extern int32_t amperage;
 extern int32_t mAhDrawn;
 extern int32_t mAhRemain;
+extern uint16_t battery_capacity_mAh;
+extern uint16_t EstBatteryCapacity;
 
-// uint16_t batteryAdcToVoltage(uint16_t src);
+#define BATTERY_BUFFER_SIZE 100
+
 batteryState_e getBatteryState ( void );
-// const char *getBatteryStateString ( void );
-// void updateBattery ( void );
+
 void batteryInit ( batteryConfig_t *initialBatteryConfig );
 
-// void updateCurrentMeter ( int32_t lastUpdateAt, rxConfig_t *rxConfig, uint16_t deadband3d_throttle );
-// int32_t currentMeterToCentiamps ( uint16_t src );
-
-// uint8_t calculateBatteryPercentage ( void );
-// uint8_t calculateBatteryCapacityRemainingPercentage ( void );
-
-#define BATTERY_BUFFER_SIZE 50
-
-// void initINA219Var ( void );
-uint8_t BatteryCellCount ( void );
 void updateINA219Voltage ( void );
 void updateINA219Current ( void );
-void BatteryCapacityEst ( void );
-uint16_t ProcessedINA219Voltage ( void );
-uint16_t ProcessedINA219Current ( void );
-uint16_t BatteryProcessed_mAh ( void );
-uint16_t InitialBatteryCap ( void );
 
 #ifdef __cplusplus
 }

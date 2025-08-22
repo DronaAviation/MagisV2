@@ -7,45 +7,51 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\sensors\power.h                                            #
- #  Created Date: Wed, 16th Apr 2025                                           #
+ #  File: \src\main\API-Src\BMS.cpp                                            #
+ #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 9th Aug 2025                                           #
+ #  Last Modified: Fri, 22nd Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
+#include "API/BMS.h"
 
-// #ifndef BATTERY_VOLTAGE_H
-// #define BATTERY_VOLTAGE_H
+#include "platform.h"
+#include "sensors/battery.h"
 
-// #include <stdint.h>
+uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
+  switch ( _bms_option ) {
+    case Voltage:
+      // Return the current battery voltage
+      return vbat;
+    case Current:
+      // Return the current amperage
+      return amperage;
+    case mAh_Consumed:
+      // Return the milliamp hours consumed
+      return mAhDrawn;
+    case mAh_Remain:
+      // Return the remaining milliamp hours
+      return mAhRemain;
+    case Battery_Capicity:
+      // Return the total battery capacity in milliamp hours
+      return battery_capacity_mAh;
+    case Estimated_Capicity:
+      // Return the estimated capacity of the battery
+      return EstBatteryCapacity;
+    default:
+      // Return 0 for any undefined BMS option
+      return 0;
+  }
+}
 
-// #ifdef __cplusplus
-// extern "C" {
-// #endif
 
-// #define BATTERY_BUFFER_SIZE 50
+void Bms_Using_New_Battery_Capicity(uint16_t _new_cap_mAh) {
+  // Assign the new capacity value to the battery capacity in mAh
+  battery_capacity_mAh = _new_cap_mAh;
+}
 
-// // void battery_voltage_init ( void );
-
-// void battery_voltage_update ( uint16_t adc_reading );
-
-// uint16_t ProcessedVoltage ( void );
-
-// uint16_t current_reading ( void );
-
-// void update_mAh_Meter ( void );
-
-// uint16_t mAh_get ( void );
-
-// void battery_estimate_start_mAh ( void );
-
-// #ifdef __cplusplus
-// }
-// #endif
-
-// #endif    // BATTERY_VOLTAGE_H

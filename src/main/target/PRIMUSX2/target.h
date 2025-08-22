@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Wed, 20th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -140,7 +140,7 @@ extern "C" {
 // #define USE_ADC
 
 #define INA219_Voltage
-#define INA219_Current
+// #define INA219_Current
 
 #define ADC_INSTANCE       ADC2
 #define ADC_DMA_CHANNEL    DMA2_Channel1
