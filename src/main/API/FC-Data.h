@@ -93,10 +93,12 @@ uint32_t Sensor_get ( FC_Sensors_e _sensor, BARO_Data_e _data );
  * @param _axis The specific axis for which the estimate is required (X, Y, Z).
  *
  * @return uint16_t The estimated value:
- *         - For Rate estimates: roll rate if X, pitch rate if Y, yaw rate if Z.
- *         - For Position estimates: position along X-axis, Y-axis, altitude for Z-axis.
- *         - For Velocity estimates: velocity along X-axis, Y-axis, estimated velocity for Z-axis.
+ *         - For `Rate` estimates: roll rate if X, pitch rate if Y, yaw rate if Z.
+ *         - For `Position` estimates: position along X-axis, Y-axis, altitude for Z-axis.
+ *         - For `Velocity` estimates: velocity along X-axis, Y-axis, estimated velocity for Z-axis.
  *         Returns 0 for any unrecognized estimate types or axes.
+ *
+ * @warning `Velocity` should be accessed only when additional localization sensors(GPS, opticflow, UWB, etc) are used.
  */
 int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis );
 
