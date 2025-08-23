@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 22nd Aug 2025                                          #
+ #  Last Modified: Sat, 23rd Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -28,6 +28,7 @@
 #include "API/Status-LED.h"
 #include "API/Motor.h"
 #include "API/BMS.h"
+#include "API/FC-Data.h"
 
 void plutoRxConfig ( void );
 

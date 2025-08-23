@@ -1,5 +1,6 @@
 // Do not remove the include below
 #include "PlutoPilot.h"
+#include "Utils.h"
 
 /**
  * Configures Pluto's receiver to use PPM or default ESP mode; activate the line matching your setup.
@@ -32,7 +33,18 @@ void onLoopStart ( void ) {
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
-
+  Monitor.println ( "AccX: ", Sensor_get ( Accelerometer, X ) );
+  Monitor.println ( "AccY: ", Sensor_get ( Accelerometer, Y ) );
+  Monitor.println ( "AccZ: ", Sensor_get ( Accelerometer, Z ) );
+  Monitor.println ( "AccNet: ", Sensor_get ( Accelerometer, Net_Acc ) );
+  Monitor.println ( "GyroX: ", Sensor_get ( Gyroscope, X ) );
+  Monitor.println ( "GyroY: ", Sensor_get ( Gyroscope, Y ) );
+  Monitor.println ( "GyroZ: ", Sensor_get ( Gyroscope, Z ) );
+  Monitor.println ( "MagX: ", Sensor_get ( Magnetometer, X ) );
+  Monitor.println ( "MagY: ", Sensor_get ( Magnetometer, Y ) );
+  Monitor.println ( "MagZ: ", Sensor_get ( Magnetometer, Z ) );
+  Monitor.println ( "BaroP: ", Sensor_get ( Barometer, Pressure ) );
+  Monitor.println ( "BaroT: ", Sensor_get ( Barometer, Temperature ) );
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode

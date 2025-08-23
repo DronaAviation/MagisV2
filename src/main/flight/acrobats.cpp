@@ -57,7 +57,6 @@
 #include "config/config_master.h"
 #include "acrobats.h"
 
-#include "API/Sensor.h"
 
 uint8_t flipDirection = 0;
 int16_t pitch         = 0;
