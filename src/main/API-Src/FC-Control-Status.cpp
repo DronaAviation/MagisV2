@@ -7,8 +7,8 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\API\PlutoPilot.h                                           #
- #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  File: \src\main\API-Src\FC-Control-Status.cpp                              #
+ #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  Last Modified: Sat, 23rd Aug 2025                                          #
@@ -19,27 +19,17 @@
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
 
-#ifndef _PlutoPilot_H_
-#define _PlutoPilot_H_
+#include <stdint.h>
+#include "common/maths.h"
 
-#include "API/RxConfig.h"
-#include "API/Peripheral.h"
-#include "API/Peripherals.h"
-#include "API/Status-LED.h"
-#include "API/Motor.h"
-#include "API/BMS.h"
-#include "API/FC-Data.h"
-#include "API/RC-Interface.h"
+#include "config/runtime_config.h"
+
 #include "API/FC-Control.h"
 
-void plutoRxConfig ( void );
+flightstatus_e FlightStatus_get ( void ) {
+  return ( flightstatus_e ) leastSignificantBit ( flightIndicatorFlag );
+}
 
-void plutoInit ( void );
-
-void onLoopStart ( void );
-
-void plutoLoop ( void );
-
-void onLoopFinish ( void );
-
-#endif
+bool FlightStatus_check ( flightstatus_e status ) {
+  return status_FSI ( ( FlightStatus_e ) status );
+}

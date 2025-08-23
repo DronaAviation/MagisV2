@@ -31,7 +31,7 @@ BUILD_TYPE	?= BIN
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
 FW_Version	=	2.2.0
-API_Version	=	0.12.0
+API_Version	=	0.13.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 # Debugger optons, must be empty or GDB
@@ -271,12 +271,14 @@ DRONA_API =	API/Specifiers.cpp \
 		    		API-Src/Peripheral-ADC.cpp \
 		    		API-Src/Peripheral-GPIO.cpp \
 						API-Src/BMS.cpp \
+						API-Src/FC-Control-Status.cpp \
+						API-Src/FC-Control-Command.cpp \
 						API-Src/FC-Data-Sensors.cpp \
 						API-Src/FC-Data-Estimate.cpp \
+						API-Src/RC-Interface.cpp \
 		    		API/XRanging.cpp \
 						API/Control.cpp \
 						API/Utils.cpp \
-						API/User.cpp \
 						API-Src/Motor.cpp \
 						API/API-Utils.cpp \
 						API/RxConfig.cpp \

@@ -95,7 +95,8 @@
 
 #include "API/API-Utils.h"
 #include "API/Utils.h"
-#include "API/User.h"
+#include "API/RC-Interface.h"
+#include "API/FC-Control.h"
 #include "API/FC-Data.h"
 #include "API/Specifiers.h"
 #include "API/Peripheral.h"
@@ -1044,7 +1045,7 @@ void userCode ( ) {
       for ( int i = 0; i < 6; i++ ) {
 
         if ( isUserFlightModeSet [ i ] )
-          FlightMode.set ( ( flight_mode_e ) i );
+          FlightMode_set ( ( flight_mode_e ) i );
       }
     }
 

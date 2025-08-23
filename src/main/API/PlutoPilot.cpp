@@ -33,13 +33,19 @@ void onLoopStart ( void ) {
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
-  Monitor.println ( "AngleR: ", Estimate_get ( Angle, AG_ROLL ) );
-  Monitor.println ( "AngleP: ", Estimate_get ( Angle, AG_PITCH ) );
-  Monitor.println ( "AngleY: ", Estimate_get ( Angle, AG_YAW ) );
-  Monitor.println ( "RateX: ", Estimate_get ( Rate, X ) );
-  Monitor.println ( "RateY: ", Estimate_get ( Rate, Y ) );
-  Monitor.println ( "PosZ: ", Estimate_get ( Position, Z ) );
-  Monitor.println ( "VeloZ: ", Estimate_get ( Velocity, Z ) );
+  Monitor.println ( "RcData_get: ", RcData_get ( RC_THROTTLE ) );
+  Monitor.println ( "RcCommand_get: ", RcCommand_get ( RC_PITCH ) );
+  if ( FlightStatus_check ( FS_LOW_BATTERY ) ) {
+    Monitor.println ( "LOW_BATTERY" );
+  } else {
+    Monitor.println ( "Good_BATTERY" );
+  }
+  if ( FlightMode_check ( THROTTLE_MODE ) ) {
+    Monitor.println ( "FlightModeThrottle" );
+  } else if ( FlightMode_check ( ATLTITUDEHOLD ) ) {
+    Monitor.println ( "FlightModeAlt" );
+  }
+
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode
