@@ -89,4 +89,53 @@ bool FlightMode_check ( flight_mode_e MODE );
  */
 void FlightMode_set ( flight_mode_e MODE );
 
+/**
+ * @brief Initiates a take-off command to a specified height.
+ *
+ * This function sets the current command to TAKE_OFF, updates the command status,
+ * constrains the target height within a specified range, and sets the take-off height.
+ *
+ * @param height The desired take-off height in units, constrained between 100 and 250.
+ */
+void Command_takeOff ( uint16_t height = 150 );
+
+/**
+ * @brief Initiates a landing sequence with a specified speed.
+ *
+ * This function sets the current command to LAND and updates the command status,
+ * adjusting the throttle based on the provided landing speed, only if certain conditions are met.
+ *
+ * @param landSpeed The speed at which the craft should land.
+ */
+void Command_land ( uint8_t landSpeed = 105 );
+
+/**
+ * @brief Initiates a flip maneuver in a specified direction.
+ *
+ * This function sets the current command to B_FLIP but does not perform additional actions.
+ *
+ * @param direction The direction in which to perform the flip, of type `flip_direction_e`.
+ */
+void Command_flip ( flip_direction_e direction );
+
+/**
+ * @brief Attempts to arm the system.
+ *
+ * This function checks if arming conditions are met, resets PID errors, and arms the system.
+ * It returns the arming status.
+ *
+ * @return True if the system is armed, false otherwise.
+ */
+bool Command_arm ( void );
+
+/**
+ * @brief Disarms the system.
+ *
+ * This function disarms the system regardless of its current state.
+ * It returns the negation of the arming status.
+ *
+ * @return True if the system is disarmed, false otherwise.
+ */
+bool Command_disArm ( void );
+
 #endif

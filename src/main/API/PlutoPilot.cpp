@@ -28,6 +28,7 @@ void plutoInit ( void ) {
 // The function is called once before plutoLoop when you activate Developer Mode
 void onLoopStart ( void ) {
   // do your one time stuffs here
+  Command_takeOff ( );
 }
 
 // The loop function is called in an endless loop
@@ -45,7 +46,6 @@ void plutoLoop ( void ) {
   } else if ( FlightMode_check ( ATLTITUDEHOLD ) ) {
     Monitor.println ( "FlightModeAlt" );
   }
-
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode
