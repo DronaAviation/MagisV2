@@ -33,18 +33,13 @@ void onLoopStart ( void ) {
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
-  Monitor.println ( "AccX: ", Sensor_get ( Accelerometer, X ) );
-  Monitor.println ( "AccY: ", Sensor_get ( Accelerometer, Y ) );
-  Monitor.println ( "AccZ: ", Sensor_get ( Accelerometer, Z ) );
-  Monitor.println ( "AccNet: ", Sensor_get ( Accelerometer, Net_Acc ) );
-  Monitor.println ( "GyroX: ", Sensor_get ( Gyroscope, X ) );
-  Monitor.println ( "GyroY: ", Sensor_get ( Gyroscope, Y ) );
-  Monitor.println ( "GyroZ: ", Sensor_get ( Gyroscope, Z ) );
-  Monitor.println ( "MagX: ", Sensor_get ( Magnetometer, X ) );
-  Monitor.println ( "MagY: ", Sensor_get ( Magnetometer, Y ) );
-  Monitor.println ( "MagZ: ", Sensor_get ( Magnetometer, Z ) );
-  Monitor.println ( "BaroP: ", Sensor_get ( Barometer, Pressure ) );
-  Monitor.println ( "BaroT: ", Sensor_get ( Barometer, Temperature ) );
+  Monitor.println ( "AngleR: ", Estimate_get ( Angle, AG_ROLL ) );
+  Monitor.println ( "AngleP: ", Estimate_get ( Angle, AG_PITCH ) );
+  Monitor.println ( "AngleY: ", Estimate_get ( Angle, AG_YAW ) );
+  Monitor.println ( "RateX: ", Estimate_get ( Rate, X ) );
+  Monitor.println ( "RateY: ", Estimate_get ( Rate, Y ) );
+  Monitor.println ( "PosZ: ", Estimate_get ( Position, Z ) );
+  Monitor.println ( "VeloZ: ", Estimate_get ( Velocity, Z ) );
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode

@@ -21,22 +21,28 @@
 #ifndef FC_DATA_H
 #define FC_DATA_H
 
+#include <stdint.h>
 #include "common/axis.h"
-
 // Enumeration to represent different types of sensors available in the flight controller
 typedef enum {
-  Accelerometer, // Sensor for measuring acceleration forces
-  Gyroscope,     // Sensor for measuring rotational motion
-  Magnetometer,  // Sensor for measuring magnetic fields
-  Barometer      // Sensor for measuring atmospheric pressure
+  Accelerometer,    // Sensor for measuring acceleration forces
+  Gyroscope,        // Sensor for measuring rotational motion
+  Magnetometer,     // Sensor for measuring magnetic fields
+  Barometer         // Sensor for measuring atmospheric pressure
 } FC_Sensors_e;
 
 // Enumeration to represent different types of data that can be read from a barometer
 typedef enum {
-  Pressure,    // Data representing atmospheric pressure
-  Temperature  // Data representing temperature
+  Pressure,      // Data representing atmospheric pressure
+  Temperature    // Data representing temperature
 } BARO_Data_e;
 
+typedef enum {
+  Angle,
+  Rate,
+  Position,
+  Velocity
+} FC_Estimate_e;
 
 /**
  * @brief Retrieve sensor data for accelerometer, gyroscope, or magnetometer based on the specified axis.
@@ -74,5 +80,42 @@ uint32_t Sensor_get ( FC_Sensors_e _sensor, axis_e _axis );
  *         temperature in units of 100*degreeCelsius, or 0 for unsupported types.
  */
 uint32_t Sensor_get ( FC_Sensors_e _sensor, BARO_Data_e _data );
+
+/**
+ * @brief Retrieves the estimated value based on the type of estimate and specified axis.
+ *
+ * This function uses a switch statement to determine the estimated value from different
+ * types of estimates (Rate, Position, Velocity) across specified axes (X, Y, Z).
+ * Depending on the combination of estimate type and axis, it returns the corresponding
+ * value or 0 for unhandled cases.
+ *
+ * @param _estimateOf The type of estimate requested (Rate, Position, Velocity).
+ * @param _axis The specific axis for which the estimate is required (X, Y, Z).
+ *
+ * @return uint16_t The estimated value:
+ *         - For Rate estimates: roll rate if X, pitch rate if Y, yaw rate if Z.
+ *         - For Position estimates: position along X-axis, Y-axis, altitude for Z-axis.
+ *         - For Velocity estimates: velocity along X-axis, Y-axis, estimated velocity for Z-axis.
+ *         Returns 0 for any unrecognized estimate types or axes.
+ */
+int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis );
+
+/**
+ * @brief Retrieves the estimated angle measurement in specified units.
+ *
+ * This function returns the estimated angle measurement based on the type of estimate
+ * and the specific angle requested. The angles can be roll, pitch, or yaw,
+ * and they are returned in their respective units (deciDegrees for roll and pitch, degrees for yaw).
+ *
+ * @param _estimateOf Specifies the type of estimate, expected to be Angle for this function.
+ * @param _angle The specific angle measurement requested (AG_ROLL, AG_PITCH, AG_YAW).
+ *
+ * @return uint16_t The estimated angle measurement:
+ *         - Roll in deciDegrees if _angle is AG_ROLL.
+ *         - Pitch in deciDegrees if _angle is AG_PITCH.
+ *         - Heading in degrees if _angle is AG_YAW.
+ *         Returns 0 if the estimate type is not Angle or if the angle is unrecognized.
+ */
+int16_t Estimate_get ( FC_Estimate_e _estimateOf, angle_e _angle );
 
 #endif
