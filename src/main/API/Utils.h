@@ -33,18 +33,7 @@ class Graph_P {
   void blue ( double value, uint8_t precision = 4 );
 };
 
-class Interval {
 
- private:
-  uint32_t time;
-  uint32_t loopTime;
-  bool repeat;
-
- public:
-  bool set ( uint32_t time, bool repeat );    // time is in milliseconds
-  void reset ( void );
-  bool check ( );
-};
 
 class Monitor_P {
 
@@ -70,9 +59,7 @@ class Oled_P {
   void print ( uint8_t col, uint8_t row, const char *string );
 };
 
-uint32_t micros ( void );
 
-uint32_t millis ( void );
 
 extern Graph_P Graph;
 extern Monitor_P Monitor;

@@ -88,7 +88,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#include "API/Utils.h"
+#include "API/Scheduler-Timer.h"
 #include "API/Peripheral.h"
 #include "API/Peripherals.h"
 

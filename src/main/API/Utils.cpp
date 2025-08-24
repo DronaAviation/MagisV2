@@ -194,45 +194,7 @@ void Graph_P::blue ( double value, uint8_t precision ) {
   debugPrint ( "~B", value, precision );
 }
 
-bool Interval::set ( uint32_t time, bool repeat ) {
 
-  this->repeat = repeat;
-
-  if ( this->time == 0 ) {
-
-    this->time     = constrain ( time, 1, 5000 );
-    this->loopTime = millis ( ) + this->time;
-  }
-
-  if ( ( int32_t ) ( millis ( ) - this->loopTime ) >= 0 ) {
-    if ( this->repeat )
-      loopTime = millis ( ) + this->time;
-
-    return true;
-  }
-
-  return false;
-}
-
-void Interval::reset ( void ) {
-
-  this->time     = 0;
-  this->loopTime = 0;
-}
-
-
-bool Interval::check ( ) {
-
-  if ( ( int32_t ) ( millis ( ) - this->loopTime ) >= 0 ) {
-
-    if ( this->repeat )
-      loopTime = millis ( ) + this->time;
-
-    return true;
-  }
-
-  return false;
-}
 
 
 void Monitor_P::print ( const char *msg ) {
