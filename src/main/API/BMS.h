@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 22nd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -38,7 +38,7 @@ typedef enum BMS_Option {
   mAh_Consumed,         // The milliampere-hours consumed from the battery.
   mAh_Remain,           // The milliampere-hours remaining in the battery.
   Battery_Capicity,     // The total capacity of the battery in milliampere-hours.
-  Estimated_Capicity    // The estimated capacity of the battery in milliampere-hours.
+  Estimated_Capacity    // The estimated capacity of the battery in milliampere-hours.
 } BMS_Option_e;
 
 /**
@@ -54,7 +54,7 @@ typedef enum BMS_Option {
  *        @param mAh_Consumed: To get the milliamp hours consumed.
  *        @param mAh_Remain: To get the remaining milliamp hours.
  *        @param Battery_Capicity: To get the total battery capacity in milliamp hours.
- *        @param Estimated_Capicity: To get the estimated capacity of the battery.
+ *        @param Estimated_Capacity: To get the estimated capacity of the battery.
  *
  * @return `uint16_t` The value of the requested BMS parameter. Returns 0 if an undefined option is passed.
  */

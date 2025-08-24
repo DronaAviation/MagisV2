@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 22nd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,8 +26,8 @@
 uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
   switch ( _bms_option ) {
     case Voltage:
-      // Return the current battery voltage
-      return vbat;
+      // Return the current battery voltage in mV
+      return vbat*100;
     case Current:
       // Return the current amperage
       return amperage;
@@ -40,7 +40,7 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
     case Battery_Capicity:
       // Return the total battery capacity in milliamp hours
       return battery_capacity_mAh;
-    case Estimated_Capicity:
+    case Estimated_Capacity:
       // Return the estimated capacity of the battery
       return EstBatteryCapacity;
     default:
