@@ -1,7 +1,5 @@
 // Do not remove the include below
 #include "PlutoPilot.h"
-#include "Utils.h"
-#include "Scheduler-Timer.h"
 
 /**
  * Configures Pluto's receiver to use PPM or default ESP mode; activate the line matching your setup.
@@ -20,16 +18,9 @@ void plutoRxConfig ( void ) {
   // Receiver_Mode ( Rx_PPM );    // PPM based
 }
 
-void PrintTimer ( ) {
-  Monitor.println ( "Hello" );
-}
-
-Scheduler_Task Task1;
-
 // The setup function is called once at Pluto's hardware startup
 void plutoInit ( void ) {
   // Add your hardware initialization code here
-  scheduler_add ( &Task1, PrintTimer, 500, true );
 }
 
 // The function is called once before plutoLoop when you activate Developer Mode
@@ -40,7 +31,6 @@ void onLoopStart ( void ) {
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
-  execute_scheduled ( &Task1 );
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode

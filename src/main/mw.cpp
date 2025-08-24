@@ -1019,8 +1019,6 @@ void userCode ( ) {
           callOnPilotStart  = false;
           callonPilotFinish = true;
         }
-        Graph.red ( getEstAltitude ( ), 1 );
-        Graph.green ( ( float ) getBaroPressure ( ), 1 );
 
         plutoLoop ( );
       }

@@ -32,6 +32,8 @@
 #include "API/RC-Interface.h"
 #include "API/FC-Control.h"
 #include "API/FC-Config.h"
+#include "API/Scheduler-Timer.h"
+#include "API/Debugging.h"
 
 void plutoRxConfig ( void );
 
