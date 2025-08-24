@@ -1,6 +1,5 @@
 // Do not remove the include below
 #include "PlutoPilot.h"
-#include "Utils.h"
 
 /**
  * Configures Pluto's receiver to use PPM or default ESP mode; activate the line matching your setup.
@@ -28,24 +27,11 @@ void plutoInit ( void ) {
 // The function is called once before plutoLoop when you activate Developer Mode
 void onLoopStart ( void ) {
   // do your one time stuffs here
-  Command_takeOff ( );
 }
 
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
   // Add your repeated code here
-  Monitor.println ( "RcData_get: ", RcData_get ( RC_THROTTLE ) );
-  Monitor.println ( "RcCommand_get: ", RcCommand_get ( RC_PITCH ) );
-  if ( FlightStatus_check ( FS_LOW_BATTERY ) ) {
-    Monitor.println ( "LOW_BATTERY" );
-  } else {
-    Monitor.println ( "Good_BATTERY" );
-  }
-  if ( FlightMode_check ( THROTTLE_MODE ) ) {
-    Monitor.println ( "FlightModeThrottle" );
-  } else if ( FlightMode_check ( ATLTITUDEHOLD ) ) {
-    Monitor.println ( "FlightModeAlt" );
-  }
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode

@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -23,22 +23,22 @@
 extern "C" {
 #endif
 
-#define MAGIS_IDENTIFIER       "MAGIS V2"
+#define MAGIS_IDENTIFIER          "MAGIS V2"
 
-#define API_VERSION_MAJOR      0    // increment when major changes are made
-#define API_VERSION_MINOR      14    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+#define API_VERSION_MAJOR         0     // increment when major changes are made
+#define API_VERSION_MINOR         15    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
-#define API_VERSION_LENGTH     2
+#define API_VERSION_LENGTH        2
 
 #define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
 #define FC_FW_VERSION_MINOR       2    // increment when a minor release is made (small new feature, change etc)
 #define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
 
-#define STR_HELPER( x )        #x
-#define STR( x )               STR_HELPER ( x )
+#define STR_HELPER( x )           #x
+#define STR( x )                  STR_HELPER ( x )
 #define FC_FW_VERSION_STRING      STR ( FC_FW_VERSION_MAJOR ) "." STR ( FC_FW_VERSION_MINOR ) "." STR ( FC_FW_VERSION_PATCH_LEVEL )
 
-#define MW_VERSION             231
+#define MW_VERSION                231
 
 extern const char *const targetName;
 

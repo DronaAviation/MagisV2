@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -31,6 +31,7 @@
 #include "API/FC-Data.h"
 #include "API/RC-Interface.h"
 #include "API/FC-Control.h"
+#include "API/FC-Config.h"
 
 void plutoRxConfig ( void );
 

@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -121,54 +121,62 @@ void FlightMode_set ( flight_mode_e MODE ) {
   }
 }
 
-void Command_takeOff(uint16_t height) {
+void Command_takeOff ( uint16_t height ) {
   // Check if the current command is not already TAKE_OFF
-  if (current_command != TAKE_OFF) {
+  if ( current_command != TAKE_OFF ) {
     // Set the current command to TAKE_OFF and update command status to RUNNING
     current_command = TAKE_OFF;
-    command_status = RUNNING;
+    command_status  = RUNNING;
 
     // Constrain the take-off height and set it
-    height = constrain(height, 100, 250);
+    height        = constrain ( height, 100, 250 );
     takeOffHeight = height;
   }
 }
 
-void Command_land(uint8_t landSpeed) {
+void Command_land ( uint8_t landSpeed ) {
   // Check if the command status is FINISHED or ABORTED and if the system is armed
-  if ((command_status == FINISHED || command_status == ABORT) && ARMING_FLAG(ARMED)) {
+  if ( ( command_status == FINISHED || command_status == ABORT ) && ARMING_FLAG ( ARMED ) ) {
     // Set the current command to LAND and update the command status to RUNNING
     current_command = LAND;
-    command_status = RUNNING;
+    command_status  = RUNNING;
 
     // Adjust the throttle for landing
     landThrottle = 1305 - landSpeed;
   }
 }
 
-void Command_flip(flip_direction_e direction) {
+void Command_flip ( flip_direction_e direction ) {
   // Check if the current command is not already B_FLIP
-  if (current_command != B_FLIP) {
+  if ( current_command != B_FLIP ) {
     // Set the current command to B_FLIP
     current_command = B_FLIP;
   }
 }
 
-bool Command_arm(void) {
+bool Command_arm ( void ) {
   // Check if RC mode BOXARM is active and it's OK to arm
-  if (IS_RC_MODE_ACTIVE(BOXARM) && ARMING_FLAG(OK_TO_ARM)) {
+  if ( IS_RC_MODE_ACTIVE ( BOXARM ) && ARMING_FLAG ( OK_TO_ARM ) ) {
     // Reset PID errors for angle and gyro, then arm the system
-    pidResetErrorAngle();
-    pidResetErrorGyro();
-    mwArm();
+    pidResetErrorAngle ( );
+    pidResetErrorGyro ( );
+    mwArm ( );
   }
   // Return the arming status
-  return ARMING_FLAG(ARMED);
+  return ARMING_FLAG ( ARMED );
 }
 
-bool Command_disArm(void) {
+bool Command_disArm ( void ) {
   // Disarm the system
-  mwDisarm();
+  mwDisarm ( );
   // Return the negation of the arming status
-  return !ARMING_FLAG(ARMED);
+  return ! ARMING_FLAG ( ARMED );
+}
+
+// Function to set the head-free mode heading
+void setheadFreeModeHeading ( int16_t heading ) {
+  // Assign the input heading to userHeadFreeHoldHeading variable
+  userHeadFreeHoldHeading = heading;
+  // Set the flag indicating that the user head-free hold heading is set
+  isUserHeadFreeHoldSet = true;
 }

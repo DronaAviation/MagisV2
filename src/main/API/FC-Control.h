@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -137,5 +137,15 @@ bool Command_arm ( void );
  * @return True if the system is disarmed, false otherwise.
  */
 bool Command_disArm ( void );
+
+/**
+ * @brief Sets the head-free mode heading.
+ *
+ * Assigns the provided heading to userHeadFreeHoldHeading
+ * and updates the flag to indicate it's set.
+ *
+ * @param heading The desired heading as int16_t.
+ */
+void setheadFreeModeHeading ( int16_t heading );
 
 #endif
