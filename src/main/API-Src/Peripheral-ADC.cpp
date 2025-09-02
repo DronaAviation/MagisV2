@@ -66,14 +66,14 @@ static const ADC_PinMapping adcPinMap [] = {
 };
 
 void Peripheral_Init ( peripheral_adc_pin _adc_pin ) {
-  if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_11 ) {
+  if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_9 ) {
     _isAdcEnable [ adcPinMap [ _adc_pin ].adcIndex ] = true;
   }
 }
 
 
 uint16_t Peripheral_Read ( peripheral_adc_pin _adc_pin ) {
-  if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_11 ) {
+  if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_9 ) {
     const auto &map = adcPinMap [ _adc_pin ];
     return map.valueArray [ _adcDmaIndex [ map.adcIndex ] ];
   }
