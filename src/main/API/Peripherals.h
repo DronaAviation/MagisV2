@@ -86,35 +86,35 @@ typedef enum gpio_state {
   STATE_TOGGLE    // Toggle state (switch between low and high)
 } GPIO_State_e;
 
+// Define an enumeration type for ADC peripherals
 typedef enum peripheral_adc {
-  ADC_1,
-  ADC_2,
-  ADC_3,
-  ADC_4,
-  ADC_5,
-  ADC_6,
-  ADC_7,
-  ADC_8,
-  ADC_9,
-  ADC_10,
-  ADC_11
-} peripheral_adc_pin;
+  ADC_1, // Represents ADC peripheral 1
+  ADC_2, // Represents ADC peripheral 2
+  ADC_3, // Represents ADC peripheral 3
+  ADC_4, // Represents ADC peripheral 4
+  ADC_5, // Represents ADC peripheral 5
+  ADC_6, // Represents ADC peripheral 6
+  ADC_7, // Represents ADC peripheral 7
+  ADC_8, // Represents ADC peripheral 8
+  ADC_9  // Represents ADC peripheral 9
+} peripheral_adc_pin; // Define a new type name 'peripheral_adc_pin' for this enumeration
 
+
+// Define an enumeration type for ADC channels
 typedef enum peripheral_adc_channel {
-  ADC2_IN12,
-  ADC4_IN5,
-  ADC4_IN4,
-  ADC3_IN5,
-  ADC4_IN3,
-  ADC2_IN1,
-  ADC2_IN2,
-  ADC1_IN4,
-  ADC1_IN3,
-  ADC2_IN4,
-  ADC3_IN1
-} Peripheral_ADC_Channel;
+  ADC2_IN12, // Represents ADC channel 12 of ADC peripheral 2
+  ADC4_IN5,  // Represents ADC channel 5 of ADC peripheral 4
+  ADC4_IN4,  // Represents ADC channel 4 of ADC peripheral 4
+  ADC3_IN5,  // Represents ADC channel 5 of ADC peripheral 3
+  ADC4_IN3,  // Represents ADC channel 3 of ADC peripheral 4
+  ADC2_IN1,  // Represents ADC channel 1 of ADC peripheral 2
+  ADC2_IN2,  // Represents ADC channel 2 of ADC peripheral 2
+  ADC1_IN4,  // Represents ADC channel 4 of ADC peripheral 1
+  ADC1_IN3   // Represents ADC channel 3 of ADC peripheral 1
+} Peripheral_ADC_Channel; // Define a new type name 'Peripheral_ADC_Channel' for this enumeration
 
-#define ADC_CHANNEL_COUNT 11
+
+#define ADC_CHANNEL_COUNT 9
 
 extern bool _isAdcEnable [ ADC_CHANNEL_COUNT ];
 extern uint8_t _adcDmaIndex [ ADC_CHANNEL_COUNT ];
