@@ -58,7 +58,7 @@ typedef enum peripheral_gpio {
  * @enum gpio_mode
  * @brief GPIO configuration modes.
  *
- * Defines the modes for configuring GPIO pins: 
+ * Defines the modes for configuring GPIO pins:
  * - `INPUT`: Floating input mode.
  * - `INPUT_PULL_UP`: Input with pull-up resistor.
  * - `INPUT_PULL_DOWN`: Input with pull-down resistor.
@@ -86,6 +86,48 @@ typedef enum gpio_state {
   STATE_TOGGLE    // Toggle state (switch between low and high)
 } GPIO_State_e;
 
+typedef enum peripheral_adc {
+  ADC_1,
+  ADC_2,
+  ADC_3,
+  ADC_4,
+  ADC_5,
+  ADC_6,
+  ADC_7,
+  ADC_8,
+  ADC_9,
+  ADC_10,
+  ADC_11
+} peripheral_adc_pin;
+
+typedef enum peripheral_adc_channel {
+  ADC2_IN12,
+  ADC4_IN5,
+  ADC4_IN4,
+  ADC3_IN5,
+  ADC4_IN3,
+  ADC2_IN1,
+  ADC2_IN2,
+  ADC1_IN4,
+  ADC1_IN3,
+  ADC2_IN4,
+  ADC3_IN1
+} Peripheral_ADC_Channel;
+
+#define ADC_CHANNEL_COUNT 11
+
+extern bool _isAdcEnable [ ADC_CHANNEL_COUNT ];
+extern uint8_t _adcDmaIndex [ ADC_CHANNEL_COUNT ];
+
+#define ADC1_CHANNEL_COUNT 2
+#define ADC2_CHANNEL_COUNT 3
+#define ADC3_CHANNEL_COUNT 1
+#define ADC4_CHANNEL_COUNT 3
+
+extern volatile uint16_t _adc1Values [ ADC1_CHANNEL_COUNT ];
+extern volatile uint16_t _adc2Values [ ADC2_CHANNEL_COUNT ];
+extern volatile uint16_t _adc3Values [ ADC3_CHANNEL_COUNT ];
+extern volatile uint16_t _adc4Values [ ADC4_CHANNEL_COUNT ];
 
 /**
  * @brief Initializes a GPIO pin with a specified mode.
@@ -114,5 +156,20 @@ bool Peripheral_Read ( peripheral_gpio_pin_e _gpio_pin );
  * @param _state The state to write (high/low).
  */
 void Peripheral_Write ( peripheral_gpio_pin_e _gpio_pin, GPIO_State_e _state );
+
+/**
+ * @brief Initializes the specified ADC pin.
+ * @param _adc_pin Pin ranging from ADC_1 to ADC_11.
+ */
+void Peripheral_Init ( peripheral_adc_pin _pin );
+
+/**
+ * @brief Reads the latest value from the specified ADC pin.
+ * @param _adc_pin Pin ranging from ADC_1 to ADC_11.
+ * @return Latest ADC value or 0 if invalid pin.
+ */
+uint16_t Peripheral_Read ( peripheral_adc_pin _adc_pin );
+
+void APIAdcInit ( void );
 
 #endif

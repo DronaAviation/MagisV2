@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Tue, 2nd Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -23,7 +23,6 @@
 #define _PlutoPilot_H_
 
 #include "API/RxConfig.h"
-#include "API/Peripheral.h"
 #include "API/Peripherals.h"
 #include "API/Status-LED.h"
 #include "API/Motor.h"

@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-MechAsh-Dev                                               #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\API-Src\Peripheral-ADC.cpp                                 #
  #  Created Date: Thu, 8th May 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 8th May 2025                                           #
+ #  Last Modified: Tue, 2nd Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -25,10 +25,10 @@
 #include "drivers/adc_impl.h"
 #include "drivers/system.h"
 
-#include "API/Peripheral.h"
+#include "API/Peripherals.h"
 
 // Define a structure named Peripheral_M to handle ADC peripherals.
-Peripheral_M Peripheral;
+// Peripheral_M Peripheral;
 
 // Boolean array to keep track of which ADC channels are enabled.
 // Initially, all channels are set to false (disabled).
@@ -52,6 +52,7 @@ struct ADC_PinMapping {
 
 // Static constant array that maps each ADC pin to its corresponding
 // value array and index. This defines how ADC pins are associated with ADC arrays.
+// static const ADC_PinMapping adcPinMap [] = {
 static const ADC_PinMapping adcPinMap [] = {
   [ADC_1]  = { _adc2Values, ADC2_IN12 },
   [ADC_2]  = { _adc4Values, ADC4_IN5 },
@@ -62,26 +63,16 @@ static const ADC_PinMapping adcPinMap [] = {
   [ADC_7]  = { _adc2Values, ADC2_IN2 },
   [ADC_8]  = { _adc1Values, ADC1_IN4 },
   [ADC_9]  = { _adc1Values, ADC1_IN3 },
-  [ADC_10] = { _adc2Values, ADC2_IN4 },
-  [ADC_11] = { _adc3Values, ADC3_IN1 }
 };
 
-/**
- * @brief Initializes the specified ADC pin.
- * @param _adc_pin Pin ranging from ADC_1 to ADC_11.
- */
-void Peripheral_M::init ( peripheral_adc_pin _adc_pin ) {
+void Peripheral_Init ( peripheral_adc_pin _adc_pin ) {
   if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_11 ) {
     _isAdcEnable [ adcPinMap [ _adc_pin ].adcIndex ] = true;
   }
 }
 
-/**
- * @brief Reads the latest value from the specified ADC pin.
- * @param _adc_pin Pin ranging from ADC_1 to ADC_11.
- * @return Latest ADC value or 0 if invalid pin.
- */
-uint16_t Peripheral_M::read ( peripheral_adc_pin _adc_pin ) {
+
+uint16_t Peripheral_Read ( peripheral_adc_pin _adc_pin ) {
   if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_11 ) {
     const auto &map = adcPinMap [ _adc_pin ];
     return map.valueArray [ _adcDmaIndex [ map.adcIndex ] ];
@@ -227,15 +218,15 @@ void _Adc1init ( void ) {
 
 void _Adc2init ( void ) {
   // Define the number of channels to be configured for ADC2
-  const uint8_t count = 4;
+  const uint8_t count = 3;
   // Specify which ADC2 channels are enabled
-  const uint8_t enabled [] = { _isAdcEnable [ ADC2_IN12 ], _isAdcEnable [ ADC2_IN1 ], _isAdcEnable [ ADC2_IN2 ], _isAdcEnable [ ADC2_IN4 ] };
+  const uint8_t enabled [] = { _isAdcEnable [ ADC2_IN12 ], _isAdcEnable [ ADC2_IN1 ], _isAdcEnable [ ADC2_IN2 ] };
   // Map GPIO pins associated with ADC2 channels
-  const uint16_t pins [] = { GPIO_Pin_2, GPIO_Pin_4, GPIO_Pin_5, GPIO_Pin_7 };
+  const uint16_t pins [] = { GPIO_Pin_2, GPIO_Pin_4, GPIO_Pin_5 };
   // Specify the ports corresponding to the GPIO pins
-  GPIO_TypeDef *ports [] = { GPIOB, GPIOA, GPIOA, GPIOA };
+  GPIO_TypeDef *ports [] = { GPIOB, GPIOA, GPIOA  };
   // Define the ADC2 channels to be used
-  const uint8_t channels [] = { ADC_Channel_12, ADC_Channel_1, ADC_Channel_2, ADC_Channel_4 };
+  const uint8_t channels [] = { ADC_Channel_12, ADC_Channel_1, ADC_Channel_2  };
   // Configure the ADC2 using these parameters
   ADC_Config cfg = { ADC2, DMA2_Channel1, RCC_AHBPeriph_DMA2, RCC_AHBPeriph_ADC12, RCC_ADC34PLLCLK_Div256, _adc2Values, enabled, pins, ports, &_adcDmaIndex [ ADC_CHANNEL_COUNT ], channels, count };
   _AdcInitGeneric ( &cfg );
@@ -243,15 +234,15 @@ void _Adc2init ( void ) {
 
 void _Adc3init ( void ) {
   // Define the number of channels to be configured for ADC3
-  const uint8_t count = 2;
+  const uint8_t count = 1;
   // Specify which ADC3 channels are enabled
-  const uint8_t enabled [] = { _isAdcEnable [ ADC3_IN5 ], _isAdcEnable [ ADC3_IN1 ] };
+  const uint8_t enabled [] = { _isAdcEnable [ ADC3_IN5 ]};
   // Map GPIO pins associated with ADC3 channels
-  const uint16_t pins [] = { GPIO_Pin_13, GPIO_Pin_1 };
+  const uint16_t pins [] = { GPIO_Pin_13  };
   // Specify the ports corresponding to the GPIO pins
-  GPIO_TypeDef *ports [] = { GPIOB, GPIOB };
+  GPIO_TypeDef *ports [] = { GPIOB };
   // Define the ADC3 channels to be used
-  const uint8_t channels [] = { ADC_Channel_5, ADC_Channel_1 };
+  const uint8_t channels [] = { ADC_Channel_5  };
   // Configure the ADC3 using these parameters
   ADC_Config cfg = { ADC3, DMA2_Channel5, RCC_AHBPeriph_DMA2, RCC_AHBPeriph_ADC34, RCC_ADC34PLLCLK_Div256, _adc3Values, enabled, pins, ports, &_adcDmaIndex [ ADC_CHANNEL_COUNT ], channels, count };
   _AdcInitGeneric ( &cfg );

@@ -11,7 +11,7 @@
  #  Created Date: Thu, 8th May 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 22nd May 2025                                          #
+ #  Last Modified: Tue, 2nd Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -136,61 +136,6 @@ extern I2C_P I2C;
 extern PWM_P PWM;
 extern SPI_P SPI;
 
-
-typedef enum peripheral_adc {
-  ADC_1,
-  ADC_2,
-  ADC_3,
-  ADC_4,
-  ADC_5,
-  ADC_6,
-  ADC_7,
-  ADC_8,
-  ADC_9,
-  ADC_10,
-  ADC_11
-} peripheral_adc_pin;
-
-typedef enum peripheral_adc_channel {
-  ADC2_IN12,
-  ADC4_IN5,
-  ADC4_IN4,
-  ADC3_IN5,
-  ADC4_IN3,
-  ADC2_IN1,
-  ADC2_IN2,
-  ADC1_IN4,
-  ADC1_IN3,
-  ADC2_IN4,
-  ADC3_IN1
-} Peripheral_ADC_Channel;
-
-
-
-#define ADC_CHANNEL_COUNT 11
-
-extern bool _isAdcEnable [ ADC_CHANNEL_COUNT ];
-extern uint8_t _adcDmaIndex [ ADC_CHANNEL_COUNT ];
-
-#define ADC1_CHANNEL_COUNT 2
-#define ADC2_CHANNEL_COUNT 4
-#define ADC3_CHANNEL_COUNT 2
-#define ADC4_CHANNEL_COUNT 3
-
-extern volatile uint16_t _adc1Values [ ADC1_CHANNEL_COUNT ];
-extern volatile uint16_t _adc2Values [ ADC2_CHANNEL_COUNT ];
-extern volatile uint16_t _adc3Values [ ADC3_CHANNEL_COUNT ];
-extern volatile uint16_t _adc4Values [ ADC4_CHANNEL_COUNT ];
-
-class Peripheral_M {
- public:
-  void init ( peripheral_adc_pin _pin );
-  uint16_t read ( peripheral_adc_pin _adc_pin );
-};
-
-void APIAdcInit ( void );
-
-extern Peripheral_M Peripheral;
 
 #ifdef __cplusplus
 }
