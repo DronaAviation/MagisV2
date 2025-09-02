@@ -11,7 +11,7 @@
  #  Created Date: Thu, 22nd May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 22nd May 2025                                          #
+ #  Last Modified: Tue, 2nd Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -44,19 +44,22 @@ typedef struct {
 static const GpioMapEntry gpioMap [ GPIO_COUNT ] = {
   [GPIO_1]  = { GPIOA, Pin_8, RCC_AHBPeriph_GPIOA },
   [GPIO_2]  = { GPIOB, Pin_2, RCC_AHBPeriph_GPIOB },
-  [GPIO_3]  = { GPIOB, Pin_15, RCC_AHBPeriph_GPIOB },
-  [GPIO_4]  = { GPIOB, Pin_14, RCC_AHBPeriph_GPIOB },
-  [GPIO_5]  = { GPIOB, Pin_13, RCC_AHBPeriph_GPIOB },
-  [GPIO_6]  = { GPIOB, Pin_12, RCC_AHBPeriph_GPIOB },
-  [GPIO_7]  = { GPIOA, Pin_4, RCC_AHBPeriph_GPIOA },
-  [GPIO_8]  = { GPIOA, Pin_13, RCC_AHBPeriph_GPIOA },
-  [GPIO_9]  = { GPIOA, Pin_14, RCC_AHBPeriph_GPIOA },
-  [GPIO_10] = { GPIOA, Pin_15, RCC_AHBPeriph_GPIOA },
-  [GPIO_11] = { GPIOA, Pin_5, RCC_AHBPeriph_GPIOA },
-  [GPIO_12] = { GPIOA, Pin_3, RCC_AHBPeriph_GPIOA },
-  [GPIO_13] = { GPIOA, Pin_3, RCC_AHBPeriph_GPIOA },
-  [GPIO_14] = { GPIOA, Pin_7, RCC_AHBPeriph_GPIOA },
-  [GPIO_15] = { GPIOB, Pin_1, RCC_AHBPeriph_GPIOB },
+  [GPIO_3]  = { GPIOB, Pin_6, RCC_AHBPeriph_GPIOB },
+  [GPIO_4]  = { GPIOB, Pin_7, RCC_AHBPeriph_GPIOB },
+  [GPIO_5]  = { GPIOB, Pin_15, RCC_AHBPeriph_GPIOB },
+  [GPIO_6]  = { GPIOB, Pin_14, RCC_AHBPeriph_GPIOB },
+  [GPIO_7]  = { GPIOB, Pin_13, RCC_AHBPeriph_GPIOB },
+  [GPIO_8]  = { GPIOB, Pin_12, RCC_AHBPeriph_GPIOB },
+  [GPIO_9]  = { GPIOA, Pin_4, RCC_AHBPeriph_GPIOA },
+  [GPIO_10] = { GPIOA, Pin_13, RCC_AHBPeriph_GPIOA },
+  [GPIO_11] = { GPIOA, Pin_14, RCC_AHBPeriph_GPIOA },
+  [GPIO_12] = { GPIOB, Pin_4, RCC_AHBPeriph_GPIOB },
+  [GPIO_13] = { GPIOB, Pin_5, RCC_AHBPeriph_GPIOB },
+  [GPIO_14] = { GPIOA, Pin_5, RCC_AHBPeriph_GPIOA },
+  [GPIO_15] = { GPIOB, Pin_3, RCC_AHBPeriph_GPIOB },
+  [GPIO_16] = { GPIOA, Pin_15, RCC_AHBPeriph_GPIOA },
+  [GPIO_17] = { GPIOA, Pin_3, RCC_AHBPeriph_GPIOA },
+  [GPIO_18] = { GPIOA, Pin_2, RCC_AHBPeriph_GPIOA },
 };
 
 // Mapping of GPIO modes to configuration settings

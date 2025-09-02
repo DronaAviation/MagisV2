@@ -11,7 +11,7 @@
  #  Created Date: Thu, 22nd May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 22nd May 2025                                          #
+ #  Last Modified: Tue, 2nd Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -48,6 +48,9 @@ typedef enum peripheral_gpio {
   GPIO_13,      // Represents GPIO pin 13
   GPIO_14,      // Represents GPIO pin 14
   GPIO_15,      // Represents GPIO pin 15
+  GPIO_16,      // Represents GPIO pin 16
+  GPIO_17,      // Represents GPIO pin 17
+  GPIO_18,      // Represents GPIO pin 18
   GPIO_COUNT    // Total number of GPIO pins defined
 } peripheral_gpio_pin_e;
 
