@@ -1,8 +1,6 @@
 /*******************************************************************************
  #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
- #  SPDX-FileCopyrightText: 2025 MechAsh (j.mechash@gmail.com)                 #
  #  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
- #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
  #  -------------------------------------------------------------------------  #
  #  Copyright (c) 2025 Drona Aviation                                          #
  #  All rights reserved.                                                       #
@@ -13,7 +11,7 @@
  #  Created Date: Sat, 6th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 6th Sep 2025                                           #
+ #  Last Modified: Sun, 7th Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -120,5 +118,62 @@ bool Uart_rxBytesWaiting ( UART_Port_e PORT );
  * @return false If there is no space available for writing.
  */
 bool Uart_txBytesFree ( UART_Port_e PORT );
+
+/**
+ * @brief Reads a single byte from a specified register of an I2C device.
+ *
+ * This function initiates an I2C read operation for a single byte from the given
+ * register address of the specified I2C device. The read byte is stored in the
+ * provided reference variable.
+ *
+ * @param device_add The I2C address of the device.
+ * @param reg The register address to read from.
+ * @param value Reference to a variable where the read byte will be stored.
+ * @return Returns true if the read operation is successful, otherwise false.
+ */
+bool I2C_read ( uint8_t device_add, uint8_t reg, uint8_t &value );
+
+/**
+ * @brief Reads multiple bytes from a specified register of an I2C device.
+ *
+ * This function performs an I2C read operation to fetch multiple bytes starting
+ * from the given register address of the specified I2C device. The data is stored
+ * in the provided buffer.
+ *
+ * @param device_add The I2C address of the device.
+ * @param reg The register address to start reading from.
+ * @param length Number of bytes to read.
+ * @param buffer Pointer to a buffer where the read data will be stored.
+ * @return Returns the number of bytes successfully read or a negative error code.
+ */
+int16_t I2C_read ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *buffer );
+
+/**
+ * @brief Writes a single byte to a specified register of an I2C device.
+ *
+ * This function initiates an I2C write operation to send a single byte to the given
+ * register address of the specified I2C device.
+ *
+ * @param device_add The I2C address of the device.
+ * @param reg The register address to write to.
+ * @param data The byte of data to write.
+ * @return Returns true if the write operation is successful, otherwise false.
+ */
+bool I2C_write ( uint8_t device_add, uint8_t reg, uint8_t data );
+
+/**
+ * @brief Writes multiple bytes to a specified register of an I2C device.
+ *
+ * This function performs an I2C write operation to send multiple bytes starting
+ * from the given register address of the specified I2C device. The data is taken
+ * from the provided buffer.
+ *
+ * @param device_add The I2C address of the device.
+ * @param reg The register address to start writing to.
+ * @param length Number of bytes to write.
+ * @param data Pointer to a buffer containing the data to be written.
+ * @return Returns true if the write operation is successful, otherwise false.
+ */
+bool I2C_write ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *data );
 
 #endif

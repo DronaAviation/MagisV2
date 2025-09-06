@@ -1,8 +1,6 @@
 /*******************************************************************************
  #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
- #  SPDX-FileCopyrightText: 2025 MechAsh (j.mechash@gmail.com)                 #
  #  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
- #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
  #  -------------------------------------------------------------------------  #
  #  Copyright (c) 2025 Drona Aviation                                          #
  #  All rights reserved.                                                       #
@@ -13,7 +11,7 @@
  #  Created Date: Sat, 6th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 6th Sep 2025                                           #
+ #  Last Modified: Sun, 7th Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #

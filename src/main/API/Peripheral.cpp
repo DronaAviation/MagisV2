@@ -11,7 +11,7 @@
  #  Created Date: Thu, 8th May 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 6th Sep 2025                                           #
+ #  Last Modified: Sun, 7th Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -71,34 +71,6 @@ pwmOutputPort_t* pwm[11];
 
 portMode_t mapped_mode;
 portOptions_t mapped_options;
-
-
-
-bool I2C_P::read(uint8_t device_add, uint8_t reg,uint8_t &value)
-{
-
-    return i2cRead(device_add, reg, 1, &value);
-}
-
-
-
-int16_t I2C_P::read(uint8_t device_add, uint8_t reg, uint32_t length,uint8_t* buffer)
-{
-
-    return i2cRead(device_add, reg, length, buffer);
-}
-
-bool I2C_P::write(uint8_t device_add, uint8_t reg, uint8_t data)
-{
-
-    return i2cWrite(device_add, reg, data);
-}
-
-bool I2C_P::write(uint8_t device_add, uint8_t reg, uint32_t length, uint8_t* data)
-{
-
-    return i2cWriteBuffer(device_add, reg, length, data);
-}
 
 
 
@@ -319,7 +291,6 @@ void SPI_P::write( uint8_t register_address, uint8_t data)
 }
 
 
-I2C_P I2C;
 SPI_P SPI;
 
 
