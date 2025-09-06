@@ -99,7 +99,6 @@
 #include "API/FC-Control.h"
 #include "API/FC-Data.h"
 #include "API/Specifiers.h"
-#include "API/Peripheral.h"
 #include "API/Motor.h"
 #include "API/PlutoPilot.h"
 #include "API/XRanging.h"

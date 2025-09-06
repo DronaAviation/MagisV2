@@ -81,7 +81,6 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#include "API/Peripheral.h"
 #include "API/Specifiers.h"
 #include "API/FC-Data.h"
 #include "API/API-Utils.h"

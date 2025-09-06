@@ -16,7 +16,6 @@
  */
 
 #include "API-Utils.h"
-#include "Peripheral.h"
 #include "Peripherals.h"
 #include "XRanging.h"
 
