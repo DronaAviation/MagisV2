@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 2nd Sep 2025                                           #
+ #  Last Modified: Sun, 7th Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -33,6 +33,7 @@
 #include "API/FC-Config.h"
 #include "API/Scheduler-Timer.h"
 #include "API/Debugging.h"
+#include "API/Serial-IO.h"
 
 void plutoRxConfig ( void );
 
