@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Sat, 6th Sep 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -110,6 +110,7 @@
 #include "API/API-Utils.h"
 // #include "API-Src/Debugging.cpp"
 #include "API/Peripheral.h"
+#include "API/Serial-IO.h"
 #include "API/Peripherals.h"
 #include "API/Localisation.h"
 #include "API/RxConfig.h"
@@ -663,7 +664,7 @@ void init ( void ) {
   APIAdcInit ( );
   xRangingInit ( );
   if ( localisationType == UWB ) {
-    UART.init ( UART2, BAUD_RATE_115200 );
+    Uart_init ( UART2, BAUD_RATE_115200 );
     Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );
   }
   // if(useRangingSensor)

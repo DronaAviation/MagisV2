@@ -91,6 +91,7 @@
 #include "API/Scheduler-Timer.h"
 #include "API/Peripheral.h"
 #include "API/Peripherals.h"
+#include "API/Serial-IO.h"
 
 #include "opticflow_paw3903.h"
 
@@ -818,9 +819,9 @@ void updateOpticFlow ( ) {
   uint16_t qual_sum = 0;
   uint16_t count    = 0;
 
-  while ( UART.rxBytesWaiting ( UART2 ) ) {
+  while ( Uart_rxBytesWaiting ( UART2 ) ) {
 
-    uint8_t c = UART.read8 ( UART2 );
+    uint8_t c = Uart_read8 ( UART2 );
 
     if ( buf_len == 0 ) {
       if ( c == CXOF_HEADER ) {
