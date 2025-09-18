@@ -56,7 +56,7 @@ const sonarHardware_t *sonarGetHardwareConfiguration(batteryConfig_t *batteryCon
         .exti_irqn = EXTI1_IRQn
     };
     // If we are using parallel PWM for our receiver or ADC current sensor, then use motor pins 5 and 6 for sonar, otherwise use rc pins 7 and 8
-    if (feature(FEATURE_RX_PARALLEL_PWM ) || (feature(FEATURE_CURRENT_METER) && batteryConfig->currentMeterType == CURRENT_SENSOR_ADC) ) {
+    if (feature(FEATURE_RX_PARALLEL_PWM ) || (feature(FEATURE_INA219_CBAT) && batteryConfig->currentMeterType == CURRENT_SENSOR_ADC) ) {
         return &sonarPWM56;
     } else {
         return &sonarRC78;

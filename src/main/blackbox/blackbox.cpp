@@ -81,9 +81,8 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#include "API/Peripheral.h"
 #include "API/Specifiers.h"
-#include "API/Estimate.h"
+#include "API/FC-Data.h"
 #include "API/API-Utils.h"
 #include "API/PlutoPilot.h"
 
@@ -418,10 +417,10 @@ static bool testBlackboxConditionUncached(FlightLogFieldCondition condition)
 #endif
 
         case FLIGHT_LOG_FIELD_CONDITION_VBAT:
-            return feature(FEATURE_VBAT);
+            return feature(FEATURE_INA219_VBAT);
 
         case FLIGHT_LOG_FIELD_CONDITION_AMPERAGE_ADC:
-            return feature(FEATURE_CURRENT_METER) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC;
+            return feature(FEATURE_INA219_CBAT) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC;
 
         case FLIGHT_LOG_FIELD_CONDITION_SONAR:
 #ifdef SONAR
@@ -1233,7 +1232,7 @@ static bool blackboxWriteSysinfo()
         break;
         case 12:
             //Note: Log even if this is a virtual current meter, since the virtual meter uses these parameters too:
-            if (feature(FEATURE_CURRENT_METER)) {
+            if (feature(FEATURE_INA219_CBAT)) {
                 blackboxPrintfHeaderLine("currentMeter:%d,%d", masterConfig.batteryConfig.currentMeterOffset, masterConfig.batteryConfig.currentMeterScale);
             }
         break;

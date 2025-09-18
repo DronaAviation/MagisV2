@@ -62,8 +62,8 @@
 
 #include "command/command.h"
 
-#include "../API/Control.h"
-#include "../API/Utils.h"
+#include "API/FC-Config.h"
+#include "API/Scheduler-Timer.h"
 #include "mw.h"
 
 uint8_t current_command = 0;
@@ -115,12 +115,12 @@ void takeOff ( ) {
 
 #ifdef LASER_ALT
         if ( ! isTakeOffHeightSet ) {
-          DesiredPosition.set ( Z, takeOffHeight );
+          setDesiredPosition ( Z, takeOffHeight );
           isTakeOffHeightSet = true;
         }
 #else
         if ( ! isTakeOffHeightSet ) {
-          DesiredPosition.setRelative ( Z, takeOffHeight );
+          DesiredPosition_setRelative ( Z, takeOffHeight );
           isTakeOffHeightSet = true;
         }
 #endif

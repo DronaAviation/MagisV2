@@ -37,10 +37,6 @@
 #include "drivers/system.h"
 
 
-#include "API/Peripheral.h"
-#include "API/Utils.h"
-
-
 #include "sc18is602b.h"
 
 void SC18IS602B::init(int slaveNum, bool a0, bool a1, bool a2) {

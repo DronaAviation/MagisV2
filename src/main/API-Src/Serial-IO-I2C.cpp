@@ -7,8 +7,8 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\API\PlutoPilot.h                                           #
- #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  File: \src\main\API-Src\Serial-IO-I2C.cpp                                  #
+ #  Created Date: Sun, 7th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  Last Modified: Sun, 7th Sep 2025                                           #
@@ -18,31 +18,28 @@
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
+#include "platform.h"
 
-#ifndef _PlutoPilot_H_
-#define _PlutoPilot_H_
+#include "drivers/bus_i2c.h"
 
-#include "API/RxConfig.h"
-#include "API/Peripherals.h"
-#include "API/Status-LED.h"
-#include "API/Motor.h"
-#include "API/BMS.h"
-#include "API/FC-Data.h"
-#include "API/RC-Interface.h"
-#include "API/FC-Control.h"
-#include "API/FC-Config.h"
-#include "API/Scheduler-Timer.h"
-#include "API/Debugging.h"
 #include "API/Serial-IO.h"
 
-void plutoRxConfig ( void );
 
-void plutoInit ( void );
+bool I2C_read ( uint8_t device_add, uint8_t reg, uint8_t &value ) {
+  return i2cRead ( device_add, reg, 1, &value );
+}
 
-void onLoopStart ( void );
 
-void plutoLoop ( void );
+int16_t I2C_read ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *buffer ) {
+  return i2cRead ( device_add, reg, length, buffer );
+}
 
-void onLoopFinish ( void );
 
-#endif
+bool I2C_write ( uint8_t device_add, uint8_t reg, uint8_t data ) {
+  return i2cWrite ( device_add, reg, data );
+}
+
+
+bool I2C_write ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *data ) {
+  return i2cWriteBuffer ( device_add, reg, length, data );
+}

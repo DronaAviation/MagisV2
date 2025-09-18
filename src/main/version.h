@@ -1,41 +1,44 @@
-/*
-
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\version.h                                                  #
+ #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MAGIS_IDENTIFIER       "MAGIS V2"
+#define MAGIS_IDENTIFIER          "MAGIS V2"
 
-#define API_VERSION_MAJOR      0    // increment when major changes are made
-#define API_VERSION_MINOR      9    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+#define API_VERSION_MAJOR         0     // increment when major changes are made
+#define API_VERSION_MINOR         24    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
-#define API_VERSION_LENGTH     2
+#define API_VERSION_LENGTH        2
 
 #define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
-#define FC_FW_VERSION_MINOR       0    // increment when a minor release is made (small new feature, change etc)
+#define FC_FW_VERSION_MINOR       2    // increment when a minor release is made (small new feature, change etc)
 #define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
 
-#define STR_HELPER( x )        #x
-#define STR( x )               STR_HELPER ( x )
+#define STR_HELPER( x )           #x
+#define STR( x )                  STR_HELPER ( x )
 #define FC_FW_VERSION_STRING      STR ( FC_FW_VERSION_MAJOR ) "." STR ( FC_FW_VERSION_MINOR ) "." STR ( FC_FW_VERSION_PATCH_LEVEL )
 
-#define MW_VERSION             231
+#define MW_VERSION                231
 
 extern const char *const targetName;
 

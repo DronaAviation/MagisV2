@@ -11,7 +11,7 @@
  #  Created Date: Tue, 20th May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 21st May 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -61,10 +61,16 @@
 
 #include "API/Motor.h"
 
+struct Rev_Motor_Gpio {
+  GPIO_TypeDef *gpio;
+  uint16_t pin;
+  uint32_t RCC_AHBPeriph;
+};
+
 pwmOutputPort_t *userMotor [ 2 ];    // Array to hold PWM output configurations for two motors
 
 // Initialize an array of Motor structs
-Rev_Motor_Gpio motors_gpio [ 6 ];
+static Rev_Motor_Gpio motors_gpio [ 6 ];
 
 /**
  * @brief Initializes the specified motor by configuring the necessary GPIO and timer settings.

@@ -7,42 +7,51 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\API\PlutoPilot.h                                           #
- #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  File: \src\main\API-Src\BMS.cpp                                            #
+ #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Sun, 24th Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
-
-#ifndef _PlutoPilot_H_
-#define _PlutoPilot_H_
-
-#include "API/RxConfig.h"
-#include "API/Peripherals.h"
-#include "API/Status-LED.h"
-#include "API/Motor.h"
 #include "API/BMS.h"
-#include "API/FC-Data.h"
-#include "API/RC-Interface.h"
-#include "API/FC-Control.h"
-#include "API/FC-Config.h"
-#include "API/Scheduler-Timer.h"
-#include "API/Debugging.h"
-#include "API/Serial-IO.h"
 
-void plutoRxConfig ( void );
+#include "platform.h"
+#include "sensors/battery.h"
 
-void plutoInit ( void );
+uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
+  switch ( _bms_option ) {
+    case Voltage:
+      // Return the current battery voltage in mV
+      return vbat*100;
+    case Current:
+      // Return the current amperage
+      return amperage;
+    case mAh_Consumed:
+      // Return the milliamp hours consumed
+      return mAhDrawn;
+    case mAh_Remain:
+      // Return the remaining milliamp hours
+      return mAhRemain;
+    case Battery_Capicity:
+      // Return the total battery capacity in milliamp hours
+      return battery_capacity_mAh;
+    case Estimated_Capacity:
+      // Return the estimated capacity of the battery
+      return EstBatteryCapacity;
+    default:
+      // Return 0 for any undefined BMS option
+      return 0;
+  }
+}
 
-void onLoopStart ( void );
 
-void plutoLoop ( void );
+void Bms_Using_New_Battery_Capicity(uint16_t _new_cap_mAh) {
+  // Assign the new capacity value to the battery capacity in mAh
+  battery_capacity_mAh = _new_cap_mAh;
+}
 
-void onLoopFinish ( void );
-
-#endif

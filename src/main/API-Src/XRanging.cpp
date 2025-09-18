@@ -15,10 +15,9 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "API-Utils.h"
-#include "Peripheral.h"
-#include "Peripherals.h"
-#include "XRanging.h"
+#include "API/API-Utils.h"
+#include "API/Peripherals.h"
+#include "API/XRanging.h"
 
 LaserSensor laserLEFT;
 LaserSensor laserRIGHT;

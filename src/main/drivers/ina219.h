@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 10th Apr 2025                                          #
+ #  Last Modified: Fri, 8th Aug 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -73,6 +73,8 @@ extern "C" {
 #define INA219_CONFIG_MODE_BUS_CNT       6                //< Bus voltage, continuous
 #define INA219_CONFIG_MODE_SHUNT_BUS_CNT 7
 
+#define INA219_SHUNT_RESISTOR_MILLIOHM   0.002f    // 2 mΩ for PE1206FRE470R02L
+
 /*!
  * \brief Default config register value
  * \details
@@ -120,6 +122,8 @@ extern "C" {
 void INA219_Init ( void );
 
 uint16_t bus_voltage ( void );
+
+int16_t shunt_voltage ( void );
 
 #ifdef __cplusplus
 }

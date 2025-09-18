@@ -30,8 +30,8 @@ TARGET	?=
 BUILD_TYPE	?= BIN
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.0.0
-API_Version	=	0.9.0
+FW_Version	=	2.2.0
+API_Version	=	0.24.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 # Debugger optons, must be empty or GDB
@@ -199,7 +199,6 @@ MAIN_RX = rx/rx.cpp \
 
 MAIN_SENSOR = sensors/acceleration.cpp \
 		   				sensors/battery.cpp \
-		   				sensors/power.cp \
 		   				sensors/boardalignment.cpp \
 		   				sensors/compass.cpp \
 		   				sensors/gyro.cpp \
@@ -267,20 +266,28 @@ DRONA_COMMAND = command/command.cpp \
             		command/localisationCommand.cpp \
 
 DRONA_API =	API/Specifiers.cpp \
-		    		API/Peripheral.cpp \
 						API-Src/Status-LED.cpp \
 		    		API-Src/Peripheral-ADC.cpp \
+		    		API-Src/Peripheral-PWM.cpp \
 		    		API-Src/Peripheral-GPIO.cpp \
-		    		API/XRanging.cpp \
-						API/Sensor.cpp \
-						API/Control.cpp \
-						API/Estimate.cpp \
-						API/Utils.cpp \
-						API/User.cpp \
+		    		API-Src/Serial-IO-Uart.cpp \
+		    		API-Src/Serial-IO-I2C.cpp \
+		    		API-Src/Serial-IO-SPI.cpp \
+						API-Src/BMS.cpp \
+						API-Src/FC-Config-PID.cpp \
+						API-Src/FC-Config-Setpoints.cpp \
+						API-Src/FC-Control-Status.cpp \
+						API-Src/FC-Control-Command.cpp \
+						API-Src/FC-Data-Sensors.cpp \
+						API-Src/FC-Data-Estimate.cpp \
+						API-Src/RC-Interface.cpp \
+						API-Src/Scheduler-Timer.cpp \
+						API-Src/Debugging.cpp \
+		    		API-Src/XRanging.cpp \
 						API-Src/Motor.cpp \
-						API/API-Utils.cpp \
-						API/RxConfig.cpp \
-						API/Localisation.cpp \
+						API-Src/API-Utils.cpp \
+						API-Src/RxConfig.cpp \
+						API-Src/Localisation.cpp \
 
 DRONA_SRC = $(DRONA_FLIGHT) \
 						$(DRONA_DRIVERS) \

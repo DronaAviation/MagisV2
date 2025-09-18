@@ -85,8 +85,8 @@
 
 #include "command/command.h"
 
-#include "API/Utils.h"
-#include "API/User.h"
+#include "API/Scheduler-Timer.h"
+#include "API/RC-Interface.h"
 
 #define VBATT_HYSTERESIS 1    // TESTING NEW BATT FAILSAFE CONDITION
 

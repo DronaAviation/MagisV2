@@ -1,19 +1,25 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 MechAsh (j.mechash@gmail.com)                 #
+ #  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\io\serial_msp.cpp                                          #
+ #  Created Date: Sat, 22nd Feb 2025                                            #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -106,6 +112,7 @@ uint16_t debug_e11;
 extern uint16_t vbatLatestADC;    // adding to read adc
 extern int32_t amperage;
 extern int32_t mAhDrawn;
+extern int32_t mAhRemain;
 
 uint16_t fsIndicator;
 
@@ -971,7 +978,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
     case MSP_ANALOG:
       headSerialReply ( 7 );
       serialize8 ( ( uint8_t ) constrain ( vbat, 0, 255 ) );
-      serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );    // milliamp hours drawn from battery
+      serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );    // milliamp hours drawn from battery
       serialize16 ( rssi );
       if ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput ) {
         serialize16 ( ( uint16_t ) constrain ( amperage * 10, 0, 0xFFFF ) );    // send amperage in 0.001 A steps. Negative range is truncated to zero

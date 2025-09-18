@@ -90,8 +90,8 @@
 
 #include "mw.h"
 
-#include "Utils.h"
-#include "API-Utils.h"
+#include "API/Scheduler-Timer.h"
+#include "API/API-Utils.h"
 
 uint8_t resetCounter       = 0;
 uint8_t intLogCounter      = 0;
@@ -99,7 +99,7 @@ uint8_t floatLogCounter    = 0;
 int16_t appHeading         = 0;
 int16_t AUX3_VALUE         = 1500;
 int16_t userHeading        = 0;
-uint32_t userLoopFrequency = 1000000;
+uint32_t userLoopFrequency = 100000;
 uint32_t autoRcTimerLoop   = 0;
 int32_t user_GPS_coord [ 2 ];
 int32_t MOTOR_ARRAY [ 4 ] = { 0 };

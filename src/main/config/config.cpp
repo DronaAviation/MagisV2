@@ -1,19 +1,25 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 MechAsh (j.mechash@gmail.com)                 #
+ #  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\config\config.cpp                                          #
+ #  Created Date: Sat, 22nd Feb 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -75,7 +81,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */18000    //! NEW - 36000 old value related to motor  try 32000
+#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */ 18000    //! NEW - 36000 old value related to motor  try 32000
 #define BRUSHLESS_MOTORS_PWM_RATE 400
 
 #ifdef __cplusplus
@@ -287,13 +293,13 @@ void resetBatteryConfig ( batteryConfig_t *batteryConfig ) {
   batteryConfig->vbatscale              = VBAT_SCALE_DEFAULT;
   batteryConfig->vbatresdivval          = VBAT_RESDIVVAL_DEFAULT;
   batteryConfig->vbatresdivmultiplier   = VBAT_RESDIVMULTIPLIER_DEFAULT;
-  batteryConfig->vbatmaxcellvoltage     = 43;    // 43
-  batteryConfig->vbatmincellvoltage     = 35;    // 33
-  batteryConfig->vbatwarningcellvoltage = 36;    // 35
-  batteryConfig->currentMeterOffset     = 16;    // pluto default 0
-  batteryConfig->currentMeterScale      = 30;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
-  batteryConfig->batteryCapacity        = 350;
-  batteryConfig->currentMeterType       = CURRENT_SENSOR_VIRTUAL;    // ADC to VIRTUAL
+  batteryConfig->vbatmaxcellvoltage     = 42;    // 43
+  batteryConfig->vbatmincellvoltage     = 32;    // 33
+  batteryConfig->vbatwarningcellvoltage = 33;    // 35
+  batteryConfig->currentMeterOffset     = 0;    // pluto default 0
+  batteryConfig->currentMeterScale      = 0;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
+  batteryConfig->batteryCapacity        = 1000;
+  batteryConfig->currentMeterType       = CURRENT_SENSOR_INA219;    // ADC to VIRTUAL
 }
 
 #ifdef SWAP_SERIAL_PORT_0_AND_1_DEFAULTS
@@ -398,14 +404,23 @@ static void resetConf ( void ) {
   //    masterConfig.mixerMode = MIXER_QUADP;
   featureClearAll ( );
 #if defined( PRIMUSX ) || defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
-  featureSet ( FEATURE_CURRENT_METER );    // testing virtual adc current measurement
+  featureSet ( FEATURE_INA219_CBAT );    // testing virtual adc current measurement
   featureSet ( FEATURE_GPS );
+#endif
+
+#ifdef INA219_Voltage
+  featureSet ( FEATURE_INA219_VBAT );
+
+#endif
+
+#ifdef INA219_Current
+
+  featureSet ( FEATURE_INA219_CBAT );
 #endif
 
 #ifdef BOARD_HAS_VOLTAGE_DIVIDER
   // only enable the VBAT feature by default if the board has a voltage divider otherwise
   // the user may see incorrect readings and unexpected issues with pin mappings may occur.
-  featureSet ( FEATURE_VBAT );
 #endif
 
   featureSet ( FEATURE_FAILSAFE );
@@ -502,7 +517,7 @@ static void resetConf ( void ) {
   resetRollAndPitchTrims ( &currentProfile->accelerometerTrims );
 
   currentProfile->mag_declination = 0;
-  currentProfile->acc_lpf_factor  = 8;    //! NEW : Old Value 4
+  currentProfile->acc_lpf_factor  = 8;     //! NEW : Old Value 4
   currentProfile->gyro_lpf_factor = 10;    //! NEW : Gyro LPF Filter
   currentProfile->accz_lpf_cutoff = 5.0f;
   currentProfile->accDeadband.xy  = 40;
@@ -568,7 +583,7 @@ static void resetConf ( void ) {
   masterConfig.blackbox_rate_denom = 1;
 #endif
 
-  // alternative defaults settings for COLIBRI RACE targets
+// alternative defaults settings for COLIBRI RACE targets
 #if defined( COLIBRI_RACE )
   masterConfig.looptime = 1000;
 
@@ -584,12 +599,12 @@ static void resetConf ( void ) {
   masterConfig.rxConfig.rcmap [ 7 ] = 7;
 
   featureSet ( FEATURE_ONESHOT125 );
-  featureSet ( FEATURE_VBAT );
+  featureSet ( FEATURE_INA219_VBAT );
   featureSet ( FEATURE_LED_STRIP );
   featureSet ( FEATURE_FAILSAFE );
 #endif
 
-  // alternative defaults settings for ALIENWIIF1 and ALIENWIIF3 targets
+// alternative defaults settings for ALIENWIIF1 and ALIENWIIF3 targets
 #ifdef ALIENWII32
   featureSet ( FEATURE_RX_SERIAL );
   featureSet ( FEATURE_MOTOR_STOP );
@@ -801,7 +816,7 @@ void validateAndFixConfig ( void ) {
     featureClear ( FEATURE_RSSI_ADC );
     // current meter needs the same ports
     if ( masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC ) {
-      featureClear ( FEATURE_CURRENT_METER );
+      featureClear ( FEATURE_INA219_CBAT );
     }
 #endif
 
@@ -829,14 +844,14 @@ void validateAndFixConfig ( void ) {
 #endif
 
 #if defined( NAZE ) && defined( SONAR )
-  if ( featureConfigured ( FEATURE_RX_PARALLEL_PWM ) && featureConfigured ( FEATURE_SONAR ) && featureConfigured ( FEATURE_CURRENT_METER ) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC ) {
-    featureClear ( FEATURE_CURRENT_METER );
+  if ( featureConfigured ( FEATURE_RX_PARALLEL_PWM ) && featureConfigured ( FEATURE_SONAR ) && featureConfigured ( FEATURE_INA219_CBAT ) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC ) {
+    featureClear ( FEATURE_INA219_CBAT );
   }
 #endif
 
 #if defined( OLIMEXINO ) && defined( SONAR )
-  if ( feature ( FEATURE_SONAR ) && feature ( FEATURE_CURRENT_METER ) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC ) {
-    featureClear ( FEATURE_CURRENT_METER );
+  if ( feature ( FEATURE_SONAR ) && feature ( FEATURE_INA219_CBAT ) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_ADC ) {
+    featureClear ( FEATURE_INA219_CBAT );
   }
 #endif
 

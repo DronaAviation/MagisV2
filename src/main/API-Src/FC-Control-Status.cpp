@@ -7,11 +7,11 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
- #  File: \src\main\sensors\power.h                                            #
- #  Created Date: Wed, 16th Apr 2025                                           #
+ #  File: \src\main\API-Src\FC-Control-Status.cpp                              #
+ #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 16th Apr 2025                                          #
+ #  Last Modified: Sat, 23rd Aug 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -19,25 +19,17 @@
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
 
-#ifndef BATTERY_VOLTAGE_H
-#define BATTERY_VOLTAGE_H
-
 #include <stdint.h>
+#include "common/maths.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "config/runtime_config.h"
 
-#define BATTERY_BUFFER_SIZE 50
+#include "API/FC-Control.h"
 
-void battery_voltage_init ( void );
-
-void battery_voltage_update ( uint16_t adc_reading );
-
-uint16_t ProcessedVoltage ( void );
-
-#ifdef __cplusplus
+flightstatus_e FlightStatus_get ( void ) {
+  return ( flightstatus_e ) leastSignificantBit ( flightIndicatorFlag );
 }
-#endif
 
-#endif    // BATTERY_VOLTAGE_H
+bool FlightStatus_check ( flightstatus_e status ) {
+  return status_FSI ( ( FlightStatus_e ) status );
+}

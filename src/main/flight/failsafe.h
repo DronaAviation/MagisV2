@@ -22,7 +22,7 @@ extern "C" {
 #endif 
 
 #include "rx/rx.h"
-#include "API/Utils.h"
+#include "API/Scheduler-Timer.h"
 
 #define FAILSAFE_POWER_ON_DELAY_US (1000 * 1000 * 5)
 #define MILLIS_PER_TENTH_SECOND      100

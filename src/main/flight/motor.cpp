@@ -11,7 +11,7 @@
  #  Created Date: Tue, 15th Apr 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 20th May 2025                                          #
+ #  Last Modified: Wed, 17th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -35,6 +35,14 @@
 #include "flight/mixer.h"
 
 #include "API/Motor.h"
+
+struct Rev_Motor_Gpio {
+  GPIO_TypeDef *gpio;
+  uint16_t pin;
+  uint32_t RCC_AHBPeriph;
+};
+
+static Rev_Motor_Gpio motors_gpio [ 6 ];
 
 bool hasInitialBoostCompleted = false;    // Flags whether the initial 100ms motor boost is complete
 

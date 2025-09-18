@@ -19,12 +19,13 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 typedef enum {
-    X = 0,
-    Y,
-    Z
+  X = 0,
+  Y,
+  Z,
+  Net_Acc
 } axis_e;
 
 #define XYZ_AXIS_COUNT 3

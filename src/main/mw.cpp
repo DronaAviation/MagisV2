@@ -94,11 +94,11 @@
 #include "mw.h"
 
 #include "API/API-Utils.h"
-#include "API/Utils.h"
-#include "API/User.h"
-#include "API/Estimate.h"
+#include "API/Scheduler-Timer.h"
+#include "API/RC-Interface.h"
+#include "API/FC-Control.h"
+#include "API/FC-Data.h"
 #include "API/Specifiers.h"
-#include "API/Peripheral.h"
 #include "API/Motor.h"
 #include "API/PlutoPilot.h"
 #include "API/XRanging.h"
@@ -197,19 +197,19 @@ void uwbUpdate ( ) {
     UART.write ( UART2, getPos, 2 );
 
     while ( UART.rxBytesWaiting ( UART2 ) ) {
-      ch = UART.read8 ( UART2 );
+      ch = Uart_read8 ( UART2 );
       if ( ch == 0x40 ) {
-        ch = UART.read8 ( UART2 );
+        ch = Uart_read8 ( UART2 );
         if ( ch == 0x01 ) {
-          ch = UART.read8 ( UART2 );
+          ch = Uart_read8 ( UART2 );
           if ( ch == 0x00 ) {
-            ch = UART.read8 ( UART2 );
+            ch = Uart_read8 ( UART2 );
             if ( ch == 0x41 ) {
-              ch      = UART.read8 ( UART2 );
-              posX    = ( int16_t ) ( ( ( int32_t ) UART.read32 ( UART2 ) ) / 10 );
-              posY    = ( int16_t ) ( ( ( int32_t ) UART.read32 ( UART2 ) ) / 10 );
-              posZ    = ( int16_t ) ( ( ( int32_t ) UART.read32 ( UART2 ) ) / 10 );
-              Quality = ( int8_t ) ( ( int32_t ) UART.read8 ( UART2 ) );
+              ch      = Uart_read8 ( UART2 );
+              posX    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
+              posY    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
+              posZ    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
+              Quality = ( int8_t ) ( ( int32_t ) Uart_read8 ( UART2 ) );
 
               if ( Quality > 51 )    // only if quality is greater than 50% take as a new position
                 new_position = true;
@@ -389,19 +389,20 @@ void annexCode ( void ) {
     rcCommand [ PITCH ]     = rcCommand_PITCH;
   }
 
-  if ( feature ( FEATURE_VBAT ) ) {
+  if ( feature ( FEATURE_INA219_VBAT ) ) {
     if ( cmp32 ( currentTime, vbatLastServiced ) >= VBATINTERVAL ) {
       vbatLastServiced = currentTime;
-      updateBattery ( );
+      updateINA219Voltage ( );
     }
   }
 
-  if ( feature ( FEATURE_CURRENT_METER ) ) {
-    int32_t ibatTimeSinceLastServiced = cmp32 ( currentTime, ibatLastServiced );
+  if ( feature ( FEATURE_INA219_CBAT ) ) {
+    // int32_t ibatTimeSinceLastServiced = cmp32 ( currentTime, ibatLastServiced );
 
-    if ( ibatTimeSinceLastServiced >= IBATINTERVAL ) {
+    if ( cmp32 ( currentTime, ibatLastServiced ) >= IBATINTERVAL ) {
       ibatLastServiced = currentTime;
-      updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
+      // updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
+      updateINA219Current ( );
     }
   }
 
@@ -1017,8 +1018,6 @@ void userCode ( ) {
           callOnPilotStart  = false;
           callonPilotFinish = true;
         }
-        Graph.red ( getEstAltitude ( ), 1 );
-        Graph.green ( ( float ) getBaroPressure ( ), 1 );
 
         plutoLoop ( );
       }
@@ -1043,7 +1042,7 @@ void userCode ( ) {
       for ( int i = 0; i < 6; i++ ) {
 
         if ( isUserFlightModeSet [ i ] )
-          FlightMode.set ( ( flight_mode_e ) i );
+          FlightMode_set ( ( flight_mode_e ) i );
       }
     }
 
