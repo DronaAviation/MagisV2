@@ -13,7 +13,7 @@
  #  Created Date: Tue, 20th May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 21st May 2025                                          #
+ #  Last Modified: Wed, 17th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -24,7 +24,7 @@
 #define MOTOR_API_H
 
 #include <stdint.h>
-#include "platform.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,13 +44,8 @@ typedef enum bidirectional_motor {
   M8
 } bidirectional_motor_e;
 
-struct Rev_Motor_Gpio {
-  GPIO_TypeDef *gpio;
-  uint16_t pin;
-  uint32_t RCC_AHBPeriph;
-};
 
-extern Rev_Motor_Gpio motors_gpio [ 6 ];
+
 
 extern bool usingMotorAPI;
 
