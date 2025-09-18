@@ -283,11 +283,11 @@ DRONA_API =	API/Specifiers.cpp \
 						API-Src/RC-Interface.cpp \
 						API-Src/Scheduler-Timer.cpp \
 						API-Src/Debugging.cpp \
-		    		API/XRanging.cpp \
+		    		API-Src/XRanging.cpp \
 						API-Src/Motor.cpp \
-						API/API-Utils.cpp \
-						API/RxConfig.cpp \
-						API/Localisation.cpp \
+						API-Src/API-Utils.cpp \
+						API-Src/RxConfig.cpp \
+						API-Src/Localisation.cpp \
 
 DRONA_SRC = $(DRONA_FLIGHT) \
 						$(DRONA_DRIVERS) \
