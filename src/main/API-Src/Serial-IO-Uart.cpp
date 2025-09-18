@@ -11,7 +11,7 @@
  #  Created Date: Sat, 6th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -64,43 +64,43 @@ static uint32_t getBaud ( UART_Baud_Rate_e BAUD ) {
   }
 }
 
-void Uart_init ( UART_Port_e PORT, UART_Baud_Rate_e BAUD ) {
+void Uart_Init ( UART_Port_e PORT, UART_Baud_Rate_e BAUD ) {
   if ( PORT == UART2 ) {
     uart2 = openSerialPort ( SERIAL_PORT_USART2, FUNCTION_UNIBUS, NULL, getBaud ( BAUD ), MODE_RXTX, SERIAL_NOT_INVERTED );
   }
 }
 
-uint8_t Uart_read8 ( UART_Port_e PORT ) {
+uint8_t Uart_Read8 ( UART_Port_e PORT ) {
   if ( PORT == UART2 ) {
     return serialRead ( uart2 ) & 0xff;
   }
 }
 
-uint16_t Uart_read16 ( UART_Port_e PORT ) {
-  uint16_t t = Uart_read8 ( PORT );
-  t += ( uint16_t ) Uart_read8 ( PORT ) << 8;
+uint16_t Uart_Read16 ( UART_Port_e PORT ) {
+  uint16_t t = Uart_Read8 ( PORT );
+  t += ( uint16_t ) Uart_Read8 ( PORT ) << 8;
   return t;
 }
 
-uint32_t Uart_read32 ( UART_Port_e PORT ) {
-  uint32_t t = Uart_read16 ( PORT );
-  t += ( uint32_t ) Uart_read16 ( PORT ) << 16;
+uint32_t Uart_Read32 ( UART_Port_e PORT ) {
+  uint32_t t = Uart_Read16 ( PORT );
+  t += ( uint32_t ) Uart_Read16 ( PORT ) << 16;
   return t;
 }
 
-void Uart_write ( UART_Port_e PORT, uint8_t data ) {
+void Uart_Write ( UART_Port_e PORT, uint8_t data ) {
   if ( PORT == UART2 ) {
     serialWrite ( uart2, data );
   }
 }
 
-void Uart_write ( UART_Port_e PORT, const char *str ) {
+void Uart_Write ( UART_Port_e PORT, const char *str ) {
   if ( PORT == UART2 ) {
     serialPrint ( uart2, str );
   }
 }
 
-void Uart_write ( UART_Port_e PORT, uint8_t *data, uint16_t length ) {
+void Uart_Write ( UART_Port_e PORT, uint8_t *data, uint16_t length ) {
   if ( PORT == UART2 ) {
     while ( length-- ) {
       serialWrite ( uart2, *data );

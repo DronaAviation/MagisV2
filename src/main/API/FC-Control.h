@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -56,7 +56,7 @@ typedef enum {
  *
  * @return Current `flightstatus_e`.
  */
-flightstatus_e FlightStatus_get ( void );
+flightstatus_e FlightStatus_Get ( void );
 
 /**
  * @brief Evaluates a flight status.
@@ -66,7 +66,7 @@ flightstatus_e FlightStatus_get ( void );
  * @param status Flight status of type `flightstatus_e`.
  * @return True if the status meets criteria, otherwise false.
  */
-bool FlightStatus_check ( flightstatus_e status );
+bool FlightStatus_Check ( flightstatus_e status );
 
 /**
  * @brief Checks if the specified flight mode is active.
@@ -77,7 +77,7 @@ bool FlightStatus_check ( flightstatus_e status );
  * @param MODE The flight mode to check, of type `flight_mode_e`.
  * @return True if the specified mode is active, false otherwise.
  */
-bool FlightMode_check ( flight_mode_e MODE );
+bool FlightMode_Check ( flight_mode_e MODE );
 
 /**
  * @brief Sets the specified flight mode and updates user flight mode states.
@@ -87,7 +87,7 @@ bool FlightMode_check ( flight_mode_e MODE );
  *
  * @param MODE The flight mode to set, of type `flight_mode_e`.
  */
-void FlightMode_set ( flight_mode_e MODE );
+void FlightMode_Set ( flight_mode_e MODE );
 
 /**
  * @brief Initiates a take-off command to a specified height.
@@ -97,7 +97,7 @@ void FlightMode_set ( flight_mode_e MODE );
  *
  * @param height The desired take-off height in units, constrained between 100 and 250.
  */
-void Command_takeOff ( uint16_t height = 150 );
+void Command_TakeOff ( uint16_t height = 150 );
 
 /**
  * @brief Initiates a landing sequence with a specified speed.
@@ -107,7 +107,7 @@ void Command_takeOff ( uint16_t height = 150 );
  *
  * @param landSpeed The speed at which the craft should land.
  */
-void Command_land ( uint8_t landSpeed = 105 );
+void Command_Land ( uint8_t landSpeed = 105 );
 
 /**
  * @brief Initiates a flip maneuver in a specified direction.
@@ -116,7 +116,7 @@ void Command_land ( uint8_t landSpeed = 105 );
  *
  * @param direction The direction in which to perform the flip, of type `flip_direction_e`.
  */
-void Command_flip ( flip_direction_e direction );
+void Command_Flip ( flip_direction_e direction );
 
 /**
  * @brief Attempts to arm the system.
@@ -126,7 +126,7 @@ void Command_flip ( flip_direction_e direction );
  *
  * @return True if the system is armed, false otherwise.
  */
-bool Command_arm ( void );
+bool Command_Arm ( void );
 
 /**
  * @brief Disarms the system.
@@ -136,7 +136,7 @@ bool Command_arm ( void );
  *
  * @return True if the system is disarmed, false otherwise.
  */
-bool Command_disArm ( void );
+bool Command_DisArm ( void );
 
 /**
  * @brief Sets the head-free mode heading.

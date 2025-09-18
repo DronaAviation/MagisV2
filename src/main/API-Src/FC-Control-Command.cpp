@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -47,7 +47,7 @@
 #include "API/FC-Control.h"
 #include "API/API-Utils.h"
 
-bool FlightMode_check ( flight_mode_e MODE ) {
+bool FlightMode_Check ( flight_mode_e MODE ) {
   switch ( MODE ) {
     case ANGLE:
       // Check if the current mode is ANGLE_MODE
@@ -75,7 +75,7 @@ bool FlightMode_check ( flight_mode_e MODE ) {
   return false;
 }
 
-void FlightMode_set ( flight_mode_e MODE ) {
+void FlightMode_Set ( flight_mode_e MODE ) {
   switch ( MODE ) {
     case ANGLE:
       // Enable ANGLE_MODE and update user flight mode states
@@ -121,7 +121,7 @@ void FlightMode_set ( flight_mode_e MODE ) {
   }
 }
 
-void Command_takeOff ( uint16_t height ) {
+void Command_TakeOff ( uint16_t height ) {
   // Check if the current command is not already TAKE_OFF
   if ( current_command != TAKE_OFF ) {
     // Set the current command to TAKE_OFF and update command status to RUNNING
@@ -134,7 +134,7 @@ void Command_takeOff ( uint16_t height ) {
   }
 }
 
-void Command_land ( uint8_t landSpeed ) {
+void Command_Land ( uint8_t landSpeed ) {
   // Check if the command status is FINISHED or ABORTED and if the system is armed
   if ( ( command_status == FINISHED || command_status == ABORT ) && ARMING_FLAG ( ARMED ) ) {
     // Set the current command to LAND and update the command status to RUNNING
@@ -146,7 +146,7 @@ void Command_land ( uint8_t landSpeed ) {
   }
 }
 
-void Command_flip ( flip_direction_e direction ) {
+void Command_Flip ( flip_direction_e direction ) {
   // Check if the current command is not already B_FLIP
   if ( current_command != B_FLIP ) {
     // Set the current command to B_FLIP
@@ -154,7 +154,7 @@ void Command_flip ( flip_direction_e direction ) {
   }
 }
 
-bool Command_arm ( void ) {
+bool Command_Arm ( void ) {
   // Check if RC mode BOXARM is active and it's OK to arm
   if ( IS_RC_MODE_ACTIVE ( BOXARM ) && ARMING_FLAG ( OK_TO_ARM ) ) {
     // Reset PID errors for angle and gyro, then arm the system
@@ -166,7 +166,7 @@ bool Command_arm ( void ) {
   return ARMING_FLAG ( ARMED );
 }
 
-bool Command_disArm ( void ) {
+bool Command_DisArm ( void ) {
   // Disarm the system
   mwDisarm ( );
   // Return the negation of the arming status

@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -67,7 +67,7 @@ typedef enum {
  *
  * - Returns 0 for unsupported sensor types.
  */
-uint32_t Sensor_get ( FC_Sensors_e _sensor, axis_e _axis );
+uint32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis );
 /**
  * @brief Retrieves barometer data for the specified sensor and data type.
  *
@@ -79,7 +79,7 @@ uint32_t Sensor_get ( FC_Sensors_e _sensor, axis_e _axis );
  * @return uint32_t The retrieved barometric pressure in units of 100*millibar,
  *         temperature in units of 100*degreeCelsius, or 0 for unsupported types.
  */
-uint32_t Sensor_get ( FC_Sensors_e _sensor, BARO_Data_e _data );
+uint32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
 
 /**
  * @brief Retrieves the estimated value based on the type of estimate and specified axis.
@@ -100,7 +100,7 @@ uint32_t Sensor_get ( FC_Sensors_e _sensor, BARO_Data_e _data );
  *
  * @warning `Velocity` should be accessed only when additional localization sensors(GPS, opticflow, UWB, etc) are used.
  */
-int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis );
+int16_t Estimate_Get ( FC_Estimate_e _estimateOf, axis_e _axis );
 
 /**
  * @brief Retrieves the estimated angle measurement in specified units.
@@ -118,6 +118,6 @@ int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis );
  *         - Heading in degrees if _angle is AG_YAW.
  *         Returns 0 if the estimate type is not Angle or if the angle is unrecognized.
  */
-int16_t Estimate_get ( FC_Estimate_e _estimateOf, angle_e _angle );
+int16_t Estimate_Get ( FC_Estimate_e _estimateOf, angle_e _angle );
 
 #endif

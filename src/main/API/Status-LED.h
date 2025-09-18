@@ -16,6 +16,6 @@ typedef enum {
 
 extern bool LedStatusState;
 
-void set_LED ( led_status_e _led_status, led_state_e _state );
+void Set_LED ( led_status_e _led_status, led_state_e _state );
 
 #endif

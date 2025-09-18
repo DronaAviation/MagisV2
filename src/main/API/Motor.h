@@ -13,7 +13,7 @@
  #  Created Date: Tue, 20th May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 17th Sep 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -50,8 +50,8 @@ typedef enum bidirectional_motor {
 extern bool usingMotorAPI;
 
 void Motor_Init ( bidirectional_motor_e _motor );
-void Motor_set ( bidirectional_motor_e _motor, int16_t pwmValue );
-void Motor_setDir ( bidirectional_motor_e motor, motor_direction_e direction );
+void Motor_Set ( bidirectional_motor_e _motor, int16_t pwmValue );
+void Motor_SetDir ( bidirectional_motor_e motor, motor_direction_e direction );
 
 #ifdef __cplusplus
 }

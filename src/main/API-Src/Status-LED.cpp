@@ -11,7 +11,7 @@
  #  Created Date: Fri, 16th May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th May 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -38,7 +38,7 @@ bool LedStatusState = true; // Indicates that the LED is currently ON
  * @param _led_status The status of the LED to control (can be STATUS, RED, GREEN, or BLUE).
  * @param _state The desired state for the LED (ON or OFF).
  */
-void set_LED(led_status_e _led_status, led_state_e _state) {
+void Set_LED(led_status_e _led_status, led_state_e _state) {
     // Check if the provided LED status is STATUS
     if (_led_status == STATUS) {
         // If the state is OFF, turn off all LEDs and update the LED status state

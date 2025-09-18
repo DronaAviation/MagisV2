@@ -11,7 +11,7 @@
  #  Created Date: Sat, 6th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -70,7 +70,7 @@ typedef enum SPIfirst_bit_s {
  * @param PORT The UART port to initialize (e.g., UART2).
  * @param BAUD The desired baud rate for the UART communication.
  */
-void Uart_init ( UART_Port_e PORT, UART_Baud_Rate_e BAUD );
+void Uart_Init ( UART_Port_e PORT, UART_Baud_Rate_e BAUD );
 
 /**
  * @brief Reads an 8-bit value from the specified UART port.
@@ -78,7 +78,7 @@ void Uart_init ( UART_Port_e PORT, UART_Baud_Rate_e BAUD );
  * @param PORT The UART port to read from.
  * @return uint8_t The 8-bit data read from the UART port.
  */
-uint8_t Uart_read8 ( UART_Port_e PORT );
+uint8_t Uart_Read8 ( UART_Port_e PORT );
 
 /**
  * @brief Reads a 16-bit value from the specified UART port.
@@ -86,7 +86,7 @@ uint8_t Uart_read8 ( UART_Port_e PORT );
  * @param PORT The UART port to read from.
  * @return uint16_t The 16-bit data read from the UART port.
  */
-uint16_t Uart_read16 ( UART_Port_e PORT );
+uint16_t Uart_Read16 ( UART_Port_e PORT );
 
 /**
  * @brief Reads a 32-bit value from the specified UART port.
@@ -94,7 +94,7 @@ uint16_t Uart_read16 ( UART_Port_e PORT );
  * @param PORT The UART port to read from.
  * @return uint32_t The 32-bit data read from the UART port.
  */
-uint32_t Uart_read32 ( UART_Port_e PORT );
+uint32_t Uart_Read32 ( UART_Port_e PORT );
 
 /**
  * @brief Writes an 8-bit data value to the specified UART port.
@@ -102,7 +102,7 @@ uint32_t Uart_read32 ( UART_Port_e PORT );
  * @param PORT The UART port to write to.
  * @param data The 8-bit data to write.
  */
-void Uart_write ( UART_Port_e PORT, uint8_t data );
+void Uart_Write ( UART_Port_e PORT, uint8_t data );
 
 /**
  * @brief Writes a string to the specified UART port.
@@ -110,7 +110,7 @@ void Uart_write ( UART_Port_e PORT, uint8_t data );
  * @param PORT The UART port to write to.
  * @param str The null-terminated string to write.
  */
-void Uart_write ( UART_Port_e PORT, const char *str );
+void Uart_Write ( UART_Port_e PORT, const char *str );
 
 /**
  * @brief Writes a sequence of bytes to the specified UART port.
@@ -119,7 +119,7 @@ void Uart_write ( UART_Port_e PORT, const char *str );
  * @param data The pointer to the byte array to write.
  * @param length The number of bytes to write.
  */
-void Uart_write ( UART_Port_e PORT, uint8_t *data, uint16_t length );
+void Uart_Write ( UART_Port_e PORT, uint8_t *data, uint16_t length );
 
 /**
  * @brief Checks if there are bytes waiting to be read in the receive buffer of the specified UART port.
@@ -151,7 +151,7 @@ bool Uart_txBytesFree ( UART_Port_e PORT );
  * @param value Reference to a variable where the read byte will be stored.
  * @return Returns true if the read operation is successful, otherwise false.
  */
-bool I2C_read ( uint8_t device_add, uint8_t reg, uint8_t &value );
+bool I2C_Read ( uint8_t device_add, uint8_t reg, uint8_t &value );
 
 /**
  * @brief Reads multiple bytes from a specified register of an I2C device.
@@ -166,7 +166,7 @@ bool I2C_read ( uint8_t device_add, uint8_t reg, uint8_t &value );
  * @param buffer Pointer to a buffer where the read data will be stored.
  * @return Returns the number of bytes successfully read or a negative error code.
  */
-int16_t I2C_read ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *buffer );
+int16_t I2C_Read ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *buffer );
 
 /**
  * @brief Writes a single byte to a specified register of an I2C device.
@@ -179,7 +179,7 @@ int16_t I2C_read ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *bu
  * @param data The byte of data to write.
  * @return Returns true if the write operation is successful, otherwise false.
  */
-bool I2C_write ( uint8_t device_add, uint8_t reg, uint8_t data );
+bool I2C_Write ( uint8_t device_add, uint8_t reg, uint8_t data );
 
 /**
  * @brief Writes multiple bytes to a specified register of an I2C device.
@@ -194,7 +194,7 @@ bool I2C_write ( uint8_t device_add, uint8_t reg, uint8_t data );
  * @param data Pointer to a buffer containing the data to be written.
  * @return Returns true if the write operation is successful, otherwise false.
  */
-bool I2C_write ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *data );
+bool I2C_Write ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *data );
 
 /**
  * @brief Initializes the SPI interface on SPI2 with default settings.
@@ -203,7 +203,7 @@ bool I2C_write ( uint8_t device_add, uint8_t reg, uint32_t length, uint8_t *data
  * parameters, preparing it for communication. It calls a lower-level
  * initialization function to configure the hardware.
  */
-void SPI_init ( );
+void SPI_Init ( );
 
 /**
  * @brief Initializes the SPI interface on SPI2 with specified settings.
@@ -220,7 +220,7 @@ void SPI_init ( );
  * @param speed The desired communication speed in Hz.
  * @param bit The bit order (LSBFIRST or MSBFIRST).
  */
-void SPI_init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit );
+void SPI_Init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit );
 
 /**
  * @brief Enables the SPI interface.
@@ -229,7 +229,7 @@ void SPI_init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit );
  * communication operations. It sets the necessary hardware or software
  * flags to turn on the SPI module.
  */
-void SPI_enable ( void );
+void SPI_Enable ( void );
 
 /**
  * @brief Disables the SPI interface.
@@ -238,7 +238,7 @@ void SPI_enable ( void );
  * communication operations. It clears the necessary hardware or software
  * flags to turn off the SPI module.
  */
-void SPI_disable ( void );
+void SPI_Disable ( void );
 
 /**
  * @brief Reads a byte from a specified SPI register.
@@ -250,7 +250,7 @@ void SPI_disable ( void );
  * @param register_address The address of the register to read from.
  * @return The value read from the specified register.
  */
-uint8_t SPI_read ( uint8_t register_address );
+uint8_t SPI_Read ( uint8_t register_address );
 
 /**
  * @brief Reads data from an SPI device register into a buffer.
@@ -265,7 +265,7 @@ uint8_t SPI_read ( uint8_t register_address );
  * @param length The number of bytes to read into the buffer.
  * @param buffer A pointer to the buffer where the read data will be stored.
  */
-void SPI_read ( uint8_t register_address, int16_t length, uint8_t *buffer );
+void SPI_Read ( uint8_t register_address, int16_t length, uint8_t *buffer );
 
 /**
  * @brief Sends data to a specified register via SPI.
@@ -279,6 +279,6 @@ void SPI_read ( uint8_t register_address, int16_t length, uint8_t *buffer );
  * @param register_address The address of the register to write to.
  * @param data The data byte to be written to the register.
  */
-void SPI_write ( uint8_t register_address, uint8_t data );
+void SPI_Write ( uint8_t register_address, uint8_t data );
 
 #endif

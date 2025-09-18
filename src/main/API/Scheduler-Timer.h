@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -55,7 +55,7 @@ typedef struct {
  * @param repeat A boolean flag indicating whether the task should repeat.
  * @return true if the task is successfully added, false otherwise.
  */
-bool scheduler_add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t interval_ms, bool repeat );
+bool Scheduler_Add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t interval_ms, bool repeat );
 
 /**
  * @brief Cancel a specific scheduled task.
@@ -67,7 +67,7 @@ bool scheduler_add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t inter
  * @param _task_function The task function to cancel.
  * @return true if the task is successfully canceled, false otherwise.
  */
-bool scheduler_cancel ( Scheduler_Task *t, task_fn_t _task_function );
+bool Scheduler_Cancel ( Scheduler_Task *t, task_fn_t _task_function );
 
 /**
  * @brief Clear all scheduled tasks.
@@ -77,7 +77,7 @@ bool scheduler_cancel ( Scheduler_Task *t, task_fn_t _task_function );
  *
  * @param t Pointer to the Scheduler_Task structure containing the list of scheduled functions.
  */
-void scheduler_clear ( Scheduler_Task *t );
+void Scheduler_Clear ( Scheduler_Task *t );
 
 /**
  * @brief Execute scheduled tasks based on their intervals.
@@ -87,7 +87,7 @@ void scheduler_clear ( Scheduler_Task *t );
  *
  * @param t Pointer to the Scheduler_Task structure containing the list of scheduled functions.
  */
-void execute_scheduled ( Scheduler_Task *t );
+void Execute_Scheduled ( Scheduler_Task *t );
 
 #ifdef __cplusplus
 extern "C" {
