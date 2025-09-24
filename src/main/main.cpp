@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -662,7 +662,7 @@ void init ( void ) {
   APIAdcInit ( );
   xRangingInit ( );
   if ( localisationType == UWB ) {
-    Uart_init ( UART2, BAUD_RATE_115200 );
+    Uart_Init ( UART2, BAUD_RATE_115200 );
     Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );
   }
   // if(useRangingSensor)

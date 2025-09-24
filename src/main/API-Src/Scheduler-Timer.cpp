@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -42,7 +42,7 @@ static inline void ensure_task_init ( Scheduler_Task *t ) {
 }
 
 // Add a new task to the scheduler
-bool scheduler_add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t interval_ms, bool repeat ) {
+bool Scheduler_Add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t interval_ms, bool repeat ) {
   if ( ! t || ! _task_function ) return false;    // Return false if task or function is null
   ensure_task_init ( t );                         // Ensure task is initialized
 
@@ -59,7 +59,7 @@ bool scheduler_add ( Scheduler_Task *t, task_fn_t _task_function, uint32_t inter
 }
 
 // Cancel a scheduled task
-bool scheduler_cancel ( Scheduler_Task *t, task_fn_t _task_function ) {
+bool Scheduler_Cancel ( Scheduler_Task *t, task_fn_t _task_function ) {
   if ( ! t || ! _task_function ) return false;    // Return false if task or function is null
   ensure_task_init ( t );                         // Ensure task is initialized
 
@@ -80,7 +80,7 @@ bool scheduler_cancel ( Scheduler_Task *t, task_fn_t _task_function ) {
 }
 
 // Clear all scheduled tasks
-void scheduler_clear ( Scheduler_Task *t ) {
+void Scheduler_Clear ( Scheduler_Task *t ) {
   if ( ! t ) return;               // Return if task pointer is null
   ensure_task_init ( t );          // Ensure task is initialized
   ScheduledFn *cur = t->head;      // Start with the head of the list
@@ -93,7 +93,7 @@ void scheduler_clear ( Scheduler_Task *t ) {
 }
 
 // Execute scheduled tasks based on their intervals
-void execute_scheduled ( Scheduler_Task *t ) {
+void Execute_Scheduled ( Scheduler_Task *t ) {
   if ( ! t ) return;         // Return if task pointer is null
   ensure_task_init ( t );    // Ensure task is initialized
 

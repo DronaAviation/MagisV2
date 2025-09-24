@@ -141,7 +141,7 @@ bool morto_arm_stat = false;    // Status flag for motor arming
  * @param _motor The bidirectional motor to set the PWM value for (e.g., M1, M2, M5, M6, M7, M8).
  * @param pwmValue The desired PWM value within the range of 1000 to 2000.
  */
-void Motor_set ( bidirectional_motor_e _motor, int16_t pwmValue ) {
+void Motor_Set ( bidirectional_motor_e _motor, int16_t pwmValue ) {
   // Constrain the PWM value to be within the valid range of 1000 to 2000
   pwmValue = constrain ( pwmValue, 1000, 2000 );
 
@@ -203,7 +203,7 @@ void Motor_set ( bidirectional_motor_e _motor, int16_t pwmValue ) {
  * @param motor The bidirectional motor whose direction is to be set.
  * @param direction The desired direction of the motor (true for forward, false for reverse).
  */
-void Motor_setDir ( bidirectional_motor_e motor, motor_direction_e direction ) {
+void Motor_SetDir ( bidirectional_motor_e motor, motor_direction_e direction ) {
   // Check if the motor index is within the valid range
   if ( motor >= 0 && motor < sizeof ( motors_gpio ) / sizeof ( Rev_Motor_Gpio ) ) {
     // If direction is true, set the GPIO pin high to move the motor in one direction

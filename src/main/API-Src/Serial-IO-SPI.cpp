@@ -11,7 +11,7 @@
  #  Created Date: Sun, 7th Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -85,7 +85,7 @@ void SPI_init ( ) {
 }
 
 
-void SPI_init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit ) {
+void SPI_Init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit ) {
   uint16_t prescaler = getPrescaler ( speed );
   SPI_InitTypeDef spi;
 
@@ -135,15 +135,15 @@ void SPI_init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit ) {
   DISABLE_SPI;
 }
 
-void SPI_enable ( void ) {
+void SPI_Enable ( void ) {
   ENABLE_SPI;
 }
 
-void SPI_disable ( void ) {
+void SPI_Disable ( void ) {
   DISABLE_SPI;
 }
 
-uint8_t SPI_read ( uint8_t register_address ) {
+uint8_t SPI_Read ( uint8_t register_address ) {
 
   uint8_t value = 0;
 
@@ -168,7 +168,7 @@ uint8_t SPI_read ( uint8_t register_address ) {
   return value;
 }
 
-void SPI_read ( uint8_t register_address, int16_t length, uint8_t *buffer ) {
+void SPI_Read ( uint8_t register_address, int16_t length, uint8_t *buffer ) {
 
   register_address &= ~0x80u;
 
@@ -189,7 +189,7 @@ void SPI_read ( uint8_t register_address, int16_t length, uint8_t *buffer ) {
   delayMicroseconds ( 200 );
 }
 
-void SPI_write ( uint8_t register_address, uint8_t data ) {
+void SPI_Write ( uint8_t register_address, uint8_t data ) {
 
   register_address |= 0x80u;
 

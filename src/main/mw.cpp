@@ -197,19 +197,19 @@ void uwbUpdate ( ) {
     UART.write ( UART2, getPos, 2 );
 
     while ( UART.rxBytesWaiting ( UART2 ) ) {
-      ch = Uart_read8 ( UART2 );
+      ch = Uart_Read8 ( UART2 );
       if ( ch == 0x40 ) {
-        ch = Uart_read8 ( UART2 );
+        ch = Uart_Read8 ( UART2 );
         if ( ch == 0x01 ) {
-          ch = Uart_read8 ( UART2 );
+          ch = Uart_Read8 ( UART2 );
           if ( ch == 0x00 ) {
-            ch = Uart_read8 ( UART2 );
+            ch = Uart_Read8 ( UART2 );
             if ( ch == 0x41 ) {
-              ch      = Uart_read8 ( UART2 );
+              ch      = Uart_Read8 ( UART2 );
               posX    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
               posY    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
               posZ    = ( int16_t ) ( ( ( int32_t ) Uart_read32 ( UART2 ) ) / 10 );
-              Quality = ( int8_t ) ( ( int32_t ) Uart_read8 ( UART2 ) );
+              Quality = ( int8_t ) ( ( int32_t ) Uart_Read8 ( UART2 ) );
 
               if ( Quality > 51 )    // only if quality is greater than 50% take as a new position
                 new_position = true;
@@ -1042,7 +1042,7 @@ void userCode ( ) {
       for ( int i = 0; i < 6; i++ ) {
 
         if ( isUserFlightModeSet [ i ] )
-          FlightMode_set ( ( flight_mode_e ) i );
+          FlightMode_Set ( ( flight_mode_e ) i );
       }
     }
 

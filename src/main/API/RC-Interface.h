@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -48,7 +48,7 @@ typedef enum {
  *
  * @return Pointer to the local copied array.
  */
-int16_t *RcData_get ( void );
+int16_t *RcData_Get ( void );
 
 /**
  * @brief Gets a channel's value from rcData.
@@ -60,7 +60,7 @@ int16_t *RcData_get ( void );
  *
  * @return Value from the specified `CHANNEL` in `rcData`.
  */
-int16_t RcData_get ( rc_channel_e CHANNEL );
+int16_t RcData_Get ( rc_channel_e CHANNEL );
 
 /**
  * @brief Gets a channel's offset value from rcCommand.
@@ -73,7 +73,7 @@ int16_t RcData_get ( rc_channel_e CHANNEL );
  * @return Offset value from `rcCommand` or 0 if invalid.
  */
 
-int16_t *RcCommand_get ( void );
+int16_t *RcCommand_Get ( void );
 
 /**
  * @brief Copies first four elements of the global rcCommand array.
@@ -84,7 +84,7 @@ int16_t *RcCommand_get ( void );
  * @return Pointer to an `int16_t` array, leading to undefined behavior.
  */
 
-int16_t RcCommand_get ( rc_channel_e CHANNEL );
+int16_t RcCommand_Get ( rc_channel_e CHANNEL );
 
 /**
  * @brief Sets `rcCommand` and `rcData` from input RC values.
@@ -96,7 +96,7 @@ int16_t RcCommand_get ( rc_channel_e CHANNEL );
  * @param rcValueArray Pointer to an array of `int16_t` with raw RC values.
  */
 
-void RcCommand_set ( int16_t *rcValueArray );
+void RcCommand_Set ( int16_t *rcValueArray );
 
 /**
  * @brief Sets RC command for a channel.
@@ -109,7 +109,7 @@ void RcCommand_set ( int16_t *rcValueArray );
  * @param rcValue Raw RC value for the channel.
  */
 
-void RcCommand_set ( rc_channel_e CHANNEL, int16_t rcValue );
+void RcCommand_Set ( rc_channel_e CHANNEL, int16_t rcValue );
 
 /**
  * @brief Gets the application's current heading.

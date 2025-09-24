@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -78,7 +78,7 @@
 #include "API/RC-Interface.h"
 
 // Function to get a copy of the rcData array
-int16_t *RcData_get ( void ) {
+int16_t *RcData_Get ( void ) {
   int16_t rcDataArray [ 11 ];    // Temporary array to store copied data
 
   // Copy elements from global rcData to local rcDataArray
@@ -91,7 +91,7 @@ int16_t *RcData_get ( void ) {
 }
 
 // Function to get a specific channel value from rcData
-int16_t RcData_get ( rc_channel_e CHANNEL ) {
+int16_t RcData_Get ( rc_channel_e CHANNEL ) {
   // Return the rcData value at the specified channel index
   return rcData [ CHANNEL ];
 }
@@ -110,7 +110,7 @@ int16_t *RcCommand_get ( void ) {
 }
 
 // Function to get a specific channel value from rcCommand with an offset
-int16_t RcCommand_get ( rc_channel_e CHANNEL ) {
+int16_t RcCommand_Get ( rc_channel_e CHANNEL ) {
   // Check if the channel is within the valid range
   if ( CHANNEL <= RC_THROTTLE ) {
     // Return the rcCommand value at the specified channel, offset by 1500
@@ -120,7 +120,7 @@ int16_t RcCommand_get ( rc_channel_e CHANNEL ) {
   return 0;
 }
 
-void RcCommand_set ( int16_t *rcValueArray ) {
+void RcCommand_Set ( int16_t *rcValueArray ) {
   // Loop through the first 4 elements of rcValueArray
   for ( int i = 0; i < 4; i++ ) {
     // Constrain rcValue to be between 1000 and 2000
@@ -143,7 +143,7 @@ void RcCommand_set ( int16_t *rcValueArray ) {
   }
 }
 
-void RcCommand_set ( rc_channel_e CHANNEL, int16_t rcValue ) {
+void RcCommand_Set ( rc_channel_e CHANNEL, int16_t rcValue ) {
   // Constrain the input value between 1000 and 2000
   int16_t setValue = constrain ( rcValue, 1000, 2000 );
 

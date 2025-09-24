@@ -11,7 +11,7 @@
  #  Created Date: Tue, 15th Apr 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 17th Sep 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -105,10 +105,10 @@ void MotroWakeUp ( void ) {
   if ( isSystemReady && armSwitchDebounced && ! isCurrentlyArmed ) {
     // If the system is ready and the arm switch is activated
     if ( usingMotorAPI ) {
-      Motor_setDir ( M5, ANTICLOCK_WISE );
-      Motor_setDir ( M6, CLOCK_WISE );
-      Motor_setDir ( M5, ANTICLOCK_WISE );
-      Motor_setDir ( M8, CLOCK_WISE );
+      Motor_SetDir ( M5, ANTICLOCK_WISE );
+      Motor_SetDir ( M6, CLOCK_WISE );
+      Motor_SetDir ( M5, ANTICLOCK_WISE );
+      Motor_SetDir ( M8, CLOCK_WISE );
       usingMotorAPI = false;
     }
     if ( ! hasInitialBoostCompleted && ! boostActive ) {

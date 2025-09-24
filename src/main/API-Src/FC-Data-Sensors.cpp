@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -47,7 +47,7 @@
 
 #include "API/FC-Data.h"
 
-uint32_t Sensor_get ( FC_Sensors_e _sensor, axis_e _axis ) {
+uint32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis ) {
   // Constants for scaling gyro and magnetometer values
   const float gyroScale = 1.64f;
   const float magScale  = 6.82f;
@@ -76,7 +76,7 @@ uint32_t Sensor_get ( FC_Sensors_e _sensor, axis_e _axis ) {
   }
 }
 
-uint32_t Sensor_get ( FC_Sensors_e _sensor, BARO_Data_e _data ) {
+uint32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data ) {
   // Ensure the sensor is a barometer before proceeding
   if ( _sensor != Barometer ) return 0;
 

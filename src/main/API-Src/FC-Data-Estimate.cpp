@@ -13,7 +13,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 23rd Aug 2025                                          #
+ #  Last Modified: Thu, 18th Sep 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -70,7 +70,7 @@
 #include "API/FC-Data.h"
 
 
-int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis ) {
+int16_t Estimate_Get ( FC_Estimate_e _estimateOf, axis_e _axis ) {
   // Use a switch statement to handle different types of estimates.
   switch ( _estimateOf ) {
     case Rate:    // Handle Rate estimates.
@@ -114,7 +114,7 @@ int16_t Estimate_get ( FC_Estimate_e _estimateOf, axis_e _axis ) {
   return 0;
 }
 
-int16_t Estimate_get(FC_Estimate_e _estimateOf, angle_e _angle) {
+int16_t Estimate_Get(FC_Estimate_e _estimateOf, angle_e _angle) {
     // Check if the requested estimate is of type Angle.
     if (_estimateOf == Angle) {
         // Determine which angle value to return based on the specified angle type.

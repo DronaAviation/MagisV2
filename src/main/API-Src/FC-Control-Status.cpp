@@ -26,10 +26,10 @@
 
 #include "API/FC-Control.h"
 
-flightstatus_e FlightStatus_get ( void ) {
+flightstatus_e FlightStatus_Get ( void ) {
   return ( flightstatus_e ) leastSignificantBit ( flightIndicatorFlag );
 }
 
-bool FlightStatus_check ( flightstatus_e status ) {
+bool FlightStatus_Check ( flightstatus_e status ) {
   return status_FSI ( ( FlightStatus_e ) status );
 }
