@@ -62,7 +62,7 @@ void performBaroCalibrationCycle(void);
 void baroCalibrate(void);
 // Add this declaration with other barometer function declarations
 void baroResetGroundLevel(void);
-
+bool checkBaroDriftDuringStartup(void);
 
 #endif
 
