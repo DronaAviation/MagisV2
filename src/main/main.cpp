@@ -2,16 +2,13 @@
  #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
  #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
  #  -------------------------------------------------------------------------  #
- #  Copyright (c) 2025 Drona Aviation                                          #
- #  All rights reserved.                                                       #
- #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: MagisV2                                                           #
  #  File: \src\main\main.cpp                                                   #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Mon, 6th Oct 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -423,8 +420,9 @@ void init ( void ) {
   }
 #endif
 
-  //! NEW : INA219 INIT
-  INA219_Init ( );    // TODO: INA219 Integrate properly
+  if ( ! INA219_Init ( ) ) {
+    failureFlag |= ( 1 << FAILURE_INA219 );
+  }
 
   if ( clockcheck == 1 ) {
     // failure if running on internal clock

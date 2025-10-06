@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th Aug 2025                                           #
+ #  Last Modified: Mon, 6th Oct 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -46,13 +46,9 @@ bool INA219_Config ( uint16_t RST, uint16_t BRNG, uint16_t PG, uint16_t BADC, ui
   return INA219_RegWrite ( INA219_REG_CONFIG, config );
 }
 
-void INA219_Init ( void ) {
+bool INA219_Init ( void ) {
   // INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
-  while ( ! INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) ) ) {
-    LED_R_TOGGLE;
-    LED_B_TOGGLE;
-    delay ( 100 );
-  }
+  return INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
 }
 
 uint16_t bus_voltage ( void ) {

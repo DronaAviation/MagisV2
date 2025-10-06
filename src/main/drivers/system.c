@@ -1,19 +1,20 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\drivers\system.c                                           #
+ #  Created Date: Mon, 6th Oct 2025                                            #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <string.h>
 #include <stdbool.h>
@@ -203,63 +204,134 @@ void delay ( uint32_t ms ) {
     delayMicroseconds ( 1000 );
 }
 
-#define SHORT_FLASH_DURATION 30      // reduce these to make the led blink faster
-#define CODE_FLASH_DURATION  150
+// #define SHORT_FLASH_DURATION 30      // reduce these to make the led blink faster
+// #define CODE_FLASH_DURATION  150
 
-void failureMode ( uint8_t mode )    // DD
-{
-  while ( 1 ) {
-    int codeRepeatsRemaining = 10;
-    int codeFlashesRemaining;
-    int shortFlashesRemaining;
-    while ( codeRepeatsRemaining-- ) {
+// void failureMode ( uint8_t mode )    // DD
+// {
+//   while ( 1 ) {
+//     int codeRepeatsRemaining = 10;
+//     int codeFlashesRemaining;
+//     int shortFlashesRemaining;
+//     while ( codeRepeatsRemaining-- ) {
 
-      shortFlashesRemaining = 5;
-      codeFlashesRemaining  = 2;
-      uint8_t flashDuration = SHORT_FLASH_DURATION;
+//       shortFlashesRemaining = 5;
+//       codeFlashesRemaining  = 2;
+//       uint8_t flashDuration = SHORT_FLASH_DURATION;
 
-      while ( shortFlashesRemaining || codeFlashesRemaining ) {
-        if ( ( mode & 64 ) == 64 ) {
-          LED_R_TOGGLE;
-        }
-        if ( ( mode & 32 ) == 32 ) {
-          LED_B_TOGGLE;
-        }
-        if ( ( mode & 2 ) == 2 ) {
-          LED_G_TOGGLE;
-        }    // drona
-        BEEP_ON;
-        delay ( flashDuration );
+//       while ( shortFlashesRemaining || codeFlashesRemaining ) {
+//         if ( ( mode & 64 ) == 64 ) {
+//           LED_R_TOGGLE;
+//         }
+//         if ( ( mode & 32 ) == 32 ) {
+//           LED_B_TOGGLE;
+//         }
+//         if ( ( mode & 2 ) == 2 ) {
+//           LED_G_TOGGLE;
+//         }    // drona
+//         BEEP_ON;
+//         delay ( flashDuration );
 
-        if ( ( mode & 64 ) == 64 ) {
-          LED_R_TOGGLE;
-        }
-        if ( ( mode & 32 ) == 32 ) {
-          LED_B_TOGGLE;
-        }
-        if ( ( mode & 2 ) == 2 ) {
-          LED_G_TOGGLE;
-        }
-        BEEP_OFF;
-        delay ( flashDuration );
+//         if ( ( mode & 64 ) == 64 ) {
+//           LED_R_TOGGLE;
+//         }
+//         if ( ( mode & 32 ) == 32 ) {
+//           LED_B_TOGGLE;
+//         }
+//         if ( ( mode & 2 ) == 2 ) {
+//           LED_G_TOGGLE;
+//         }
+//         BEEP_OFF;
+//         delay ( flashDuration );
 
-        if ( shortFlashesRemaining ) {
-          shortFlashesRemaining--;
-          if ( shortFlashesRemaining == 0 ) {
-            delay ( 500 );
-            flashDuration = CODE_FLASH_DURATION;
-          }
-        } else {
-          codeFlashesRemaining--;
-        }
-      }
-      delay ( 1000 );
-    }
+//         if ( shortFlashesRemaining ) {
+//           shortFlashesRemaining--;
+//           if ( shortFlashesRemaining == 0 ) {
+//             delay ( 500 );
+//             flashDuration = CODE_FLASH_DURATION;
+//           }
+//         } else {
+//           codeFlashesRemaining--;
+//         }
+//       }
+//       delay ( 1000 );
+//     }
+//   }
+
+// #ifdef DEBUG
+//   systemReset ( );
+// #else
+//   systemResetToBootloader ( );
+// #endif
+// }
+
+// --- Timing (ms) ---
+#define HDR_ON_MS          200
+#define HDR_OFF_MS         200
+#define DETAIL_ON_MS       200
+#define DETAIL_OFF_MS      500
+#define DETAIL_OFF_CRYSTAL 300
+#define CYCLE_GAP_MS       1000
+
+// Small helpers (toggle-based since only *_TOGGLE macros exist)
+static inline void blink_red ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
+  while ( n-- ) {
+    LED_R_TOGGLE;
+    delay ( on_ms );
+    LED_R_TOGGLE;
+    delay ( off_ms );
   }
+}
+static inline void blink_blue ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
+  while ( n-- ) {
+    LED_B_TOGGLE;
+    delay ( on_ms );
+    LED_B_TOGGLE;
+    delay ( off_ms );
+  }
+}
+void failureMode ( uint8_t mode ) {
+  // Decode/priority:
+  // 1) IMU + BARO → 5× Blue (override)
+  // 2) IMU → 3× Blue   (FAILURE_MISSING_ACC and/or FAILURE_ACC_INCOMPATIBLE)
+  // 3) BARO → 4× Blue
+  // 4) INA219 → 2× Blue
+  // 5) CRYSTAL → 6× Blue (shorter OFF time)
+  // If multiple are set, the highest item above wins.
 
-#ifdef DEBUG
-  systemReset ( );
-#else
-  systemResetToBootloader ( );
-#endif
+  const bool hasIMU  = ( mode & ( 1 << FAILURE_MISSING_ACC ) ) || ( mode & ( 1 << FAILURE_ACC_INCOMPATIBLE ) );
+  const bool hasBARO = ( mode & ( 1 << FAILURE_BARO ) );
+  const bool hasINA  = ( mode & ( 1 << FAILURE_INA219 ) );
+  const bool hasXTAL = ( mode & ( 1 << FAILURE_EXTCLCK ) );
+
+  while ( 1 ) {
+    // 2× Red header (indicates "error state active")
+    blink_red ( 2, HDR_ON_MS, HDR_OFF_MS );
+
+    // Decide detail pattern (blue count + off timing)
+    uint8_t blueCount = 0;
+    uint16_t blueOff  = DETAIL_OFF_MS;
+
+    if ( hasIMU && hasBARO ) {
+      blueCount = 5;    // IMU + Baro override
+    } else if ( hasINA ) {
+      blueCount = 2;    // INA219
+    } else if ( hasIMU ) {
+      blueCount = 3;    // IMU
+    } else if ( hasBARO ) {
+      blueCount = 4;    // Baro
+    } else if ( hasXTAL ) {
+      blueCount = 6;                     // Crystal
+      blueOff   = DETAIL_OFF_CRYSTAL;    // special gap
+    } else {
+      // No mapped code: keep only the header and cycle gap.
+    }
+
+    if ( blueCount ) {
+      blink_blue ( blueCount, DETAIL_ON_MS, blueOff );
+    }
+
+    // Gap between complete sequences
+    delay ( CYCLE_GAP_MS );
+  }
 }
