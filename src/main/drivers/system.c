@@ -8,14 +8,13 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Last Modified: Sat, 11th Oct 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
-
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -204,76 +203,33 @@ void delay ( uint32_t ms ) {
     delayMicroseconds ( 1000 );
 }
 
-// #define SHORT_FLASH_DURATION 30      // reduce these to make the led blink faster
-// #define CODE_FLASH_DURATION  150
-
-// void failureMode ( uint8_t mode )    // DD
-// {
-//   while ( 1 ) {
-//     int codeRepeatsRemaining = 10;
-//     int codeFlashesRemaining;
-//     int shortFlashesRemaining;
-//     while ( codeRepeatsRemaining-- ) {
-
-//       shortFlashesRemaining = 5;
-//       codeFlashesRemaining  = 2;
-//       uint8_t flashDuration = SHORT_FLASH_DURATION;
-
-//       while ( shortFlashesRemaining || codeFlashesRemaining ) {
-//         if ( ( mode & 64 ) == 64 ) {
-//           LED_R_TOGGLE;
-//         }
-//         if ( ( mode & 32 ) == 32 ) {
-//           LED_B_TOGGLE;
-//         }
-//         if ( ( mode & 2 ) == 2 ) {
-//           LED_G_TOGGLE;
-//         }    // drona
-//         BEEP_ON;
-//         delay ( flashDuration );
-
-//         if ( ( mode & 64 ) == 64 ) {
-//           LED_R_TOGGLE;
-//         }
-//         if ( ( mode & 32 ) == 32 ) {
-//           LED_B_TOGGLE;
-//         }
-//         if ( ( mode & 2 ) == 2 ) {
-//           LED_G_TOGGLE;
-//         }
-//         BEEP_OFF;
-//         delay ( flashDuration );
-
-//         if ( shortFlashesRemaining ) {
-//           shortFlashesRemaining--;
-//           if ( shortFlashesRemaining == 0 ) {
-//             delay ( 500 );
-//             flashDuration = CODE_FLASH_DURATION;
-//           }
-//         } else {
-//           codeFlashesRemaining--;
-//         }
-//       }
-//       delay ( 1000 );
-//     }
-//   }
-
-// #ifdef DEBUG
-//   systemReset ( );
-// #else
-//   systemResetToBootloader ( );
-// #endif
-// }
-
 // --- Timing (ms) ---
-#define HDR_ON_MS          200
-#define HDR_OFF_MS         200
-#define DETAIL_ON_MS       200
-#define DETAIL_OFF_MS      500
+
+// Time duration for which the header signal is on (in milliseconds)
+#define HDR_ON_MS 200
+// Time duration for which the header signal is off (in milliseconds)
+#define HDR_OFF_MS 200
+// Time duration for which each detail signal (blue blink) is on (in milliseconds)
+#define DETAIL_ON_MS 200
+// Standard time duration for which each detail signal is off (in milliseconds)
+#define DETAIL_OFF_MS 500
+// Special time duration for which the detail signal is off when indicating a crystal failure (in milliseconds)
 #define DETAIL_OFF_CRYSTAL 300
-#define CYCLE_GAP_MS       1000
+// Time gap between complete sequences of signals (in milliseconds)
+#define CYCLE_GAP_MS 1000
 
 // Small helpers (toggle-based since only *_TOGGLE macros exist)
+
+/**
+ * @brief Blinks a red LED a specified number of times.
+ *
+ * This function toggles the red LED on and off a given number of times,
+ * with customizable durations for the "on" and "off" states.
+ *
+ * @param n Number of times to blink the LED.
+ * @param on_ms Duration in milliseconds for which the LED stays on.
+ * @param off_ms Duration in milliseconds for which the LED stays off.
+ */
 static inline void blink_red ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
   while ( n-- ) {
     LED_R_TOGGLE;
@@ -282,6 +238,17 @@ static inline void blink_red ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
     delay ( off_ms );
   }
 }
+
+/**
+ * @brief Blinks a blue LED a specified number of times.
+ *
+ * This function toggles the blue LED on and off a given number of times,
+ * with customizable durations for the "on" and "off" states.
+ *
+ * @param n Number of times to blink the LED.
+ * @param on_ms Duration in milliseconds for which the LED stays on.
+ * @param off_ms Duration in milliseconds for which the LED stays off.
+ */
 static inline void blink_blue ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
   while ( n-- ) {
     LED_B_TOGGLE;
@@ -290,48 +257,66 @@ static inline void blink_blue ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
     delay ( off_ms );
   }
 }
-void failureMode ( uint8_t mode ) {
-  // Decode/priority:
-  // 1) IMU + BARO → 5× Blue (override)
-  // 2) IMU → 3× Blue   (FAILURE_MISSING_ACC and/or FAILURE_ACC_INCOMPATIBLE)
-  // 3) BARO → 4× Blue
-  // 4) INA219 → 2× Blue
-  // 5) CRYSTAL → 6× Blue (shorter OFF time)
-  // If multiple are set, the highest item above wins.
 
-  const bool hasIMU  = ( mode & ( 1 << FAILURE_MISSING_ACC ) ) || ( mode & ( 1 << FAILURE_ACC_INCOMPATIBLE ) );
-  const bool hasBARO = ( mode & ( 1 << FAILURE_BARO ) );
-  const bool hasINA  = ( mode & ( 1 << FAILURE_INA219 ) );
-  const bool hasXTAL = ( mode & ( 1 << FAILURE_EXTCLCK ) );
+/**
+ * @brief Indicates system failure modes using LED blink patterns.
+ *
+ * This function determines and executes a specific blink pattern to
+ * indicate various system failures. The pattern is based on the mode
+ * parameter, and different failures have different priorities and
+ * associated blink sequences:
+ *
+ * - IMU + BARO: 5× Blue (highest priority)
+ * - IMU: 3× Blue
+ * - BARO: 4× Blue
+ * - INA219: 2× Blue
+ * - Crystal: 6× Blue (shorter OFF time)
+ * - BARO Drift: 7× Blue (shorter OFF time)
+ *
+ * If multiple failures are detected simultaneously, the one with the
+ * highest priority will be indicated. A red LED blinks twice at the
+ * start of each cycle to signal that an error state is active.
+ *
+ * @param mode Encoded failure mode bits indicating which systems have failed.
+ */
+void failureMode ( uint8_t mode ) {
+
+  const bool hasIMU        = ( mode & ( 1 << FAILURE_MISSING_ACC ) ) || ( mode & ( 1 << FAILURE_ACC_INCOMPATIBLE ) );
+  const bool hasBARO       = ( mode & ( 1 << FAILURE_BARO ) );
+  const bool hasBARO_Drift = ( mode & ( 1 << FAILURE_BARO_DRIFT ) );
+  const bool hasINA        = ( mode & ( 1 << FAILURE_INA219 ) );
+  const bool hasXTAL       = ( mode & ( 1 << FAILURE_EXTCLCK ) );
 
   while ( 1 ) {
-    // 2× Red header (indicates "error state active")
+    // Blink red twice as a header to indicate "error state active"
     blink_red ( 2, HDR_ON_MS, HDR_OFF_MS );
 
     // Decide detail pattern (blue count + off timing)
     uint8_t blueCount = 0;
     uint16_t blueOff  = DETAIL_OFF_MS;
 
-    if ( hasIMU && hasBARO ) {
-      blueCount = 5;    // IMU + Baro override
-    } else if ( hasINA ) {
-      blueCount = 2;    // INA219
-    } else if ( hasIMU ) {
-      blueCount = 3;    // IMU
-    } else if ( hasBARO ) {
-      blueCount = 4;    // Baro
+    if ( hasINA ) {
+      blueCount = 2;    // INA219 failure
     } else if ( hasXTAL ) {
-      blueCount = 6;                     // Crystal
-      blueOff   = DETAIL_OFF_CRYSTAL;    // special gap
+      blueCount = 6;                     // Crystal failure
+      blueOff   = DETAIL_OFF_CRYSTAL;    // Special gap for crystal failure
+    } else if ( hasIMU && hasBARO ) {
+      blueCount = 5;    // Combined IMU + Baro failure (highest priority)
+    } else if ( hasIMU ) {
+      blueCount = 3;    // IMU failure
+    } else if ( hasBARO ) {
+      blueCount = 4;    // Baro failure
+    } else if ( hasBARO_Drift ) {
+      blueCount = 7;    // Baro drift failure
     } else {
-      // No mapped code: keep only the header and cycle gap.
+      // No specific failure: only the header and cycle gap will occur.
     }
 
     if ( blueCount ) {
       blink_blue ( blueCount, DETAIL_ON_MS, blueOff );
     }
 
-    // Gap between complete sequences
+    // Delay between complete sequences
     delay ( CYCLE_GAP_MS );
   }
 }

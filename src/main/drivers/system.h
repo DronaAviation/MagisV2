@@ -8,7 +8,7 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Last Modified: Sat, 11th Oct 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -59,7 +59,8 @@ typedef enum {    // DD
   // FAILURE_GYRO_INIT_FAILED
   FAILURE_BARO,
   FAILURE_EXTCLCK,
-  FAILURE_INA219
+  FAILURE_INA219,
+  FAILURE_BARO_DRIFT
 } failureMode_e;
 extern uint8_t failureFlag;
 

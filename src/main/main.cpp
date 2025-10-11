@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Last Modified: Sat, 11th Oct 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -418,6 +418,13 @@ void init ( void ) {
 
     failureFlag |= ( 1 << FAILURE_BARO );
   }
+
+// Check if there is any drift in the barometer sensor during startup
+if ( checkBaroDriftDuringStartup ( ) ) {
+    // If a drift is detected, set the failure flag for barometer drift
+    failureFlag |= ( 1 << FAILURE_BARO_DRIFT );
+}
+
 #endif
 
   if ( ! INA219_Init ( ) ) {
