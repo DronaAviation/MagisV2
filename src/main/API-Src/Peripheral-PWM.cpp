@@ -11,14 +11,13 @@
  #  Created Date: Tue, 2nd Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 2nd Sep 2025                                           #
+ #  Last Modified: Sat, 11th Oct 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
 *******************************************************************************/
-
 #include "platform.h"
 #include "build_config.h"
 #include "drivers/serial.h"
@@ -29,320 +28,6 @@
 #include "API/Peripherals.h"
 
 static pwmOutputPort_t *pwm [ 10 ];
-
-// void Peripheral_Init ( peripheral_pwm_pin_e _pin, uint16_t pwmRate ) {
-//   timerHardware_t timerHardware;
-//   uint32_t hz;
-
-//   switch ( _pin ) {
-
-//     case PWM_1:
-
-//       if ( ! isPwmInit [ 0 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOA, ENABLE );
-
-//         RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM1, ENABLE );
-
-//         timerHardware = { TIM1, GPIOA, Pin_8, TIM_Channel_1, TIM1_CC_IRQn, 1, Mode_AF_PP, GPIO_PinSource8, GPIO_AF_6 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 0 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 0 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_2:
-
-//       if ( ! isPwmInit [ 1 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//         RCC_APB1PeriphClockCmd ( RCC_APB1Periph_TIM4, ENABLE );
-
-//         timerHardware = { TIM4, GPIOB, Pin_6, TIM_Channel_1, TIM4_IRQn, 1, Mode_AF_PP, GPIO_PinSource6, GPIO_AF_2 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 1 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 1 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_3:
-
-//       if ( ! isPwmInit [ 2 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//         RCC_APB1PeriphClockCmd ( RCC_APB1Periph_TIM4, ENABLE );
-
-//         timerHardware = { TIM4, GPIOB, Pin_7, TIM_Channel_2, TIM4_IRQn, 1, Mode_AF_PP, GPIO_PinSource2, GPIO_AF_2 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 2 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 2 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_4:
-
-//       if ( ! isPwmInit [ 3 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//         RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM15, ENABLE );
-
-//         timerHardware = { TIM15, GPIOB, Pin_15, TIM_Channel_2, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource15, GPIO_AF_1 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 3 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 3 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_5:
-
-//       if ( ! isPwmInit [ 4 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//         RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM15, ENABLE );
-
-//         timerHardware = { TIM15, GPIOB, Pin_14, TIM_Channel_1, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource14, GPIO_AF_1 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 4 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 4 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_6:
-
-//       if ( ! isPwmInit [ 5 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOA, ENABLE );
-
-//         RCC_APB1PeriphClockCmd ( RCC_APB1Periph_TIM4, ENABLE );
-
-//         timerHardware = { TIM4, GPIOA, Pin_13, TIM_Channel_3, TIM4_IRQn, 0, Mode_AF_PP_PD, GPIO_PinSource13, GPIO_AF_10 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 5 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 5 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_7:
-
-//       if ( ! isPwmInit [ 6 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOA, ENABLE );
-
-//         RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM8, ENABLE );
-
-//         timerHardware = { TIM8, GPIOA, Pin_14, TIM_Channel_2, TIM8_CC_IRQn, 0, Mode_AF_PP_PD, GPIO_PinSource14, GPIO_AF_5 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 6 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 6 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_8:
-
-//       if ( ! isPwmInit [ 7 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//         RCC_APB1PeriphClockCmd ( RCC_APB1Periph_TIM3, ENABLE );
-
-//         timerHardware = { TIM3, GPIOB, Pin_4, TIM_Channel_1, TIM3_IRQn, 1, Mode_AF_PP, GPIO_PinSource4, GPIO_AF_3 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 7 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 7 ] = true;
-//       }
-
-//       break;
-
-//     case PWM_9:
-
-//       RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOB, ENABLE );
-
-//       RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM17, ENABLE );
-
-//       timerHardware = { TIM17, GPIOB, Pin_5, TIM_Channel_1, TIM1_TRG_COM_TIM17_IRQn, 1, Mode_AF_PP, GPIO_PinSource5, GPIO_AF_10 };
-
-//       GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//       hz = PWM_TIMER_MHZ * 1000000;
-
-//       pwm [ 8 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//       isPwmInit [ 8 ] = true;
-
-//       break;
-
-//     case PWM_10:
-
-//       if ( ! isPwmInit [ 9 ] ) {
-
-//         RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOA, ENABLE );
-
-//         RCC_APB2PeriphClockCmd ( RCC_APB2Periph_TIM15, ENABLE );
-
-//         timerHardware = { TIM15, GPIOA, Pin_15, TIM_Channel_1, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource15, GPIO_AF_2 };
-
-//         GPIO_PinAFConfig ( timerHardware.gpio, ( uint16_t ) timerHardware.gpioPinSource, timerHardware.alternateFunction );
-
-//         hz = PWM_TIMER_MHZ * 1000000;
-
-//         pwm [ 9 ] = pwmOutConfig ( &timerHardware, PWM_TIMER_MHZ, hz / pwmRate, 1500 );
-
-//         isPwmInit [ 9 ] = true;
-//       }
-
-//       break;
-//   }
-// }
-
-// void Peripheral_Write ( peripheral_pwm_pin_e _pwm_pin, uint16_t _pwm_value ) {
-
-//   _pwm_value = constrain ( _pwm_value, 500, 2500 );
-
-//   switch ( _pwm_pin ) {
-
-//     case PWM_1:
-//       if ( isPwmInit [ 0 ] ) {
-//         *pwm [ 0 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_2:
-
-//       if ( isPwmInit [ 1 ] ) {
-
-//         *pwm [ 1 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_3:
-
-//       if ( isPwmInit [ 2 ] ) {
-
-//         *pwm [ 2 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_4:
-
-//       if ( isPwmInit [ 3 ] ) {
-
-//         *pwm [ 3 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_5:
-
-//       if ( isPwmInit [ 4 ] ) {
-
-//         *pwm [ 4 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_6:
-
-//       if ( isPwmInit [ 5 ] ) {
-
-//         *pwm [ 5 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_7:
-
-//       if ( isPwmInit [ 6 ] ) {
-
-//         *pwm [ 6 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_8:
-
-//       if ( isPwmInit [ 7 ] ) {
-
-//         *pwm [ 7 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-//     case PWM_9:
-
-//       if ( isPwmInit [ 9 ] ) {
-
-//         *pwm [ 8 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     case PWM_10:
-
-//       if ( isPwmInit [ 10 ] ) {
-
-//         *pwm [ 9 ]->ccr = _pwm_value;
-//       }
-
-//       break;
-
-//     default:
-
-//       break;
-//   }
-// }
 
 typedef struct {
   TIM_TypeDef *tim;
@@ -365,14 +50,14 @@ static const PwmConfig_t pwmConfig [] = {
   // TIM,   GPIO, Pin,  Channel, IRQ,                 OutEn, Mode,        PinSrc, AF,   GPIOClk,                TIMClk
   { TIM1, GPIOA, Pin_8, TIM_Channel_1, TIM1_CC_IRQn, 1, Mode_AF_PP, GPIO_PinSource8, GPIO_AF_6, RCC_AHBPeriph_GPIOA, RCC_APB2Periph_TIM1 },
   { TIM4, GPIOB, Pin_6, TIM_Channel_1, TIM4_IRQn, 1, Mode_AF_PP, GPIO_PinSource6, GPIO_AF_2, RCC_AHBPeriph_GPIOB, RCC_APB1Periph_TIM4 },
-  { TIM4, GPIOB, Pin_7, TIM_Channel_2, TIM4_IRQn, 1, Mode_AF_PP, GPIO_PinSource2, GPIO_AF_2, RCC_AHBPeriph_GPIOB, RCC_APB1Periph_TIM4 },
+  { TIM4, GPIOB, Pin_7, TIM_Channel_2, TIM4_IRQn, 1, Mode_AF_PP, GPIO_PinSource7, GPIO_AF_2, RCC_AHBPeriph_GPIOB, RCC_APB1Periph_TIM4 },
   { TIM15, GPIOB, Pin_15, TIM_Channel_2, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource15, GPIO_AF_1, RCC_AHBPeriph_GPIOB, RCC_APB2Periph_TIM15 },
   { TIM15, GPIOB, Pin_14, TIM_Channel_1, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource14, GPIO_AF_1, RCC_AHBPeriph_GPIOB, RCC_APB2Periph_TIM15 },
   { TIM4, GPIOA, Pin_13, TIM_Channel_3, TIM4_IRQn, 1, Mode_AF_PP_PD, GPIO_PinSource13, GPIO_AF_10, RCC_AHBPeriph_GPIOA, RCC_APB1Periph_TIM4 },
   { TIM8, GPIOA, Pin_14, TIM_Channel_2, TIM8_CC_IRQn, 1, Mode_AF_PP_PD, GPIO_PinSource14, GPIO_AF_5, RCC_AHBPeriph_GPIOA, RCC_APB2Periph_TIM8 },
-  { TIM3, GPIOB, Pin_4, TIM_Channel_1, TIM3_IRQn, 1, Mode_AF_PP, GPIO_PinSource4, GPIO_AF_3, RCC_AHBPeriph_GPIOB, RCC_APB1Periph_TIM3 },
+  { TIM3, GPIOB, Pin_4, TIM_Channel_1, TIM3_IRQn, 1, Mode_AF_PP, GPIO_PinSource4, GPIO_AF_2, RCC_AHBPeriph_GPIOB, RCC_APB1Periph_TIM3 },
   { TIM17, GPIOB, Pin_5, TIM_Channel_1, TIM1_TRG_COM_TIM17_IRQn, 1, Mode_AF_PP, GPIO_PinSource5, GPIO_AF_10, RCC_AHBPeriph_GPIOB, RCC_APB2Periph_TIM17 },
-  { TIM15, GPIOA, Pin_15, TIM_Channel_1, TIM1_BRK_TIM15_IRQn, 1, Mode_AF_PP, GPIO_PinSource15, GPIO_AF_2, RCC_AHBPeriph_GPIOA, RCC_APB2Periph_TIM15 },
+  { TIM8, GPIOA, Pin_15, TIM_Channel_1, TIM8_CC_IRQn, 1, Mode_AF_PP, GPIO_PinSource15, GPIO_AF_2, RCC_AHBPeriph_GPIOA, RCC_APB2Periph_TIM8 },
 };
 
 void Peripheral_Init ( peripheral_pwm_pin_e _pin, uint16_t pwmRate ) {
