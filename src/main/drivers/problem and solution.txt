@@ -1,0 +1,221 @@
+Here’s concise content you can paste into `src/main/drivers/problem and solution.txt` capturing the problem, its causes/symptoms, the fix (aligned with PX4), and evidence.
+
+Problem: ICM20948 left in wrong user bank (Bank 2)
+- Root cause: Init writes `REG_BANK_SEL` (0x7F) to select Bank 2 for ODR/DLPF config but never restores Bank 0.
+- Effect: Runtime data reads expect Bank 0 data registers but the device remains on Bank 2, so reads hit incorrect addresses.
+
+Symptoms you’ll see
+- Stuck/zero/garbage IMU data; sudden jumps or flatlines.
+- Estimator instability (attitude jumps/drift), possible NaNs.
+- Control issues: twitchiness, oscillations, unexpected failsafes.
+- Intermittent “sensor unhealthy” or retries due to bad reads.
+- Wrong filtering/rates (noisy/aliased data, higher latency).
+- If INT pin not configured robustly: missed/flooded data-ready interrupts, irregular sample timing.
+
+Evidence from our firmware
+- Bank switch to 2 during init (no restore):
+```66:100:/Users/dineshsain/Desktop/MagisV2/src/main/drivers/accgyro_icm20948.cpp
+void icm20948GyroInit ( uint16_t lpf ) {
+  mpuIntExtiInit ( );
+
+  bool ack = false;
+
+  mpuConfiguration.write ( 0x7F, 0x20 );
+  delay ( 20 );
+
+  mpuConfiguration.write ( 0x01, ( 0x06 | ( 0b00011000 | 0x01 ) ) );    // gyro lpf and rate
+  delay ( 10 );
+  mpuConfiguration.write ( 0x00, 0x00 );    // gyro sample rate
+  delay ( 10 );
+  mpuConfiguration.write(0x14, (0x04 | ( 0b00110000 | 0x01))); //acc lpf and rate
+  delay ( 10 );
+  mpuConfiguration.write ( 0x10, 0x00 );    // acc sample rate higher byte
+  delay ( 10 );
+  mpuConfiguration.write ( 0x11, 0x00 );    // acc sample rate lower byte
+}
+```
+
+- Detection uses I2C and sets Bank 0 earlier, but init later moves to Bank 2 and never comes back:
+```105:133:/Users/dineshsain/Desktop/MagisV2/src/main/drivers/accgyro_mpu.cpp
+if (ack && inquiryResult == MPU_ICM_20948_WHO_AM_I_CONST) {
+    mpuDetectionResult.sensor = MPU_ICM_20948;
+    mpuConfiguration.gyroReadXRegister = ICM20948_GYRO_OUT;   // 0x33 (Bank 0)
+    mpuConfiguration.accReadXRegister  = ICM20948_ACCEL_OUT;  // 0x2D (Bank 0)
+
+    mpuWriteRegisterI2C(0x7F, 0x00);  // change userbank 0
+    mpuWriteRegisterI2C(0x03, 0x78);  // disable I2C master
+    mpuWriteRegisterI2C(0x06, 0x01);  // best clock
+    mpuWriteRegisterI2C(0x07, (0x38 | 0x07)); // disable acc+gyro
+    mpuWriteRegisterI2C(0x07, (0x00 | 0x00)); // enable acc+gyro
+}
+```
+
+Relevant ICM20948 register facts (evidence)
+- `REG_BANK_SEL` = 0x7F. Bank values: 0x00 (Bank 0), 0x20 (Bank 2).
+- Accel data start (Bank 0): 0x2D; Gyro data start (Bank 0): 0x33. Your code sets these for runtime reads.
+- If device remains on Bank 2, reading 0x2D/0x33 returns unrelated config bytes, not sensor data.
+
+What PX4 does right (and we should mirror)
+- Maintains cached “selected bank” and switches banks before any access; keeps runtime on Bank 0.
+- Applies complete, ordered init: reset/clock/power, disable master if unused, configure dividers/FS/DLPF/INTs, then operate from Bank 0.
+- Periodically verifies “checked registers” to recover from bus glitches.
+- Reference: PX4 ICM20948 driver (I2C/SPI), bank handling and init sequence [link](https://px4.github.io/Firmware-Doxygen/d2/d5c/icm20948_8cpp_source.html).
+
+Minimal fix that unblocks us
+- Restore Bank 0 at end of `icm20948GyroInit` so runtime reads hit bank-0 data regs:
+```cpp
+// at end of icm20948GyroInit after finishing Bank 2 config
+mpuConfiguration.write ( 0x7F, 0x00 );  // restore user bank 0
+```
+
+- Add a tiny bank-select helper to prevent regressions:
+```cpp
+static uint8_t icmCurrentBank = 0xFF;
+
+static inline void icmSelectBank(uint8_t bank)
+{
+  if (icmCurrentBank == bank) return;
+  mpuConfiguration.write(0x7F, bank);
+  icmCurrentBank = bank;
+}
+```
+- Replace direct writes to 0x7F with `icmSelectBank(0x20)` for Bank 2 and `icmSelectBank(0x00)` for Bank 0; ensure `icmSelectBank(0x00)` before returning from init.
+
+Recommended follow-ups (closer to PX4)
+- Configure PWR/clock and sensor enable robustly: set best clock, disable then enable gyro/acc with delays (you already do most of this in detection).
+- Set explicit FS ranges and DLPF with clear bitfields (avoid magic values).
+- Configure INT pin (polarity/latch/clear-on-read) and enable RAW_RDY if you use interrupts.
+- Optionally implement “checked registers” refresh to harden against transient errors.
+- If embedded mag is needed, re-enable ICM’s I2C master and configure the AK09916 AUX bus like PX4.
+
+Expected result after fix
+- Stable, valid accel/gyro data; consistent sampling; improved estimator and control stability; eliminated “sensor unhealthy” glitches tied to wrong-bank reads.
+
+
+
+
+### Executive summary
+- You configured ICM20948 registers in User Bank 2 and never switched back to Bank 0. Runtime reads expect Bank 0 data registers, so you were reading the wrong addresses, causing garbage/flatline IMU data and instability.
+- PX4 solves this by always selecting the correct bank before each access and caching the current bank.
+
+### Why User Bank 2 (datasheet evidence)
+- ICM20948 splits registers into 4 banks selected by `REG_BANK_SEL` (address 0x7F).
+- Bank 0 contains runtime data outputs:
+  - Accel data block starts at 0x2D (ACCEL_XOUT_H .. ACCEL_ZOUT_L).
+  - Gyro data block starts at 0x33 (GYRO_XOUT_H .. GYRO_ZOUT_L).
+- Bank 2 contains most accel/gyro configuration:
+  - 0x00: GYRO_SMPLRT_DIV
+  - 0x01: GYRO_CONFIG_1 (DLPF + ODR + FS)
+  - 0x10/0x11: ACCEL_SMPLRT_DIV_1/2
+  - 0x14: ACCEL_CONFIG (DLPF + ODR + FS)
+- Therefore: you must switch to Bank 2 to configure ODR/DLPF/ranges, and switch back to Bank 0 to read data.
+
+### What was happening before (in your firmware)
+- You correctly switched to Bank 2 to program ODR/DLPF, but did not switch back to Bank 0 afterward. Your runtime readers then read Bank-0 addresses while the chip was still on Bank 2, returning unrelated config bytes instead of sensor data.
+
+Code evidence in your repo:
+```66:80:/Users/dineshsain/Desktop/MagisV2/src/main/drivers/accgyro_icm20948.cpp
+void icm20948GyroInit ( uint16_t lpf ) {
+  mpuIntExtiInit ( );
+
+  bool ack = false;
+
+  mpuConfiguration.write ( 0x7F, 0x20 );    // select User Bank 2
+  delay ( 20 );
+
+  mpuConfiguration.write ( 0x01, ( 0x06 | ( 0b00011000 | 0x01 ) ) );    // gyro lpf and rate
+```
+
+```90:101:/Users/dineshsain/Desktop/MagisV2/src/main/drivers/accgyro_icm20948.cpp
+  mpuConfiguration.write ( 0x14, ( 0x04 | ( 0b00110000 | 0x01 ) ) );    // acc lpf and rate
+  ...
+  mpuConfiguration.write ( 0x11, 0x00 );    // acc sample rate lower byte
+} // ← never restore Bank 0 here
+```
+
+```105:111:/Users/dineshsain/Desktop/MagisV2/src/main/drivers/accgyro_mpu.cpp
+if (ack && inquiryResult == MPU_ICM_20948_WHO_AM_I_CONST) {
+    mpuDetectionResult.sensor = MPU_ICM_20948;
+    mpuConfiguration.gyroReadXRegister = ICM20948_GYRO_OUT;   // 0x33 (Bank 0)
+    mpuConfiguration.accReadXRegister  = ICM20948_ACCEL_OUT;  // 0x2D (Bank 0)
+```
+
+### Symptoms caused by the bug
+- Stuck/zero/garbage accel/gyro values; occasional large jumps.
+- Estimator drift/jitters; possible NaNs due to invalid values.
+- Control instability: oscillations, twitchiness, pseudo-failsafe behavior.
+- Intermittent “sensor unhealthy” due to wrong or non-changing data.
+
+### Why PX4’s implementation works
+- PX4 abstracts bus access and maintains a “selected bank” cache. Before any register access, it ensures the correct bank is selected and only writes `REG_BANK_SEL` (0x7F) if the bank changed. This guarantees:
+  - Bank 2 for configuration writes (ODR/DLPF/ranges).
+  - Bank 0 for runtime data reads.
+- It also configures INTs and periodically verifies critical registers to resist bus glitches.
+- Reference: PX4 ICM20948 driver (I2C/SPI) bank handling and init patterns: [PX4 icm20948.cpp](https://px4.github.io/Firmware-Doxygen/d2/d5c/icm20948_8cpp_source.html)
+
+### What to change (concise, line-wise)
+- In `src/main/drivers/accgyro_icm20948.cpp` after includes, add a bank-select helper:
+```cpp
+static uint8_t icmCurrentBank = 0xFF;
+static inline void icmSelectBank(uint8_t bank)
+{
+  if (icmCurrentBank == bank) return;
+  mpuConfiguration.write(0x7F, bank);
+  icmCurrentBank = bank;
+}
+```
+- In `icm20948GyroInit`, use the helper and restore Bank 0 at end:
+```cpp
+icmSelectBank(0x20);                     // Bank 2 for config
+...
+icmSelectBank(0x00);                     // Bank 0 for runtime data
+```
+
+Optional robustness (recommended):
+- Configure INT pin and RAW_RDY on Bank 0:
+```cpp
+mpuConfiguration.write(0x0F, 0x30);  // INT_PIN_CFG (polarity/drive/latch)
+mpuConfiguration.write(0x10, 0x01);  // INT_ENABLE: RAW_RDY_EN
+```
+
+### Ready-to-use report (copy this into a doc and export to PDF/DOCX)
+Title: ICM20948 User Bank Handling: Root Cause, Evidence, and Fix
+
+1) Background
+- ICM20948 uses 4 user banks selected via `REG_BANK_SEL` (0x7F).
+- Bank 0 holds data registers; Bank 2 holds most accel/gyro configuration.
+
+2) Root cause
+- Firmware switches to Bank 2 to configure ODR/DLPF, but does not restore Bank 0 afterwards.
+- Runtime readers expect Bank 0 addresses (0x2D/0x33), so they read wrong data.
+
+3) Evidence (code)
+- Bank 2 selected in init without restore: see `accgyro_icm20948.cpp` lines 66–101.
+- Readers configured for Bank 0 data: see `accgyro_mpu.cpp` lines 105–111.
+
+4) Evidence (datasheet-level)
+- `REG_BANK_SEL` (0x7F): 0x00=Bank 0, 0x20=Bank 2.
+- Bank 0 data: ACCEL_XOUT_H..ZOUT_L (0x2D–0x32), GYRO_XOUT_H..ZOUT_L (0x33–0x38).
+- Bank 2 config: GYRO_SMPLRT_DIV (0x00), GYRO_CONFIG_1 (0x01), ACCEL_SMPLRT_DIV_1/2 (0x10/0x11), ACCEL_CONFIG (0x14).
+
+5) Symptoms
+- Garbage/flatline IMU data, estimator drift, control instability, intermittent “sensor unhealthy”.
+
+6) Fix
+- Restore Bank 0 after Bank 2 configuration.
+- Add bank-select helper; always ensure correct bank before access.
+- Optional: INT pin config and RAW_RDY enable.
+
+7) Why PX4’s approach
+- PX4 caches selected bank and enforces correct bank before each access. It also validates critical registers periodically.
+- Reference: PX4 icm20948 driver (I2C/SPI): [link](https://px4.github.io/Firmware-Doxygen/d2/d5c/icm20948_8cpp_source.html)
+
+8) Expected outcome
+- Correct, stable accel/gyro data; consistent sampling; improved estimator and control stability.
+
+How to deliver as PDF/DOCX
+- Paste the “Ready-to-use report” section into your preferred editor (Google Docs, Word, or a Markdown editor).
+- Export as PDF or DOCX and share internally.
+
+- Summary
+  - Bank 2 is for IMU configuration; Bank 0 is for data reads. Your init left the device in Bank 2, causing wrong data reads. Restore Bank 0 after config and adopt PX4-like bank switching to resolve.
