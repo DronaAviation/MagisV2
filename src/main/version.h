@@ -26,7 +26,7 @@ extern "C" {
 #define MAGIS_IDENTIFIER          "MAGIS V2"
 
 #define API_VERSION_MAJOR         0     // increment when major changes are made
-#define API_VERSION_MINOR         25    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+#define API_VERSION_MINOR         26    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
 #define API_VERSION_LENGTH        2
 
