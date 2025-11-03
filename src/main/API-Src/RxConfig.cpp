@@ -53,7 +53,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-// #include "API/PlutoPilot.h"
+// #include "PlutoPilot.h"
 
 // Global variables to store device mode configuration
 uint8_t DevModeAUX       = 0;    // Auxiliary channel for device mode

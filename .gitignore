@@ -4,4 +4,5 @@ Build/
 libs/
 #Cygnus project settings files and hidden files
 .vscode
+plutoide.ini
 #!.gitignore

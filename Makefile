@@ -28,9 +28,10 @@
 FORKNAME	=	MAGISV2
 TARGET	?=	
 BUILD_TYPE	?= BIN
+PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.3.0
+FW_Version	=	3.0.0-beta
 API_Version	=	0.26.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
@@ -45,7 +46,8 @@ OPTIONS	?= 	'__FORKNAME__="$(FORKNAME)"' \
 		   			'__TARGET__="$(TARGET)"' \
 			 			'__FW_VER__="$(FW_Version)"' \
 		   			'__API_VER__="$(API_Version)"' \
-        		'__BUILD_DATE__="$(shell date +%Y-%m-%d)"' \
+		   			'__PROJECT__="$(PROJECT)"' \
+        		'__BUILD_DATE__="$(shell date +%d-%m-%Y)"' \
         		'__BUILD_TIME__="$(shell date +%H:%M:%S)"' \
 
 # Configure default flash sizes for the targets
@@ -117,6 +119,7 @@ CMSIS_SRC = $(notdir $(wildcard $(CMSIS_DIR)/CM1/CoreSupport/*.c \
                									$(CMSIS_DIR)/CM1/DeviceSupport/ST/STM32F30x/*.c))
 
 INCLUDE_DIRS := $(INCLUDE_DIRS) \
+								$(ROOT) \
            			$(STDPERIPH_DIR)/inc \
            			$(CMSIS_DIR)/CM1/CoreSupport \
            			$(CMSIS_DIR)/CM1/DeviceSupport/ST/STM32F30x \
@@ -341,7 +344,7 @@ PRIMUS_V5_SRC = 	startup_stm32f30x_md_gcc.S \
 
 ifeq ($(BUILD_TYPE),BIN)
 $(TARGET)_SRC:=$($(TARGET)_SRC)\
-			API/PlutoPilot.cpp
+			PlutoPilot.cpp
 endif               
 
 # Search path and source files for the ST stdperiph library
@@ -445,7 +448,7 @@ $(error Target '$(TARGET)' is not valid, must be one of $(VALID_TARGETS))
 endif
 
 TARGET_BIN	 = $(BUILD_DIR)/$(TARGET)/$(FORKNAME)_$(TARGET).bin
-TARGET_HEX	 = $(BUILD_DIR)/$(TARGET)/$(TARGET)-$(FW_Version).hex
+TARGET_HEX	 = $(BUILD_DIR)/$(TARGET)/$(PROJECT)_$(TARGET)_$(FW_Version).hex
 TARGET_ELF	 = $(BUILD_DIR)/$(TARGET)/$(FORKNAME)_$(TARGET).elf
 TARGET_MAP	 = $(BUILD_DIR)/$(TARGET)/$(FORKNAME)_$(TARGET).map
 TARGET_OBJS	 = $(addsuffix .o,$(addprefix $(BUILD_DIR)/$(TARGET)/bin/,$(basename $($(TARGET)_SRC))))

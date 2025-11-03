@@ -22,18 +22,18 @@
 #ifndef _PlutoPilot_H_
 #define _PlutoPilot_H_
 
-#include "API/RxConfig.h"
-#include "API/Peripherals.h"
-#include "API/Status-LED.h"
-#include "API/Motor.h"
-#include "API/BMS.h"
-#include "API/FC-Data.h"
-#include "API/RC-Interface.h"
-#include "API/FC-Control.h"
-#include "API/FC-Config.h"
-#include "API/Scheduler-Timer.h"
-#include "API/Debugging.h"
-#include "API/Serial-IO.h"
+#include "src/main/API/RxConfig.h"
+#include "src/main/API/Peripherals.h"
+#include "src/main/API/Status-LED.h"
+#include "src/main/API/Motor.h"
+#include "src/main/API/BMS.h"
+#include "src/main/API/FC-Data.h"
+#include "src/main/API/RC-Interface.h"
+#include "src/main/API/FC-Control.h"
+#include "src/main/API/FC-Config.h"
+#include "src/main/API/Scheduler-Timer.h"
+#include "src/main/API/Debugging.h"
+#include "src/main/API/Serial-IO.h"
 
 void plutoRxConfig ( void );
 

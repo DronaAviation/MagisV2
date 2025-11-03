@@ -84,7 +84,7 @@
 #include "API/Specifiers.h"
 #include "API/FC-Data.h"
 #include "API/API-Utils.h"
-#include "API/PlutoPilot.h"
+#include "PlutoPilot.h"
 
 #include "blackbox.h"
 #include "blackbox_io.h"

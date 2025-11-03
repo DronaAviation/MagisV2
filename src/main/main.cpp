@@ -103,7 +103,7 @@
 
 #include "command/localisationCommand.h"
 
-#include "API/PlutoPilot.h"
+#include "PlutoPilot.h"
 #include "API/API-Utils.h"
 #include "API/Serial-IO.h"
 #include "API/Peripherals.h"

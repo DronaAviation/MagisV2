@@ -100,7 +100,7 @@
 #include "API/FC-Data.h"
 #include "API/Specifiers.h"
 #include "API/Motor.h"
-#include "API/PlutoPilot.h"
+#include "PlutoPilot.h"
 #include "API/XRanging.h"
 #include "API/Localisation.h"
 #include "API/RxConfig.h"
