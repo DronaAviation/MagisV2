@@ -19,7 +19,7 @@
 #  ----------	---	---------------------------------------------------------   #
 ###############################################################################
 #
-# Makefile for building the cleanflight firmware.
+# Makefile for building the MasigV2 firmware.
 #
 # Invoke this with 'make help' to see the list of supported targets.
 #
@@ -31,7 +31,7 @@ BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	3.0.0-beta
+FW_Version	=	2.4.0-beta
 API_Version	=	0.26.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
