@@ -31,8 +31,8 @@ BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.4.0-beta
-API_Version	=	0.26.0
+FW_Version	=	2.5.0-beta
+API_Version	=	0.27.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 # Debugger optons, must be empty or GDB
@@ -261,9 +261,11 @@ DRONA_FLIGHT = 	flight/acrobats.cpp \
             		flight/opticflow.cpp \
 
 DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
+								drivers/paw3903_opticflow.cpp \
 								drivers/display_ug2864hsweg01 \
             		drivers/ranging_vl53l0x.cpp \
             		drivers/sc18is602b.cpp \
+            		drivers/bridge_sc18is602b.cpp \
 
 DRONA_COMMAND = command/command.cpp \
             		command/localisationCommand.cpp \
