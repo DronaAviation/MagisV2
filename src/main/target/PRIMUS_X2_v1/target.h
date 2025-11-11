@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
  #  File: \src\main\target\PRIMUS_X2_v1\target.h                               #
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Mon, 10th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -179,6 +179,7 @@ extern "C" {
 // #define OPTIC_FLOW
 
 // #define LASER_TOF // only to get laser height
+// #define LASER_TOF_L1x // only to get laser height
 // #define LASER_ALT // to integrate with althold
 
 #define FLIGHT_STATUS_INDICATOR

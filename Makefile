@@ -31,8 +31,8 @@ BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.5.0-beta
-API_Version	=	0.27.0
+FW_Version	=	2.6.0-beta
+API_Version	=	0.28.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 # Debugger optons, must be empty or GDB
@@ -86,13 +86,23 @@ RANGING_SRC	=	$(notdir $(wildcard $(RANGING_DIR)/core/src/*.c \
 																	$(RANGING_DIR)/core/src/*.cpp \
 																	$(RANGING_DIR)/platform/src/*.cpp))
 
+RANGING_DIR2	=	$(ROOT)/lib/main/VL53L1X_API
+RANGING_SRC2	=	$(notdir $(wildcard $(RANGING_DIR2)/core/src/*.c \
+																	$(RANGING_DIR2)/platform/src/*.c\
+																	$(RANGING_DIR2)/core/src/*.cpp \
+																	$(RANGING_DIR2)/platform/src/*.cpp))
+
 INCLUDE_DIRS	:=	$(INCLUDE_DIRS) \
               		$(RANGING_DIR)/core/inc \
-              		$(RANGING_DIR)/platform/inc   
+              		$(RANGING_DIR)/platform/inc \
+									$(RANGING_DIR2)/core/inc \
+              		$(RANGING_DIR2)/platform/inc
 
 VPATH := 	$(VPATH) \
 					$(RANGING_DIR)/core/src \
-					$(RANGING_DIR)/platform/src
+					$(RANGING_DIR)/platform/src \
+					$(RANGING_DIR2)/core/src \
+					$(RANGING_DIR2)/platform/src
 
 
 CSOURCES	:=	$(shell find $(SRC_DIR) -name '*.c')
@@ -264,6 +274,7 @@ DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
 								drivers/paw3903_opticflow.cpp \
 								drivers/display_ug2864hsweg01 \
             		drivers/ranging_vl53l0x.cpp \
+            		drivers/ranging_vl53l1x.cpp \
             		drivers/sc18is602b.cpp \
             		drivers/bridge_sc18is602b.cpp \
 
@@ -327,6 +338,7 @@ PRIMUSX2_SRC = 	startup_stm32f30x_md_gcc.S \
 		  					$(COMMON_SRC) \
       					$(DRONA_SRC) \
 		  					$(RANGING_SRC) \
+		  					$(RANGING_SRC2) \
 		  					$(PRIMUSX2_DRIVERS) \
 		  					$(PRIMUSX2_SENSORS) \
 
@@ -334,6 +346,7 @@ PRIMUS_X2_v1_SRC = 	startup_stm32f30x_md_gcc.S \
 		  					$(COMMON_SRC) \
       					$(DRONA_SRC) \
 		  					$(RANGING_SRC) \
+		  					$(RANGING_SRC2) \
 		  					$(PRIMUSX2_DRIVERS) \
 		  					$(PRIMUSX2_SENSORS) \
 
@@ -341,6 +354,7 @@ PRIMUS_V5_SRC = 	startup_stm32f30x_md_gcc.S \
 		  					$(COMMON_SRC) \
       					$(DRONA_SRC) \
 		  					$(RANGING_SRC) \
+		  					$(RANGING_SRC2) \
 		  					$(PRIMUSX2_DRIVERS) \
 		  					$(PRIMUSX2_SENSORS) \
 

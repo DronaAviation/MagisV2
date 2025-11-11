@@ -3,12 +3,12 @@
  #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
  #  File: \src\main\main.cpp                                                   #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 11th Oct 2025                                          #
+ #  Last Modified: Sat, 8th Nov 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -50,6 +50,7 @@
 #include "drivers/flash.h"
 #include "drivers/sonar_hcsr04.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/ranging_vl53l1x.h"
 #include "drivers/ina219.h"
 #include "rx/rx.h"
 
@@ -585,6 +586,11 @@ if ( checkBaroDriftDuringStartup ( ) ) {
 #ifdef LASER_TOF
 
   ranging_init ( );
+
+#endif
+#ifdef LASER_TOF_L1x
+
+  ranging_init_L1 ( );
 
 #endif
 
