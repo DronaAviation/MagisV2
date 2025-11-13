@@ -11,7 +11,7 @@
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 11th Nov 2025                                          #
+ #  Last Modified: Thu, 13th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -38,9 +38,40 @@ class LaserSensor_L1 {
 
  public:
   LaserSensor_L1 ( ) : _Global_Status_L1x ( VL53L1_ERROR_NONE ), Range_Status_L1x ( 0 ), _range ( 0 ) {}
-  bool init ( );
+
+  /**
+   * @brief Initializes the LaserSensor_L1 device by setting up communication parameters,
+   * waiting for the device to boot, and performing necessary initialization steps.
+   * @return `true` if the device is successfully initialized, otherwise returns false.
+   */
+  bool init ( VL53L1_DistanceModes _DistanceMode );
+
+  /**
+   * Sets a new I2C address for the LaserSensor_L1 device.
+   * The provided address is adjusted and applied to the sensor,
+   * updating the internal device's I2C address accordingly.
+   *
+   * @param _address The new I2C address to set for the device.
+   */
   void setAddress ( uint8_t address );
+
+  /**
+   * @brief Initiates the ranging process for the LaserSensor_L1 device and retrieves measurement data.
+   *
+   * This function starts the ranging process if the global status is error-free and a start flag is set.
+   * It updates the ranging measurement data if no errors occur, and checks the range validity and limits.
+   *
+   * @return true if valid ranging data is acquired with a measurement less than 4500 mm; otherwise, false.
+   */
   bool startRanging ( );
+
+  /**
+   * @brief Retrieves the last measured range from the LaserSensor_L1 device.
+   *
+   * This function returns the stored range measurement obtained during the last ranging process.
+   *
+   * @return The last measured distance in millimeters as an int16_t value.
+   */
   int16_t getLaserRange ( );
 
  private:

@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 10th Nov 2025                                          #
+ #  Last Modified: Thu, 13th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -178,6 +178,9 @@ extern "C" {
 
 #define DCM
 // #define OPTIC_FLOW
+#define PAW3903_SPI
+// #define PAW3903_SC18
+
 
 // #define LASER_TOF // only to get laser height
 // #define LASER_TOF_L1x // only to get laser height

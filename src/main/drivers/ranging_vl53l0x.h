@@ -28,27 +28,26 @@ extern "C" {
 
 class LaserSensor {
 
-    int16_t range;
-    VL53L0X_Dev_t MyDevice;
-    unibus_e statusLEDPin;
+  int16_t range;
+  VL53L0X_Dev_t MyDevice;
+  unibus_e statusLEDPin;
 
-public:
-
-    void init();
-    void setAddress(uint8_t address);
-    int16_t startRanging();
-    int16_t getLaserRange();
-
+ public:
+  /**
+   * @brief Initializes the LaserSensor_L1 device by setting up communication parameters,
+   * waiting for the device to boot, and performing necessary initialization steps.
+   * @return Returns true if the device is successfully initialized, otherwise returns false.
+   */
+  void init ( );
+  void setAddress ( uint8_t address );
+  int16_t startRanging ( );
+  int16_t getLaserRange ( );
 };
 
-
-
-void ranging_init(void);
-void getRange(void);
-bool isTofDataNew(void);
-bool isOutofRange(void);
-
-
+void ranging_init ( void );
+void getRange ( void );
+bool isTofDataNew ( void );
+bool isOutofRange ( void );
 
 extern VL53L0X_Error Global_Status;
 extern VL53L0X_RangingMeasurementData_t RangingMeasurementData;
@@ -59,7 +58,6 @@ extern uint16_t debug_range;
 extern bool startRanging;
 extern bool isTofDataNewflag;
 extern bool useRangingSensor;
-
 
 #ifdef __cplusplus
 }
