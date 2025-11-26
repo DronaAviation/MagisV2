@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Fri, 14th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -69,6 +69,6 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option );
  *
  * @param _new_cap_mAh The new battery capacity in milliampere-hours (mAh).
  */
-void Bms_Using_Other_Battery ( uint16_t _new_cap_mAh );
+void Bms_Using_New_Battery_Capicity ( uint16_t _new_cap_mAh );
 
 #endif

@@ -8,7 +8,7 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 11th Oct 2025                                          #
+ #  Last Modified: Wed, 26th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -205,118 +205,141 @@ void delay ( uint32_t ms ) {
 
 // --- Timing (ms) ---
 
-// Time duration for which the header signal is on (in milliseconds)
-#define HDR_ON_MS 200
-// Time duration for which the header signal is off (in milliseconds)
-#define HDR_OFF_MS 200
-// Time duration for which each detail signal (blue blink) is on (in milliseconds)
-#define DETAIL_ON_MS 200
-// Standard time duration for which each detail signal is off (in milliseconds)
-#define DETAIL_OFF_MS 500
-// Special time duration for which the detail signal is off when indicating a crystal failure (in milliseconds)
-#define DETAIL_OFF_CRYSTAL 300
-// Time gap between complete sequences of signals (in milliseconds)
-#define CYCLE_GAP_MS 1000
+// Define time intervals in milliseconds for different LED patterns and gaps
+#define HDR_MS              200    // Duration for HDR pattern
+#define DETAIL_MS           200    // Duration for detail pattern
+#define DETAIL_GREEN_OFF_MS 250    // Green LED off duration
+#define DETAIL_RED_OFF_MS   350    // Red LED off duration
+#define DETAIL_BLUE_OFF_MS  500    // Blue LED off duration
+#define CYCLE_GAP_MS        750    // Gap between cycles
 
-// Small helpers (toggle-based since only *_TOGGLE macros exist)
+// Enumeration for LED colors
+typedef enum {
+  LED_COLOR_RED,      // Represents the red LED
+  LED_COLOR_GREEN,    // Represents the green LED
+  LED_COLOR_BLUE      // Represents the blue LED
+} LedColor;
+
+// Structure to define an error pattern
+typedef struct {
+  uint8_t bit;          // Bitmask index in `mode` for identifying specific errors
+  uint8_t blueCount;    // Number of blue blinks indicating the error count or type
+} ErrorPattern;
 
 /**
- * @brief Blinks a red LED a specified number of times.
+ * @brief Blinks an LED a specified number of times with defined on and off durations.
  *
- * This function toggles the red LED on and off a given number of times,
- * with customizable durations for the "on" and "off" states.
+ * This function controls the blinking of a specified color LED (red, green, or blue)
+ * by turning it on for a given duration and then off for another duration. The process
+ * repeats for the specified number of times.
  *
- * @param n Number of times to blink the LED.
- * @param on_ms Duration in milliseconds for which the LED stays on.
- * @param off_ms Duration in milliseconds for which the LED stays off.
+ * @param color  The color of the LED to blink (LED_COLOR_RED, LED_COLOR_GREEN, LED_COLOR_BLUE).
+ * @param n      The number of times the LED should blink.
+ * @param on_ms  The duration in milliseconds for which the LED remains on during each blink.
+ * @param off_ms The duration in milliseconds for which the LED remains off between blinks.
  */
-static inline void blink_red ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
+static inline void blink_led ( LedColor color, uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
   while ( n-- ) {
-    LED_R_TOGGLE;
+    switch ( color ) {
+      case LED_COLOR_RED: LED_R_ON; break;
+      case LED_COLOR_GREEN: LED_G_ON; break;
+      case LED_COLOR_BLUE: LED_B_ON; break;
+    }
     delay ( on_ms );
-    LED_R_TOGGLE;
+    switch ( color ) {
+      case LED_COLOR_RED: LED_R_OFF; break;
+      case LED_COLOR_GREEN: LED_G_OFF; break;
+      case LED_COLOR_BLUE: LED_B_OFF; break;
+    }
     delay ( off_ms );
   }
 }
 
-/**
- * @brief Blinks a blue LED a specified number of times.
- *
- * This function toggles the blue LED on and off a given number of times,
- * with customizable durations for the "on" and "off" states.
- *
- * @param n Number of times to blink the LED.
- * @param on_ms Duration in milliseconds for which the LED stays on.
- * @param off_ms Duration in milliseconds for which the LED stays off.
- */
-static inline void blink_blue ( uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
-  while ( n-- ) {
-    LED_B_TOGGLE;
-    delay ( on_ms );
-    LED_B_TOGGLE;
-    delay ( off_ms );
-  }
-}
+static const ErrorPattern errorTable [] = {
+  { FAILURE_INA219, 1 },              // INA failure
+  { FAILURE_MISSING_ACC, 2 },         // IMU missing
+  { FAILURE_ACC_INCOMPATIBLE, 2 },    // IMU missing
+  { FAILURE_BARO, 3 },                // Baro failure
+  { FAILURE_BARO_DRIFT, 3 },          // Baro drift
+  { FAILURE_EXTCLCK, 4 }              // Crystal failure
+};
+
+static const uint8_t errorTableCount = sizeof ( errorTable ) / sizeof ( errorTable [ 0 ] );
 
 /**
- * @brief Indicates system failure modes using LED blink patterns.
+ * @brief Executes a failure mode indication based on specified error modes.
  *
- * This function determines and executes a specific blink pattern to
- * indicate various system failures. The pattern is based on the mode
- * parameter, and different failures have different priorities and
- * associated blink sequences:
+ * This function interprets the error modes and translates them into LED blink patterns.
+ * It first determines unique failure codes from an error table and then continuously
+ * blinks LEDs to represent these failures.
  *
- * - IMU + BARO: 5× Blue (highest priority)
- * - IMU: 3× Blue
- * - BARO: 4× Blue
- * - INA219: 2× Blue
- * - Crystal: 6× Blue (shorter OFF time)
- * - BARO Drift: 7× Blue (shorter OFF time)
- *
- * If multiple failures are detected simultaneously, the one with the
- * highest priority will be indicated. A red LED blinks twice at the
- * start of each cycle to signal that an error state is active.
- *
- * @param mode Encoded failure mode bits indicating which systems have failed.
+ * @param mode A bitmask representing different error modes to be checked against the error table.
  */
 void failureMode ( uint8_t mode ) {
+  // Array to store unique failure codes
+  uint8_t failures [ 10 ];
 
-  const bool hasIMU        = ( mode & ( 1 << FAILURE_MISSING_ACC ) ) || ( mode & ( 1 << FAILURE_ACC_INCOMPATIBLE ) );
-  const bool hasBARO       = ( mode & ( 1 << FAILURE_BARO ) );
-  const bool hasBARO_Drift = ( mode & ( 1 << FAILURE_BARO_DRIFT ) );
-  const bool hasINA        = ( mode & ( 1 << FAILURE_INA219 ) );
-  const bool hasXTAL       = ( mode & ( 1 << FAILURE_EXTCLCK ) );
+  // Array to store off durations for each failure
+  uint16_t offTimes [ 10 ];
 
+  // Counter to track the number of unique failures detected
+  uint8_t failCount = 0;
+
+  // Iterate over the error table to check for active error bits in the mode
+  for ( uint8_t i = 0; i < errorTableCount; i++ ) {
+    // Check if the current error bit is set in the mode
+    if ( mode & ( 1 << errorTable [ i ].bit ) ) {
+      // Flag to check if the failure code already exists in the failures array
+      bool exists = false;
+
+      // Check for existence of the current failure code in the failures array
+      for ( uint8_t j = 0; j < failCount; j++ ) {
+        if ( failures [ j ] == errorTable [ i ].blueCount ) {
+          exists = true;
+          break;
+        }
+      }
+
+      // If the failure code already exists, skip adding it
+      if ( exists ) continue;
+
+      // Add new unique failure code to the failures array and increment the counter
+      failures [ failCount ] = errorTable [ i ].blueCount;
+      failCount++;
+    }
+  }
+
+  // If no failures were identified, exit the function
+  if ( failCount == 0 )
+    return;
+
+  // Continuously loop to indicate failures using LED blink patterns
   while ( 1 ) {
-    // Blink red twice as a header to indicate "error state active"
-    blink_red ( 2, HDR_ON_MS, HDR_OFF_MS );
+    // Blink green LED to indicate the number of unique failures detected
+    blink_led ( LED_COLOR_GREEN, failCount, HDR_MS, DETAIL_MS );
 
-    // Decide detail pattern (blue count + off timing)
-    uint8_t blueCount = 0;
-    uint16_t blueOff  = DETAIL_OFF_MS;
+    // Delay before blinking red and blue LEDs for detailed failure indications
+    delay ( DETAIL_MS );
+    for ( uint8_t i = 0; i < failCount; i++ ) {
+      // Determine the number of red blinks indicating the failure index
+      uint8_t redBlink = i + 1;
+      // Determine the number of blue blinks corresponding to the failure code
+      uint8_t blueBlink = failures [ i ];
 
-    if ( hasINA ) {
-      blueCount = 2;    // INA219 failure
-    } else if ( hasXTAL ) {
-      blueCount = 6;                     // Crystal failure
-      blueOff   = DETAIL_OFF_CRYSTAL;    // Special gap for crystal failure
-    } else if ( hasIMU && hasBARO ) {
-      blueCount = 5;    // Combined IMU + Baro failure (highest priority)
-    } else if ( hasIMU ) {
-      blueCount = 3;    // IMU failure
-    } else if ( hasBARO ) {
-      blueCount = 4;    // Baro failure
-    } else if ( hasBARO_Drift ) {
-      blueCount = 7;    // Baro drift failure
-    } else {
-      // No specific failure: only the header and cycle gap will occur.
+      // Blink red LED with determined blink count
+      blink_led ( LED_COLOR_RED, redBlink, HDR_MS, DETAIL_RED_OFF_MS );
+
+      // Delay before blinking blue LED
+      delay ( DETAIL_MS );
+
+      // Blink blue LED with determined blink count
+      blink_led ( LED_COLOR_BLUE, blueBlink, HDR_MS, DETAIL_BLUE_OFF_MS );
+
+      // Delay after blue LED indication
+      delay ( DETAIL_MS );
     }
 
-    if ( blueCount ) {
-      blink_blue ( blueCount, DETAIL_ON_MS, blueOff );
-    }
-
-    // Delay between complete sequences
+    // Delay before starting the next cycle of blink indications
     delay ( CYCLE_GAP_MS );
   }
 }
