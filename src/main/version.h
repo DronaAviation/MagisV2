@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 11th Oct 2025                                          #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,12 +26,12 @@ extern "C" {
 #define MAGIS_IDENTIFIER          "MAGIS V2"
 
 #define API_VERSION_MAJOR         0     // increment when major changes are made
-#define API_VERSION_MINOR         26    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
+#define API_VERSION_MINOR         28    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
 
 #define API_VERSION_LENGTH        2
 
 #define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
-#define FC_FW_VERSION_MINOR       3    // increment when a minor release is made (small new feature, change etc)
+#define FC_FW_VERSION_MINOR       8    // increment when a minor release is made (small new feature, change etc)
 #define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
 
 #define STR_HELPER( x )           #x

@@ -3,12 +3,12 @@
  #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\main.cpp                                                   #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 8th Nov 2025                                           #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -95,6 +95,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 #include "drivers/opticflow_paw3903.h"
+#include "drivers/paw3903_opticflow.h"
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
   #include "hardware_revision.h"
@@ -143,7 +144,7 @@ void spektrumBind ( rxConfig_t *rxConfig );
 const sonarHardware_t *sonarGetHardwareConfiguration ( batteryConfig_t *batteryConfig );
 void sonarInit ( const sonarHardware_t *sonarHardware );
 
-uint8_t failureFlag;
+uint16_t failureFlag;
 
 #ifdef STM32F303xC
 // from system_stm32f30x.c
@@ -412,41 +413,38 @@ void init ( void ) {
 #ifdef BARO
   if ( ! sensorsAutodetectbaro ( masterConfig.baro_hardware ) ) {
     // if baro was not detected due to whatever reason, we give up now.
-    // LEDy_ON;   //PA5
-
-    // LED1_TOGGLE;
-    // failureMode(2);
-
     failureFlag |= ( 1 << FAILURE_BARO );
   }
 
-// Check if there is any drift in the barometer sensor during startup
-if ( checkBaroDriftDuringStartup ( ) ) {
+  // Check if there is any drift in the barometer sensor during startup
+  if ( checkBaroDriftDuringStartup ( ) ) {
     // If a drift is detected, set the failure flag for barometer drift
     failureFlag |= ( 1 << FAILURE_BARO_DRIFT );
-}
+  }
 
 #endif
 
   if ( ! INA219_Init ( ) ) {
     failureFlag |= ( 1 << FAILURE_INA219 );
   }
-
   if ( clockcheck == 1 ) {
     // failure if running on internal clock
-    // LEDz_ON;   //PA6
     failureFlag |= ( 1 << FAILURE_EXTCLCK );
   }
 
-  // failureFlag = 0;
-  //
-  // failureFlag |=  (1 << FAILURE_MISSING_ACC);
-  // failureFlag |= (1 << FAILURE_EXTCLCK);
+  // TODO: Uncomment to Init XVision Ranging Sensor
+  // if ( ! XVision.init ( VL53L1_DISTANCEMODE_LONG ) ) {
+  //   failureFlag |= ( 1 << FAILURE_VL53L1X );
+  // }
+
+  // TODO: Uncomment to Init PAW3903 Opticflow Sensor
+  // if ( ! paw3903_init ( ) ) {
+  //   failureFlag |= ( 1 << FAILURE_PAW3903 );
+  // }
 
   if ( failureFlag != 0 ) {
     failureMode ( failureFlag );
   }
-  // #endif
   systemState |= SYSTEM_STATE_SENSORS_READY;
 
   // LED sequence for start

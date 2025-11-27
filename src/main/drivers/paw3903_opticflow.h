@@ -11,7 +11,7 @@
  #  Created Date: Thu, 6th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 6th Nov 2025                                           #
+ #  Last Modified: Fri, 14th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -127,17 +127,6 @@ typedef struct {
 } PAW3903_Data;
 
 /**
- * @brief Sets up the SPI configuration for the PAW3903 sensor.
- *
- * This function configures the SPI interface for the PAW3903 sensor
- * with MSB first, SPI Mode 3, and a clock speed of approximately 461 kHz.
- * It uses the `sc18_configureSPI` function for the actual configuration process.
- *
- * @return True if the SPI setup was successfully configured; false otherwise.
- */
-bool paw3903_spi_setup ( void );
-
-/**
  * @brief Checks the product and revision IDs of the PAW3903 sensor.
  *
  * This function reads the product and revision IDs from the PAW3903 sensor
@@ -191,20 +180,6 @@ bool paw3903_power_up_reset ( void );
  *         Shutdown register, false otherwise.
  */
 bool paw3903_shutdown ( void );
-
-/**
- * Reads the delta X and Y values from the PAW3903 sensor.
- *
- * This function retrieves the latest change in position (delta values)
- * along the X and Y axes from the sensor and stores them in the provided
- * pointers.
- *
- * @param dx Pointer to an int16_t where the delta X value will be stored.
- *           If nullptr, the delta X value is not returned.
- * @param dy Pointer to an int16_t where the delta Y value will be stored.
- *           If nullptr, the delta Y value is not returned.
- */
-void paw3903_read_deltas ( PAW3903_Data &out );
 
 /**
  * Reads the Surface Quality (SQUAL) value from the PAW3903 sensor.

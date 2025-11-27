@@ -8,7 +8,7 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 26th Nov 2025                                          #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -261,7 +261,9 @@ static const ErrorPattern errorTable [] = {
   { FAILURE_ACC_INCOMPATIBLE, 2 },    // IMU missing
   { FAILURE_BARO, 3 },                // Baro failure
   { FAILURE_BARO_DRIFT, 3 },          // Baro drift
-  { FAILURE_EXTCLCK, 4 }              // Crystal failure
+  { FAILURE_EXTCLCK, 4 },             // Crystal failure
+  { FAILURE_VL53L1X, 5 },             // Crystal failure
+  { FAILURE_PAW3903, 6 }              // Crystal failure
 };
 
 static const uint8_t errorTableCount = sizeof ( errorTable ) / sizeof ( errorTable [ 0 ] );
@@ -275,12 +277,9 @@ static const uint8_t errorTableCount = sizeof ( errorTable ) / sizeof ( errorTab
  *
  * @param mode A bitmask representing different error modes to be checked against the error table.
  */
-void failureMode ( uint8_t mode ) {
+void failureMode ( uint16_t mode ) {
   // Array to store unique failure codes
-  uint8_t failures [ 10 ];
-
-  // Array to store off durations for each failure
-  uint16_t offTimes [ 10 ];
+  uint8_t failures [ 20 ];
 
   // Counter to track the number of unique failures detected
   uint8_t failCount = 0;

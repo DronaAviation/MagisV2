@@ -8,7 +8,7 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 26th Nov 2025                                          #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -30,7 +30,7 @@ uint32_t millis ( void );
 
 #ifdef TEST_ENABLE
 // failure
-void failureMode ( uint8_t mode );
+void failureMode ( uint16_t mode );
 #endif
 
 // bootloader/IAP
@@ -64,7 +64,8 @@ typedef enum {    // DD
   FAILURE_PAW3903,
   FAILURE_VL53L1X
 } failureMode_e;
-extern uint8_t failureFlag;
+
+extern uint16_t failureFlag;
 
 #ifdef __cplusplus
 }

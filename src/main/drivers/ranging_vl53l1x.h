@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\drivers\ranging_vl53l1x.h                                  #
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 13th Nov 2025                                          #
+ #  Last Modified: Fri, 14th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -63,7 +63,7 @@ class LaserSensor_L1 {
    *
    * @return true if valid ranging data is acquired with a measurement less than 4500 mm; otherwise, false.
    */
-  bool startRanging ( );
+  bool startRanging ( void );
 
   /**
    * @brief Retrieves the last measured range from the LaserSensor_L1 device.
@@ -72,12 +72,14 @@ class LaserSensor_L1 {
    *
    * @return The last measured distance in millimeters as an int16_t value.
    */
-  int16_t getLaserRange ( );
+  int16_t getLaserRange ( void );
 
  private:
   VL53L1_Error _Global_Status_L1x;
   uint8_t Range_Status_L1x;
 };
+
+extern LaserSensor_L1 XVision;
 
 void ranging_init_L1 ( void );
 void getRange_L1 ( void );

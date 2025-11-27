@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\drivers\ranging_vl53l1x.cpp                                #
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 13th Nov 2025                                          #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -66,6 +66,8 @@ Interval rangePoll_L1;
 void update_status_L1 ( VL53L1_Error Status ) {
   Global_Status_L1 = Status;
 }
+
+LaserSensor_L1 XVision;
 
 #ifdef LASER_TOF_L1x
 
@@ -160,7 +162,7 @@ bool isOutofRange_L1 ( void ) {
 
 #endif
 
-static bool _startNow       = true;
+static bool _startNow = true;
 
 bool LaserSensor_L1::init ( VL53L1_DistanceModes _DistanceMode ) {
 
@@ -173,25 +175,24 @@ bool LaserSensor_L1::init ( VL53L1_DistanceModes _DistanceMode ) {
 
   // Wait until the device has completed its boot process.
   // This is a blocking call that updates _Global_Status_L1x with the result.
-  _Global_Status_L1x = VL53L1_WaitDeviceBooted ( &this->MyDevice_L1x );
+  _Global_Status_L1x = VL53L1_WaitDeviceBooted ( &MyDevice_L1x );
 
   // Check if there was no error during the boot process
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE )
     // Initialize data structures related to the device
-    _Global_Status_L1x = VL53L1_DataInit ( &this->MyDevice_L1x );
+    _Global_Status_L1x = VL53L1_DataInit ( &MyDevice_L1x );
 
   // If data initialization was successful, proceed with static device initialization
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE )
-    _Global_Status_L1x = VL53L1_StaticInit ( &this->MyDevice_L1x );
+    _Global_Status_L1x = VL53L1_StaticInit ( &MyDevice_L1x );
 
   // If static initialization was successful, set the distance mode to medium
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE )
-    _Global_Status_L1x = VL53L1_SetDistanceMode ( &this->MyDevice_L1x, _DistanceMode );
+    _Global_Status_L1x = VL53L1_SetDistanceMode ( &MyDevice_L1x, _DistanceMode );
 
   // Return true if all operations were successful, otherwise return false
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE )
     return true;
-
   return false;
 }
 
@@ -203,15 +204,15 @@ void LaserSensor_L1::setAddress ( uint8_t _address ) {
   MyDevice_L1x.I2cDevAddr = _address;
 }
 
-bool LaserSensor_L1::startRanging ( ) {
+bool LaserSensor_L1::startRanging ( void ) {
 
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE && _startNow ) {
-    _Global_Status_L1x = VL53L1_StartMeasurement ( &this->MyDevice_L1x );
+    _Global_Status_L1x = VL53L1_StartMeasurement ( &MyDevice_L1x );
     _startNow          = false;
     Monitor_Println ( "check1", _Global_Status_L1x );
   }
   if ( _Global_Status_L1x == VL53L1_ERROR_NONE ) {
-    _Global_Status_L1x = VL53L1_GetRangingMeasurementData ( &this->MyDevice_L1x, &_RangingMeasurementData_L1x );
+    _Global_Status_L1x = VL53L1_GetRangingMeasurementData ( &MyDevice_L1x, &_RangingMeasurementData_L1x );
 
     isTofDataNewflag_L1 = true;
     if ( ! _RangingMeasurementData_L1x.RangeStatus ) {
@@ -227,6 +228,6 @@ bool LaserSensor_L1::startRanging ( ) {
   return false;
 }
 
-int16_t LaserSensor_L1::getLaserRange ( ) {
+int16_t LaserSensor_L1::getLaserRange ( void ) {
   return _range;
 }
