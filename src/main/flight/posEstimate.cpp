@@ -64,6 +64,9 @@ int16_t posX = 0;
 int16_t posY = 0;
 int16_t posZ = 0;
 int16_t deltaTime = 0;
+float Velocity_X;
+float Velocity_Y;
+
 
 int8_t Quality=-1;
 bool new_position=false;
@@ -89,7 +92,7 @@ float position_base[2];
 float position_correction[2];
 float est_position[2];
 float velocity_increase[2];
-
+float TOF_data;
 uint8_t hist_xy_counter; // counter used to slow saving of position estimates for later comparison
 float hist_position_baseX;
 float hist_position_baseY;
@@ -102,6 +105,8 @@ float k3;
 float PositionX = 0;
 float PositionY = 0;
 float PrevPositionX = 0;
+float theta;
+float psi;
 float PrevPositionY = 0;
 int16_t VelocityX = 0;
 int16_t VelocityY = 0;
@@ -150,6 +155,31 @@ void addHistPositionBaseEstXY(float positionX, float positionY){
         }
     }
 }
+
+
+
+//i'm writting now
+//krishna's code.
+float TOF_height(float theta, float psi, float TOF_data)
+{
+    return TOF_data * cos(theta) * cos(psi);
+}
+
+void Optical_flow(float X_angle, float Y_angle, float TOF_height, 
+                  int32_t pixel_shift_X, int32_t pixel_shift_Y,
+                  int32_t pix_X, int32_t pix_Y, float dt,
+                  float* Velocity_X, float* Velocity_Y)
+{
+    float inputX = (pixel_shift_X * 2 * TOF_height * tan(X_angle/2)) / pix_X;
+    float inputY = (pixel_shift_Y * 2 * TOF_height * tan(Y_angle/2)) / pix_Y;
+    
+    *Velocity_X = inputX / dt;
+    *Velocity_Y = inputY / dt;
+}
+//end here.
+
+
+
 
 void getFrontHistPositionBaseEstXY(float *posbaseX, float *posbaseY)
 {
