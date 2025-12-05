@@ -81,6 +81,8 @@ const float _lut_upper    = 11.5f * static_cast< float > ( 0x100000 );    // 1<<
 const float _quadr_factor = 1.0f / 16777216.0f;
 const float _offst_factor = 2048.0f;
 
+#define ICP_FIXED_RAW_TEMP 32768
+
 void sendCommand ( int16_t command ) {
 
   // i2
@@ -98,7 +100,7 @@ bool icp10111Detect ( baro_t *baro ) {
   command [ 0 ] = ( 0xEFC8 >> 8 ) & 0xFF;
   command [ 1 ] = 0xEFC8 & 0xFF;
 
-  ack = i2cWriteBufferwithoutregister ( 0x63, 2, command );
+  ack = i2cWriteBufferwithoutregister ( ICP_I2C_ID, 2, command );
   if ( ! ack ) {
     return false;    // I2C write failed
   }
@@ -106,7 +108,7 @@ bool icp10111Detect ( baro_t *baro ) {
   delay ( 1 );
 
   // Read response
-  ack = i2cReadwithoutregister ( 0x63, 2, buf );
+  ack = i2cReadwithoutregister ( ICP_I2C_ID, 2, buf );
   if ( ! ack ) {
     return false;    // I2C read failed
   }
@@ -125,7 +127,7 @@ bool icp10111Detect ( baro_t *baro ) {
     0x00, 0x66, 0x9C
   };
 
-  ack = i2cWriteBufferwithoutregister ( 0x63, 5, otpCommand );
+  ack = i2cWriteBufferwithoutregister ( ICP_I2C_ID, 5, otpCommand );
   if ( ! ack ) {
     return false;    // I2C write failed
   }
@@ -134,14 +136,14 @@ bool icp10111Detect ( baro_t *baro ) {
     command [ 0 ] = ( ICP_CMD_READ_OTP >> 8 ) & 0xFF;
     command [ 1 ] = ICP_CMD_READ_OTP & 0xFF;
 
-    ack = i2cWriteBufferwithoutregister ( 0x63, 2, command );
+    ack = i2cWriteBufferwithoutregister ( ICP_I2C_ID, 2, command );
     if ( ! ack ) {
       return false;
     }
 
     delay ( 1 );
 
-    ack = i2cReadwithoutregister ( 0x63, 2, buf );
+    ack = i2cReadwithoutregister ( ICP_I2C_ID, 2, buf );
     if ( ! ack ) {
       return false;
     }
@@ -191,7 +193,7 @@ static uint32_t icp10111_measureStart ( mmode mode ) {
   command [ 0 ] = ( cmd >> 8 ) & 0xff;
   command [ 1 ] = cmd & 0xff;
 
-  i2cWriteBufferwithoutregister ( 0x63, 2, command );
+  i2cWriteBufferwithoutregister ( ICP_I2C_ID, 2, command );
   // baroRead++;
   _data_ready = false;
   _meas_start = millis ( );
@@ -233,35 +235,60 @@ void icp10111_calculate ( float *pressure, float *temperature, uint32_t raw_p, u
   *temperature = _temperature_C;
 }
 
+// static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temperature ) {
+// // icp10111_measureStart(VERY_ACCURATE);
+//   if ( _data_ready ) {
+//     return true;    // Data is already processed, no need to read again
+//   }
+
+//   // Check if the measurement time has elapsed
+//   if ( ( currentTime - _meas_start ) < _meas_duration ) {
+//     return false;    // Data is not ready yet
+//   }
+
+//   uint8_t res_buf [ 9 ];    // Buffer to store raw sensor data
+
+//   // Read 9 bytes from the sensor
+//   if ( ! i2cReadwithoutregister ( 0x63, 9, res_buf ) ) {
+//     return false;    // I2C read failed
+//   }
+
+//   // Extract temperature (first two bytes)
+//   _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
+
+//   // Extract pressure (bytes 3, 4, 6)
+//   _raw_p = ( ( uint32_t ) res_buf [ 3 ] << 16 ) | ( ( uint32_t ) res_buf [ 4 ] << 8 ) | ( uint32_t ) res_buf [ 6 ];
+
+//   // Compute temperature and pressure
+//   icp10111_calculate ( pressure, temperature, _raw_p, _raw_t );
+
+//   // Mark data as processed
+//   _data_ready = true;
+
+//   return true;
+// }
+
 static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temperature ) {
-// icp10111_measureStart(VERY_ACCURATE);
-  if ( _data_ready ) {
-    return true;    // Data is already processed, no need to read again
+  if ( ! pressure || ! temperature ) {
+    return false;
   }
 
-  // Check if the measurement time has elapsed
+  // Wait until measurement time has elapsed
   if ( ( currentTime - _meas_start ) < _meas_duration ) {
-    return false;    // Data is not ready yet
+    return false;
   }
 
-  uint8_t res_buf [ 9 ];    // Buffer to store raw sensor data
-
-  // Read 9 bytes from the sensor
-  if ( ! i2cReadwithoutregister ( 0x63, 9, res_buf ) ) {
-    return false;    // I2C read failed
+  uint8_t res_buf [ 9 ];
+  if ( ! i2cReadwithoutregister ( ICP_I2C_ID, 9, res_buf ) ) {
+    return false;
   }
 
-  // Extract temperature (first two bytes)
-  _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
-
-  // Extract pressure (bytes 3, 4, 6)
+  // _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
+  _raw_t = ICP_FIXED_RAW_TEMP;
   _raw_p = ( ( uint32_t ) res_buf [ 3 ] << 16 ) | ( ( uint32_t ) res_buf [ 4 ] << 8 ) | ( uint32_t ) res_buf [ 6 ];
 
-  // Compute temperature and pressure
   icp10111_calculate ( pressure, temperature, _raw_p, _raw_t );
 
-  // Mark data as processed
-  _data_ready = true;
-
+  _data_ready = true;    // you can even remove this variable later if unused
   return true;
 }
