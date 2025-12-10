@@ -8,7 +8,7 @@
  #  Created Date: Mon, 6th Oct 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 5th Dec 2025                                           #
+ #  Last Modified: Mon, 8th Dec 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -260,10 +260,10 @@ static const ErrorPattern errorTable [] = {
   { FAILURE_MISSING_ACC, 2 },         // IMU missing
   { FAILURE_ACC_INCOMPATIBLE, 2 },    // IMU missing
   { FAILURE_BARO, 3 },                // Baro failure
-  { FAILURE_EXTCLCK, 4 },             // Crystal failure
-  { FAILURE_VL53L1X, 5 },             // Crystal failure
-  { FAILURE_PAW3903, 6 },             // Crystal failure
-  { FAILURE_BARO_DRIFT, 7 }           // Baro drift
+  { FAILURE_BARO_DRIFT, 4 },          // Baro drift
+  { FAILURE_EXTCLCK, 5 },             // Crystal failure
+  { FAILURE_VL53L1X, 6 },             // Crystal failure
+  { FAILURE_PAW3903, 7 }              // Crystal failure
 };
 
 static const uint8_t errorTableCount = sizeof ( errorTable ) / sizeof ( errorTable [ 0 ] );

@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-v3.0.0-beta                                               #
  #  File: \src\main\version.h                                                  #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 27th Nov 2025                                          #
+ #  Last Modified: Sat, 6th Dec 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -32,7 +32,7 @@ extern "C" {
 
 #define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
 #define FC_FW_VERSION_MINOR       8    // increment when a minor release is made (small new feature, change etc)
-#define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
+#define FC_FW_VERSION_PATCH_LEVEL 1    // increment when a bug is fixed
 
 #define STR_HELPER( x )           #x
 #define STR( x )                  STR_HELPER ( x )

@@ -161,7 +161,7 @@ bool icp10111Detect ( baro_t *baro ) {
   _data_ready    = false;
 
   // Start the first measurement immediately after detection
-  icp10111_measureStart(VERY_ACCURATE);
+  icp10111_measureStart ( NORMAL);
 
   return true;
 }
@@ -268,6 +268,10 @@ void icp10111_calculate ( float *pressure, float *temperature, uint32_t raw_p, u
 //   return true;
 // }
 
+static uint32_t tempAccum       = 0;    // sum of first N temperature samples
+static uint16_t tempAvgRaw      = 0;    // frozen raw temperature value after averaging
+static uint16_t tempSampleCount = 0;
+#define TEMP_AVG_COUNT 50    // number of samples to average
 static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temperature ) {
   if ( ! pressure || ! temperature ) {
     return false;
@@ -283,8 +287,26 @@ static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temper
     return false;
   }
 
-  // _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
-  _raw_t = ICP_FIXED_RAW_TEMP;
+  _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
+  // _raw_t = ICP_FIXED_RAW_TEMP;
+
+  // ------------------- New Temperature Averaging Logic -------------------
+
+  if ( tempSampleCount < TEMP_AVG_COUNT ) {
+    // accumulate raw temperature
+    tempAccum += _raw_t;
+    tempSampleCount++;
+
+    // once enough samples collected → compute average
+    if ( tempSampleCount == TEMP_AVG_COUNT ) {
+      tempAvgRaw = ( uint16_t ) ( tempAccum / TEMP_AVG_COUNT );
+    }
+  } else {
+    // after 50 samples → use frozen average value
+    _raw_t = tempAvgRaw;
+  }
+
+
   _raw_p = ( ( uint32_t ) res_buf [ 3 ] << 16 ) | ( ( uint32_t ) res_buf [ 4 ] << 8 ) | ( uint32_t ) res_buf [ 6 ];
 
   icp10111_calculate ( pressure, temperature, _raw_p, _raw_t );
