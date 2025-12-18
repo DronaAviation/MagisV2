@@ -37,6 +37,14 @@
 extern uint16_t acc_1G;
 extern uint8_t mpuLowPassFilter;
 
+static uint8_t icmCurrentBank = 0xFF;
+static inline void icmSelectBank(uint8_t bank)
+{
+  if (icmCurrentBank == bank) return;
+  mpuConfiguration.write(0x7F, bank);
+  icmCurrentBank = bank;
+}
+
 bool icm20948AccDetect ( acc_t *acc ) {
   if ( mpuDetectionResult.sensor != MPU_ICM_20948 ) {
     return false;
@@ -74,7 +82,7 @@ void icm20948GyroInit ( uint16_t lpf ) {
 
   bool ack = false;
 
-  mpuConfiguration.write ( 0x7F, 0x20 );
+  icmSelectBank(0x20); // user bank 2
 
   delay ( 20 );
 
