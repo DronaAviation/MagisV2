@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-v3.0.0-beta                                               #
  #  File: \src\main\API-Src\Peripheral-PWM.cpp                                 #
  #  Created Date: Tue, 2nd Sep 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 11th Oct 2025                                          #
+ #  Last Modified: Thu, 18th Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -103,15 +103,29 @@ void Peripheral_Init ( peripheral_pwm_pin_e _pin, uint16_t pwmRate ) {
 }
 
 void Peripheral_Write ( peripheral_pwm_pin_e _pwm_pin, uint16_t _pwm_value ) {
-  // Constrain the PWM value to be within the 500–2500 range
-  _pwm_value = constrain ( _pwm_value, 500, 2500 );
+  // Constrain the PWM value to be within the 0–100 range for input processing
+  _pwm_value = constrain ( _pwm_value, 0, 100 );
 
-  // Use the enum value directly as an index for arrays
+  // Map the constrained PWM value from a range of 0–100 to 0–20000
+  _pwm_value = map_i32 ( _pwm_value, 0, 100, 0, 20000 );
+
+  // Use the enum value directly as an index for accessing the PWM array
   uint8_t idx = _pwm_pin;
 
-  // Check if the index is valid and the PWM channel has been initialized
+  // Check if the index is valid (less than 10) and the PWM channel has been initialized
   if ( idx < 10 && isPwmInit [ idx ] ) {
-    // Set the CCR register of the PWM channel to the constrained PWM value
+    // Set the CCR (Capture/Compare Register) of the PWM channel to the mapped PWM value
     *pwm [ idx ]->ccr = _pwm_value;
   }
+}
+
+void Servo_Write(peripheral_pwm_pin_e _pwm_pin, uint16_t _pwm_value) {
+  // Constrain the PWM value to be within the 1000–2000 range for servo control
+  _pwm_value = constrain(_pwm_value, 1000, 2000);
+
+  // Map the constrained PWM value from a range of 1000–2000 to 5%–10% duty cycle
+  _pwm_value = map_i32(_pwm_value, 1000, 2000, 5, 10);
+
+  // Call Peripheral_Write with the mapped PWM value and specified pin
+  Peripheral_Write(_pwm_pin, _pwm_value);
 }

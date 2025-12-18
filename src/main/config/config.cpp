@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-v3.0.0-beta                                               #
  #  File: \src\main\config\config.cpp                                          #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Wed, 17th Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -81,7 +81,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */ 18000    //! NEW - 36000 old value related to motor  try 32000
+#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */ 20000    //! NEW - 36000 old value related to motor  try 32000
 #define BRUSHLESS_MOTORS_PWM_RATE 400
 
 #ifdef __cplusplus
