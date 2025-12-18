@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
  #  File: \src\main\target\PRIMUSX2\target.h                                   #
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 20th Aug 2025                                          #
+ #  Last Modified: Thu, 13th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -128,7 +128,7 @@ extern "C" {
 #define USE_SPI_DEVICE_2
 #define SPI2_GPIO            GPIOB
 #define SPI2_GPIO_PERIPHERAL RCC_AHBPeriph_GPIOB
-#define SPI2_NSS_PIN         GPIO_Pin_5
+#define SPI2_NSS_PIN         GPIO_Pin_12
 #define SPI2_NSS_PIN_SOURCE  GPIO_PinSource5
 #define SPI2_SCK_PIN         GPIO_Pin_13
 #define SPI2_SCK_PIN_SOURCE  GPIO_PinSource13

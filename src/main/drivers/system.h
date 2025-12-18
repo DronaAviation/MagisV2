@@ -1,67 +1,72 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\drivers\system.h                                           #
+ #  Created Date: Mon, 6th Oct 2025                                            #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Thu, 27th Nov 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 #pragma once
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
-void systemInit(void);
-void delayMicroseconds(uint32_t us);
-void delay(uint32_t ms);
+void systemInit ( void );
+void delayMicroseconds ( uint32_t us );
+void delay ( uint32_t ms );
 
-uint32_t micros(void);
-uint32_t millis(void);
+uint32_t micros ( void );
+uint32_t millis ( void );
 
 #ifdef TEST_ENABLE
 // failure
-void failureMode(uint8_t mode);
+void failureMode ( uint16_t mode );
 #endif
 
 // bootloader/IAP
-void systemReset(void);
-void systemResetToBootloader(void);
-bool isMPUSoftReset(void);
+void systemReset ( void );
+void systemResetToBootloader ( void );
+bool isMPUSoftReset ( void );
 
-void enableGPIOPowerUsageAndNoiseReductions(void);
+void enableGPIOPowerUsageAndNoiseReductions ( void );
 // current crystal frequency - 8 or 12MHz
 extern uint32_t hse_value;
 
-typedef void extiCallbackHandlerFunc(void);
+typedef void extiCallbackHandlerFunc ( void );
 
-void registerExtiCallbackHandler(IRQn_Type irqn, extiCallbackHandlerFunc *fn);
-void unregisterExtiCallbackHandler(IRQn_Type irqn, extiCallbackHandlerFunc *fn);
+void registerExtiCallbackHandler ( IRQn_Type irqn, extiCallbackHandlerFunc *fn );
+void unregisterExtiCallbackHandler ( IRQn_Type irqn, extiCallbackHandlerFunc *fn );
 
 extern uint32_t cachedRccCsrValue;
 
-typedef enum {                 //DD
-    FAILURE_DEVELOPER = 0,
-    FAILURE_MISSING_ACC,
-    //FAILURE_ACC_INIT,
-    FAILURE_ACC_INCOMPATIBLE,
-    FAILURE_INVALID_EEPROM_CONTENTS,
-    FAILURE_FLASH_WRITE_FAILED,
-    //FAILURE_GYRO_INIT_FAILED
-    FAILURE_BARO,
-    FAILURE_EXTCLCK
+typedef enum {    // DD
+  FAILURE_DEVELOPER = 0,
+  FAILURE_MISSING_ACC,
+  // FAILURE_ACC_INIT,
+  FAILURE_ACC_INCOMPATIBLE,
+  FAILURE_INVALID_EEPROM_CONTENTS,
+  FAILURE_FLASH_WRITE_FAILED,
+  // FAILURE_GYRO_INIT_FAILED
+  FAILURE_BARO,
+  FAILURE_EXTCLCK,
+  FAILURE_INA219,
+  FAILURE_BARO_DRIFT,
+  FAILURE_PAW3903,
+  FAILURE_VL53L1X
 } failureMode_e;
-extern uint8_t failureFlag;
+
+extern uint16_t failureFlag;
 
 #ifdef __cplusplus
 }
-#endif 
+#endif

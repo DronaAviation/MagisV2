@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
  #  File: \src\main\target\PRIMUS_X2_v1\target.h                               #
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Thu, 13th Nov 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -128,7 +128,7 @@ extern "C" {
 #define USE_SPI_DEVICE_2
 #define SPI2_GPIO            GPIOB
 #define SPI2_GPIO_PERIPHERAL RCC_AHBPeriph_GPIOB
-#define SPI2_NSS_PIN         GPIO_Pin_5
+#define SPI2_NSS_PIN         GPIO_Pin_12
 #define SPI2_NSS_PIN_SOURCE  GPIO_PinSource5
 #define SPI2_SCK_PIN         GPIO_Pin_13
 #define SPI2_SCK_PIN_SOURCE  GPIO_PinSource13
@@ -177,8 +177,11 @@ extern "C" {
 
 #define DCM
 // #define OPTIC_FLOW
+#define PAW3903_SPI
+// #define PAW3903_SC18
 
 // #define LASER_TOF // only to get laser height
+// #define LASER_TOF_L1x // only to get laser height
 // #define LASER_ALT // to integrate with althold
 
 #define FLIGHT_STATUS_INDICATOR

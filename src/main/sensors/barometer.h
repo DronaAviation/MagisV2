@@ -19,50 +19,50 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 typedef enum {
-    BARO_DEFAULT = 0,
-    BARO_NONE = 1,
-    BARO_BMP085 = 2,
-    BARO_MS5611 = 3,
-    BARO_BMP280 = 4,
-    BARO_ICP10111=5
+  BARO_DEFAULT  = 0,
+  BARO_NONE     = 1,
+  BARO_BMP085   = 2,
+  BARO_MS5611   = 3,
+  BARO_BMP280   = 4,
+  BARO_ICP10111 = 5
 } baroSensor_e;
 
-#define BARO_SAMPLE_COUNT_MAX   48
-#define BARO_MAX BARO_MS5611
+#define BARO_SAMPLE_COUNT_MAX 48
+#define BARO_MAX              BARO_MS5611
 
 typedef struct barometerConfig_s {
-        uint8_t baro_sample_count;              // size of baro filter array
-        float baro_noise_lpf;                   // additional LPF to reduce baro noise
-        float baro_cf_vel; // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity)
-        float baro_cf_alt;                      // apply CF to use ACC for height estimation
+  uint8_t baro_sample_count;    // size of baro filter array
+  float baro_noise_lpf;         // additional LPF to reduce baro noise
+  float baro_cf_vel;            // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity)
+  float baro_cf_alt;            // apply CF to use ACC for height estimation
 } barometerConfig_t;
 
-//int32_t baroTemperature;             // Use temperature for telemetry
-//int32_t baroPressure;
+// extern float baroTemperature;    // Use temperature for telemetry
+// extern float baroPressure;
 
 extern float baroGroundPressure;
 extern float baroGroundTemperature;
 extern float BaroAlt;
 
 #ifdef BARO
-void useBarometerConfig(barometerConfig_t *barometerConfigToUse);
-bool isBaroCalibrationComplete(void);
-void baroSetCalibrationCycles(uint16_t calibrationCyclesRequired);
-void baroUpdate(uint32_t currentTime);
-void baroInit(void);
-bool isBaroReady(void);
-float baroCalculateAltitude(void);
-float getBaroPressure(void);
-float getBaroTemperature(void);
-uint32_t getBaroLastUpdate(void);
-void performBaroCalibrationCycle(void);
-void baroCalibrate(void);
+void useBarometerConfig ( barometerConfig_t *barometerConfigToUse );
+bool isBaroCalibrationComplete ( void );
+void baroSetCalibrationCycles ( uint16_t calibrationCyclesRequired );
+void baroUpdate ( uint32_t currentTime );
+void baroInit ( void );
+bool isBaroReady ( void );
+float baroCalculateAltitude ( void );
+float getBaroPressure ( void );
+float getBaroTemperature ( void );
+uint32_t getBaroLastUpdate ( void );
+void performBaroCalibrationCycle ( void );
+void baroCalibrate ( void );
 // Add this declaration with other barometer function declarations
-void baroResetGroundLevel(void);
-bool checkBaroDriftDuringStartup(void);
+void baroResetGroundLevel ( void );
+bool checkBaroDriftDuringStartup ( void );
 
 #endif
 

@@ -95,7 +95,7 @@ bool isBaroReady ( void ) {
 }
 
 void icp10111BaroInit ( void ) {
-  baro.measurment_start ( VERY_ACCURATE );
+  baro.measurment_start ( NORMAL );
 }
 
 void baroInit ( void ) {
@@ -249,18 +249,18 @@ void apmBaroRead ( uint32_t currentTime ) {
 void icp10111BaroUpdate ( uint32_t currentTime ) {
 
   uint32_t ctime = currentTime / 1000;
-  
+
   // Ensure a measurement is always running
   static bool measurementStarted = false;
-  if (!measurementStarted) {
-      baro.measurment_start(VERY_ACCURATE);
-      measurementStarted = true;
+  if ( ! measurementStarted ) {
+    baro.measurment_start ( NORMAL );
+    measurementStarted = true;
   }
 
-  if (baro.read(ctime, &baroPressure, &baroTemperature)) {
-      _last_update = millis();
-      // Start the next measurement immediately after successful read
-      baro.measurment_start(VERY_ACCURATE);
+  if ( baro.read ( ctime, &baroPressure, &baroTemperature ) ) {
+    _last_update = millis ( );
+    // Start the next measurement immediately after successful read
+    baro.measurment_start ( NORMAL );
   }
 }
 
@@ -285,9 +285,7 @@ float getBaroPressure ( )
 }
 
 float getBaroTemperature ( )
-
 {
-
   return baroTemperature;
 }
 
@@ -469,59 +467,59 @@ void baroCalibrate ( void ) {
   #endif
 }
 // Add this function near the existing baroCalibrate() function
-void baroResetGroundLevel(void) {
-    // Quick ground level reset (single reading)
-    baroGroundPressure = getBaroPressure();
-    baroGroundTemperature = getBaroTemperature();
+void baroResetGroundLevel ( void ) {
+  // Quick ground level reset (single reading)
+  baroGroundPressure    = getBaroPressure ( );
+  baroGroundTemperature = getBaroTemperature ( );
 }
-//Note if you want to use the function below add #define BARO before #include "sensors/barometer.h"
-// Checks if barometer has excessive drift during startup, returns true if drift exceeds threshold
-bool checkBaroDriftDuringStartup(void) {
-    static float baroReferenceAltitude = 0.0f; // Reference altitude used as baseline for drift calculations
-    const uint8_t numReadings = 15;            // Number of readings to collect for each drift calculation
-    const float DRIFT_THRESHOLD = 20.0f;       // Maximum allowed drift in centimeters (20 cm threshold)
+// Note if you want to use the function below add #define BARO before #include "sensors/barometer.h"
+//  Checks if barometer has excessive drift during startup, returns true if drift exceeds threshold
+bool checkBaroDriftDuringStartup ( void ) {
+  static float baroReferenceAltitude = 0.0f;     // Reference altitude used as baseline for drift calculations
+  const uint8_t numReadings          = 15;       // Number of readings to collect for each drift calculation
+  const float DRIFT_THRESHOLD        = 20.0f;    // Maximum allowed drift in centimeters (20 cm threshold)
 
-    static float readings[15];                 // Array to store barometer readings for analysis
-    static uint8_t index = 0;                  // Current position in the readings array
-    static uint8_t initialized = 0;            // Flag to track if reference altitude is established
+  static float readings [ 15 ];      // Array to store barometer readings for analysis
+  static uint8_t index       = 0;    // Current position in the readings array
+  static uint8_t initialized = 0;    // Flag to track if reference altitude is established
 
-    float currentAltitude = icp10111BaroCalculateAltitude(); // Get current barometer altitude reading
-    static bool firstCall = true;              // Flag to identify first execution of this function
+  float currentAltitude = icp10111BaroCalculateAltitude ( );    // Get current barometer altitude reading
+  static bool firstCall = true;                                 // Flag to identify first execution of this function
 
-    if (firstCall) {                           // Special handling for first function call
-        baroReferenceAltitude = currentAltitude; // Set reference to first reading
-        firstCall = false;                     // Clear first-call flag to prevent re-entry
-        return false;                          // No drift detected during first call
+  if ( firstCall ) {                            // Special handling for first function call
+    baroReferenceAltitude = currentAltitude;    // Set reference to first reading
+    firstCall             = false;              // Clear first-call flag to prevent re-entry
+    return false;                               // No drift detected during first call
+  }
+
+  if ( ! initialized ) {                       // Initialization phase - collect readings for reference
+    readings [ index++ ] = currentAltitude;    // Store reading and increment index
+    if ( index >= numReadings ) {              // Check if we've collected enough readings
+      float sum = 0.0f;                        // Calculate sum of all collected readings
+      for ( uint8_t i = 0; i < numReadings; ++i ) {
+        sum += readings [ i ];
+      }
+      baroReferenceAltitude = sum / numReadings;    // Set reference to average of readings
+      initialized           = 1;                    // Mark initialization as complete
+      index                 = 0;                    // Reset index for drift analysis
     }
-    
-    if (!initialized) {                        // Initialization phase - collect readings for reference
-        readings[index++] = currentAltitude;   // Store reading and increment index
-        if (index >= numReadings) {            // Check if we've collected enough readings
-            float sum = 0.0f;                  // Calculate sum of all collected readings
-            for (uint8_t i = 0; i < numReadings; ++i) {
-                sum += readings[i];
-            }
-            baroReferenceAltitude = sum / numReadings; // Set reference to average of readings
-            initialized = 1;                   // Mark initialization as complete
-            index = 0;                         // Reset index for drift analysis
-        }
-        return false;                          // No drift during initialization
+    return false;    // No drift during initialization
+  }
+
+  readings [ index++ ] = currentAltitude;    // Store new reading in array for monitoring
+  if ( index >= numReadings ) {              // Check if we have enough readings for analysis
+    float maxDrift = 0.0f;                   // Track maximum deviation from reference
+    for ( uint8_t i = 0; i < numReadings; ++i ) {
+      float drift = fabsf ( readings [ i ] - baroReferenceAltitude );    // Calculate deviation
+      if ( drift > maxDrift ) {
+        maxDrift = drift;    // Update maximum if this reading has larger deviation
+      }
     }
-    
-    readings[index++] = currentAltitude;       // Store new reading in array for monitoring
-    if (index >= numReadings) {                // Check if we have enough readings for analysis
-        float maxDrift = 0.0f;                 // Track maximum deviation from reference
-        for (uint8_t i = 0; i < numReadings; ++i) {
-            float drift = fabsf(readings[i] - baroReferenceAltitude); // Calculate deviation
-            if (drift > maxDrift) {
-                maxDrift = drift;              // Update maximum if this reading has larger deviation
-            }
-        }
-        
-        index = 0;                             // Reset index for next batch
-        return (maxDrift > DRIFT_THRESHOLD);   // Return true if drift exceeds threshold
-    }
-    
-    return false;                              // Not enough readings collected yet
+
+    index = 0;                                // Reset index for next batch
+    return ( maxDrift > DRIFT_THRESHOLD );    // Return true if drift exceeds threshold
+  }
+
+  return false;    // Not enough readings collected yet
 }
 #endif /* BARO */

@@ -30,7 +30,7 @@
 #include "build_config.h"
 
 #include "API/RxConfig.h"
-#include "API/PlutoPilot.h"
+#include "PlutoPilot.h"
 
 #include "common/color.h"
 #include "common/axis.h"

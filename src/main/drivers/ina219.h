@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th Aug 2025                                           #
+ #  Last Modified: Mon, 6th Oct 2025                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -38,29 +38,29 @@ extern "C" {
 #define INA219_CONFIG_RST_0       ( 0 << 15 )
 #define INA219_CONFIG_RST_1       ( 1 << 15 )
 
-#define INA219_CONFIG_BRNG_16V    ( 0 << 13 )     //< Bus voltage range 16V
-#define INA219_CONFIG_BRNG_32V    ( 1 << 13 )     //< Bus voltage range 32V
+#define INA219_CONFIG_BRNG_16V    ( 0 << 13 )    //< Bus voltage range 16V
+#define INA219_CONFIG_BRNG_32V    ( 1 << 13 )    //< Bus voltage range 32V
 
-#define INA219_CONFIG_GAIN_1      ( 0 << 11 )     //< ±40 mV
-#define INA219_CONFIG_GAIN_2      ( 1 << 11 )     //< ±80 mV
-#define INA219_CONFIG_GAIN_4      ( 2 << 11 )     //< ±160 mV
-#define INA219_CONFIG_GAIN_8      ( 3 << 11 )     //< ±320 mV
+#define INA219_CONFIG_GAIN_1      ( 0 << 11 )    //< ±40 mV
+#define INA219_CONFIG_GAIN_2      ( 1 << 11 )    //< ±80 mV
+#define INA219_CONFIG_GAIN_4      ( 2 << 11 )    //< ±160 mV
+#define INA219_CONFIG_GAIN_8      ( 3 << 11 )    //< ±320 mV
 
 #define INA219_CONFIG_BADC( adc ) ( adc << 7 )    //< Bus ADC mask and shift
 
 #define INA219_CONFIG_SADC( adc ) ( adc << 3 )    //< Shunt ADC mask and shift
 
-#define INA219_CONFIG_xADC_9B     0               //< 9 bit
-#define INA219_CONFIG_xADC_10B    1               //< 10 bit
-#define INA219_CONFIG_xADC_11B    2               //< 11 bit
-#define INA219_CONFIG_xADC_12B    3               //< 12 bit
-#define INA219_CONFIG_xADC_2S     9               //< 2 samples
-#define INA219_CONFIG_xADC_4S     10              //< 4 samples
-#define INA219_CONFIG_xADC_8S     11              //< 8 samples
-#define INA219_CONFIG_xADC_16S    12              //< 16 samples
-#define INA219_CONFIG_xADC_32S    13              //< 32 samples
-#define INA219_CONFIG_xADC_64S    14              //< 64 samples
-#define INA219_CONFIG_xADC_128S   15              //< 128 samples
+#define INA219_CONFIG_xADC_9B     0     //< 9 bit
+#define INA219_CONFIG_xADC_10B    1     //< 10 bit
+#define INA219_CONFIG_xADC_11B    2     //< 11 bit
+#define INA219_CONFIG_xADC_12B    3     //< 12 bit
+#define INA219_CONFIG_xADC_2S     9     //< 2 samples
+#define INA219_CONFIG_xADC_4S     10    //< 4 samples
+#define INA219_CONFIG_xADC_8S     11    //< 8 samples
+#define INA219_CONFIG_xADC_16S    12    //< 16 samples
+#define INA219_CONFIG_xADC_32S    13    //< 32 samples
+#define INA219_CONFIG_xADC_64S    14    //< 64 samples
+#define INA219_CONFIG_xADC_128S   15    //< 128 samples
 
 //< Operating Mode
 #define INA219_CONFIG_MODE( mode )       ( mode << 0 )    //< Config mode mask and shift
@@ -119,7 +119,7 @@ extern "C" {
 //   bool available;        //< Successful conversion
 // };
 
-void INA219_Init ( void );
+bool INA219_Init ( void );
 
 uint16_t bus_voltage ( void );
 
