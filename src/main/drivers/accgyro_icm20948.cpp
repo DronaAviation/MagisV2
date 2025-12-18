@@ -82,6 +82,7 @@ void icm20948GyroInit ( uint16_t lpf ) {
 
   bool ack = false;
 
+   mpuConfiguration.write ( 0x7F, 0x20 );
   icmSelectBank(0x20); // user bank 2
 
   delay ( 20 );
