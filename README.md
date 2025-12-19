@@ -6,7 +6,7 @@ This API sits between the low-level OLED driver and user firmware, enforcing cle
 
 ---
 
-## Key Design Goals
+## Key Design Goals 
 
 * Clear separation between **SYSTEM** and **USER** rendering
 * Non-blocking, deterministic execution
