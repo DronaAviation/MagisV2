@@ -287,6 +287,7 @@ DRONA_API =	API/Specifiers.cpp \
 						API-Src/Motor.cpp \
 						API-Src/API-Utils.cpp \
 						API-Src/RxConfig.cpp \
+						API-Src/Oled.cpp \
 						API-Src/Localisation.cpp \
 
 DRONA_SRC = $(DRONA_FLIGHT) \

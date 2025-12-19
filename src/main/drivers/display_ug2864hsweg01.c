@@ -197,6 +197,9 @@ void i2c_OLED_clear_display ( void ) {
   i2c_OLED_send_cmd ( 0xaf );                // display on
 }
 
+
+
+
 void i2c_OLED_clear_display_quick ( void ) {
   i2c_OLED_send_cmd ( 0xb0 );                // set page address to 0
   i2c_OLED_send_cmd ( 0x40 );                // Display start line register to 0
@@ -238,6 +241,140 @@ void i2c_OLED_send_string ( const char *string ) {
   }
 }
 
+static inline uint8_t bitreverse8(uint8_t x)
+{
+    x = (x >> 4) | (x << 4);
+    x = ((x & 0xCC) >> 2) | ((x & 0x33) << 2);
+    x = ((x & 0xAA) >> 1) | ((x & 0x55) << 1);
+    return x;
+}
+
+//
+void i2c_OLED_draw_bitmap(
+    uint8_t x,
+    uint8_t y,
+    const uint8_t *bitmap,
+    uint8_t width,
+    uint8_t height
+) {
+    if (!bitmap) return;
+    if (height % 8 != 0) return;
+    if (x >= 128 || y >= 64) return;
+
+    uint8_t pages = height >> 3;
+    uint8_t startPage = y >> 3;
+
+    if (startPage + pages > 8) return;
+
+    for (uint8_t page = 0; page < pages; page++) {
+
+        uint8_t pageCmd = (uint8_t)(0xB0u + startPage + page);
+        i2c_OLED_send_cmd(pageCmd);
+
+        i2c_OLED_send_cmd((uint8_t)(0x00u + (x & 0x0F)));
+        i2c_OLED_send_cmd((uint8_t)(0x10u + ((x >> 4) & 0x0F)));
+
+        const uint8_t *row = bitmap + (page * width);
+        for (uint8_t col = 0; col < width; col++) {
+            i2c_OLED_send_byte(bitreverse8(row[col]));
+
+
+        }
+    }
+}
+
+
+void i2c_OLED_draw_rect(
+    uint8_t x,
+    uint8_t y,
+    uint8_t w,
+    uint8_t h
+) {
+    if (x >= 128 || y >= 64) return;
+    if (w == 0 || h == 0) return;
+
+    // Align height to pages
+    uint8_t startPage = y >> 3;
+    uint8_t pages = h >> 3;
+    if (h % 8) pages++;   // round up
+
+    // ── Top horizontal line
+    i2c_OLED_send_cmd(0xB0 + startPage);
+    i2c_OLED_send_cmd(0x00 + (x & 0x0F));
+    i2c_OLED_send_cmd(0x10 + (x >> 4));
+    for (uint8_t i = 0; i < w; i++) {
+        i2c_OLED_send_byte(0xFF);
+    }
+
+    // ── Bottom horizontal line
+    uint8_t bottomPage = startPage + pages - 1;
+    if (bottomPage < 8) {
+        i2c_OLED_send_cmd(0xB0 + bottomPage);
+        i2c_OLED_send_cmd(0x00 + (x & 0x0F));
+        i2c_OLED_send_cmd(0x10 + (x >> 4));
+        for (uint8_t i = 0; i < w; i++) {
+            i2c_OLED_send_byte(0xFF);
+        }
+    }
+
+    // ── Vertical lines (page-aligned = SOLID)
+    for (uint8_t p = startPage; p <= bottomPage && p < 8; p++) {
+
+        // Left
+        i2c_OLED_send_cmd(0xB0 + p);
+        i2c_OLED_send_cmd(0x00 + (x & 0x0F));
+        i2c_OLED_send_cmd(0x10 + (x >> 4));
+        i2c_OLED_send_byte(0xFF);
+
+        // Right
+        uint8_t xr = x + w - 1;
+        if (xr < 128) {
+            i2c_OLED_send_cmd(0x00 + (xr & 0x0F));
+            i2c_OLED_send_cmd(0x10 + (xr >> 4));
+            i2c_OLED_send_byte(0xFF);
+        }
+    }
+}
+
+
+//
+
+
+
+void i2c_OLED_send_data(uint8_t *data, uint16_t length)
+{
+    i2c_OLED_set_xy(0, 0); // Set starting cursor position to top-left
+
+    for (uint16_t i = 0; i < length; ++i) {
+        i2c_OLED_send_byte(data[i]); // Send each byte one-by-one
+    }
+}
+
+void i2c_OLED_send_changed_bytes(uint8_t* newBuf, uint8_t* oldBuf, int size) {
+  for (uint8_t page = 0; page < 8; page++) {
+    bool pageChanged = false;
+
+    // First check if any change occurred in this page
+    for (uint8_t col = 0; col < 128; col++) {
+      int idx = page * 128 + col;
+      if (newBuf[idx] != oldBuf[idx]) {
+        pageChanged = true;
+        break;
+      }
+    }
+
+    // If changes exist, send whole page
+    if (pageChanged) {
+      i2c_OLED_set_xy(0, page);  // Start of the page
+
+      for (uint8_t col = 0; col < 128; col++) {
+        int idx = page * 128 + col;
+        i2c_OLED_send_byte(newBuf[idx]);  // Send byte
+        oldBuf[idx] = newBuf[idx];        // Update shadow
+      }
+    }
+  }
+}
 /**
  * according to http://www.adafruit.com/datasheets/UG-2864HSWEG01.pdf Chapter 4.4 Page 15
  */

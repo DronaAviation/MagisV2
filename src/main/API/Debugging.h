@@ -15,8 +15,10 @@
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
- #  Date      	By	Comments                                                   #
- #  ----------	---	---------------------------------------------------------  #
+ #  Date         By                Comments                                    #
+ #  ----------   ----------------  ------------------------------------------  #
+ #  2025-09-XX   Omkar Dandekar     Remove Oled functions,check out            #
+                                    Oled.h / Oled.cpp                          #
 *******************************************************************************/
 
 #ifndef DEBUGGING_H
@@ -24,88 +26,72 @@
 
 #include <stdint.h>
 
+/* -------------------------------------------------------------------------- */
+/*  C / C++ compatibility                                                      */
+/* -------------------------------------------------------------------------- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* -------------------------------------------------------------------------- */
+/*  Monitor (Debug Serial) — C-safe APIs                                       */
+/* -------------------------------------------------------------------------- */
+
 /**
  * @brief Prints a message to the monitor.
  *
  * @param msg The null-terminated string to be printed.
  */
-void Monitor_Print ( const char *msg );
-
-/**
- * @brief Prints a tag followed by an integer number to the monitor.
- *
- * @param tag A descriptive label for the number.
- * @param number The integer value to be printed.
- */
-void Monitor_Print ( const char *tag, int number );
-
-/**
- * @brief Prints a tag followed by a double number with specified precision to the monitor.
- *
- * @param tag A descriptive label for the number.
- * @param number The double value to be printed.
- * @param precision The number of decimal places for the double value.
- */
-void Monitor_Print ( const char *tag, double number, uint8_t precision );
+void Monitor_Print(const char *msg);
 
 /**
  * @brief Prints a message followed by a new line to the monitor.
  *
  * @param msg The null-terminated string to be printed.
  */
-void Monitor_Println ( const char *msg );
-
-/**
- * @brief Prints a tag and an integer number followed by a new line to the monitor.
- *
- * @param tag A descriptive label for the number.
- * @param number The integer value to be printed.
- */
-void Monitor_Println ( const char *tag, int number );
-
-/**
- * @brief Prints a tag and a double number with specified precision followed by a new line to the monitor.
- *
- * @param tag A descriptive label for the number.
- * @param number The double value to be printed.
- * @param precision The number of decimal places for the double value.
- */
-void Monitor_Println ( const char *tag, double number, uint8_t precision );
-
-/**
- * @brief Initializes the OLED display for use.
- */
-void Oled_Init ( void );
-
-/**
- * @brief Clears the OLED display.
- */
-void Oled_Clear ( void );
-
-/**
- * @brief Prints a string at specified column and row on the OLED display.
- *
- * @param col The column position starting from 0.
- * @param row The row position starting from 0.
- * @param string The null-terminated string to be displayed.
- */
-void Oled_Print ( uint8_t col, uint8_t row, const char *string );
+void Monitor_Println(const char *msg);
+ 
 
 #ifdef BLACKBOX
 /**
  * @brief Associates a variable name with a reference to an integer,
  *        using the Black Box mechanism.
  *
- * This function sets a user-defined field in the Black Box by linking
- * the provided variable name with a reference to an integer value.
- * This can be useful for tracking or logging purposes.
- *
- * @param varName A pointer to a null-terminated string representing
- *                the name of the variable to be set in the Black Box.
- * @param reference A reference to the integer value that will be
- *                  associated with the variable name in the Black Box.
+ * @param varName A pointer to a null-terminated string.
+ * @param reference Integer reference to expose to BlackBox.
  */
-void BlackBox_setVar ( char *varName, int32_t &reference );
+void BlackBox_setVar(char *varName, int32_t &reference);
 #endif
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
+
+/* -------------------------------------------------------------------------- */
+/*  C++ ONLY Monitor overloads                                                 */
+/* -------------------------------------------------------------------------- */
+#ifdef __cplusplus
+
+/**
+ * @brief Prints a tag followed by an integer number to the monitor.
+ */
+void Monitor_Print(const char *tag, int number);
+
+/**
+ * @brief Prints a tag followed by a double number with precision.
+ */
+void Monitor_Print(const char *tag, double number, uint8_t precision);
+
+/**
+ * @brief Prints a tag and integer followed by a new line.
+ */
+void Monitor_Println(const char *tag, int number);
+
+/**
+ * @brief Prints a tag and double followed by a new line.
+ */
+void Monitor_Println(const char *tag, double number, uint8_t precision);
+
+#endif /* __cplusplus */
+
+#endif /* DEBUGGING_H */

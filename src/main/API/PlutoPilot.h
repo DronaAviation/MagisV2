@@ -34,6 +34,8 @@
 #include "API/Scheduler-Timer.h"
 #include "API/Debugging.h"
 #include "API/Serial-IO.h"
+#include "API/Oled.h"
+#include "string.h"
 
 void plutoRxConfig ( void );
 

@@ -4,7 +4,7 @@
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
  #  Project: io                                                                #
- #  File: \ssd1306.c                                                           #
+ #  File:oled_display.c                                                        #
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
@@ -14,6 +14,12 @@
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ 2025-09-XX   Omkar Dandekar     Introduced OLED ownership control via         #
+ #                                 oledMode (SYSTEM / USER). System rendering  # 
+ #                                 is now disabled when OLED is owned by user  #
+ #                                 code, enabling safe custom UI, graphics,    #
+ #                                 and PlutoBlocks-based OLED usage without    #
+ #                                 interfering with flight telemetry.          # 
 *******************************************************************************/
 #include "oled_display.h"
 
@@ -41,7 +47,8 @@
 #include "io/rc_controls.h"
 
 #include "rx/rx.h"
-
+#include "API/Debugging.h"
+#include "API/Oled.h"
 #include "version.h"
 
 // Buffer for storing text to be displayed on the OLED
@@ -73,6 +80,7 @@ bool OledStartupPageEnd = false;    // Indicates if the startup page has ended
 // Blinking control variables
 int blink_at      = 2;    // Blink interval
 int blink_counter = 0;    // Counter for blinking logic
+
 
 /**
  * @brief Initializes the OLED display.
@@ -318,16 +326,18 @@ void OledDisplaySystemData ( void ) {
  * This function periodically updates the display with navigation and system data,
  * ensuring that the display refreshes at a set interval.
  */
-void OledDisplayData ( void ) {
-  if ( OledInitStatus ) {
-    // Check if enough time has passed since the last display update
-    if ( updatedMillis - OldOledDisplayDataMillis >= 200 ) {
-      // Display navigation-related information
-      OledDisplayNav ( );
-      // Display system data
-      OledDisplaySystemData ( );
-      // Update the last display update timestamp
-      OldOledDisplayDataMillis = updatedMillis;
+void OledDisplayData(void)
+{
+    if (!OledInitStatus) return;
+
+    //  User owns the OLED → system must not draw
+    if (oledMode == OLED_MODE_USER) {
+        return;
     }
-  }
+
+    if (updatedMillis - OldOledDisplayDataMillis >= 200) {
+        OledDisplayNav();
+        OledDisplaySystemData();
+        OldOledDisplayDataMillis = updatedMillis;
+    }
 }
