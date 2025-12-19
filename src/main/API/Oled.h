@@ -118,31 +118,18 @@ void Oled_SetMode_System(void);
  */
 void Oled_SetMode_User(void);
 
-/**
- * @brief Get the current OLED ownership mode.
- *
- * @return Current oled_mode_e value
- */
-oled_mode_e Oled_GetMode(void);
 
-/* ============================================================================
- * FRAMEBUFFER ACCESS
- * ============================================================================
- */
 
-/**
- * @brief Get pointer to the internal OLED framebuffer.
+/** 
+ * @brief Print a string at a specific column and row.
  *
- * Framebuffer properties:
- *  - Resolution : 128 x 64 pixels
- *  - Size       : 1024 bytes
- *  - Layout     : SSD1306 page-oriented memory
+ * Works only in SYSTEM mode.
  *
- * Intended for advanced users who want direct buffer access.
- *
- * @return Pointer to internal framebuffer
+ * @param col Column (0–20)
+ * @param row Row (1–6)
+ * @param string String to print
  */
-uint8_t* Oled_GetBuffer(void);
+void Oled_Print(uint8_t col, uint8_t row, const char *string);
 
 /* ============================================================================
  * DRAWING PRIMITIVES (FRAMEBUFFER)
@@ -225,6 +212,13 @@ typedef enum {
 
 /**
  * @brief Draw a directional arrow.
+ * @param buf   Framebuffer pointer
+ * @param cx    Center X coordinate
+ * @param cy    Center Y coordinate
+ * @param size  Size of the arrow (length of shaft)
+ * @param dir   Direction of the arrow
+ * @param on    true = draw arrow, false = erase arrow 
+ * 
  */
 void Oled_DrawArrow(
     uint8_t *buf,
@@ -234,11 +228,6 @@ void Oled_DrawArrow(
     oled_arrow_dir_t dir,
     bool on
 );
-
-/**
- * @brief Draw an X-shaped symbol.
- */
-void Oled_DrawX(uint8_t *buf, int cx, int cy, int size, bool on);
 
 /* ============================================================================
  * EYES / EXPRESSIVE SHAPES

@@ -564,6 +564,86 @@ void Oled_DrawXEye(uint8_t *buf, int cx, int cy, int size)
         true
     );
 }
+/* ============================================================================
+ * Draw eye
+ * ============================================================================
+ */
+void Oled_DrawEye(
+    uint8_t *buf,
+    int cx,
+    int cy,
+    int radius,
+    int pupilOffsetX,
+    int pupilOffsetY,
+    bool filled
+)
+{
+    if (filled) {
+        Oled_DrawEyeWithPupil(
+            buf, cx, cy, radius, pupilOffsetX, pupilOffsetY
+        );
+    } else {
+        Oled_DrawEyeOutlineWithPupil(
+            buf, cx, cy, radius, pupilOffsetX, pupilOffsetY
+        );
+    }
+}
+
+
+
+void Oled_DrawArrow(
+    uint8_t *buf,
+    int cx,
+    int cy,
+    int size,
+    oled_arrow_dir_t dir,
+    bool on
+)
+{
+    if (!buf || size <= 0) return;
+
+    int half = size / 2;
+    int head = size / 3;   // arrow head size
+
+    switch (dir)
+    {
+        case OLED_ARROW_UP:
+            // Shaft
+            Oled_DrawLine(buf, cx, cy + half, cx, cy - half, on);
+            // Head
+            Oled_DrawLine(buf, cx, cy - half, cx - head, cy - half + head, on);
+            Oled_DrawLine(buf, cx, cy - half, cx + head, cy - half + head, on);
+            break;
+
+        case OLED_ARROW_DOWN:
+            // Shaft
+            Oled_DrawLine(buf, cx, cy - half, cx, cy + half, on);
+            // Head
+            Oled_DrawLine(buf, cx, cy + half, cx - head, cy + half - head, on);
+            Oled_DrawLine(buf, cx, cy + half, cx + head, cy + half - head, on);
+            break;
+
+        case OLED_ARROW_LEFT:
+            // Shaft
+            Oled_DrawLine(buf, cx + half, cy, cx - half, cy, on);
+            // Head
+            Oled_DrawLine(buf, cx - half, cy, cx - half + head, cy - head, on);
+            Oled_DrawLine(buf, cx - half, cy, cx - half + head, cy + head, on);
+            break;
+
+        case OLED_ARROW_RIGHT:
+            // Shaft
+            Oled_DrawLine(buf, cx - half, cy, cx + half, cy, on);
+            // Head
+            Oled_DrawLine(buf, cx + half, cy, cx + half - head, cy - head, on);
+            Oled_DrawLine(buf, cx + half, cy, cx + half - head, cy + head, on);
+            break;
+
+        default:
+            break;
+    }
+}
+
 
 #ifdef __cplusplus
 }
