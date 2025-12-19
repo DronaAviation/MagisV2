@@ -69,11 +69,6 @@ Oled_Print(uint8_t col, uint8_t row, const char *text);
 * `row`: 1–6  (text row)
 * `text`: null-terminated string
 
-**Notes**
-
-* Ignored in USER mode
-* Out-of-range values are ignored silently
-
 ---
 
 ### Oled_Clear
@@ -264,18 +259,9 @@ void plutoLoop(void)
 
 ---
 
-## Rules & Guarantees
-
-* SYSTEM and USER rendering never conflict
-* Invalid calls fail silently (no crashes)
-* USER graphics require explicit `Oled_Update()`
-* Framebuffer must not be stack-allocated
-
 ---
 
 ## Intended Usage
 
 * SYSTEM mode → telemetry, debug, status UI
 * USER mode → animations, eyes, HUDs, visual demos
-
-This API is designed to be **stable, predictable, and safe** for both firmware and end-user creativity.
