@@ -1034,8 +1034,8 @@ static void loadMainState(void)
         blackboxCurrent->motor[i] = motor[i];
     }
 
-    blackboxCurrent->vbatLatest = vbatLatestADC;
-    blackboxCurrent->amperageLatest = amperageLatestADC;
+    // blackboxCurrent->vbatLatest = vbatLatestADC;
+    // blackboxCurrent->amperageLatest = amperageLatestADC;
 
 #ifdef MAG
     for (i = 0; i < XYZ_AXIS_COUNT; i++) {
@@ -1220,7 +1220,7 @@ static bool blackboxWriteSysinfo()
             if (testBlackboxCondition(FLIGHT_LOG_FIELD_CONDITION_VBAT)) {
                 blackboxPrintfHeaderLine("vbatscale:%u", masterConfig.batteryConfig.vbatscale);
             } else {
-                xmitState.headerIndex += 2; // Skip the next two vbat fields too
+                xmitState.headerIndex += 2; // Skip the next two vBatRaw fields too
             }
         break;
         case 10:

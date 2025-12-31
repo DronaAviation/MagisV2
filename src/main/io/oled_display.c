@@ -3,12 +3,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: io                                                                #
+ #  Project: MagisV2                                                           #
  #  File: \ssd1306.c                                                           #
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 27th Jan 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -113,7 +113,7 @@ void OledStartUpPage ( void ) {
  */
 void dispVoltage ( void ) {
   i2c_OLED_set_xy ( 16, 0 );
-  tfp_sprintf ( buffer, "| %d.%d", ( int ) ( vbat / 10 ), ( int ) ( vbat % 10 ) );    // Format voltage
+  tfp_sprintf ( buffer, "| %d.%d", ( int ) ( vBatRaw / 10 ), ( int ) ( vBatRaw % 10 ) );    // Format voltage
   i2c_OLED_send_string ( buffer );
 }
 

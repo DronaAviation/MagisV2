@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -2111,7 +2111,7 @@ static void cliStatus(char *cmdline)
     UNUSED(cmdline);
 
     // printf("System Uptime: %d seconds, Voltage: %d * 0.1V (%dS battery - %s)\r\n",
-    //     millis() / 1000, vbat, batteryCellCount, getBatteryStateString());
+    //     millis() / 1000, vBatRaw, batteryCellCount, getBatteryStateString());
 
 
     printf("CPU Clock=%dMHz", (SystemCoreClock / 1000000));

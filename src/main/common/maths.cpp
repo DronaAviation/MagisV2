@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-v3.0.0-beta                                               #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\common\maths.cpp                                           #
  #  Created Date: Fri, 7th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Dec 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -347,4 +347,42 @@ int32_t map_i32 ( int32_t x, int32_t in_min, int32_t in_max, int32_t out_min, in
 
   // Return the mapped value in the output range by adding the scaled value to out_min
   return ( int32_t ) ( out_min + ( num / den ) );
+}
+
+void ring_avg_u16_init ( ring_avg_u16_t *r, uint16_t *storage, uint16_t size ) {
+  r->buf   = storage;
+  r->sum   = 0;
+  r->size  = size;
+  r->head  = 0;
+  r->count = 0;
+
+  // optional: clear storage
+  for ( uint16_t i = 0; i < size; i++ ) storage [ i ] = 0;
+}
+
+static inline void ring_avg_u16_push ( ring_avg_u16_t *r, uint16_t sample ) {
+  if ( r->count == r->size ) {
+    // remove the sample being overwritten
+    r->sum -= r->buf [ r->head ];
+  } else {
+    r->count++;
+  }
+
+  r->buf [ r->head ] = sample;
+  r->sum += sample;
+
+  r->head++;
+  if ( r->head >= r->size ) r->head = 0;
+}
+
+uint16_t ring_avg_u16_get ( ring_avg_u16_t *r, uint16_t sample ) {
+  ring_avg_u16_push ( r, sample );
+  if ( r->count == 0 ) return 0;
+  return ( uint16_t ) ( r->sum / r->count );
+}
+void ring_avg_u16_reset ( ring_avg_u16_t *r ) {
+  r->sum   = 0;
+  r->head  = 0;
+  r->count = 0;
+  for ( uint16_t i = 0; i < r->size; i++ ) r->buf [ i ] = 0;
 }

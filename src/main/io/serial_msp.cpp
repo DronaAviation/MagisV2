@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -107,12 +107,6 @@ static serialPort_t *mspSerialPort;
 
 // uint16_t cycleTime; // FIXME dependency on mw.c
 extern uint16_t rssi;    // FIXME dependency on mw.c
-
-uint16_t debug_e11;
-extern uint16_t vbatLatestADC;    // adding to read adc
-extern int32_t amperage;
-extern int32_t mAhDrawn;
-extern int32_t mAhRemain;
 
 uint16_t fsIndicator;
 
@@ -298,7 +292,7 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 #define MSP_COMP_GPS                107    // out message         distance home, direction home
 #define MSP_ATTITUDE                108    // out message         2 angles 1 heading
 #define MSP_ALTITUDE                109    // out message         altitude, variometer
-#define MSP_ANALOG                  110    // out message         vbat, powermetersum, rssi if available on RX
+#define MSP_ANALOG                  110    // out message         vBatRaw, powermetersum, rssi if available on RX
 #define MSP_RC_TUNING               111    // out message         rc rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID
 #define MSP_PID                     112    // out message         P I D coeff (9 are used currently)
 #define MSP_BOX                     113    // out message         BOX setup (number is dependant of your setup)
@@ -889,6 +883,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       }
 
       headSerialReply ( 2 );
+      tempStatus = fsIndicator;
       serialize16 ( fsIndicator );
 
       break;
@@ -977,13 +972,13 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       break;
     case MSP_ANALOG:
       headSerialReply ( 7 );
-      serialize8 ( ( uint8_t ) constrain ( vbat, 0, 255 ) );
+      serialize8 ( ( uint8_t ) constrain ( ( vBatComp / 100 ), 0, 255 ) );
       serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );    // milliamp hours drawn from battery
       serialize16 ( rssi );
       if ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput ) {
-        serialize16 ( ( uint16_t ) constrain ( amperage * 10, 0, 0xFFFF ) );    // send amperage in 0.001 A steps. Negative range is truncated to zero
+        serialize16 ( ( uint16_t ) constrain ( mAmpRaw * 10, 0, 0xFFFF ) );    // send mAmpRaw in 0.001 A steps. Negative range is truncated to zero
       } else
-        serialize16 ( ( int16_t ) constrain ( amperage, -0x8000, 0x7FFF ) );    // send amperage in 0.01 A steps, range is -320A to 320A
+        serialize16 ( ( int16_t ) constrain ( mAmpRaw, -0x8000, 0x7FFF ) );    // send mAmpRaw in 0.01 A steps, range is -320A to 320A
       break;
     case MSP_ARMING_CONFIG:
       headSerialReply ( 2 );
@@ -1111,9 +1106,9 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( currentProfile->mag_declination / 10 );
 
       serialize8 ( masterConfig.batteryConfig.vbatscale );
-      serialize8 ( masterConfig.batteryConfig.vbatmincellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatmaxcellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatwarningcellvoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatMaxVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
       break;
 
     case MSP_MOTOR_PINS:
@@ -1207,9 +1202,9 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
     case MSP_VOLTAGE_METER_CONFIG:
       headSerialReply ( 4 );
       serialize8 ( masterConfig.batteryConfig.vbatscale );
-      serialize8 ( masterConfig.batteryConfig.vbatmincellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatmaxcellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatwarningcellvoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatMaxVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
       break;
 
     case MSP_CURRENT_METER_CONFIG:
@@ -1217,7 +1212,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( masterConfig.batteryConfig.currentMeterScale );
       serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
       serialize8 ( masterConfig.batteryConfig.currentMeterType );
-      serialize16 ( masterConfig.batteryConfig.batteryCapacity );
+      serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
       break;
 
     case MSP_MIXER:

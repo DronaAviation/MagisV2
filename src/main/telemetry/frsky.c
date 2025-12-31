@@ -371,9 +371,9 @@ static void sendVoltage(void)
      *  c: Cell number (starting at 0)
      *
      * The actual value sent for cell voltage has resolution of 0.002 volts
-     * Since vbat has resolution of 0.1 volts it has to be multiplied by 50
+     * Since vBatRaw has resolution of 0.1 volts it has to be multiplied by 50
      */
-    cellVoltage = ((uint32_t)vbat * 100 + batteryCellCount) / (batteryCellCount * 2);
+    cellVoltage = ((uint32_t)vBatRaw * 100 + batteryCellCount) / (batteryCellCount * 2);
 
     // Cell number is at bit 9-12
     payload = (currentCell << 4);
@@ -401,9 +401,9 @@ static void sendVoltageAmp(void)
          * Use new ID 0x39 to send voltage directly in 0.1 volts resolution
          */
         sendDataHead(ID_VOLTAGE_AMP);
-        serialize16(vbat);
+        serialize16(vBatRaw);
     } else {
-        uint16_t voltage = (vbat * 110) / 21;
+        uint16_t voltage = (vBatRaw * 110) / 21;
 
         sendDataHead(ID_VOLTAGE_AMP_BP);
         serialize16(voltage / 100);
@@ -415,7 +415,7 @@ static void sendVoltageAmp(void)
 static void sendAmperage(void)
 {
     sendDataHead(ID_CURRENT);
-    serialize16((uint16_t)(amperage / 10));
+    serialize16((uint16_t)(mAmpRaw / 10));
 }
 
 static void sendFuelLevel(void)

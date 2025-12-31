@@ -325,13 +325,13 @@ void handleSmartPortTelemetry(void)
 #endif
             case FSSP_DATAID_VFAS       :
                 if (feature(FEATURE_INA219_VBAT)) {
-                    smartPortSendPackage(id, vbat * 10); // given in 0.1V, convert to volts
+                    smartPortSendPackage(id, vBatRaw * 10); // given in 0.1V, convert to volts
                     smartPortHasRequest = 0;
                 }
                 break;
             case FSSP_DATAID_CURRENT    :
                 if (feature(FEATURE_INA219_CBAT)) {
-                    smartPortSendPackage(id, amperage / 10); // given in 10mA steps, unknown requested unit
+                    smartPortSendPackage(id, mAmpRaw / 10); // given in 10mA steps, unknown requested unit
                     smartPortHasRequest = 0;
                 }
                 break;

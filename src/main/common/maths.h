@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-v3.0.0-beta                                               #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\common\maths.h                                             #
  #  Created Date: Fri, 7th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Dec 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -134,6 +134,18 @@ float degrees ( float rad );
 bool is_positive ( float val );
 
 int32_t map_i32 ( int32_t x, int32_t in_min, int32_t in_max, int32_t out_min, int32_t out_max );
+
+typedef struct {
+  uint16_t *buf;     // storage provided by caller
+  uint32_t sum;      // use 32-bit to avoid overflow
+  uint16_t size;     // buffer length
+  uint16_t head;     // next write index
+  uint16_t count;    // valid samples (<= size)
+} ring_avg_u16_t;
+
+void ring_avg_u16_init ( ring_avg_u16_t *r, uint16_t *storage, uint16_t size );
+uint16_t ring_avg_u16_get ( ring_avg_u16_t *r, uint16_t sample );
+void ring_avg_u16_reset ( ring_avg_u16_t *r );
 
 #ifdef __cplusplus
 }

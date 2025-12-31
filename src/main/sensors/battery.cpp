@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 22nd Aug 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -42,195 +42,165 @@
 #include "flight/lowpass.h"
 #include "io/beeper.h"
 
-#define DEFAULT_BATTERY_CAP_mAH 600
-#define BATTERY_V_Max_mV        4200
-#define BATTERY_V_Warn_mV       3400
-#define BATTERY_V_Min_mV        3200
-
-// #include "drivers/ina219.h"
-
-// ---- Accumulator state ----
-static uint32_t last_ms     = 0;
-static uint64_t mA_ms_accum = 0;
-
-// Internal state
-static uint16_t samples [ BATTERY_BUFFER_SIZE ];    // Array to store voltage samples
-static uint32_t sum  = 0;                           // Sum of the samples
-static uint8_t head  = 0;                           // Index for circular buffer
-static uint8_t count = 0;                           // Number of valid samples
-
-static batteryState_e batteryState;
-
-#define VBATT_PRESENT_THRESHOLD_MV 10
-#define VBATT_LPF_FREQ             10
-
-#define VBATTERY_STABLE_DELAY      40
-#define VBATT_HYSTERESIS           100    // Batt Hysteresis of +/-100mV
-
-// Battery monitoring stuff
-uint8_t batteryCellCount = 1;    // cell count
-uint16_t batteryMaxVoltage;
-uint16_t batteryWarningVoltage;
-uint16_t batteryCriticalVoltage;
-uint16_t batteryCapacity;
-uint16_t EstBatteryCapacity;
-
-uint16_t vbat              = 0;    // battery voltage in 0.1V steps (filtered)
-uint16_t vbatscaled        = 0;
-uint16_t vbatLatestADC     = 0;    // most recent unsmoothed raw reading from vbat ADC
-uint16_t amperageLatestADC = 0;    // most recent raw reading from current ADC
-
-int32_t amperage;         // amperage read by current sensor in centiampere (1/100th A)
-int32_t mAhDrawn  = 0;    // milliampere hours drawn from the battery since start
-int32_t mAhRemain = 0;    // milliampere hours drawn from the battery since start
+#include "API/API-Utils.h"
 
 batteryConfig_t *batteryConfig;
 
-uint16_t battery_capacity_mAh = DEFAULT_BATTERY_CAP_mAH;
+ring_avg_u16_t vbatRawAvgRing;
+#define vBAT_RAW_BUFFER_SIZE 50
+static uint16_t vBatRawSamples [ vBAT_RAW_BUFFER_SIZE ];
 
-/**
- * @brief Retrieves the current state of the battery.
- *
- * This function returns the current battery state by accessing
- * an existing variable, `batteryState`, which is assumed to be
- * updated elsewhere in the program. The function does not perform
- * any calculations or updates to determine the battery state.
- *
- * @return The current state of the battery as a batteryState_e enum value.
- */
+ring_avg_u16_t vShuntRawAvgRing;
+#define vSHUNT_RAW_BUFFER_SIZE 50
+static uint16_t vShuntRawSamples [ vSHUNT_RAW_BUFFER_SIZE ];
+
+ring_avg_u16_t vbatSagAvgRing;
+#define vBAT_SAG_BUFFER_SIZE 20
+static uint16_t vBatCompSamples [ vBAT_SAG_BUFFER_SIZE ];
+
+ring_avg_u16_t mAhAvgRing;
+#define mAh_BUFFER_SIZE 10
+static uint16_t mAhSamples [ mAh_BUFFER_SIZE ];
+
+// uint16_t vbatscaled        = 0;
+// uint16_t vbatLatestADC     = 0;    // most recent unsmoothed raw reading from vBatRaw ADC
+// uint16_t amperageLatestADC = 0;    // most recent raw reading from current ADC
+
+// #define VBATT_LPF_FREQ             10
+
+// Function getBatteryState
+static batteryState_e batteryState;
+
+// Function batteryInit
+
+// Function handleBatteryConnected
+#define VBATTERY_STABLE_DELAY 40
+#define VBATT_HYSTERESIS      100    // Batt Hysteresis of +/-100mV
+
+uint16_t battery_capacity_mAh   = 0;
+uint8_t batteryCellCount        = 1;    // cell count
+uint16_t batteryMaxVoltage      = 0;
+uint16_t batteryWarningVoltage  = 0;
+uint16_t batteryCriticalVoltage = 0;
+uint16_t batteryCapacity_mAh    = 0;
+uint16_t EstBatteryCapacity     = 0;
+
+
+// Function handleBatteryDisconnected
+
+// Function updateINA219Voltage
+#define VBATT_PRESENT_THRESHOLD_MV 10
+uint16_t vBatRaw = 0;    // battery voltage in 0.1V steps (filtered)
+
+// Function ina219_auto_calibrate_current
+#define SYSTEM_R_MOHM           100.0f    // effective system resistance (battery + wiring + PCB)
+#define CURR_CAL_ALPHA          0.002f    // convergence speed (0.001–0.005 recommended)
+#define CURR_CAL_MIN_GAIN       0.95f
+#define CURR_CAL_MAX_GAIN       1.05f
+#define CURR_CAL_MIN_CURRENT_MA 1000    // only learn above this current
+#define CURR_CAL_MIN_SAG_MV     20      // ignore noise floor
+
+float _ina219_current_gain = 1.0f;
+
+// Function ProcessedINA219Current
+uint16_t vShuntRaw    = 0;
+uint16_t mAmpRaw      = 0;    // mAmpRaw read by current sensor in centiampere (1/100th A)
+uint16_t mAmpWithGain = 0;
+uint16_t mAhDrawn     = 0;    // milliampere hours drawn from the battery since start
+uint16_t mAhRemain    = 0;    // milliampere hours drawn from the battery since start
+
+// Function updateINA219Current
+static uint32_t last_ms     = 0;
+static uint64_t mA_ms_accum = 0;
+
+// Function computeVbatComp_mV
+#define VBAT_SAG_R_MOHM ( uint32_t ) SYSTEM_R_MOHM    // from your calc (~100 mΩ)
+#define VBAT_SAG_MAX_MV 700                           // clamp compensation
+
+#define VBAT_STALE_MS   200    // how old vBat can be to trust compensation
+#define IBAT_STALE_MS   200    // how old mAmpRaw can be to trust current-sag
+
+#define SAG_THR_MAX_MV  450    // throttle-only sag at full stick (fallback/assist)
+#define THR_MIN_US      1000
+#define THR_MAX_US      2000
+#define THR_IDLE_US     1150
+
+#define THR_ASSIST_PCT  20    // extra % throttle sag added when current is valid
+
+// Function soc_from_mAh
+
+// Function soc_linear_from_voltage
+
+// Function fuse_soc_vbatComp_smart
+float wAh = 0;
+
+// Function updateBatteryStateSoc
+#define SOC_WARN_PCT 18
+#define SOC_CRIT_PCT 8
+#define SOC_HYST_PCT 2
+
+uint8_t BatteryWarningMode = 0;
+
+// Function BMS_Update variables
+float soc_battery_percentage = 0;
+float soc_mAh_percentage     = 0;
+float soc_Fused              = 0;
+uint16_t vBatComp            = 0;
+
 batteryState_e getBatteryState ( void ) {
   // Return the current battery state stored in the variable 'batteryState'
   return batteryState;
 }
 
-const char *const batteryStateStrings [] = { "OK", "WARNING", "CRITICAL", "NOT PRESENT" };
-
 /**
- * @brief Initializes the battery configuration and state.
+ * @brief Initializes the battery configuration and related parameters.
  *
- * This function sets up the initial battery parameters and state based on the provided configuration.
- * It assumes a default single cell battery and initializes various voltage levels and capacity estimates to zero.
- * Additionally, it prepares the sample tracking system by clearing existing samples and resetting counters.
- * If the INA219 current sensor is enabled, it also initializes timing and current accumulation variables.
+ * This function sets up the battery configuration by assigning the provided initial configuration to the
+ * global battery configuration pointer. It initializes the battery state to indicate absence and prepares
+ * various averaging rings for voltage and current measurements, ensuring accurate monitoring of battery
+ * parameters.
  *
  * @param initialBatteryConfig Pointer to the initial battery configuration structure.
  */
 void batteryInit ( batteryConfig_t *initialBatteryConfig ) {
   // Assign the initial configuration to the global battery configuration pointer
-  batteryConfig = initialBatteryConfig;
+  batteryConfig        = initialBatteryConfig;
+  battery_capacity_mAh = batteryConfig->BatteryCapacity;
 
   // Initialize battery state and parameters
-  batteryState           = BATTERY_NOT_PRESENT;    // Set the initial state as battery not present
-  batteryCellCount       = 1;                      // Assume a single cell battery by default
-  batteryMaxVoltage      = 0;                      // Maximum voltage of the battery set to zero initially
-  batteryWarningVoltage  = 0;                      // Warning voltage level set to zero initially
-  batteryCriticalVoltage = 0;                      // Critical voltage level set to zero initially
-  EstBatteryCapacity     = 0;                      // Estimated battery capacity initialized to zero
+  batteryState = BATTERY_NOT_PRESENT;    // Set the initial state as battery not present
 
-  // Clear the samples array, setting all elements to zero using memset
-  memset ( samples, 0, sizeof ( samples ) );    // Use memset for efficient initialization of samples array
-
-  // Initialize the sum, head index, and sample count for tracking battery samples
-  sum   = 0;    // Sum of samples initialized to zero
-  head  = 0;    // Head index in circular buffer initialized to zero
-  count = 0;    // Sample count initialized to zero
-
-#ifdef INA219_Current
-  // If INA219 current sensor is used, initialize timing and accumulator variables
-  last_ms     = millis ( );    // Record the current time in milliseconds
-  mA_ms_accum = 0;             // Initialize milliamp-millisecond accumulator to zero
-#endif
+  ring_avg_u16_init ( &vbatRawAvgRing, vBatRawSamples, vBAT_RAW_BUFFER_SIZE );
+  ring_avg_u16_init ( &vShuntRawAvgRing, vShuntRawSamples, vSHUNT_RAW_BUFFER_SIZE );
+  ring_avg_u16_init ( &vbatSagAvgRing, vBatCompSamples, vBAT_SAG_BUFFER_SIZE );
+  ring_avg_u16_init ( &mAhAvgRing, mAhSamples, mAh_BUFFER_SIZE );
 }
 
 /**
- * @brief Updates the battery sample buffer and sum with a new ADC reading.
+ * @brief Handles the initialization and configuration of battery parameters upon connection.
  *
- * This function manages a circular buffer to store recent ADC readings for the battery,
- * updating the sum of these samples for further processing. It replaces the oldest value
- * in the buffer with the new reading, adjusts the sum accordingly, and updates the head
- * index to point to the next location in the buffer. The sample count is incremented until
- * it reaches the buffer's capacity.
- *
- * @param adc_reading The new ADC reading to be added to the sample buffer.
+ * This function sets the initial battery state to indicate that the battery is connected. It initializes
+ * various battery parameters, such as capacity, maximum voltage, and critical/warning voltage levels based
+ * on predefined configurations. The function also estimates the number of battery cells and calculates the
+ * estimated remaining battery capacity if the INA219_Current feature is enabled.
  */
-void UpdateINA219Battery ( uint16_t adc_reading ) {
-  sum -= samples [ head ];           // Remove the old value from the sum by subtracting the oldest sample at the current head position
-  samples [ head ] = adc_reading;    // Insert the new ADC reading into the samples array at the current head position
-  sum += adc_reading;                // Add the new ADC reading to the sum
-
-  head = ( head + 1 ) % BATTERY_BUFFER_SIZE;    // Increment the head index circularly, wrapping around using modulo operation to stay within buffer size
-
-  if ( count < BATTERY_BUFFER_SIZE ) {    // Check if the buffer is not yet full
-    count++;                              // Increment the count of valid samples in the buffer
-  }
-}
-
-/**
- * @brief Processes and returns the average INA219 bus voltage.
- *
- * This function updates the battery data with the current bus voltage reading
- * obtained from the INA219 sensor. It calculates the average voltage based on
- * the accumulated sum of readings and the count of valid samples. If no valid
- * samples are available, the function returns 0.
- *
- * @return uint16_t The average bus voltage as an unsigned 16-bit integer.
- */
-uint16_t ProcessedINA219Voltage ( void ) {
-  UpdateINA219Battery ( bus_voltage ( ) );    // Update the battery data with the current bus voltage reading
-
-  if ( count == 0 ) return 0;    // Return 0 if there are no valid samples in the buffer
-
-  return ( uint16_t ) ( sum / count );    // Calculate and return the average voltage as an unsigned 16-bit integer
-}
-
-/**
- * @brief Processes the current measurement from an INA219 sensor.
- *
- * This function calculates the current in milliamps based on the shunt voltage
- * measured by an INA219 sensor. It assumes no reverse or negative current is
- * present, clamping the result to a maximum of 65535 milliamps if necessary.
- *
- * @return The processed current value as an unsigned 16-bit integer (uint16_t).
- *         Returns 0 if the measured shunt voltage indicates a negative or zero current.
- */
-uint16_t ProcessedINA219Current ( void ) {
-  int16_t mV = shunt_voltage ( );    // Retrieve the shunt voltage in millivolts (signed value).
-
-  if ( mV <= 0 ) return 0;    // Return 0 if the current is negative or zero, as reverse/negative current is not considered.
-
-  // Calculate the current in milliamps using the formula: mA = mV × 1000 / R_mΩ.
-  amperage = ( uint32_t ) ( ( mV / 10.0f ) / INA219_SHUNT_RESISTOR_MILLIOHM );
-
-  if ( amperage > 0xFFFF ) amperage = 0x0;    // Clamp the calculated current to the maximum value of an unsigned 16-bit integer.
-
-  return ( uint16_t ) amperage;    // Return the calculated current as an unsigned 16-bit integer.
-}
-
-/**
- * @brief Handles the initialization and configuration when a battery is connected.
- *
- * This function sets the battery state to indicate a connected and operational status. It initializes
- * battery parameters such as capacity and voltage thresholds based on predefined constants. The function
- * also estimates the number of battery cells and adjusts it if necessary. If the INA219_Current feature
- * is enabled, it calculates the estimated remaining battery capacity.
- */
-void handleBatteryConnected ( ) {
+static inline void handleBatteryConnected ( ) {
   // Set the initial battery state to indicate that the battery is connected and operational.
   batteryState = BATTERY_OK;
 
   // Initialize battery parameters with predefined values.
-  batteryCapacity   = battery_capacity_mAh;    // Set the battery capacity in milliamp hours.
-  batteryMaxVoltage = BATTERY_V_Max_mV;        // Set the maximum voltage of the battery in millivolts.
+  batteryCapacity_mAh = battery_capacity_mAh;                                    // Set the battery capacity in milliamp hours.
+  batteryMaxVoltage   = ( uint16_t ) ( batteryConfig->vBatMaxVoltage * 100 );    // Set the maximum voltage of the battery in millivolts.
 
   // Calculate critical and warning voltage levels based on the number of cells and predefined constants.
-  batteryCriticalVoltage = batteryCellCount * BATTERY_V_Min_mV;     // Voltage level considered critically low.
-  batteryWarningVoltage  = batteryCellCount * BATTERY_V_Warn_mV;    // Voltage level considered a warning threshold.
+  batteryCriticalVoltage = batteryCellCount * ( uint16_t ) ( batteryConfig->vBatMinVoltage * 100 );        // Voltage level considered critically low.
+  batteryWarningVoltage  = batteryCellCount * ( uint16_t ) ( batteryConfig->vBatWarningVoltage * 100 );    // Voltage level considered a warning threshold.
 
   // Delay to allow the battery voltage to stabilize after connection.
   delay ( VBATTERY_STABLE_DELAY );
 
   // Estimate the number of battery cells based on the current voltage.
-  unsigned cells = ( vbat / ( batteryMaxVoltage / 100u ) ) + 1;    // Calculate the cell count estimation.
+  unsigned cells = ( vBatRaw / ( batteryMaxVoltage / 100u ) ) + 1;    // Calculate the cell count estimation.
   if ( cells > 8 ) {
     cells = 8;    // Clamp the number of cells to a maximum of 8 if estimation exceeds this value.
   }
@@ -238,160 +208,443 @@ void handleBatteryConnected ( ) {
 
 #ifdef INA219_Current
   // If the INA219_Current feature is enabled, estimate the remaining battery capacity.
-  uint16_t v_u100mV  = vbat * 100;    // Convert battery voltage to hundred-millivolt units for calculations.
-  EstBatteryCapacity = ( ( v_u100mV - batteryCriticalVoltage ) * batteryCapacity ) / ( batteryMaxVoltage - batteryCriticalVoltage );
+  uint16_t v_u100mV  = vBatRaw * 100;    // Convert battery voltage to hundred-millivolt units for calculations.
+  EstBatteryCapacity = ( ( v_u100mV - batteryCriticalVoltage ) * batteryCapacity_mAh ) / ( batteryMaxVoltage - batteryCriticalVoltage );
   // Calculate estimated battery capacity as a percentage of total capacity.
 #endif
 }
 
-/**
- * @brief Handles the configuration and state reset when a battery is disconnected.
- *
- * This function updates the system to reflect the absence of a battery. It resets
- * battery-related parameters, including state, cell count, warning and critical
- * voltage levels, maximum voltage, capacity, and estimated remaining capacity to zero.
- */
-void handleBatteryDisconnected ( ) {
+static inline void handleBatteryDisconnected ( ) {
   batteryState           = BATTERY_NOT_PRESENT;
   batteryCellCount       = 0;
   batteryWarningVoltage  = 0;
   batteryCriticalVoltage = 0;
   batteryMaxVoltage      = 0;
-  batteryCapacity        = 0;
+  batteryCapacity_mAh    = 0;
   EstBatteryCapacity     = 0;
 }
 
 /**
- * @brief Updates the current battery state based on voltage readings and triggers
- *        appropriate alerts or actions.
+ * @brief Updates the battery voltage reading from the INA219 sensor and manages battery connection state.
  *
- * This function checks the current battery voltage against predefined thresholds
- * to determine the battery state: OK, WARNING, CRITICAL, or NOT_PRESENT. Depending
- * on the battery state, it triggers beepers for low or critical battery levels,
- * disables arming if needed, and initiates failsafe procedures to ensure safety
- * during flight operations.
+ * This function processes the voltage reading from the INA219 sensor and updates the raw battery voltage
+ * (`vBatRaw`). It also checks the current battery connection state to determine if a battery has been
+ * connected or disconnected based on the voltage threshold. The appropriate handling functions are called
+ * to manage these state changes.
  */
-void updateBatteryState ( ) {
-  // Switch based on the current battery state
+void updateINA219Voltage ( ) {
+  // Process the voltage reading from the INA219 sensor and store it in vBatRaw
+  // vBatRaw = ProcessedINA219Voltage ( );
+  vBatRaw = ring_avg_u16_get ( &vbatRawAvgRing, bus_voltage ( ) );
+
+  // Check if the battery is currently not present but the voltage indicates otherwise
+  if ( batteryState == BATTERY_NOT_PRESENT && vBatRaw > VBATT_PRESENT_THRESHOLD_MV ) {
+    // Handle scenario where a battery has been connected
+    handleBatteryConnected ( );
+  }
+  // Check if the battery is present but the voltage indicates disconnection
+  else if ( batteryState != BATTERY_NOT_PRESENT && vBatRaw <= VBATT_PRESENT_THRESHOLD_MV ) {
+    // Handle scenario where the battery has been disconnected
+    handleBatteryDisconnected ( );
+  }
+
+}
+
+/**
+ * @brief Automatically calibrates the INA219 current measurement using observed versus expected voltage sag.
+ *
+ * This function dynamically adjusts the gain applied to current measurements from the INA219 sensor
+ * based on the difference between observed and expected voltage sag. It ensures that the calibrated
+ * current values are accurate, particularly in armed states where precision is critical. The gain is
+ * clamped to prevent runaway learning and updated using an Exponential Moving Average (EMA) approach.
+ *
+ * @param _mAmpRaw The raw current measurement in milliamps.
+ * @param armed A boolean indicating whether the system is armed for precise calibration.
+ * @return float The updated gain value for current calibration.
+ */
+static inline float ina219_auto_calibrate_current ( uint16_t _mAmpRaw, bool armed ) {
+  static float ina219_current_gain = 1.0f;
+
+  if ( ! armed || _mAmpRaw < CURR_CAL_MIN_CURRENT_MA || vShuntRaw <= vBatRaw ) {
+    return ina219_current_gain;
+  }
+
+  float sag_obs_mV = static_cast< float > ( vShuntRaw - vBatRaw );
+  if ( sag_obs_mV < CURR_CAL_MIN_SAG_MV )
+    return ina219_current_gain;
+
+  float sag_exp_mV = ( static_cast< float > ( _mAmpRaw ) * SYSTEM_R_MOHM ) / 1000.0f;
+  if ( sag_exp_mV < CURR_CAL_MIN_SAG_MV )
+    return ina219_current_gain;
+
+  float gain_err = sag_obs_mV / sag_exp_mV;
+
+  // Hard clamp to prevent runaway learning
+  if ( gain_err < CURR_CAL_MIN_GAIN ) gain_err = CURR_CAL_MIN_GAIN;
+  if ( gain_err > CURR_CAL_MAX_GAIN ) gain_err = CURR_CAL_MAX_GAIN;
+
+  // Slow convergence (EMA-style)
+  ina219_current_gain += INA219_SHUNT_RESISTOR_MILLIOHM * ( gain_err - ina219_current_gain );
+  _ina219_current_gain = ina219_current_gain;
+  return ina219_current_gain;
+}
+
+/**
+ * @brief Processes the INA219 current reading, applying calibration and limits.
+ *
+ * This function calculates the processed current from the raw shunt voltage readings obtained from the
+ * INA219 sensor. It converts the voltage to milliamps, applies a gain factor through auto-calibration,
+ * and ensures the resulting value fits within a 16-bit unsigned integer limit. The function is designed
+ * to handle both armed and unarmed states for accurate current measurement.
+ *
+ * @param armed A boolean indicating whether the system is armed.
+ * @return uint16_t The processed current in milliamps as a 16-bit unsigned integer.
+ */
+static inline uint16_t ProcessedINA219Current ( bool armed ) {
+  vShuntRaw = ring_avg_u16_get ( &vShuntRawAvgRing, shunt_voltage ( ) );
+
+  if ( vShuntRaw <= 0 ) {
+    return 0;    // Return 0 if the current is negative or zero.
+  }
+
+  mAmpRaw = static_cast< uint32_t > ( ( vShuntRaw / 10.0f ) / INA219_SHUNT_RESISTOR_MILLIOHM );
+
+  if ( mAmpRaw > 0xFFFF ) {
+    mAmpRaw = 0xFFFF;    // Clamp to the maximum value of a 16-bit unsigned integer.
+  }
+
+  float mAmpGain = ina219_auto_calibrate_current ( mAmpRaw, armed );
+
+  return static_cast< uint16_t > ( mAmpRaw * mAmpGain );    // Return the calculated current as a 16-bit unsigned integer.
+}
+
+/**
+ * @brief Updates the INA219 current measurements and computes battery consumption metrics.
+ *
+ * This function initializes tracking variables on its first call and subsequently updates the accumulated
+ * current draw over time. It calculates the milliamps drawn (mAh) and the remaining battery capacity based
+ * on the elapsed time and current readings from the INA219 sensor. The function is designed to be called
+ * regularly with the current timestamp and armed state of the system to ensure accurate energy consumption
+ * tracking.
+ *
+ * @param nowUs Current timestamp in microseconds.
+ * @param armed A boolean indicating whether the system is armed.
+ */
+void updateINA219Current ( uint32_t nowUs, bool armed ) {
+  static bool init = false;
+
+  if ( ! init ) {
+    init        = true;
+    last_ms     = nowUs;    // rename last_ms -> last_us ideally
+    mA_ms_accum = 0;
+    mAhDrawn    = 0;
+    mAhRemain   = EstBatteryCapacity;
+    return;
+  }
+
+  uint32_t dtUs = nowUs - last_ms;
+  last_ms       = nowUs;
+
+  // Convert µs -> ms (integer)
+  uint32_t dtMs = dtUs / 1000U;
+  if ( dtMs == 0 ) return;    // too fast to matter / avoid zero ms integration
+
+  mAmpWithGain = ProcessedINA219Current ( armed );
+
+  mA_ms_accum += ( uint64_t ) mAmpWithGain * ( uint64_t ) dtMs;
+
+  uint32_t mAh32 = ( uint32_t ) ( mA_ms_accum / 3600000ULL );
+  if ( mAh32 > 0xFFFFU ) mAh32 = 0xFFFFU;
+
+  mAhDrawn = ( uint16_t ) mAh32;
+
+  mAhRemain = ( uint16_t ) ( EstBatteryCapacity - mAhDrawn );
+}
+
+/**
+ * @brief Computes the compensated battery voltage in millivolts, accounting for throttle and current-induced voltage sag.
+ *
+ * This function calculates the voltage compensation based on throttle input and, if available, current sensing data.
+ * It incorporates throttle sag as a fallback and adds current sag when both voltage and current readings are fresh.
+ * The result is constrained to avoid exceeding the maximum defined sag. The final compensated voltage is averaged
+ * using a ring buffer to provide a stable output.
+ *
+ * @param now Current time in milliseconds.
+ * @param vbatTs Timestamp of the last battery voltage reading.
+ * @param ibatTs Timestamp of the last battery current reading.
+ * @param armed A boolean indicating whether the system is armed.
+ * @param throttle_us Throttle input in microseconds.
+ *
+ * @return Compensated battery voltage in millivolts as an unsigned 16-bit integer.
+ */
+static inline uint16_t computeVbatComp_mV ( uint32_t now, uint32_t vbatTs, uint32_t ibatTs, bool armed, int throttle_us ) {
+  // 1) Throttle sag (always available: fallback + assist)
+  int32_t t        = constrain ( throttle_us, THR_MIN_US, THR_MAX_US );
+  uint32_t thr01   = ( uint32_t ) ( t - THR_MIN_US );    // 0..1000
+  uint32_t sagT_mV = ( SAG_THR_MAX_MV * thr01 ) / 1000U;
+
+  if ( ! armed || throttle_us < THR_IDLE_US ) {
+    sagT_mV = 0;
+  }
+
+  // 2) Current sag (only if feature enabled AND both signals are fresh)
+  uint32_t sagI_mV      = 0;
+  const bool hasCurrent = feature ( FEATURE_INA219_CBAT );
+
+  if ( hasCurrent && armed && throttle_us >= THR_IDLE_US ) {
+
+    const bool vFresh = ( now - vbatTs ) <= VBAT_STALE_MS;
+    const bool iFresh = ( now - ibatTs ) <= IBAT_STALE_MS;
+
+    if ( vFresh && iFresh ) {
+      // sag(mV) = I(mA) * R(mΩ) / 1000
+      sagI_mV = ( ( uint16_t ) mAmpRaw * ( uint32_t ) VBAT_SAG_R_MOHM ) / 1000U;
+    }
+  }
+
+  // 3) Fuse
+  // - If current sag valid: use it + small throttle assist
+  // - Else: use throttle sag only
+  uint32_t sag_mV = sagT_mV;
+  if ( sagI_mV > 0 ) {
+    sag_mV = sagI_mV + ( sagT_mV * THR_ASSIST_PCT ) / 100U;
+  }
+
+  sag_mV = constrain ( sag_mV, 0, VBAT_SAG_MAX_MV );
+
+  // 4) Compensated voltage
+  uint32_t vcomp = ( uint32_t ) ( vBatRaw * 100 ) + sag_mV;
+  if ( vcomp > 65535U ) vcomp = 65535U;
+
+  return ( uint16_t ) ring_avg_u16_get ( &vbatSagAvgRing, vcomp );
+}
+
+/**
+ * @brief Computes the state of charge (SoC) percentage from the remaining battery capacity in milliamp-hours.
+ *
+ * This function calculates the SoC based on the remaining milliamp-hours (mAh) compared to the total battery capacity.
+ * It handles edge cases where the battery capacity is zero or when the remaining mAh is greater than or equal to the capacity,
+ * returning 0% and 100% respectively. Otherwise, it returns the calculated percentage.
+ *
+ * @return The calculated SoC percentage as a float.
+ */
+static inline float soc_from_mAh ( ) {
+  // Return 0% if battery capacity is zero to avoid division by zero
+  if ( batteryCapacity_mAh == 0 )
+    return 0.0f;
+
+  // Return 100% if remaining mAh is greater than or equal to battery capacity
+  if ( mAhRemain >= batteryCapacity_mAh )
+    return 100.0f;
+
+  // Calculate the percentage of remaining mAh
+  constexpr float max_pct = 100.0f;
+  float pct               = ( static_cast< float > ( mAhRemain ) * max_pct ) / static_cast< float > ( batteryCapacity_mAh );
+
+  // Return the calculated percentage
+  return pct;
+}
+
+/**
+ * @brief Computes the state of charge (SoC) percentage from a given battery voltage in millivolts.
+ *
+ * This function calculates the linear SoC percentage based on the provided battery voltage.
+ * It uses predefined constants to determine the critical and maximum voltage levels,
+ * and ensures that the returned percentage does not exceed 100%.
+ *
+ * @param v_mV The battery voltage in millivolts.
+ * @return The calculated SoC percentage as a float.
+ */
+static inline float soc_linear_from_voltage ( uint16_t v_mV ) {
+  // Calculate percentage using constants directly
+  constexpr float max_pct = 100.0f;
+  float num               = static_cast< float > ( v_mV - ( batteryCriticalVoltage - VBATT_HYSTERESIS ) ) * max_pct;
+  float den               = static_cast< float > ( batteryMaxVoltage - ( batteryCriticalVoltage - VBATT_HYSTERESIS ) );
+
+  // Return calculated percentage, ensuring it does not exceed maximum percentage
+  return num / den;
+}
+
+/**
+ * @brief Computes the fused state of charge (SoC) based on voltage and ampere-hour values, adjusting for armed status.
+ *
+ * This function estimates the fused SoC by blending the SoC derived from ampere-hours (socAh)
+ * and the SoC derived from voltage (socV). It considers several factors including:
+ * - Base weighting from Ah SoC with smooth transitions between zones.
+ * - Voltage dominance to apply a gentle bias when operating in low voltage zones.
+ * - Adjustments for armed status, introducing a small bias.
+ * - Clamping and smoothing to ensure a stable ramp-up or ramp-down of the weighting factor.
+ * - Temporal realism by limiting the rate of change when armed or on the ground.
+ *
+ * @param socV The state of charge calculated from voltage.
+ * @param socAh The state of charge calculated from ampere-hours.
+ * @param armed A boolean indicating if the system is armed (true) or not (false).
+ * @return The fused state of charge as an 8-bit unsigned integer.
+ */
+static inline uint8_t fuse_soc_vbatComp_smart ( float socV, float socAh, bool armed ) {
+  static float wAhPrev        = 55.0f;
+  static uint8_t socFusedPrev = 100;
+
+  float wAhTarget;
+
+  // 1. Base weighting from Ah SOC (smooth zones)
+  if ( socAh <= 15.0f )
+    wAhTarget = 30.0f;
+  else if ( socAh >= 85.0f )
+    wAhTarget = 70.0f;
+  else
+    wAhTarget = 55.0f;
+
+  // 2. Voltage dominance zone (gentle bias)
+  if ( vBatComp <= batteryWarningVoltage ) {
+    uint16_t depth = ( vBatComp <= ( batteryCriticalVoltage - VBATT_HYSTERESIS ) ) ? ( batteryWarningVoltage - ( batteryCriticalVoltage - VBATT_HYSTERESIS ) ) : ( batteryWarningVoltage - vBatComp );
+
+    float bias = static_cast< float > ( depth * 12U ) / static_cast< float > ( batteryWarningVoltage - ( batteryCriticalVoltage - VBATT_HYSTERESIS ) );
+
+    if ( wAhTarget > ( 25.0f + bias ) )
+      wAhTarget -= bias;
+  }
+
+  // 3. Armed bias (small but real)
+  if ( armed && wAhTarget > 25.0f )
+    wAhTarget -= 4.0f;
+
+  // 4. Clamp + smooth ramp (KEY CHANGE)
+  wAhTarget = ( wAhTarget < 20.0f ) ? 20.0f :
+              ( wAhTarget > 75.0f ) ? 75.0f :
+                                      wAhTarget;
+
+  // Ramp wAh slowly (linearity magic)
+  if ( wAhTarget > wAhPrev + 2.0f )
+    wAhPrev += 2.0f;
+  else if ( wAhTarget + 2.0f < wAhPrev )
+    wAhPrev -= 2.0f;
+  else
+    wAhPrev = wAhTarget;
+
+  wAh = wAhPrev;
+
+  // 5. Weighted fusion
+  float fused = socAh * wAh + socV * ( 100.0f - wAh );
+  fused /= 100.0f;
+  if ( fused > 100.0f ) fused = 100.0f;
+
+  uint8_t out = static_cast< uint8_t > ( fused );
+
+  // 6. Temporal realism (linear decay)
+  if ( armed ) {
+    // Never increase in flight
+    if ( out > socFusedPrev )
+      out = socFusedPrev;
+
+    // Tight drop limit (graph-friendly)
+    if ( socFusedPrev > out ) {
+      uint8_t maxDrop = 2;
+      if ( socFusedPrev - out > maxDrop )
+        out = socFusedPrev - maxDrop;
+    }
+  } else {
+    // Ground recovery: slow
+    const uint8_t MAX_RISE = 1;
+    if ( out > socFusedPrev + MAX_RISE )
+      out = socFusedPrev + MAX_RISE;
+  }
+
+  socFusedPrev = out;
+  return out;
+}
+
+/**
+ * @brief Updates the battery state based on the state of charge (SoC) percentage.
+ *
+ * This function changes the battery state and triggers appropriate actions such as
+ * enabling/disabling arming flags, setting flight status indicators, and activating
+ * beepers based on the current SoC percentage. It manages transitions between different
+ * battery states: OK, WARNING, CRITICAL, and NOT_PRESENT.
+ *
+ * @param socPct State of charge percentage of the battery.
+ */
+static inline void updateBatteryStateSoc ( uint8_t socPct ) {
+
   switch ( batteryState ) {
 
-    // Case when the battery is in a good state
     case BATTERY_OK:
-      // Check if the voltage has dropped below the warning threshold considering hysteresis
-      if ( vbat <= ( batteryWarningVoltage - VBATT_HYSTERESIS ) ) {
-        // Update battery state to WARNING and trigger low battery beeper
+      ENABLE_ARMING_FLAG ( OK_TO_ARM );
+      if ( ( socPct <= ( SOC_WARN_PCT ) ) && fsInFlightLowBattery ) {
         batteryState = BATTERY_WARNING;
+        set_FSI ( Low_battery );
         beeper ( BEEPER_BAT_LOW );
+        BatteryWarningMode = 1;
       }
       break;
 
-    // Case when the battery is in a warning state
     case BATTERY_WARNING:
-      // Disable arming when battery is in warning state
       DISABLE_ARMING_FLAG ( PREVENT_ARMING );
-      // Check if the voltage has dropped below the critical threshold
-      if ( vbat <= ( batteryCriticalVoltage - VBATT_HYSTERESIS ) ) {
-        // Update battery state to CRITICAL and trigger critical low battery beeper
+      if ( socPct <= ( SOC_CRIT_PCT ) ) {
         batteryState = BATTERY_CRITICAL;
+        set_FSI ( LowBattery_inFlight );
+        reset_FSI ( Low_battery );
         beeper ( BEEPER_BAT_CRIT_LOW );
-        // Check if the voltage has risen above the warning threshold plus hysteresis
-      } else if ( vbat > ( batteryWarningVoltage + VBATT_HYSTERESIS ) ) {
-        // Revert battery state to OK
-        batteryState = BATTERY_OK;
+        BatteryWarningMode = 2;
+      } else if ( socPct > ( SOC_WARN_PCT + SOC_HYST_PCT ) ) {
+        reset_FSI ( Low_battery );
+        batteryState       = BATTERY_OK;
+        BatteryWarningMode = 0;
       } else {
-        // Continue to warn with low battery beep
         beeper ( BEEPER_BAT_LOW );
+        if ( socPct <= 12 ) {
+          BatteryWarningMode = 3;
+        } else {
+          BatteryWarningMode = 1;
+        }
       }
-      // Trigger failsafe procedures for low battery
-      failsafeOnLowBattery ( );
       break;
 
-    // Case when the battery is in a critical state
     case BATTERY_CRITICAL:
-      // Check if the voltage has risen above the critical threshold plus hysteresis
-      if ( vbat > ( batteryCriticalVoltage + VBATT_HYSTERESIS ) ) {
-        // Update battery state to WARNING and trigger low battery beeper
+      DISABLE_ARMING_FLAG ( PREVENT_ARMING );
+      if ( socPct > ( SOC_CRIT_PCT + SOC_HYST_PCT ) ) {
         batteryState = BATTERY_WARNING;
+        set_FSI ( Low_battery );
+        reset_FSI ( LowBattery_inFlight );
         beeper ( BEEPER_BAT_LOW );
+        BatteryWarningMode = 1;
       } else {
-        // Continue to warn with critical low battery beep
         beeper ( BEEPER_BAT_CRIT_LOW );
+        BatteryWarningMode = 2;
       }
-      // Trigger failsafe procedures for critically low battery
-      failsafeOnLowBattery ( );
       break;
 
-    // Case when no battery is present, do nothing
     case BATTERY_NOT_PRESENT:
       break;
   }
 }
 
 /**
- * @brief Updates the voltage reading from the INA219 sensor and adjusts battery state accordingly.
+ * @brief Updates the Battery Management System (BMS) parameters.
  *
- * This function processes the voltage reading obtained from the INA219 sensor and updates the
- * global variable `vbat` with this value. Based on the processed voltage, it determines whether
- * a battery has been connected or disconnected by comparing `vbat` against a predefined threshold
- * (`VBATT_PRESENT_THRESHOLD_MV`). If a change in battery connection status is detected, it calls
- * appropriate handler functions to manage these events. Finally, it invokes `updateBatteryState()`
- * to refresh the current battery state.
+ * This function calculates the compensated battery voltage and state of charge (SoC)
+ * percentages based on the current timestamp, voltage, and current timestamps. It also
+ * fuses the SoC values if a specific feature is enabled and updates the battery state
+ * accordingly.
+ *
+ * @param now Current time in milliseconds since system start.
+ * @param vbatTs Timestamp for the last battery voltage measurement.
+ * @param ibatTs Timestamp for the last battery current measurement.
+ * @param armed Boolean indicating whether the system is armed.
+ * @param throttle_us Throttle position in microseconds.
  */
-void updateINA219Voltage ( ) {
-  // Process the voltage reading from the INA219 sensor and store it in vbat
-  vbat = ProcessedINA219Voltage ( );
+void BMS_Update ( uint32_t now, uint32_t vbatTs, uint32_t ibatTs, bool armed, int throttle_us ) {
+  uint16_t _vBatComp = computeVbatComp_mV ( now, vbatTs, ibatTs, armed, throttle_us );
 
-  // Check if the battery is currently not present but the voltage indicates otherwise
-  if ( batteryState == BATTERY_NOT_PRESENT && vbat > VBATT_PRESENT_THRESHOLD_MV ) {
-    // Handle scenario where a battery has been connected
-    handleBatteryConnected ( );
+  vBatComp = 0.35f * _vBatComp + 0.65f * ( ( vBatRaw * 100 ) + vShuntRaw );
+
+  soc_battery_percentage = soc_linear_from_voltage ( vBatComp );
+  if ( feature ( FEATURE_INA219_CBAT ) ) {
+
+    soc_mAh_percentage = soc_from_mAh ( );
+    soc_Fused          = fuse_soc_vbatComp_smart ( soc_battery_percentage, soc_mAh_percentage, armed );
+    updateBatteryStateSoc ( soc_Fused );
+  } else {
+    updateBatteryStateSoc ( soc_battery_percentage );
   }
-  // Check if the battery is present but the voltage indicates disconnection
-  else if ( batteryState != BATTERY_NOT_PRESENT && vbat <= VBATT_PRESENT_THRESHOLD_MV ) {
-    // Handle scenario where the battery has been disconnected
-    handleBatteryDisconnected ( );
-  }
-
-  // Update the battery state based on the current voltage readings
-  updateBatteryState ( );
-}
-
-/**
- * @brief Updates the current measurement from the INA219 sensor and calculates
- *        energy consumption.
- *
- * This function reads the current measurement from the INA219 sensor, calculates
- * the energy consumed over time, and updates the remaining battery capacity. It
- * considers the elapsed time since the last update to compute the energy in
- * milliampere-hours.
- *
- * @note The function resets the drawn energy if it exceeds the maximum value for
- *       a 16-bit integer to prevent overflow.
- */
-void updateINA219Current ( ) {
-  // Get the current time in milliseconds
-  uint32_t now = millis ( );
-
-  // Calculate the time elapsed since the last update
-  uint32_t dt = now - last_ms;
-
-  // Update the last timestamp to the current time
-  last_ms = now;
-
-  // Read and process the current measurement from the INA219 sensor
-  uint16_t mA = ProcessedINA219Current ( );
-
-  // Accumulate the milliampere-milliseconds product for energy calculation
-  mA_ms_accum += static_cast< uint64_t > ( mA ) * dt;
-
-  // Convert accumulated milliampere-milliseconds to milliampere-hours
-  mAhDrawn = mA_ms_accum / 3600000ULL;
-
-  // If the drawn energy exceeds the maximum value for a 16-bit integer, reset it
-  if ( mAhDrawn > 0xFFFFULL ) {
-    mAhDrawn = 0x0;
-  }
-
-  // Calculate the remaining battery capacity in milliampere-hours
-  mAhRemain = static_cast< uint16_t > ( EstBatteryCapacity - mAhDrawn );
 }

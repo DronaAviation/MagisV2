@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-v3.0.0-beta                                               #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\config\config.cpp                                          #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 17th Dec 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -300,6 +300,10 @@ void resetBatteryConfig ( batteryConfig_t *batteryConfig ) {
   batteryConfig->currentMeterScale      = 0;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
   batteryConfig->batteryCapacity        = 1000;
   batteryConfig->currentMeterType       = CURRENT_SENSOR_INA219;    // ADC to VIRTUAL
+  batteryConfig->vBatMaxVoltage         = 42;                       // 43
+  batteryConfig->vBatMinVoltage         = 30;                       // 33
+  batteryConfig->vBatWarningVoltage     = 32;                       // 35
+  batteryConfig->BatteryCapacity        = 600;
 }
 
 #ifdef SWAP_SERIAL_PORT_0_AND_1_DEFAULTS
