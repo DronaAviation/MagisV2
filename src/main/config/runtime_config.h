@@ -11,7 +11,7 @@
  #  Created Date: Fri, 7th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Fri, 2nd Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -110,7 +110,6 @@ typedef enum {
 void flightStatusIndicator ( void );
 #endif
 extern uint16_t flightIndicatorFlag;
-extern uint16_t tempStatus;
 
 void set_FSI ( FlightStatus_e flag );
 void reset_FSI ( FlightStatus_e flag );

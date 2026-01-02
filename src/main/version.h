@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Fri, 2nd Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -32,7 +32,7 @@ extern "C" {
 
 #define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
 #define FC_FW_VERSION_MINOR       9    // increment when a minor release is made (small new feature, change etc)
-#define FC_FW_VERSION_PATCH_LEVEL 0    // increment when a bug is fixed
+#define FC_FW_VERSION_PATCH_LEVEL 1    // increment when a bug is fixed
 
 #define STR_HELPER( x )           #x
 #define STR( x )                  STR_HELPER ( x )

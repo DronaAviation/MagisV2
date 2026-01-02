@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Fri, 2nd Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -883,7 +883,6 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       }
 
       headSerialReply ( 2 );
-      tempStatus = fsIndicator;
       serialize16 ( fsIndicator );
 
       break;
