@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 2nd Jan 2026                                           #
+ #  Last Modified: Tue, 6th Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -25,35 +25,28 @@ extern "C" {
 
 #define MAGIS_IDENTIFIER          "MAGIS V2"
 
-#define API_VERSION_MAJOR         0     // increment when major changes are made
-#define API_VERSION_MINOR         29    // increment when any change is made, reset to zero when major changes are released after changing API_VERSION_MAJOR
-
-#define API_VERSION_LENGTH        2
-
-#define FC_FW_VERSION_MAJOR       2    // increment when a major release is made (big new feature, etc)
-#define FC_FW_VERSION_MINOR       9    // increment when a minor release is made (small new feature, change etc)
-#define FC_FW_VERSION_PATCH_LEVEL 1    // increment when a bug is fixed
+#define FW_RELEASE_TYPE           "C"
+#define FW_VERSION_LENGTH         7
+#define API_VERSION_LENGTH        7
+#define PROJECT_LENGTH            8    // lower case hexadecimal digits.
+#define BUILD_DATE_LENGTH 11
+#define BUILD_TIME_LENGTH 8
 
 #define STR_HELPER( x )           #x
 #define STR( x )                  STR_HELPER ( x )
-#define FC_FW_VERSION_STRING      STR ( FC_FW_VERSION_MAJOR ) "." STR ( FC_FW_VERSION_MINOR ) "." STR ( FC_FW_VERSION_PATCH_LEVEL )
 
 #define MW_VERSION                231
 
-extern const char *const targetName;
-
 #define GIT_SHORT_REVISION_LENGTH 7    // lower case hexadecimal digits.
+
+extern const char *const targetName;
 extern const char *const shortGitRevision;
-
-#define BUILD_DATE_LENGTH 11
 extern const char *const buildDate;    // "MMM DD YYYY" MMM = Jan/Feb/...
-
-#define BUILD_TIME_LENGTH 8
 extern const char *const buildTime;    // "HH:MM:SS"
-
 extern const char *const FwVersion;
 extern const char *const ApiVersion;
 extern const char *const FwName;
+extern const char *const Project;
 
 #ifdef __cplusplus
 }
