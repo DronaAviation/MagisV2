@@ -6,7 +6,7 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-v3.0.0-beta                                               #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\version.h                                                  #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
