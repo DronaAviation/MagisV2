@@ -1,19 +1,23 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\mw.cpp                                                     #
+ #  Created Date: Wed, 31st Dec 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -112,7 +116,8 @@
 /* VBAT monitoring interval (in microseconds) - 1s*/
 #define VBATINTERVAL ( 6 * 3500 )
 /* IBat monitoring interval (in microseconds) - 6 default looptimes */
-#define IBATINTERVAL ( 6 * 3500 )
+#define IBATINTERVAL       ( 6 * 3500 )
+#define BMS_UpdateInterval ( 6 * 3500 )
 
 int8_t returnValue         = 100;
 uint8_t motorControlEnable = false;
@@ -403,8 +408,15 @@ void annexCode ( void ) {
     if ( cmp32 ( currentTime, ibatLastServiced ) >= IBATINTERVAL ) {
       ibatLastServiced = currentTime;
       // updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
-      updateINA219Current ( );
+      updateINA219Current ( currentTime, ARMING_FLAG ( ARMED ) );
     }
+  }
+
+  if ( cmp32 ( currentTime, BMS_UpdateInterval ) >= BMS_UpdateInterval ) {
+    // uint16_t vbatComp = computeVbatComp_mV ( currentTime, vbatLastServiced, ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] /* your 1000..2000 */ );
+    // updateBatteryState ( vbatComp );
+
+    BMS_Update ( currentTime, vbatLastServiced, ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] );
   }
 
   beeperUpdate ( );    // call periodic beeper handler
@@ -443,16 +455,6 @@ void annexCode ( void ) {
       reset_FSI ( Crash );
       crashRecoveryCheck = false;
     }
-
-    if ( vbat > 34 ) {
-      isBatteryLow = false;
-      // ENABLE_ARMING_FLAG(OK_TO_ARM);???
-      reset_FSI ( Low_battery );
-    } else if ( fsLowBattery ) {
-      isBatteryLow = true;
-      set_FSI ( Low_battery );
-    }
-    //   }
 
     if ( isCalibrating ( ) ) {
       warningLedFlash ( );

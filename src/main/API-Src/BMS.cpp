@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 14th Nov 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -27,10 +27,10 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
   switch ( _bms_option ) {
     case Voltage:
       // Return the current battery voltage in mV
-      return vbat*100;
+      return vBatRaw*100;
     case Current:
-      // Return the current amperage
-      return amperage;
+      // Return the current mAmpRaw
+      return mAmpRaw;
     case mAh_Consumed:
       // Return the milliamp hours consumed
       return mAhDrawn;

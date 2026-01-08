@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -64,21 +64,3 @@ int16_t shunt_voltage ( void ) {
   return ( signedRaw * 10 ) / 1000;
 }
 
-/* void configureINA219 ( ) {
-  uint8_t configRegister = INA219_REG_CONFIG;
-  uint16_t configValue   = Ina219Config;
-
-  // Split the 16-bit configuration value into two bytes
-  uint8_t configData [ 2 ];
-  configData [ 0 ] = ( configValue >> 8 ) & 0xFF;    // MSB
-  configData [ 1 ] = configValue & 0xFF;             // LSB
-
-  // Send the configuration to the INA219
-  bool success = i2cWriteBuffer ( INA219_I2C_ADDRESS, configRegister, 2, configData );
-
-  if ( success ) {
-    // Configuration was successful
-  } else {
-    // Handle error
-  }
-} */

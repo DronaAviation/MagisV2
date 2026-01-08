@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 14th Nov 2025                                          #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -50,7 +50,7 @@ typedef enum BMS_Option {
  * `_bms_option` An enumerator of type BMS_Option_e indicating which BMS parameter to retrieve.
  *        Possible values are:
  *        @param Voltage: To get the current battery voltage.
- *        @param Current: To get the current amperage.
+ *        @param Current: To get the current mAmpRaw.
  *        @param mAh_Consumed: To get the milliamp hours consumed.
  *        @param mAh_Remain: To get the remaining milliamp hours.
  *        @param Battery_Capicity: To get the total battery capacity in milliamp hours.

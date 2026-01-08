@@ -111,8 +111,8 @@ static rxConfig_t *rxConfig;
 
 static uint16_t deadband3dThrottle;    // default throttle deadband from MIDRC
 
-extern uint16_t vbat;
-extern uint16_t vbatscaled;
+extern uint16_t vBatRaw;
+// extern uint16_t vbatscaled;
 throttleStatus_e throttleStatus;
 
 extern uint8_t Indicator;
@@ -337,14 +337,14 @@ void failsafeUpdateState ( void ) {
   }
 }
 
-void failsafeOnLowBattery ( void ) {
+// void failsafeOnLowBattery ( void ) {
 
-  if ( vbat < 30 && fsInFlightLowBattery ) {
-    set_FSI ( LowBattery_inFlight );
+//   if ( vBatRaw < 30 && fsInFlightLowBattery ) {
+//     set_FSI ( LowBattery_inFlight );
 
-    // current_command=LAND;
-  }
-}
+//     // current_command=LAND;
+//   }
+// }
 
 void failsafeOnCrash ( void ) {
 
