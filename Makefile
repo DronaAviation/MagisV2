@@ -222,7 +222,6 @@ MAIN_BLACKBOX = blackbox/blackbox.cpp \
 
 COMMON_SRC = 	build_config.cpp \
 		   				debug.cpp \
-		   				version.cpp \
 		   				main.cpp \
 		   				mw.cpp \
 							$(TARGET_SRC) \
@@ -360,7 +359,8 @@ PRIMUS_V5_SRC = 	startup_stm32f30x_md_gcc.S \
 
 ifeq ($(BUILD_TYPE),BIN)
 $(TARGET)_SRC:=$($(TARGET)_SRC)\
-			PlutoPilot.cpp
+			PlutoPilot.cpp \
+			version.cpp
 endif               
 
 # Search path and source files for the ST stdperiph library
@@ -486,7 +486,7 @@ $(TARGET_ELF):  $(TARGET_OBJS)
 # Compile
 
 
-libs/libpluto_$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).a: $(TARGET_OBJS)
+libs/lib$(TARGET)_$(FW_Version).a: $(TARGET_OBJS)
 	mkdir -p $(dir $@)
 	$(AR) rcs $@ $^
 
@@ -514,7 +514,7 @@ $(BUILD_DIR)/$(TARGET)/bin/%.o: %.S
 	@$(CC) -c -o $@ $(ASFLAGS) $<
 
 
-libcreate: libs/libpluto_$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).a
+libcreate: libs/lib$(TARGET)_$(FW_Version).a
 
 ## clean       : clean up all temporary / machine-generated files
 clean:
