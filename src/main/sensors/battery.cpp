@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Thu, 8th Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -85,7 +85,6 @@ uint16_t batteryCriticalVoltage = 0;
 uint16_t batteryCapacity_mAh    = 0;
 uint16_t EstBatteryCapacity     = 0;
 
-
 // Function handleBatteryDisconnected
 
 // Function updateINA219Voltage
@@ -135,8 +134,8 @@ static uint64_t mA_ms_accum = 0;
 float wAh = 0;
 
 // Function updateBatteryStateSoc
-#define SOC_WARN_PCT 18
-#define SOC_CRIT_PCT 8
+#define SOC_WARN_PCT 20
+#define SOC_CRIT_PCT 10
 #define SOC_HYST_PCT 2
 
 uint8_t BatteryWarningMode = 0;
@@ -247,7 +246,6 @@ void updateINA219Voltage ( ) {
     // Handle scenario where the battery has been disconnected
     handleBatteryDisconnected ( );
   }
-
 }
 
 /**
@@ -570,30 +568,28 @@ static inline void updateBatteryStateSoc ( uint8_t socPct ) {
 
     case BATTERY_OK:
       ENABLE_ARMING_FLAG ( OK_TO_ARM );
-      if ( ( socPct <= ( SOC_WARN_PCT ) ) && fsInFlightLowBattery ) {
+      if ( ( socPct <= ( SOC_WARN_PCT - SOC_HYST_PCT ) ) && fsInFlightLowBattery ) {
         batteryState = BATTERY_WARNING;
         set_FSI ( Low_battery );
         beeper ( BEEPER_BAT_LOW );
-        BatteryWarningMode = 1;
       }
       break;
 
     case BATTERY_WARNING:
       DISABLE_ARMING_FLAG ( PREVENT_ARMING );
-      if ( socPct <= ( SOC_CRIT_PCT ) ) {
+      if ( socPct <= ( SOC_CRIT_PCT - SOC_HYST_PCT ) ) {
         batteryState = BATTERY_CRITICAL;
         set_FSI ( LowBattery_inFlight );
         reset_FSI ( Low_battery );
         beeper ( BEEPER_BAT_CRIT_LOW );
-        BatteryWarningMode = 2;
       } else if ( socPct > ( SOC_WARN_PCT + SOC_HYST_PCT ) ) {
         reset_FSI ( Low_battery );
         batteryState       = BATTERY_OK;
         BatteryWarningMode = 0;
       } else {
         beeper ( BEEPER_BAT_LOW );
-        if ( socPct <= 12 ) {
-          BatteryWarningMode = 3;
+        if ( socPct <= 14 ) {
+          BatteryWarningMode = 2;
         } else {
           BatteryWarningMode = 1;
         }
@@ -607,10 +603,8 @@ static inline void updateBatteryStateSoc ( uint8_t socPct ) {
         set_FSI ( Low_battery );
         reset_FSI ( LowBattery_inFlight );
         beeper ( BEEPER_BAT_LOW );
-        BatteryWarningMode = 1;
       } else {
         beeper ( BEEPER_BAT_CRIT_LOW );
-        BatteryWarningMode = 2;
       }
       break;
 

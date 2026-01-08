@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 6th Jan 2026                                           #
+ #  Last Modified: Wed, 7th Jan 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -1013,12 +1013,13 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 #endif
       break;
     case MSP_ANALOG:
-      headSerialReply ( 9 );
+      headSerialReply ( 10 );
       serialize16 ( ( uint16_t ) constrain ( vBatComp, 0, 0xFFFF ) );
       serialize16 ( ( uint16_t ) constrain ( mAmpRaw, 0, 0xFFFF ) );
       serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );
       serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );
-      serialize8 ( ( uint8_t ) constrain ( soc_Fused, 0, 255 ) );
+      serialize8 ( ( uint8_t ) constrain ( soc_Fused, 0, 0x65 ) );
+      serialize8 ( ( uint8_t ) constrain ( BatteryWarningMode, 0, 0x4 ) );
       break;
     case MSP_ARMING_CONFIG:
       headSerialReply ( 2 );
