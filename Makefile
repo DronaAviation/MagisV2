@@ -31,7 +31,7 @@ BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.10.1
+FW_Version	=	2.10.2
 API_Version	=	0.29.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
@@ -381,7 +381,7 @@ OPTIMIZE	=	-O0
 LTO_FLAGS	=	$(OPTIMIZE)
 else
 OPTIMIZE	=	-Os
-LTO_FLAGS	=	-flto --use-linker-plugin $(OPTIMIZE)
+LTO_FLAGS	=	$(OPTIMIZE)
 endif
 
 DEBUG_FLAGS	 = -ggdb3 -DDEBUG
@@ -396,11 +396,10 @@ CFLAGS	=	$(ARCH_FLAGS) \
 					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
-		   		-ffat-lto-objects\
+		   		-fno-lto\
 		   		$(DEVICE_FLAGS) \
 		   		-DUSE_STDPERIPH_DRIVER \
 		   		$(TARGET_FLAGS) \
-		   		-save-temps=obj \
 		   		-MMD -MP
 
 
@@ -414,11 +413,10 @@ CCFLAGS	=	$(ARCH_FLAGS) \
 					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
-		   		-ffat-lto-objects\
+		   		-fno-lto\
 		   		$(DEVICE_FLAGS) \
 		   		-DUSE_STDPERIPH_DRIVER \
 		   		$(TARGET_FLAGS) \
-		   		-save-temps=obj \
 		   		-MMD -MP
 
 ASFLAGS	= $(ARCH_FLAGS) \
