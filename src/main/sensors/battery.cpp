@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 8th Jan 2026                                           #
+ #  Last Modified: Fri, 16th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -77,7 +77,6 @@ static batteryState_e batteryState;
 #define VBATTERY_STABLE_DELAY 40
 #define VBATT_HYSTERESIS      100    // Batt Hysteresis of +/-100mV
 
-uint16_t battery_capacity_mAh   = 0;
 uint8_t batteryCellCount        = 1;    // cell count
 uint16_t batteryMaxVoltage      = 0;
 uint16_t batteryWarningVoltage  = 0;
@@ -164,7 +163,6 @@ batteryState_e getBatteryState ( void ) {
 void batteryInit ( batteryConfig_t *initialBatteryConfig ) {
   // Assign the initial configuration to the global battery configuration pointer
   batteryConfig        = initialBatteryConfig;
-  battery_capacity_mAh = batteryConfig->BatteryCapacity;
 
   // Initialize battery state and parameters
   batteryState = BATTERY_NOT_PRESENT;    // Set the initial state as battery not present
@@ -188,7 +186,7 @@ static inline void handleBatteryConnected ( ) {
   batteryState = BATTERY_OK;
 
   // Initialize battery parameters with predefined values.
-  batteryCapacity_mAh = battery_capacity_mAh;                                    // Set the battery capacity in milliamp hours.
+  batteryCapacity_mAh = batteryConfig->BatteryCapacity;                                    // Set the battery capacity in milliamp hours.
   batteryMaxVoltage   = ( uint16_t ) ( batteryConfig->vBatMaxVoltage * 100 );    // Set the maximum voltage of the battery in millivolts.
 
   // Calculate critical and warning voltage levels based on the number of cells and predefined constants.

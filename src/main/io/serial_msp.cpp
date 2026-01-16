@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 7th Jan 2026                                           #
+ #  Last Modified: Fri, 16th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -1139,13 +1139,13 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize8 ( 0 );    // TODO gps_baudrate (an index, cleanflight uses a uint32_t
       serialize8 ( 0 );    // gps_ubx_sbas
 #endif
-      serialize8 ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput );
+      // serialize8 ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput );
       serialize8 ( masterConfig.rxConfig.rssi_channel );
       serialize8 ( 0 );
 
       serialize16 ( currentProfile->mag_declination / 10 );
 
-      serialize8 ( masterConfig.batteryConfig.vbatscale );
+      // serialize8 ( masterConfig.batteryConfig.vbatscale );
       serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
       serialize8 ( masterConfig.batteryConfig.vBatMaxVoltage );
       serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
@@ -1240,19 +1240,19 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       break;
 
     case MSP_VOLTAGE_METER_CONFIG:
-      headSerialReply ( 4 );
-      serialize8 ( batteryMaxVoltage );
-      serialize8 ( batteryWarningVoltage );
-      serialize8 ( batteryCriticalVoltage );
-      serialize8 ( batteryCapacity_mAh );
+      headSerialReply ( 5 );
+      serialize8 ( (uint8_t)(batteryMaxVoltage/100) );
+      serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
+      serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
       break;
 
     case MSP_CURRENT_METER_CONFIG:
       headSerialReply ( 7 );
-      serialize16 ( masterConfig.batteryConfig.currentMeterScale );
-      serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
-      serialize8 ( masterConfig.batteryConfig.currentMeterType );
-      serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterScale );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
+      // serialize8 ( masterConfig.batteryConfig.currentMeterType );
+      // serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
       break;
 
     case MSP_MIXER:
@@ -1309,8 +1309,8 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( masterConfig.boardAlignment.pitchDegrees );
       serialize16 ( masterConfig.boardAlignment.yawDegrees );
 
-      serialize16 ( masterConfig.batteryConfig.currentMeterScale );
-      serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterScale );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
       break;
 
     case MSP_CF_SERIAL_CONFIG:
@@ -1563,16 +1563,16 @@ static bool processInCommand ( void ) {
       read8 ( );    // gps_baudrate
       read8 ( );    // gps_ubx_sbas
 #endif
-      masterConfig.batteryConfig.multiwiiCurrentMeterOutput = read8 ( );
+      // masterConfig.batteryConfig.multiwiiCurrentMeterOutput = read8 ( );
       masterConfig.rxConfig.rssi_channel                    = read8 ( );
       read8 ( );
 
       currentProfile->mag_declination = read16 ( ) * 10;
 
-      masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
-      masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
+      // masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
+      // masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
+      // masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
+      // masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
       break;
     case MSP_SET_MOTOR:
       for ( i = 0; i < 8; i++ )    // FIXME should this use MAX_MOTORS or MAX_SUPPORTED_MOTORS instead of 8
@@ -1714,17 +1714,17 @@ static bool processInCommand ( void ) {
       break;
 
     case MSP_SET_VOLTAGE_METER_CONFIG:
-      masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
-      masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
+      masterConfig.batteryConfig.vBatMaxVoltage = read8 ( );    
+      masterConfig.batteryConfig.vBatWarningVoltage = read8 ( );   
+      masterConfig.batteryConfig.vBatMinVoltage = read8 ( );   
+      masterConfig.batteryConfig.BatteryCapacity = read16 ( );    
       break;
 
     case MSP_SET_CURRENT_METER_CONFIG:
-      masterConfig.batteryConfig.currentMeterScale  = read16 ( );
-      masterConfig.batteryConfig.currentMeterOffset = read16 ( );
+      // masterConfig.batteryConfig.currentMeterScale  = read16 ( );
+      // masterConfig.batteryConfig.currentMeterOffset = read16 ( );
       masterConfig.batteryConfig.currentMeterType   = ( currentSensor_e ) read8 ( );
-      masterConfig.batteryConfig.batteryCapacity    = read16 ( );
+      // masterConfig.batteryConfig.batteryCapacity    = read16 ( );
       break;
 
 #ifndef USE_QUAD_MIXER_ONLY
@@ -1790,8 +1790,8 @@ static bool processInCommand ( void ) {
       masterConfig.boardAlignment.pitchDegrees = read16 ( );    // board_align_pitch
       masterConfig.boardAlignment.yawDegrees   = read16 ( );    // board_align_yaw
 
-      masterConfig.batteryConfig.currentMeterScale  = read16 ( );
-      masterConfig.batteryConfig.currentMeterOffset = read16 ( );
+      // masterConfig.batteryConfig.currentMeterScale  = read16 ( );
+      // masterConfig.batteryConfig.currentMeterOffset = read16 ( );
       break;
 
     case MSP_SET_CF_SERIAL_CONFIG: {

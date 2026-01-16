@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Fri, 16th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -290,15 +290,15 @@ void resetTelemetryConfig ( telemetryConfig_t *telemetryConfig ) {
 }
 
 void resetBatteryConfig ( batteryConfig_t *batteryConfig ) {
-  batteryConfig->vbatscale              = VBAT_SCALE_DEFAULT;
-  batteryConfig->vbatresdivval          = VBAT_RESDIVVAL_DEFAULT;
-  batteryConfig->vbatresdivmultiplier   = VBAT_RESDIVMULTIPLIER_DEFAULT;
-  batteryConfig->vbatmaxcellvoltage     = 42;    // 43
-  batteryConfig->vbatmincellvoltage     = 32;    // 33
-  batteryConfig->vbatwarningcellvoltage = 33;    // 35
-  batteryConfig->currentMeterOffset     = 0;    // pluto default 0
-  batteryConfig->currentMeterScale      = 0;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
-  batteryConfig->batteryCapacity        = 1000;
+  // batteryConfig->vbatscale              = VBAT_SCALE_DEFAULT;
+  // batteryConfig->vbatresdivval          = VBAT_RESDIVVAL_DEFAULT;
+  // batteryConfig->vbatresdivmultiplier   = VBAT_RESDIVMULTIPLIER_DEFAULT;
+  // batteryConfig->vbatmaxcellvoltage     = 42;    // 43
+  // batteryConfig->vbatmincellvoltage     = 32;    // 33
+  // batteryConfig->vbatwarningcellvoltage = 33;    // 35
+  // batteryConfig->currentMeterOffset     = 0;    // pluto default 0
+  // batteryConfig->currentMeterScale      = 0;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
+  // batteryConfig->batteryCapacity        = 1000;
   batteryConfig->currentMeterType       = CURRENT_SENSOR_INA219;    // ADC to VIRTUAL
   batteryConfig->vBatMaxVoltage         = 42;                       // 43
   batteryConfig->vBatMinVoltage         = 30;                       // 33
