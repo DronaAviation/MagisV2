@@ -33,16 +33,15 @@
 #include "accgyro.h"
 #include "accgyro_mpu.h"
 #include "accgyro_icm20948.h"
+#include "config/runtime_config.h"
 
 extern uint16_t acc_1G;
 extern uint8_t mpuLowPassFilter;
 
 static uint8_t icmCurrentBank = 0xFF;
-static inline void icmSelectBank(uint8_t bank)
-{
-  if (icmCurrentBank == bank) return;
-  mpuConfiguration.write(0x7F, bank);
-  icmCurrentBank = bank;
+
+static inline void icmSelectBank ( uint8_t bank ) {
+  mpuConfiguration.write ( REG_BANK_SEL, bank );
 }
 
 bool icm20948AccDetect ( acc_t *acc ) {
@@ -78,32 +77,61 @@ void icm20948AccInit ( void ) {
 }
 
 void icm20948GyroInit ( uint16_t lpf ) {
+  // 1) INT pin / EXTI (your existing code)
   mpuIntExtiInit ( );
 
-  bool ack = false;
+  // 2) Go to Bank 0 and reset
+  icmSelectBank ( BANK_0 );
+  mpuConfiguration.write ( REG_PWR_MGMT_1, BIT_H_RESET );
+  delay ( 150 );
 
-   mpuConfiguration.write ( 0x7F, 0x20 );
-  icmSelectBank(0x20); // user bank 2
+  // 3) Wake + choose clock (also clears sleep if it was set)
+  //    Many guides recommend writing 0x01 to get it out of sleep. :contentReference[oaicite:1]{index=1}
+  mpuConfiguration.write ( REG_PWR_MGMT_1, CLKSEL_PLL );
+  delay ( 50 );
 
-  delay ( 20 );
+  uint8_t who = 0;
 
-  mpuConfiguration.write ( 0x01, ( 0x06 | ( 0b00011000 | 0x01 ) ) );    // gyro lpf and rate
-  // mpuConfiguration.write ( 0x01, 0xD8 );    // gyro lpf and rate
+  mpuConfiguration.read ( REG_WHO_AM_I, 1, &who );
+  if ( who != WHO_AM_I_ICM20948 ) {
+    FC_Reboot_Led ( );
+  }
 
-  delay ( 10 );
+  // 4) Ensure primary I2C stays enabled:
+  //    DO NOT set I2C_IF_DIS for I2C-only.
+  //    Also keep I2C_MST disabled unless you specifically need internal mag master mode.
+  mpuConfiguration.write ( REG_USER_CTRL, 0x00 );
+  delay ( 1 );
 
-  mpuConfiguration.write ( 0x00, 0x00 );    // gyro sample rate
+  // 5) Make sure accel+gyro are enabled (PWR_MGMT_2: 0 = enabled)
+  mpuConfiguration.write ( REG_PWR_MGMT_2, 0x00 );
+  delay ( 1 );
 
-  delay ( 10 );
+  // 7) Now configure gyro/accel in Bank 2 (your original part, with small cleanup)
+  icmSelectBank ( BANK_2 );
+  delay ( 1 );
 
-  mpuConfiguration.write(0x14, (0x04 | ( 0b00110000 | 0x01))); //acc lpf and rate
-  // mpuConfiguration.write ( 0x14, 0b00110001 );    // acc lpf and rate
+  // --- Gyro ---
+  // Example: DLPF ON + FS=2000dps + some DLPF cfg
+  // Your existing value: 0x1F
+  mpuConfiguration.write ( REG_GYRO_CONFIG_1, 0x1F );
+  delay ( 1 );
 
-  delay ( 10 );
+  // Sample rate divider = 0 => max base ODR (depends on mode)
+  mpuConfiguration.write ( REG_GYRO_SMPLRT_DIV, 0x00 );
+  delay ( 1 );
 
-  mpuConfiguration.write ( 0x10, 0x00 );    // acc sample rate higher byte
+  // --- Accel ---
+  // Your existing value: 0x35
+  mpuConfiguration.write ( REG_ACCEL_CONFIG, 0x35 );
+  delay ( 1 );
 
-  delay ( 10 );
+  mpuConfiguration.write ( REG_ACCEL_SMPLRT_DIV_1, 0x00 );
+  delay ( 1 );
+  mpuConfiguration.write ( REG_ACCEL_SMPLRT_DIV_2, 0x00 );
+  delay ( 1 );
 
-  mpuConfiguration.write ( 0x11, 0x00 );    // acc sample rate lower byte
+  // 8) Return to Bank 0 (good hygiene; many later reads assume Bank 0)
+  icmSelectBank ( BANK_0 );
+  delay ( 1 );
 }

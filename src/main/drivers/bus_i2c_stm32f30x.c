@@ -64,9 +64,61 @@ static volatile uint16_t i2c2ErrorCount = 0;
 
 static I2C_TypeDef *I2Cx = NULL;
 
+void i2cInitPort ( I2C_TypeDef *I2Cx );
+
+static void i2cUnstick1 ( void ) {
+  GPIO_InitTypeDef gpio;
+
+  // 1) Disable I2C1 peripheral (so it releases the pins)
+  I2C_Cmd ( I2C1, DISABLE );
+  I2C_DeInit ( I2C1 );    // important on STM32F3 to clear BUSY state machine
+
+  // 2) Temporarily configure PB8/PB9 as GPIO open-drain outputs (no internal pull)
+  GPIO_StructInit ( &gpio );
+  gpio.GPIO_Pin   = I2C1_SCL_PIN | I2C1_SDA_PIN;    // PB8 | PB9
+  gpio.GPIO_Mode  = GPIO_Mode_OUT;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  gpio.GPIO_OType = GPIO_OType_OD;
+  gpio.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+  GPIO_Init ( GPIOB, &gpio );
+
+  // release both lines (OD high = float -> pulled up from sensor side)
+  GPIO_SetBits ( GPIOB, I2C1_SCL_PIN | I2C1_SDA_PIN );
+  delayMicroseconds ( 5 );
+
+  // 3) If SDA is low at the MCU pin, pulse SCL up to 18 times (I use 18, safer than 9)
+  for ( int i = 0; i < 18; i++ ) {
+    if ( GPIO_ReadInputDataBit ( GPIOB, I2C1_SDA_PIN ) == Bit_SET ) {
+      break;
+    }
+    GPIO_ResetBits ( GPIOB, I2C1_SCL_PIN );
+    delayMicroseconds ( 5 );
+    GPIO_SetBits ( GPIOB, I2C1_SCL_PIN );
+    delayMicroseconds ( 5 );
+  }
+
+  // 4) Generate STOP: SDA low while SCL high, then SDA high
+  GPIO_ResetBits ( GPIOB, I2C1_SDA_PIN );
+  delayMicroseconds ( 5 );
+  GPIO_SetBits ( GPIOB, I2C1_SCL_PIN );
+  delayMicroseconds ( 5 );
+  GPIO_SetBits ( GPIOB, I2C1_SDA_PIN );
+  delayMicroseconds ( 5 );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // I2C TimeoutUserCallback
 ///////////////////////////////////////////////////////////////////////////////
+
+static void i2cRecoverPeripheral ( void ) {
+  // Disable + clear flags
+  I2C_Cmd ( I2Cx, DISABLE );
+  I2C_ClearFlag ( I2Cx, I2C_ICR_STOPCF | I2C_ICR_NACKCF | I2C_ICR_BERRCF | I2C_ICR_ARLOCF );
+  I2C_Cmd ( I2Cx, ENABLE );
+
+  // If still stuck, full reinit:
+  i2cInitPort ( I2Cx );
+}
 
 uint32_t i2cTimeoutUserCallback ( I2C_TypeDef *I2Cx ) {
   if ( I2Cx == I2C1 ) {
@@ -74,6 +126,7 @@ uint32_t i2cTimeoutUserCallback ( I2C_TypeDef *I2Cx ) {
   } else {
     i2c2ErrorCount++;
   }
+  i2cRecoverPeripheral ( );
   return false;
 }
 
@@ -86,7 +139,16 @@ void i2cInitPort ( I2C_TypeDef *I2Cx ) {
     RCC_APB1PeriphClockCmd ( RCC_APB1Periph_I2C1, ENABLE );
     RCC_I2CCLKConfig ( RCC_I2C1CLK_SYSCLK );
 
-    // i2cUnstick(I2Cx);                                         // Clock out stuff to make sure slaves arent stuck
+    i2cUnstick1 ( );    // Clock out stuff to make sure slaves arent stuck
+
+    // hard reset I2C1 peripheral (clears stuck BUSY state machine)
+    RCC_APB1PeriphResetCmd ( RCC_APB1Periph_I2C1, ENABLE );
+    delayMicroseconds ( 5 );
+    RCC_APB1PeriphResetCmd ( RCC_APB1Periph_I2C1, DISABLE );
+    delayMicroseconds ( 5 );
+
+    // re-enable clock after reset (some libs require it)
+    RCC_APB1PeriphClockCmd ( RCC_APB1Periph_I2C1, ENABLE );
 
     GPIO_PinAFConfig ( I2C1_SCL_GPIO, I2C1_SCL_PIN_SOURCE, I2C1_SCL_GPIO_AF );
     GPIO_PinAFConfig ( I2C1_SDA_GPIO, I2C1_SDA_PIN_SOURCE, I2C1_SDA_GPIO_AF );
@@ -98,7 +160,7 @@ void i2cInitPort ( I2C_TypeDef *I2Cx ) {
 
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 
     GPIO_InitStructure.GPIO_Pin = I2C1_SCL_PIN;
@@ -117,6 +179,9 @@ void i2cInitPort ( I2C_TypeDef *I2Cx ) {
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
     I2C_InitStructure.I2C_Timing              = 0x00E0257A;    // 400 Khz, 72Mhz Clock, Analog Filter Delay ON, Rise 100, Fall 10.
     // I2C_InitStructure.I2C_Timing              = 0x8000050B;
+    RCC_APB1PeriphResetCmd ( RCC_APB1Periph_I2C1, ENABLE );
+    delayMicroseconds ( 5 );
+    RCC_APB1PeriphResetCmd ( RCC_APB1Periph_I2C1, DISABLE );
 
     I2C_Init ( I2C1, &I2C_InitStructure );
 
@@ -139,7 +204,7 @@ void i2cInitPort ( I2C_TypeDef *I2Cx ) {
     // Init pins
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 
     GPIO_InitStructure.GPIO_Pin = I2C2_SCL_PIN;

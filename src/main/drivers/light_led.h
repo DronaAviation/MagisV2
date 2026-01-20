@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 22nd Feb 2025                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -179,7 +179,6 @@ void ledInit ( void );
   #define LED_TOGGLE 2
 
 void ledOperator ( uint32_t led_no, uint32_t led_status );
-
 #endif
 
 #ifdef __cplusplus
