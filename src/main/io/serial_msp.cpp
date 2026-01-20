@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Jan 2026                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -444,6 +444,8 @@ typedef struct mspPort_s {
 } mspPort_t;
 
 static mspPort_t mspPorts [ MAX_MSP_PORT_COUNT ];
+
+static bool BatteryCapacityChanged = false;
 
 static mspPort_t *currentPort;
 
@@ -1241,7 +1243,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 
     case MSP_VOLTAGE_METER_CONFIG:
       headSerialReply ( 5 );
-      serialize8 ( (uint8_t)(batteryMaxVoltage/100) );
+      serialize8 ( ( uint8_t ) ( batteryMaxVoltage / 100 ) );
       serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
       serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
       serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
@@ -1564,7 +1566,7 @@ static bool processInCommand ( void ) {
       read8 ( );    // gps_ubx_sbas
 #endif
       // masterConfig.batteryConfig.multiwiiCurrentMeterOutput = read8 ( );
-      masterConfig.rxConfig.rssi_channel                    = read8 ( );
+      masterConfig.rxConfig.rssi_channel = read8 ( );
       read8 ( );
 
       currentProfile->mag_declination = read16 ( ) * 10;
@@ -1655,6 +1657,10 @@ static bool processInCommand ( void ) {
       }
       writeEEPROM ( );
       readEEPROM ( );
+
+      if ( BatteryCapacityChanged ) {
+        FC_Reboot_Led ( );
+      }
       break;
 
 #ifdef USE_FLASHFS
@@ -1714,16 +1720,17 @@ static bool processInCommand ( void ) {
       break;
 
     case MSP_SET_VOLTAGE_METER_CONFIG:
-      masterConfig.batteryConfig.vBatMaxVoltage = read8 ( );    
-      masterConfig.batteryConfig.vBatWarningVoltage = read8 ( );   
-      masterConfig.batteryConfig.vBatMinVoltage = read8 ( );   
-      masterConfig.batteryConfig.BatteryCapacity = read16 ( );    
+      masterConfig.batteryConfig.vBatMaxVoltage     = read8 ( );
+      masterConfig.batteryConfig.vBatWarningVoltage = read8 ( );
+      masterConfig.batteryConfig.vBatMinVoltage     = read8 ( );
+      masterConfig.batteryConfig.BatteryCapacity    = read16 ( );
+      BatteryCapacityChanged                        = true;
       break;
 
     case MSP_SET_CURRENT_METER_CONFIG:
       // masterConfig.batteryConfig.currentMeterScale  = read16 ( );
       // masterConfig.batteryConfig.currentMeterOffset = read16 ( );
-      masterConfig.batteryConfig.currentMeterType   = ( currentSensor_e ) read8 ( );
+      masterConfig.batteryConfig.currentMeterType = ( currentSensor_e ) read8 ( );
       // masterConfig.batteryConfig.batteryCapacity    = read16 ( );
       break;
 
