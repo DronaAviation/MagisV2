@@ -11,7 +11,7 @@
  #  Created Date: Fri, 7th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 2nd Jan 2026                                           #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -114,7 +114,7 @@ extern uint16_t flightIndicatorFlag;
 void set_FSI ( FlightStatus_e flag );
 void reset_FSI ( FlightStatus_e flag );
 bool status_FSI ( FlightStatus_e flag );
-
+void FC_Reboot_Led ( void );
 #ifdef __cplusplus
 }
 #endif

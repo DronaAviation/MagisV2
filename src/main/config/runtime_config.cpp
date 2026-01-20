@@ -276,4 +276,12 @@ void flightStatusIndicator ( void ) {
     ActiveTime = LedTime + delay_time;
   }
 }
+
+void FC_Reboot_Led ( void ) {
+  while ( 1 ) {
+    ledOperator ( LEDg, TOGGLE );
+    ledOperator ( LEDb, TOGGLE );
+    delay ( 100 );
+  }
+}
 #endif
