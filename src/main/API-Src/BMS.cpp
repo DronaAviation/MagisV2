@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -39,7 +39,7 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
       return mAhRemain;
     case Battery_Capicity:
       // Return the total battery capacity in milliamp hours
-      return battery_capacity_mAh;
+      return batteryCapacity_mAh;
     case Estimated_Capacity:
       // Return the estimated capacity of the battery
       return EstBatteryCapacity;
@@ -47,9 +47,4 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
       // Return 0 for any undefined BMS option
       return 0;
   }
-}
-
-void Bms_Using_New_Battery_Capicity ( uint16_t _new_cap_mAh ) {
-  // Assign the new capacity value to the battery capacity in mAh
-  battery_capacity_mAh = _new_cap_mAh;
 }

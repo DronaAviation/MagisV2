@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Jan 2026                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -85,7 +85,6 @@ extern uint16_t mAmpRaw;
 extern uint16_t mAmpWithGain;
 extern uint16_t mAhDrawn;
 extern uint16_t mAhRemain;
-extern uint16_t battery_capacity_mAh;
 extern uint16_t EstBatteryCapacity;
 extern uint8_t BatteryWarningMode;
 extern float soc_battery_percentage;
