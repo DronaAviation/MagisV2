@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 6th Jan 2026                                           #
+ #  Last Modified: Wed, 21st Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,8 +26,8 @@ extern "C" {
 #define MAGIS_IDENTIFIER          "MAGIS V2"
 
 #define FW_RELEASE_TYPE           "C"
-#define FW_VERSION_LENGTH         7
-#define API_VERSION_LENGTH        7
+#define FW_VERSION_LENGTH         5
+#define API_VERSION_LENGTH        6
 #define PROJECT_LENGTH            8    // lower case hexadecimal digits.
 #define BUILD_DATE_LENGTH 11
 #define BUILD_TIME_LENGTH 8
