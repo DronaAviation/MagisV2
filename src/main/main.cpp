@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 27th Nov 2025                                          #
+ #  Last Modified: Fri, 16th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -633,8 +633,7 @@ void init ( void ) {
   pwm_params.useSoftSerial      = feature ( FEATURE_SOFTSERIAL );
   pwm_params.useParallelPWM     = feature ( FEATURE_RX_PARALLEL_PWM );
   pwm_params.useRSSIADC         = feature ( FEATURE_RSSI_ADC );
-  pwm_params.useCurrentMeterADC = feature ( FEATURE_INA219_CBAT )
-                                  && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_INA219;    // REMEMBER REMEMBER
+  pwm_params.useCurrentMeterADC = feature ( FEATURE_INA219_CBAT ) && masterConfig.batteryConfig.currentMeterType == CURRENT_SENSOR_INA219;    // REMEMBER REMEMBER
   pwm_params.useLEDStrip = feature ( FEATURE_LED_STRIP );
   pwm_params.usePPM      = feature ( FEATURE_RX_PPM );
   pwm_params.useSerialRx = feature ( FEATURE_RX_SERIAL );

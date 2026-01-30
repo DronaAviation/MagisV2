@@ -31,7 +31,7 @@ BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
-FW_Version	=	2.10.0
+FW_Version	=	3.0.0
 API_Version	=	0.29.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
@@ -222,7 +222,6 @@ MAIN_BLACKBOX = blackbox/blackbox.cpp \
 
 COMMON_SRC = 	build_config.cpp \
 		   				debug.cpp \
-		   				version.cpp \
 		   				main.cpp \
 		   				mw.cpp \
 							$(TARGET_SRC) \
@@ -360,7 +359,8 @@ PRIMUS_V5_SRC = 	startup_stm32f30x_md_gcc.S \
 
 ifeq ($(BUILD_TYPE),BIN)
 $(TARGET)_SRC:=$($(TARGET)_SRC)\
-			PlutoPilot.cpp
+			PlutoPilot.cpp \
+			version.cpp
 endif               
 
 # Search path and source files for the ST stdperiph library
@@ -381,7 +381,7 @@ OPTIMIZE	=	-O0
 LTO_FLAGS	=	$(OPTIMIZE)
 else
 OPTIMIZE	=	-Os
-LTO_FLAGS	=	-flto --use-linker-plugin $(OPTIMIZE)
+LTO_FLAGS	=	$(OPTIMIZE)
 endif
 
 DEBUG_FLAGS	 = -ggdb3 -DDEBUG
@@ -396,11 +396,10 @@ CFLAGS	=	$(ARCH_FLAGS) \
 					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
-		   		-ffat-lto-objects\
+		   		-fno-lto\
 		   		$(DEVICE_FLAGS) \
 		   		-DUSE_STDPERIPH_DRIVER \
 		   		$(TARGET_FLAGS) \
-		   		-save-temps=obj \
 		   		-MMD -MP
 
 
@@ -414,11 +413,10 @@ CCFLAGS	=	$(ARCH_FLAGS) \
 					-Wshadow -Wundef -Wconversion -Wsign-conversion \
 		   		-ffunction-sections \
 		   		-fdata-sections \
-		   		-ffat-lto-objects\
+		   		-fno-lto\
 		   		$(DEVICE_FLAGS) \
 		   		-DUSE_STDPERIPH_DRIVER \
 		   		$(TARGET_FLAGS) \
-		   		-save-temps=obj \
 		   		-MMD -MP
 
 ASFLAGS	= $(ARCH_FLAGS) \
@@ -486,7 +484,7 @@ $(TARGET_ELF):  $(TARGET_OBJS)
 # Compile
 
 
-libs/libpluto_$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).a: $(TARGET_OBJS)
+libs/lib$(TARGET)_$(FW_Version).a: $(TARGET_OBJS)
 	mkdir -p $(dir $@)
 	$(AR) rcs $@ $^
 
@@ -514,7 +512,7 @@ $(BUILD_DIR)/$(TARGET)/bin/%.o: %.S
 	@$(CC) -c -o $@ $(ASFLAGS) $<
 
 
-libcreate: libs/libpluto_$(LIB_MAJOR_VERSION).$(LIB_MINOR_VERSION).a
+libcreate: libs/lib$(TARGET)_$(FW_Version).a
 
 ## clean       : clean up all temporary / machine-generated files
 clean:

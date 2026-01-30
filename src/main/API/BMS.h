@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -59,16 +59,5 @@ typedef enum BMS_Option {
  * @return `uint16_t` The value of the requested BMS parameter. Returns 0 if an undefined option is passed.
  */
 uint16_t Bms_Get ( BMS_Option_e _bms_option );
-
-/**
- * @brief Updates the battery management system's capacity with a new value.
- *
- * This function assigns the provided new capacity, given in milliampere-hours (mAh),
- * to the existing battery capacity variable, effectively updating it to reflect
- * the new capacity.
- *
- * @param _new_cap_mAh The new battery capacity in milliampere-hours (mAh).
- */
-void Bms_Using_New_Battery_Capicity ( uint16_t _new_cap_mAh );
 
 #endif

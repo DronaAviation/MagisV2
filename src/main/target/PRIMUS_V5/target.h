@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 27th Nov 2025                                          #
+ #  Last Modified: Tue, 13th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -71,7 +71,7 @@ extern "C" {
 #define MAG
 #define USE_MAG_AK09916
 #define MAG_AK09916_ALIGN CW180_DEG_FLIP    // For plutoX-new remove comment  else for old comment
-// #define MAG_ENFORCE
+#define MAG_ENFORCE
 
 #define BARO
 #define USE_BARO_ICP10111

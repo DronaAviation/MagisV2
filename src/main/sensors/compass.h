@@ -51,6 +51,8 @@ extern sensor_align_e magAlign;
 extern mag_t mag;
 extern float magneticDeclination;
 
+extern bool isMagCalibrated;
+
 #ifdef __cplusplus
 }
 #endif 

@@ -102,7 +102,7 @@ void flightStatusIndicator ( void ) {
   if ( ( int32_t ) ( LedTime - ActiveTime ) >= delay_time && LedStatusState ) {    // LedTime - ActiveTime is the time for which the LED should be ON//
     counter++;
     switch ( leastSignificantBit ( flightIndicatorFlag ) ) {
-      case Accel_Gyro_Calibration: {
+      case Mag_Calibration: {
         delay_time = 100;
 
         if ( toggle_switch ) {
@@ -123,7 +123,7 @@ void flightStatusIndicator ( void ) {
         }
 
       } break;
-      case Mag_Calibration: {
+      case Accel_Gyro_Calibration: {
 
         delay_time = 100;
 
@@ -274,6 +274,15 @@ void flightStatusIndicator ( void ) {
       } break;
     }
     ActiveTime = LedTime + delay_time;
+  }
+}
+
+void FC_Reboot_Led ( void ) {
+  while ( 1 ) {
+    ledOperator ( LEDr, OFF );
+    ledOperator ( LEDg, TOGGLE );
+    ledOperator ( LEDb, TOGGLE );
+    delay ( 100 );
   }
 }
 #endif

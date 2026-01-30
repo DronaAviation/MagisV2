@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Tue, 13th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -270,7 +270,7 @@ bool isCalibrating ( ) {
   // Note: compass calibration is handled completely differently, outside of the main loop, see f.CALIBRATE_MAG
 #ifdef MAG_ENFORCE
   // to check whether mag calibration is done, if not the don't arm
-  if ( masterConfig.magScale.raw [ 0 ] == 0 || masterConfig.magScale.raw [ 1 ] == 0 || masterConfig.magScale.raw [ 2 ] == 0 ) {
+  if ( masterConfig.magScale.raw [ 0 ] == 0 || masterConfig.magScale.raw [ 1 ] == 0 || masterConfig.magScale.raw [ 2 ] == 0 || !isMagCalibrated ) {
     set_FSI ( Mag_Calibration );
   } else {
     reset_FSI ( Mag_Calibration );

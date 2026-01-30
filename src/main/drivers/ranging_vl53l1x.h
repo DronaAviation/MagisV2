@@ -11,7 +11,7 @@
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 14th Nov 2025                                          #
+ #  Last Modified: Sat, 10th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 #include "vl53l1_def.h"
-#include "vl53l1_LL_device.h"
+#include "vl53l1_ll_device.h"
 #include "vl53l1_platform.h"
 #include "vl53l1_platform_user_data.h"
 #include "API/Specifiers.h"
