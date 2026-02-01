@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 7th Sep 2025                                           #
+ #  Last Modified: Sat, 31st Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -34,6 +34,7 @@
 #include "src/main/API/Scheduler-Timer.h"
 #include "src/main/API/Debugging.h"
 #include "src/main/API/Serial-IO.h"
+#include "src/main/API/XRanging.h"
 
 void plutoRxConfig ( void );
 

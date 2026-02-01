@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 13th Jan 2026                                          #
+ #  Last Modified: Sun, 1st Feb 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -488,6 +488,8 @@ void annexCode ( void ) {
   // Read out gyro temperature. can use it for something somewhere. maybe get MCU temperature instead? lots of fun possibilities.
   if ( gyro.temperature )
     gyro.temperature ( &telemTemperature1 );
+
+  applyObjectAvoidance ( );
 }
 
 void mwDisarm ( void ) {
