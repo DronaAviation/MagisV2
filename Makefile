@@ -32,9 +32,10 @@ PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
 FW_Version	=	3.0.0
-API_Version	=	0.29.0
+API_Version	=	0.30.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
+RAM_SIZE 	?=
 # Debugger optons, must be empty or GDB
 DEBUG	?=
 # Serial port/Device for flashing
@@ -54,6 +55,7 @@ OPTIONS	?= 	'__FORKNAME__="$(FORKNAME)"' \
 ifeq ($(FLASH_SIZE),)
 	ifeq ($(TARGET),$(filter $(TARGET),PRIMUSX2 PRIMUS_V5 PRIMUS_X2_v1))
 		FLASH_SIZE = 256
+		RAM_SIZE 	= 40
 	else
 		$(error FLASH_SIZE not configured for target)
 	endif
@@ -70,6 +72,8 @@ BUILD_DIR	=	$(ROOT)/Build
 CMSIS_DIR	=	$(ROOT)/lib/main/CMSIS
 INCLUDE_DIRS	=	$(SRC_DIR)
 LINKER_DIR	=	$(ROOT)/src/main/target
+
+$(shell mkdir -p /tmp >/dev/null 2>&1 || true)
 
 # Search path for sources
 VPATH	:=	$(SRC_DIR) \
@@ -534,7 +538,41 @@ st-flash_$(TARGET): $(TARGET_BIN)
 ## st-flash    : flash firmware (.bin) onto flight controller
 st-flash: st-flash_$(TARGET)
 
-binary: $(TARGET_HEX)
+memory: $(TARGET_ELF)
+	@{ \
+	echo "=========== MEMORY SUMMARY ===========" ; \
+	set -- $$($(SIZE) --format=berkeley $(TARGET_ELF) | sed -n '2p'); \
+	TEXT=$$1; DATA=$$2; BSS=$$3; \
+	FLASH_USED_B=$$((TEXT + DATA)); \
+	RAM_USED_B=$$((DATA + BSS)); \
+	FLASH_TOTAL_B=$$(( $(FLASH_SIZE) * 1024 )); \
+	RAM_TOTAL_B=$$(( $(RAM_SIZE) * 1024 )); \
+	BAR_WIDTH=30; \
+	FLASH_PCT=$$((FLASH_USED_B * 100 / FLASH_TOTAL_B)); \
+	RAM_PCT=$$((RAM_USED_B * 100 / RAM_TOTAL_B)); \
+	FLASH_FILL=$$((FLASH_PCT * BAR_WIDTH / 100)); \
+	RAM_FILL=$$((RAM_PCT * BAR_WIDTH / 100)); \
+	FLASH_EMPTY=$$((BAR_WIDTH - FLASH_FILL)); \
+	RAM_EMPTY=$$((BAR_WIDTH - RAM_FILL)); \
+	FLASH_KB_INT=$$((FLASH_USED_B / 1024)); \
+	FLASH_KB_DEC=$$(( (FLASH_USED_B % 1024) * 10 / 1024 )); \
+	RAM_KB_INT=$$((RAM_USED_B / 1024)); \
+	RAM_KB_DEC=$$(( (RAM_USED_B % 1024) * 10 / 1024 )); \
+	printf "Flash [%.*s%.*s] %d%%  (%d.%d KB / %d KB)\n" \
+		$$FLASH_FILL "##############################" \
+		$$FLASH_EMPTY "                              " \
+		$$FLASH_PCT $$FLASH_KB_INT $$FLASH_KB_DEC $(FLASH_SIZE); \
+	printf "RAM   [%.*s%.*s] %d%%  (%d.%d KB / %d KB)\n" \
+		$$RAM_FILL "##############################" \
+		$$RAM_EMPTY "                              " \
+		$$RAM_PCT $$RAM_KB_INT $$RAM_KB_DEC $(RAM_SIZE); \
+	echo "===================================="; \
+	}
+
+
+
+
+binary: $(TARGET_HEX) memory
 
 unbrick_$(TARGET): $(TARGET_HEX)
 	stty -F $(SERIAL_DEVICE) raw speed 115200 -crtscts cs8 -parenb -cstopb -ixon
