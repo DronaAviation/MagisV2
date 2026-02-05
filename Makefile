@@ -32,7 +32,7 @@ PROJECT ?= DEFAULT
 LIB_MAJOR_VERSION	=	1
 LIB_MINOR_VERSION	=	1
 FW_Version	=	3.0.0
-API_Version	=	0.30.0
+API_Version	=	1.0.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
