@@ -475,13 +475,32 @@ TARGET_DEPS	 = $(addsuffix .d,$(addprefix $(BUILD_DIR)/$(TARGET)/bin/,$(basename
 # List of buildable ELF files and their object dependencies.
 # It would be nice to compute these lists, but that seems to be just beyond make.
 
+TOTAL_FILES := $(shell echo $$(($(words $(TARGET_OBJS)) + 2)))
+COMPILED_COUNT = 0
+
+define progress_echo
+  $(eval COMPILED_COUNT=$(shell echo $$(($(COMPILED_COUNT)+1))))
+  @printf "\033[1;32m[%3d %%]\033[0m %s\n" \
+    $$(($(COMPILED_COUNT) * 100 / $(TOTAL_FILES))) \
+    "$(notdir $<)"
+endef
+
+define progress_step
+  $(eval COMPILED_COUNT=$(shell echo $$(($(COMPILED_COUNT)+1))))
+  @printf "\033[1;32m[%3d %%]\033[0m %s\n" \
+    $$(($(COMPILED_COUNT) * 100 / $(TOTAL_FILES))) \
+    "$1"
+endef
+
 $(TARGET_HEX): $(TARGET_ELF)
+	$(call progress_step,Generating HEX file...)
 	$(OBJCOPY) -O ihex --set-start 0x8000000 $< $@
 
 $(TARGET_BIN): $(TARGET_ELF)
 	$(OBJCOPY) -O binary $< $@
 
 $(TARGET_ELF):  $(TARGET_OBJS)
+	$(call progress_step,Linking firmware...)
 	$(CC) -o $@ $^ $(LDFLAGS)
 	$(SIZE) $(TARGET_ELF) 
 
@@ -495,24 +514,24 @@ libs/lib$(TARGET)_$(FW_Version).a: $(TARGET_OBJS)
 
 $(BUILD_DIR)/$(TARGET)/bin/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	$(call progress_echo)
 	@$(CC) -c -o $@ $(CCFLAGS) $<
 
 
 $(BUILD_DIR)/$(TARGET)/bin/%.o: %.c
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	$(call progress_echo)
 	@$(C) -c -o $@ $(CFLAGS) $<
 
 # Assemble
 $(BUILD_DIR)/$(TARGET)/bin/%.o: %.s
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	$(call progress_echo)
 	@$(CC) -c -o $@ $(ASFLAGS) $<
 
 $(BUILD_DIR)/$(TARGET)/bin/%.o: %.S
 	@mkdir -p $(dir $@)
-	@echo %% $(notdir $<)
+	$(call progress_echo)
 	@$(CC) -c -o $@ $(ASFLAGS) $<
 
 
