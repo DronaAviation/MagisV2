@@ -8,12 +8,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\target\PRIMUSX2\target.h                                   #
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 13th Nov 2025                                          #
+ #  Last Modified: Tue, 10th Feb 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -70,7 +70,7 @@ extern "C" {
 #define MAG
 #define USE_MAG_AK09916
 #define MAG_AK09916_ALIGN CW180_DEG_FLIP    // For plutoX-new remove comment  else for old comment
-// #define MAG_ENFORCE
+#define MAG_ENFORCE
 
 #define BARO
 #define USE_BARO_ICP10111
@@ -181,6 +181,9 @@ extern "C" {
 
 // #define LASER_TOF // only to get laser height
 // #define LASER_ALT // to integrate with althold
+
+// #define PAW3903_SPI
+#define PAW3903_SC18
 
 #define FLIGHT_STATUS_INDICATOR
 #define ENABLE_ACROBAT

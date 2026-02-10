@@ -11,7 +11,7 @@
  #  Created Date: Tue, 15th Apr 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Tue, 10th Feb 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -114,7 +114,7 @@ void MotroWakeUp ( void ) {
     if ( ! hasInitialBoostCompleted && ! boostActive ) {
       initialBoostStartTime = currentMillis;    // Start boost timer
       boostActive           = true;             // Activate boost
-      setAllMotors ( 1650 );                    // Set motors to a higher throttle for boost
+      setAllMotors ( 1900 );                    // Set motors to a higher throttle for boost
     } else if ( boostActive && currentMillis - initialBoostStartTime >= 100 ) {
       // If boost is active and has been running for 100ms
       hasInitialBoostCompleted = true;     // Mark boost as completed
