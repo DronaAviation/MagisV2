@@ -1,27 +1,33 @@
-/*
- * This file is part of Cleanflight.
- *
- * Cleanflight is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2026 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2026 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\io\ledstrip.h                                              #
+ #  Created Date: Mon, 23rd Mar 2026                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Tue, 24th Mar 2026                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 #pragma once
+
+#include "common/color.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
-#define MAX_LED_STRIP_LENGTH 32
+#define MAX_LED_STRIP_LENGTH 5
 #define CONFIGURABLE_COLOR_COUNT 16
 
 #define LED_X_BIT_OFFSET 4
@@ -95,6 +101,7 @@ void applyDefaultColors(hsvColor_t *colors, uint8_t colorCount);
 
 void ledStripEnable(void);
 void reevalulateLedConfig(void);
+void ledStripFlightStatus(void);
 
 #ifdef __cplusplus
 }

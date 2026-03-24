@@ -173,6 +173,7 @@ MAIN_COMMON = common/maths.cpp \
 		   				common/printf.cpp \
 		   				common/typeconversion.cpp \
 		   				common/encoding.cpp \
+							common/colorconversion.c \
 
 MAIN_FLIGHT = flight/altitudehold.cpp \
 		   				flight/failsafe.cpp \
@@ -204,6 +205,7 @@ MAIN_IO = io/beeper.cpp \
 		   		io/statusindicator.cpp \
 		   		io/flashfs.cpp \
 		   		io/gps.cpp \
+					io/ledstrip.c \
 
 MAIN_RX = rx/rx.cpp \
 		   		rx/pwm.c \
@@ -280,6 +282,8 @@ DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
             		drivers/ranging_vl53l1x.cpp \
             		drivers/sc18is602b.cpp \
             		drivers/bridge_sc18is602b.cpp \
+								drivers/light_ws2811strip_stm32f30x.c \
+								drivers/light_ws2811strip.c \
 
 DRONA_COMMAND = command/command.cpp \
             		command/localisationCommand.cpp \

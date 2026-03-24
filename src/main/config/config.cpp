@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Jan 2026                                          #
+ #  Last Modified: Tue, 24th Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -81,8 +81,8 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 
-#define BRUSHED_MOTORS_PWM_RATE   /* 32000 */ 20000    //! NEW - 36000 old value related to motor  try 32000
-#define BRUSHLESS_MOTORS_PWM_RATE 400
+#define BRUSHED_MOTORS_PWM_RATE /* 32000 */ 20000    //! NEW - 36000 old value related to motor  try 32000
+#define BRUSHLESS_MOTORS_PWM_RATE           400
 
 #ifdef __cplusplus
 extern "C" {
@@ -299,11 +299,11 @@ void resetBatteryConfig ( batteryConfig_t *batteryConfig ) {
   // batteryConfig->currentMeterOffset     = 0;    // pluto default 0
   // batteryConfig->currentMeterScale      = 0;    // for Allegro ACS758LCB-100U (40mV/A)     CHANGED for pluto, 400 default
   // batteryConfig->batteryCapacity        = 1000;
-  batteryConfig->currentMeterType       = CURRENT_SENSOR_INA219;    // ADC to VIRTUAL
-  batteryConfig->vBatMaxVoltage         = 42;                       // 43
-  batteryConfig->vBatMinVoltage         = 30;                       // 33
-  batteryConfig->vBatWarningVoltage     = 32;                       // 35
-  batteryConfig->BatteryCapacity        = 600;
+  batteryConfig->currentMeterType   = CURRENT_SENSOR_INA219;    // ADC to VIRTUAL
+  batteryConfig->vBatMaxVoltage     = 42;                       // 43
+  batteryConfig->vBatMinVoltage     = 30;                       // 33
+  batteryConfig->vBatWarningVoltage = 32;                       // 35
+  batteryConfig->BatteryCapacity    = 600;
 }
 
 #ifdef SWAP_SERIAL_PORT_0_AND_1_DEFAULTS
@@ -410,6 +410,10 @@ static void resetConf ( void ) {
 #if defined( PRIMUSX ) || defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
   featureSet ( FEATURE_INA219_CBAT );    // testing virtual adc current measurement
   featureSet ( FEATURE_GPS );
+#endif
+
+#ifdef LED_STRIP
+  featureSet ( FEATURE_LED_STRIP );
 #endif
 
 #ifdef INA219_Voltage
@@ -813,6 +817,10 @@ void validateAndFixConfig ( void ) {
     featureClear ( FEATURE_RX_PARALLEL_PWM );
     featureClear ( FEATURE_RX_PPM );
   }
+
+#ifdef LED_STRIP
+  featureSet ( FEATURE_LED_STRIP );
+#endif
 
   if ( featureConfigured ( FEATURE_RX_PARALLEL_PWM ) ) {
 #if defined( STM32F10X )

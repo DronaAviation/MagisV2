@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Mon, 23rd Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -57,6 +57,7 @@
 
 static bool ledStripInitialised = false;
 static bool ledStripEnabled     = true;
+static bool ledStripFlightStatusEnabled = true;
 
 static void ledStripDisable ( void );
 
@@ -110,6 +111,7 @@ const hsvColor_t hsv_blue       = LED_BLUE;
 const hsvColor_t hsv_darkViolet = LED_DARK_VIOLET;
 const hsvColor_t hsv_magenta    = LED_BAGENTA;
 const hsvColor_t hsv_deepPink   = LED_DEEP_PINK;
+
 
   #define LED_DIRECTION_COUNT 6
 
@@ -857,6 +859,11 @@ void updateLedStrip ( void ) {
     return;
   }
 
+  if (ledStripFlightStatusEnabled) {
+    ledStripFlightStatus();
+    return;
+  }
+
   if ( IS_RC_MODE_ACTIVE ( BOXLEDLOW ) ) {
     if ( ledStripEnabled ) {
       ledStripDisable ( );
@@ -1023,5 +1030,134 @@ static void ledStripDisable ( void ) {
   setStripColor ( &hsv_black );
 
   ws2811UpdateStrip ( );
+}
+
+void ledStripFlightStatus(void)
+{
+    static int32_t LedTime;
+    static int delay_time = 100;
+    static int32_t ActiveTime = 500;
+    static uint8_t counter = 0;
+    static uint8_t toggle_switch = 1;
+    LedTime = millis();
+
+    if ((int32_t)(LedTime - ActiveTime) >= delay_time) {
+        counter++;
+        switch (leastSignificantBit(flightIndicatorFlag)) {
+            case Mag_Calibration:
+                delay_time = 100;
+                if (toggle_switch) {
+                    setStripColor(&hsv_yellow);
+                    toggle_switch = 0;
+                } else {
+                    setStripColor(&hsv_black);
+                    toggle_switch = 1;
+                }
+                break;
+            case Accel_Gyro_Calibration:
+                delay_time = 100;
+                if (toggle_switch) {
+                    setStripColor(&hsv_magenta);
+                    toggle_switch = 0;
+                } else {
+                    setStripColor(&hsv_black);
+                    toggle_switch = 1;
+                }
+                break;
+            case Ok_to_arm:
+                if (rc_connected) {
+                    delay_time = 100;
+                    setStripColor(&hsv_green);
+                } else {
+                    delay_time = 120;
+                    switch (counter % 4) {
+                        case 0:
+                            setStripColor(&hsv_green);
+                            break;
+                        case 1:
+                            setStripColor(&hsv_cyan);
+                            break;
+                        case 2:
+                            setStripColor(&hsv_white);
+                            break;
+                        case 3:
+                            setStripColor(&hsv_black);
+                            break;
+                    }
+                }
+                break;
+            case Not_ok_to_arm:
+                if (rc_connected) {
+                    delay_time = 100;
+                    if (toggle_switch) {
+                        setStripColor(&hsv_red);
+                        toggle_switch = 0;
+                    } else {
+                        setStripColor(&hsv_black);
+                        toggle_switch = 1;
+                    }
+                } else {
+                    delay_time = 120;
+                    switch (counter % 4) {
+                        case 0:
+                            setStripColor(&hsv_green);
+                            break;
+                        case 1:
+                            setStripColor(&hsv_cyan);
+                            break;
+                        case 2:
+                            setStripColor(&hsv_white);
+                            break;
+                        case 3:
+                            setStripColor(&hsv_black);
+                            break;
+                    }
+                }
+                break;
+            case Armed:
+                if (rc_connected) {
+                    delay_time = 100;
+                    setStripColor(&hsv_blue);
+                }
+                break;
+            case LowBattery_inFlight:
+                delay_time = 100;
+                if (toggle_switch) {
+                    setStripColor(&hsv_red);
+                    toggle_switch = 0;
+                } else {
+                    setStripColor(&hsv_black);
+                    toggle_switch = 1;
+                }
+                break;
+            case Low_battery:
+                delay_time = 100;
+                setStripColor(&hsv_red);
+                break;
+            case Signal_loss:
+                delay_time = 100;
+                if (toggle_switch) {
+                    setStripColor(&hsv_blue);
+                    toggle_switch = 0;
+                } else {
+                    setStripColor(&hsv_black);
+                    toggle_switch = 1;
+                }
+                break;
+            case Crash:
+                delay_time = 100;
+                switch (counter % 2) {
+                    case 0:
+                        setStripColor(&hsv_green);
+                        break;
+                    case 1:
+                        setStripColor(&hsv_red);
+                        break;
+                }
+                break;
+        }
+        ws2811UpdateStrip();
+        ActiveTime = LedTime + delay_time;
+    }
 }
 #endif

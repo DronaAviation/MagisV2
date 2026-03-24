@@ -13,7 +13,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Mon, 23rd Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -52,6 +52,7 @@
 #include "io/rc_curves.h"
 
 #include "io/display.h"
+#include "io/ledstrip.h"
 
 #include "telemetry/telemetry.h"
 #include "flight/mixer.h"

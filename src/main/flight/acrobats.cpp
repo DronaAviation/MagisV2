@@ -22,6 +22,7 @@
 #include "common/axis.h"
 #include "common/maths.h"
 #include "drivers/light_led.h"
+#include "io/ledstrip.h"
 #include "drivers/sensor.h"
 #include "drivers/accgyro.h"
 #include "drivers/compass.h"

@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Mon, 23rd Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -49,6 +49,7 @@
 // #include "rx/rx.h"
 
 #include "io/gps.h"
+#include "io/ledstrip.h"
 // #include "io/beeper.h"
 // #include "io/escservo.h"
 #include "io/rc_controls.h"

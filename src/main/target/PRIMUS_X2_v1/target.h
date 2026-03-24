@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 13th Jan 2026                                          #
+ #  Last Modified: Mon, 23rd Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -188,6 +188,7 @@ extern "C" {
 #define ENABLE_ACROBAT
 #define LED_ENABLE
 #define TEST_ENABLE
+#define LED_STRIP
 
 #ifdef __cplusplus
 }

@@ -60,7 +60,7 @@
 #include "io/serial_msp.h"
 #include "io/statusindicator.h"
 
-#include "rx/rx.h"
+// #include "rx/rx.h"
 #include "rx/msp.h"
 
 #include "telemetry/telemetry.h"
@@ -85,7 +85,7 @@
 
 #include "command/command.h"
 
-#include "API/Scheduler-Timer.h"
+// #include "API/Scheduler-Timer.h"
 #include "API/RC-Interface.h"
 
 #define VBATT_HYSTERESIS 1    // TESTING NEW BATT FAILSAFE CONDITION
