@@ -85,12 +85,12 @@ static servoParam_t *servoConf;
 static lowpass_t lowpassFilters[MAX_SUPPORTED_SERVOS];
 #endif
 
+#ifdef USE_QUAD_MIXER_ONLY
 static const motorMixer_t mixerQuadX[] = { { 1.0f, -1.0f, 1.0f, -1.0f },          // REAR_R
 { 1.0f, -1.0f, -1.0f, 1.0f },          // FRONT_R
 { 1.0f, 1.0f, 1.0f, 1.0f },          // REAR_L
 { 1.0f, 1.0f, -1.0f, -1.0f },          // FRONT_L
 };
-#ifndef USE_QUAD_MIXER_ONLY
 static const motorMixer_t mixerTricopter[] = { { 1.0f, 0.0f, 1.333333f, 0.0f },     // REAR
 { 1.0f, -1.0f, -0.666667f, 0.0f },     // RIGHT
 { 1.0f, 1.0f, -0.666667f, 0.0f },     // LEFT
