@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\flight\altitudehold.cpp                                    #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 8th Nov 2025                                           #
+ #  Last Modified: Tue, 31st Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -222,6 +222,7 @@ static void applyMultirotorAltHold ( void ) {
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
+        errorVelocityI   = 0;
       }
       rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
     }
@@ -238,6 +239,7 @@ static void applyMultirotorAltHold ( void ) {
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
+        errorVelocityI   = 0;
       }
     }
     rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
