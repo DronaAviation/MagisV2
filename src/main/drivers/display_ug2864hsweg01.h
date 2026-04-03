@@ -57,6 +57,9 @@ void i2c_OLED_draw_rect(
     uint8_t h
 );
 
+// Font table (5x7, 171 characters starting from ASCII 32)
+extern const uint8_t multiWiiFont[][5];
+
 #ifdef __cplusplus
 }
-#endif 
+#endif

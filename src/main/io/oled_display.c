@@ -335,6 +335,7 @@ void OledDisplayData(void)
         return;
     }
 
+    updatedMillis = millis ( );
     if (updatedMillis - OldOledDisplayDataMillis >= 200) {
         OledDisplayNav();
         OledDisplaySystemData();

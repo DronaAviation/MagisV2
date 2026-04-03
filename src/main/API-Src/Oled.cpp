@@ -37,6 +37,7 @@
 #include "API/Oled.h"
 #include "API/API-Utils.h"
 #include "drivers/display_ug2864hsweg01.h"
+#include "config/runtime_config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -94,14 +95,16 @@ void Oled_Init(void)
 }
 
 /**
- * @brief Clear OLED display immediately.
+ * @brief Clear OLED display.
  *
- * Uses a fast hardware clear command.
+ * Uses batch I2C page writes (8 transactions instead of 2048).
+ * Skipped if drone is armed to avoid any I2C contention during flight.
  * Valid in both SYSTEM and USER modes.
  */
 void Oled_Clear(void)
 {
     if (!OledEnable) return;
+    if (ARMING_FLAG(ARMED)) return;
 
     i2c_OLED_clear_display_quick();
 }
@@ -116,15 +119,102 @@ void Oled_Clear(void)
  * @param row     Text row (1–6)
  * @param string  Null-terminated string to print
  */
-void Oled_Print(uint8_t col, uint8_t row, const char *string)
+void Oled_Print(uint8_t col, uint8_t row, const char *text)
 {
     if (!OledEnable) return;
     if (oledMode != OLED_MODE_SYSTEM) return;
+    if (!text) return;
 
     if (col > 20 || row < 1 || row > 6) return;
 
     i2c_OLED_set_xy(col, row);
-    i2c_OLED_send_string(string);
+    i2c_OLED_send_string(text);
+}
+
+/**
+ * @brief Draw text into framebuffer at pixel coordinates.
+ *
+ * Renders using the built-in 5x7 font. Each character is 6px wide
+ * (5px glyph + 1px gap). Works in USER mode — text lives in the
+ * framebuffer alongside shapes, eyes, etc.
+ *
+ * @param screen  Framebuffer pointer
+ * @param x       Pixel X position (0–127)
+ * @param y       Pixel Y position (0–63)
+ * @param text    Null-terminated string
+ */
+void Oled_DrawText(uint8_t *screen, int x, int y, const char *text)
+{
+    if (!screen || !text) return;
+
+    while (*text) {
+        uint8_t ch = (uint8_t)*text;
+        if (ch < 32) ch = 32;     // unprintable → space
+        uint8_t idx = ch - 32;
+
+        // Draw 5 columns of the glyph
+        for (int col = 0; col < 5; col++) {
+            uint8_t bits = multiWiiFont[idx][col];
+            for (int row = 0; row < 7; row++) {
+                if (bits & (1 << row)) {
+                    Oled_DrawPixel(screen, x + col, y + row, true);
+                }
+            }
+        }
+        // 6th column = gap (already clear from memset)
+
+        x += 6;                    // advance cursor
+        if (x > 127 - 5) break;   // stop at screen edge
+        text++;
+    }
+}
+
+/**
+ * @brief Draw an integer number into framebuffer.
+ */
+void Oled_DrawNumber(uint8_t *screen, int x, int y, int number)
+{
+    char buf[12];    // enough for -2147483648
+    int  i = 0;
+    bool neg = false;
+
+    if (number < 0) {
+        neg = true;
+        number = -number;
+    }
+
+    // Build digits in reverse
+    do {
+        buf[i++] = '0' + (number % 10);
+        number /= 10;
+    } while (number > 0);
+
+    if (neg) buf[i++] = '-';
+
+    // Reverse into output
+    char out[12];
+    for (int j = 0; j < i; j++) {
+        out[j] = buf[i - 1 - j];
+    }
+    out[i] = '\0';
+
+    Oled_DrawText(screen, x, y, out);
+}
+
+/**
+ * @brief Check if OLED is in USER mode.
+ */
+bool Oled_IsUserMode(void)
+{
+    return oledMode == OLED_MODE_USER;
+}
+
+/**
+ * @brief Check if OLED is in SYSTEM mode.
+ */
+bool Oled_IsSystemMode(void)
+{
+    return oledMode == OLED_MODE_SYSTEM;
 }
 
 /**
@@ -133,9 +223,15 @@ void Oled_Print(uint8_t col, uint8_t row, const char *string)
  * After calling:
  *  - System telemetry and UI rendering resumes
  *  - User graphics are cleared
+ *
+ * Skipped if armed — mode switch involves a display clear.
  */
-void Oled_SetMode_System(void)
+void Oled_SystemMode(void)
 {
+    if (ARMING_FLAG(ARMED)) {
+        oledMode = OLED_MODE_SYSTEM;
+        return;
+    }
     oledMode = OLED_MODE_SYSTEM;
     i2c_OLED_clear_display_quick();
 }
@@ -146,11 +242,17 @@ void Oled_SetMode_System(void)
  * After calling:
  *  - System rendering is disabled
  *  - Only framebuffer-based drawing is allowed
+ *
+ * Resets shadow buffer so first Oled_Update() diffs correctly.
+ * Skipped clear if armed.
  */
-void Oled_SetMode_User(void)
+void Oled_UserMode(void)
 {
     oledMode = OLED_MODE_USER;
-    i2c_OLED_clear_display_quick();
+    memset(oledShadowBuffer, 0, sizeof(oledShadowBuffer));
+    if (!ARMING_FLAG(ARMED)) {
+        i2c_OLED_clear_display_quick();
+    }
 }
 
 
@@ -171,7 +273,7 @@ void Oled_SetMode_User(void)
  * @param max  Upper bound
  * @return     Clamped value
  */
-int Oled_Clamp(int v, int min, int max)
+static int Oled_Clamp(int v, int min, int max)
 {
     if (v < min) return min;
     if (v > max) return max;
@@ -197,7 +299,7 @@ int Oled_Clamp(int v, int min, int max)
  * @param outMax   Output range maximum
  * @return         Mapped value
  */
-int Oled_Map(int v, int inMin, int inMax, int outMin, int outMax)
+static int Oled_Map(int v, int inMin, int inMax, int outMin, int outMax)
 {
     /* Prevent division by zero */
     if (inMax == inMin)
@@ -389,23 +491,90 @@ void Oled_FillRect(uint8_t *buf, int x, int y, int w, int h, bool on)
 
 /* ---------------- Rounded rectangles ---------------- */
 
+/**
+ * @brief Helper: draw quarter-circle arcs for rounded rect corners.
+ */
+static void drawCornerArcs(uint8_t *buf, int x, int y, int w, int h, int r, bool on)
+{
+    int cx, cy;
+    int px = r, py = 0, err = 0;
+
+    while (px >= py) {
+        // Top-right corner
+        cx = x + w - 1 - r; cy = y + r;
+        Oled_DrawPixel(buf, cx + px, cy - py, on);
+        Oled_DrawPixel(buf, cx + py, cy - px, on);
+        // Top-left corner
+        cx = x + r; cy = y + r;
+        Oled_DrawPixel(buf, cx - px, cy - py, on);
+        Oled_DrawPixel(buf, cx - py, cy - px, on);
+        // Bottom-right corner
+        cx = x + w - 1 - r; cy = y + h - 1 - r;
+        Oled_DrawPixel(buf, cx + px, cy + py, on);
+        Oled_DrawPixel(buf, cx + py, cy + px, on);
+        // Bottom-left corner
+        cx = x + r; cy = y + h - 1 - r;
+        Oled_DrawPixel(buf, cx - px, cy + py, on);
+        Oled_DrawPixel(buf, cx - py, cy + px, on);
+
+        py++;
+        err += 1 + 2 * py;
+        if (2 * (err - px) + 1 > 0) {
+            px--;
+            err += 1 - 2 * px;
+        }
+    }
+}
+
 void Oled_DrawRoundedRect(uint8_t *buf, int x, int y, int w, int h, int r, bool on)
 {
     if (r <= 0) {
         Oled_DrawRect(buf, x, y, w, h, on);
         return;
     }
+    if (r > w / 2) r = w / 2;
+    if (r > h / 2) r = h / 2;
 
+    // Straight edges (shortened by radius)
     Oled_DrawHLine(buf, x + r, y, w - 2 * r, on);
     Oled_DrawHLine(buf, x + r, y + h - 1, w - 2 * r, on);
     Oled_DrawVLine(buf, x, y + r, h - 2 * r, on);
     Oled_DrawVLine(buf, x + w - 1, y + r, h - 2 * r, on);
+
+    // Corner arcs
+    drawCornerArcs(buf, x, y, w, h, r, on);
 }
 
 void Oled_FillRoundedRect(uint8_t *buf, int x, int y, int w, int h, int r, bool on)
 {
-    (void)r;  /* Radius currently unused (fallback fill) */
-    Oled_FillRect(buf, x, y, w, h, on);
+    if (r <= 0 || r > w / 2 || r > h / 2) {
+        Oled_FillRect(buf, x, y, w, h, on);
+        return;
+    }
+    // Fill center rectangle
+    Oled_FillRect(buf, x + r, y, w - 2 * r, h, on);
+    // Fill left and right side strips
+    Oled_FillRect(buf, x, y + r, r, h - 2 * r, on);
+    Oled_FillRect(buf, x + w - r, y + r, r, h - 2 * r, on);
+    // Fill corner circles
+    int px = r, py = 0, err = 0;
+    while (px >= py) {
+        Oled_DrawHLine(buf, x + r - px, y + r - py, px, on);               // top-left
+        Oled_DrawHLine(buf, x + w - r, y + r - py, px, on);                // top-right
+        Oled_DrawHLine(buf, x + r - px, y + h - 1 - r + py, px, on);      // bottom-left
+        Oled_DrawHLine(buf, x + w - r, y + h - 1 - r + py, px, on);       // bottom-right
+        Oled_DrawHLine(buf, x + r - py, y + r - px, py, on);
+        Oled_DrawHLine(buf, x + w - r, y + r - px, py, on);
+        Oled_DrawHLine(buf, x + r - py, y + h - 1 - r + px, py, on);
+        Oled_DrawHLine(buf, x + w - r, y + h - 1 - r + px, py, on);
+
+        py++;
+        err += 1 + 2 * py;
+        if (2 * (err - px) + 1 > 0) {
+            px--;
+            err += 1 - 2 * px;
+        }
+    }
 }
 
 /* ---------------- Circle primitives ---------------- */
@@ -435,12 +604,24 @@ void Oled_DrawCircle(uint8_t *buf, int cx, int cy, int r, bool on)
 
 void Oled_FillCircle(uint8_t *buf, int cx, int cy, int r, bool on)
 {
-    for (int y = -r; y <= r; y++) {
-        for (int x = -r; x <= r; x++) {
-            if (x * x + y * y <= r * r) {
-                Oled_DrawPixel(buf, cx + x, cy + y, on);
-            }
+    // Scanline fill using midpoint circle — O(r) scanlines instead of O(r^2) pixels
+    int x = r, y = 0, err = 0;
+
+    // Draw center horizontal line first
+    Oled_DrawHLine(buf, cx - r, cy, 2 * r + 1, on);
+
+    while (x >= y) {
+        y++;
+        err += 1 + 2 * y;
+        if (2 * (err - x) + 1 > 0) {
+            x--;
+            err += 1 - 2 * x;
         }
+        // Draw horizontal spans for each octant pair
+        Oled_DrawHLine(buf, cx - x, cy + y, 2 * x + 1, on);
+        Oled_DrawHLine(buf, cx - x, cy - y, 2 * x + 1, on);
+        Oled_DrawHLine(buf, cx - y, cy + x, 2 * y + 1, on);
+        Oled_DrawHLine(buf, cx - y, cy - x, 2 * y + 1, on);
     }
 }
 
@@ -488,7 +669,7 @@ static int clampPupil(int v, int max)
 /**
  * @brief Draw a filled eye with a moving pupil.
  */
-void Oled_DrawEyeWithPupil(
+static void Oled_DrawEyeWithPupil(
     uint8_t *buf,
     int cx,
     int cy,
@@ -517,7 +698,7 @@ void Oled_DrawEyeWithPupil(
 /**
  * @brief Draw an outline eye with a filled pupil.
  */
-void Oled_DrawEyeOutlineWithPupil(
+static void Oled_DrawEyeOutlineWithPupil(
     uint8_t *buf,
     int cx,
     int cy,
@@ -591,6 +772,123 @@ void Oled_DrawEye(
 
 
 
+/* ============================================================================
+ * BOXY EYES (Rounded Rectangle)
+ * ============================================================================
+ */
+
+/**
+ * @brief Draw a filled boxy eye with a rounded-rect pupil hole.
+ *
+ * Outer eye = filled rounded rectangle (white on OLED).
+ * Pupil     = smaller filled rounded rectangle erased inside (black).
+ * Pupil tracks with offset, clamped to stay inside the eye.
+ */
+static void Oled_DrawBoxyEyeFilled(
+    uint8_t *buf,
+    int cx, int cy,
+    int w, int h,
+    int r,
+    int pupilOffsetX,
+    int pupilOffsetY
+)
+{
+    // Draw outer eye (filled rounded rect)
+    int ex = cx - w / 2;
+    int ey = cy - h / 2;
+    Oled_FillRoundedRect(buf, ex, ey, w, h, r, true);
+
+    // Pupil dimensions (1/3 of eye size)
+    int pw = w / 3;
+    int ph = h / 3;
+    int pr = (r > 1) ? r / 2 : 1;
+
+    // Clamp pupil offset so it stays inside the eye
+    int maxOffX = (w - pw) / 2 - 1;
+    int maxOffY = (h - ph) / 2 - 1;
+    pupilOffsetX = clampPupil(pupilOffsetX, maxOffX);
+    pupilOffsetY = clampPupil(pupilOffsetY, maxOffY);
+
+    // Erase pupil (draw black rounded rect inside)
+    int px = cx + pupilOffsetX - pw / 2;
+    int py = cy + pupilOffsetY - ph / 2;
+    Oled_FillRoundedRect(buf, px, py, pw, ph, pr, false);
+}
+
+/**
+ * @brief Draw a boxy outline eye with a filled rounded-rect pupil.
+ *
+ * Outer eye = rounded rectangle border only.
+ * Pupil     = small filled rounded rectangle inside.
+ */
+static void Oled_DrawBoxyEyeOutline(
+    uint8_t *buf,
+    int cx, int cy,
+    int w, int h,
+    int r,
+    int pupilOffsetX,
+    int pupilOffsetY
+)
+{
+    // Draw outer eye border
+    int ex = cx - w / 2;
+    int ey = cy - h / 2;
+    Oled_DrawRoundedRect(buf, ex, ey, w, h, r, true);
+
+    // Pupil dimensions
+    int pw = w / 3;
+    int ph = h / 3;
+    int pr = (r > 1) ? r / 2 : 1;
+
+    // Clamp
+    int maxOffX = (w - pw) / 2 - 1;
+    int maxOffY = (h - ph) / 2 - 1;
+    pupilOffsetX = clampPupil(pupilOffsetX, maxOffX);
+    pupilOffsetY = clampPupil(pupilOffsetY, maxOffY);
+
+    // Draw filled pupil
+    int px = cx + pupilOffsetX - pw / 2;
+    int py = cy + pupilOffsetY - ph / 2;
+    Oled_FillRoundedRect(buf, px, py, pw, ph, pr, true);
+}
+
+/**
+ * @brief Draw a boxy eye — convenience wrapper.
+ *
+ * @param filled  true = solid eye with hollow pupil, false = outline with solid pupil
+ */
+void Oled_DrawBoxyEye(
+    uint8_t *buf,
+    int cx, int cy,
+    int w, int h,
+    int r,
+    int pupilOffsetX,
+    int pupilOffsetY,
+    bool filled
+)
+{
+    if (filled) {
+        Oled_DrawBoxyEyeFilled(buf, cx, cy, w, h, r, pupilOffsetX, pupilOffsetY);
+    } else {
+        Oled_DrawBoxyEyeOutline(buf, cx, cy, w, h, r, pupilOffsetX, pupilOffsetY);
+    }
+}
+
+/**
+ * @brief Draw a boxy X-eye (error/dead state) inside a rounded rect.
+ */
+void Oled_DrawBoxyXEye(uint8_t *buf, int cx, int cy, int w, int h, int r)
+{
+    int ex = cx - w / 2;
+    int ey = cy - h / 2;
+    Oled_DrawRoundedRect(buf, ex, ey, w, h, r, true);
+
+    int margin = 4;
+    Oled_DrawLine(buf, ex + margin, ey + margin, ex + w - margin, ey + h - margin, true);
+    Oled_DrawLine(buf, ex + w - margin, ey + margin, ex + margin, ey + h - margin, true);
+}
+
+
 void Oled_DrawArrow(
     uint8_t *buf,
     int cx,
@@ -642,6 +940,68 @@ void Oled_DrawArrow(
         default:
             break;
     }
+}
+
+
+/* ============================================================================
+ * SIMPLE API — internal framebuffer, no user management needed
+ * ============================================================================
+ */
+
+static uint8_t oledSimpleBuffer[1024];
+
+void Oled_Begin(void)
+{
+    if (!Oled_IsUserMode()) Oled_UserMode();
+    memset(oledSimpleBuffer, 0, sizeof(oledSimpleBuffer));
+}
+
+void Oled_End(void)
+{
+    Oled_Update(oledSimpleBuffer);
+}
+
+/* --- Simple text --- */
+void Oled_Text(int x, int y, const char *text)     { Oled_DrawText(oledSimpleBuffer, x, y, text); }
+void Oled_Number(int x, int y, int number)          { Oled_DrawNumber(oledSimpleBuffer, x, y, number); }
+
+/* --- Simple shapes (filled) --- */
+void Oled_Pixel(int x, int y)                       { Oled_DrawPixel(oledSimpleBuffer, x, y, true); }
+void Oled_Line(int x0, int y0, int x1, int y1)      { Oled_DrawLine(oledSimpleBuffer, x0, y0, x1, y1, true); }
+void Oled_Rect(int x, int y, int w, int h)           { Oled_FillRect(oledSimpleBuffer, x, y, w, h, true); }
+void Oled_RoundRect(int x, int y, int w, int h, int r) { Oled_FillRoundedRect(oledSimpleBuffer, x, y, w, h, r, true); }
+void Oled_Circle(int cx, int cy, int r)              { Oled_FillCircle(oledSimpleBuffer, cx, cy, r, true); }
+
+/* --- Simple outlines --- */
+void Oled_RectOutline(int x, int y, int w, int h)           { Oled_DrawRect(oledSimpleBuffer, x, y, w, h, true); }
+void Oled_RoundRectOutline(int x, int y, int w, int h, int r) { Oled_DrawRoundedRect(oledSimpleBuffer, x, y, w, h, r, true); }
+void Oled_CircleOutline(int cx, int cy, int r)               { Oled_DrawCircle(oledSimpleBuffer, cx, cy, r, true); }
+
+/* --- Simple HUD --- */
+void Oled_Joysticks(int throttle, int yaw, int roll, int pitch) { Oled_DrawRCJoysticks(oledSimpleBuffer, throttle, yaw, roll, pitch); }
+void Oled_PitchLine(int pitch)    { Oled_DrawPitchIndicator(oledSimpleBuffer, pitch); }
+void Oled_RollLine(int roll)      { Oled_DrawRollIndicator(oledSimpleBuffer, roll); }
+
+/* --- Erase --- */
+void Oled_Erase(int x, int y, int w, int h)         { Oled_FillRect(oledSimpleBuffer, x, y, w, h, false); }
+
+/* --- Eye presets --- */
+void Oled_RobotEyes(int pupilX, int pupilY)
+{
+    Oled_DrawBoxyEye(oledSimpleBuffer, 38, 32, 40, 30, 6, pupilX, pupilY, true);
+    Oled_DrawBoxyEye(oledSimpleBuffer, 90, 32, 40, 30, 6, pupilX, pupilY, true);
+}
+
+void Oled_RoundEyes(int pupilX, int pupilY)
+{
+    Oled_DrawEye(oledSimpleBuffer, 38, 32, 18, pupilX, pupilY, true);
+    Oled_DrawEye(oledSimpleBuffer, 90, 32, 18, pupilX, pupilY, true);
+}
+
+void Oled_DeadEyes(void)
+{
+    Oled_DrawBoxyXEye(oledSimpleBuffer, 38, 32, 36, 28, 6);
+    Oled_DrawBoxyXEye(oledSimpleBuffer, 90, 32, 36, 28, 6);
 }
 
 

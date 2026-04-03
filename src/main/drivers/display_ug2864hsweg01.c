@@ -31,7 +31,7 @@
 
 unsigned char CHAR_FORMAT = NORMAL_CHAR_FORMAT;
 
-static const uint8_t multiWiiFont [][ 5 ] = {
+const uint8_t multiWiiFont [][ 5 ] = {
   // Refer to "Times New Roman" Font Database... 5 x 7 font
   { 0x00, 0x00, 0x00, 0x00, 0x00 },
   { 0x00, 0x00, 0x4F, 0x00, 0x00 },    //   (  1)  ! - 0x0021 Exclamation Mark
@@ -180,20 +180,28 @@ static bool i2c_OLED_send_byte ( uint8_t val ) {
   return i2cWrite ( OLED_address, 0x40, val );
 }
 
+/**
+ * @brief Send a buffer of data bytes to OLED in a single I2C transaction.
+ *
+ * Uses i2cWriteBuffer to send up to 128 bytes in one START→STOP cycle
+ * instead of one transaction per byte. ~13x faster than byte-by-byte.
+ *
+ * @param data   Pointer to data bytes
+ * @param len    Number of bytes (max 255, typically 128 for one page)
+ * @return true on success
+ */
+static bool i2c_OLED_send_bytes ( uint8_t *data, uint8_t len ) {
+  return i2cWriteBuffer ( OLED_address, 0x40, len, data );
+}
+
 void i2c_OLED_clear_display ( void ) {
   i2c_OLED_send_cmd ( 0xa6 );                // Set Normal Display
   i2c_OLED_send_cmd ( 0xae );                // Display OFF
   i2c_OLED_send_cmd ( 0x20 );                // Set Memory Addressing Mode
-  i2c_OLED_send_cmd ( 0x00 );                // Set Memory Addressing Mode to Horizontal addressing mode
-  i2c_OLED_send_cmd ( 0xb0 );                // set page address to 0
-  i2c_OLED_send_cmd ( 0x40 );                // Display start line register to 0
-  i2c_OLED_send_cmd ( 0 );                   // Set low col address to 0
-  i2c_OLED_send_cmd ( 0x10 );                // Set high col address to 0
-  for ( uint16_t i = 0; i < 2048; i++ ) {    // fill the display's RAM with graphic... 128*64 pixel picture
-    i2c_OLED_send_byte ( 0x00 );             // clear
-  }
-  i2c_OLED_send_cmd ( 0x81 );                // Setup CONTRAST CONTROL, following byte is the contrast Value... always a 2 byte instruction
-  i2c_OLED_send_cmd ( 200 );                 // Here you can set the brightness 1 = dull, 255 is very bright
+  i2c_OLED_send_cmd ( 0x00 );                // Horizontal addressing mode
+  i2c_OLED_clear_display_quick ( );          // Batch-clear all 8 pages
+  i2c_OLED_send_cmd ( 0x81 );                // Setup CONTRAST CONTROL
+  i2c_OLED_send_cmd ( 200 );                 // Brightness
   i2c_OLED_send_cmd ( 0xaf );                // display on
 }
 
@@ -201,12 +209,12 @@ void i2c_OLED_clear_display ( void ) {
 
 
 void i2c_OLED_clear_display_quick ( void ) {
-  i2c_OLED_send_cmd ( 0xb0 );                // set page address to 0
-  i2c_OLED_send_cmd ( 0x40 );                // Display start line register to 0
-  i2c_OLED_send_cmd ( 0 );                   // Set low col address to 0
-  i2c_OLED_send_cmd ( 0x10 );                // Set high col address to 0
-  for ( uint16_t i = 0; i < 2048; i++ ) {    // fill the display's RAM with graphic... 128*64 pixel picture
-    i2c_OLED_send_byte ( 0x00 );             // clear
+  static uint8_t zeroBuf[128] = {0};
+  for ( uint8_t page = 0; page < 8; page++ ) {
+    i2c_OLED_send_cmd ( 0xB0 + page );       // set page address
+    i2c_OLED_send_cmd ( 0x00 );              // set low col address to 0
+    i2c_OLED_send_cmd ( 0x10 );              // set high col address to 0
+    i2c_OLED_send_bytes ( zeroBuf, 128 );    // send full page in one I2C transaction
   }
 }
 
@@ -266,6 +274,9 @@ void i2c_OLED_draw_bitmap(
 
     if (startPage + pages > 8) return;
 
+    // Temp buffer for bit-reversed page data (max 128 cols)
+    uint8_t revBuf[128];
+
     for (uint8_t page = 0; page < pages; page++) {
 
         uint8_t pageCmd = (uint8_t)(0xB0u + startPage + page);
@@ -275,11 +286,11 @@ void i2c_OLED_draw_bitmap(
         i2c_OLED_send_cmd((uint8_t)(0x10u + ((x >> 4) & 0x0F)));
 
         const uint8_t *row = bitmap + (page * width);
-        for (uint8_t col = 0; col < width; col++) {
-            i2c_OLED_send_byte(bitreverse8(row[col]));
-
-
+        uint8_t len = (width <= 128) ? width : 128;
+        for (uint8_t col = 0; col < len; col++) {
+            revBuf[col] = bitreverse8(row[col]);
         }
+        i2c_OLED_send_bytes(revBuf, len);
     }
 }
 
@@ -343,35 +354,49 @@ void i2c_OLED_draw_rect(
 
 void i2c_OLED_send_data(uint8_t *data, uint16_t length)
 {
-    i2c_OLED_set_xy(0, 0); // Set starting cursor position to top-left
-
-    for (uint16_t i = 0; i < length; ++i) {
-        i2c_OLED_send_byte(data[i]); // Send each byte one-by-one
+    // Send full framebuffer page-by-page using batch I2C
+    for (uint8_t page = 0; page < 8 && length > 0; page++) {
+        i2c_OLED_send_cmd ( 0xB0 + page );
+        i2c_OLED_send_cmd ( 0x00 );
+        i2c_OLED_send_cmd ( 0x10 );
+        uint8_t chunk = (length >= 128) ? 128 : (uint8_t)length;
+        i2c_OLED_send_bytes ( data, chunk );
+        data   += chunk;
+        length -= chunk;
     }
 }
 
 void i2c_OLED_send_changed_bytes(uint8_t* newBuf, uint8_t* oldBuf, int size) {
-  for (uint8_t page = 0; page < 8; page++) {
-    bool pageChanged = false;
+  (void)size;
 
-    // First check if any change occurred in this page
+  for (uint8_t page = 0; page < 8; page++) {
+    uint16_t base = page * 128;
+
+    // Find first and last changed column in this page
+    int first = -1;
+    int last  = -1;
     for (uint8_t col = 0; col < 128; col++) {
-      int idx = page * 128 + col;
-      if (newBuf[idx] != oldBuf[idx]) {
-        pageChanged = true;
-        break;
+      if (newBuf[base + col] != oldBuf[base + col]) {
+        if (first < 0) first = col;
+        last = col;
       }
     }
 
-    // If changes exist, send whole page
-    if (pageChanged) {
-      i2c_OLED_set_xy(0, page);  // Start of the page
+    // No changes in this page — skip entirely
+    if (first < 0) continue;
 
-      for (uint8_t col = 0; col < 128; col++) {
-        int idx = page * 128 + col;
-        i2c_OLED_send_byte(newBuf[idx]);  // Send byte
-        oldBuf[idx] = newBuf[idx];        // Update shadow
-      }
+    // Set cursor to first changed column
+    uint8_t len = (uint8_t)(last - first + 1);
+    i2c_OLED_send_cmd ( 0xB0 + page );
+    i2c_OLED_send_cmd ( 0x00 + (first & 0x0F) );
+    i2c_OLED_send_cmd ( 0x10 + ((first >> 4) & 0x0F) );
+
+    // Send only the changed range in one I2C transaction
+    i2c_OLED_send_bytes ( &newBuf[base + first], len );
+
+    // Update shadow for the sent range
+    for (uint8_t col = first; col <= last; col++) {
+      oldBuf[base + col] = newBuf[base + col];
     }
   }
 }
