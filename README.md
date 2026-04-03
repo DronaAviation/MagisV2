@@ -1,267 +1,203 @@
 # MagisV2 OLED API
 
-A unified, deterministic OLED rendering API for **MagisV2**, designed to support both **system-level telemetry UI** and **user-defined graphics / animations** without conflicts.
+128x64 monochrome OLED display API for the PlutoX2 nano drone.
 
-This API sits between the low-level OLED driver and user firmware, enforcing clear ownership rules and efficient rendering.
+## Quick Start
 
----
+```cpp
+void plutoInit ( void ) { Oled_Init(); }
 
-## Key Design Goals 
+void plutoLoop ( void ) {
+  Oled_Begin();
+  Oled_Text(10, 20, "Hello Pluto!");
+  Oled_RobotEyes(0, 0);
+  Oled_End();
+}
 
-* Clear separation between **SYSTEM** and **USER** rendering
-* Non-blocking, deterministic execution
-* Framebuffer-based graphics for animations
-* Diff-based OLED updates to minimize I2C bandwidth
-* Safe-by-default APIs (out-of-range and invalid-mode calls are ignored)
-
----
-
-## OLED Ownership Model
-
-The OLED can be owned by **only one layer at a time**.
-
-### SYSTEM Mode (Default)
-
-* Used by firmware for telemetry, status, debug text
-* Text-grid based rendering
-* User drawing APIs are ignored
-
-### USER Mode
-
-* Exclusive access for user code
-* Framebuffer-based drawing only
-* System text rendering is disabled
-
-Ownership is controlled via:
-
-```c
-Oled_SetMode_System();
-Oled_SetMode_User();
+void onLoopFinish ( void ) { Oled_SystemMode(); }
 ```
 
+No buffers. No memset. No mode switching. Just draw.
+
 ---
 
-## Initialization Flow
+## How It Works
 
-```c
-void plutoInit(void)
-{
-    Oled_Init();            // Enable OLED subsystem
-    Oled_SetMode_System();  // Default (optional, SYSTEM is default)
+**SYSTEM mode** (default) — firmware shows battery, attitude, RC data, flight status automatically. Just call `Oled_Init()` in `plutoInit()`.
+
+**USER mode** — you draw anything. Call `Oled_Begin()` at the start of your frame, draw with `Oled_*` functions, call `Oled_End()` to send to display. Call `Oled_SystemMode()` in `onLoopFinish()` to return to telemetry.
+
+---
+
+## Simple API
+
+### Frame
+
+| Function | Description |
+|----------|-------------|
+| `Oled_Begin()` | Start frame (clears buffer, auto enters USER mode) |
+| `Oled_End()` | Send frame to display (only changed pixels) |
+
+### Text
+
+| Function | Description |
+|----------|-------------|
+| `Oled_Text(x, y, "string")` | Draw text. 6px/char, 7px tall. |
+| `Oled_Number(x, y, 123)` | Draw integer (handles negatives) |
+
+### Shapes
+
+| Function | Description |
+|----------|-------------|
+| `Oled_Pixel(x, y)` | Single pixel |
+| `Oled_Line(x0, y0, x1, y1)` | Line between two points |
+| `Oled_Rect(x, y, w, h)` | Filled rectangle |
+| `Oled_RoundRect(x, y, w, h, r)` | Filled rounded rectangle |
+| `Oled_Circle(cx, cy, r)` | Filled circle |
+| `Oled_RectOutline(x, y, w, h)` | Rectangle border |
+| `Oled_RoundRectOutline(x, y, w, h, r)` | Rounded rectangle border |
+| `Oled_CircleOutline(cx, cy, r)` | Circle border |
+| `Oled_Erase(x, y, w, h)` | Black out a region |
+
+### Eyes
+
+| Function | Description |
+|----------|-------------|
+| `Oled_RobotEyes(pupilX, pupilY)` | Two boxy robot eyes. pupilX/Y: -5 to +5 |
+| `Oled_RoundEyes(pupilX, pupilY)` | Two round cartoon eyes |
+| `Oled_DeadEyes()` | Two X-shaped crash eyes |
+
+### HUD
+
+| Function | Description |
+|----------|-------------|
+| `Oled_Joysticks(throttle, yaw, roll, pitch)` | Dual RC joystick display (1000–2000) |
+| `Oled_PitchLine(pitch)` | Pitch indicator (-90 to +90 degrees) |
+| `Oled_RollLine(roll)` | Roll indicator (-90 to +90 degrees) |
+
+### Setup
+
+| Function | Description |
+|----------|-------------|
+| `Oled_Init()` | Enable OLED. Call once in `plutoInit()`. |
+| `Oled_SystemMode()` | Return to firmware telemetry. Call in `onLoopFinish()`. |
+| `Oled_IsUserMode()` | Returns true if you own the screen |
+| `Oled_IsSystemMode()` | Returns true if firmware owns the screen |
+
+### Constants
+
+| Constant | Value |
+|----------|-------|
+| `OLED_WIDTH` | 128 |
+| `OLED_HEIGHT` | 64 |
+
+---
+
+## Examples
+
+### Robot Eyes That Track RC Sticks
+
+```cpp
+void plutoLoop ( void ) {
+  Oled_Begin();
+  int px = (RcData_Get(RC_YAW) - 1500) / 100;
+  int py = -(RcData_Get(RC_PITCH) - 1500) / 100;
+  Oled_RobotEyes(px, py);
+  Oled_End();
 }
 ```
 
-> Hardware initialization of the OLED is handled by the platform and **not** by this API.
-
----
-
-## SYSTEM Mode APIs (Text Rendering)
-
-### Oled_Print
-
-```c
-Oled_Print(uint8_t col, uint8_t row, const char *text);
-```
-
-**Parameters**
-
-* `col`: 0–20 (text column)
-* `row`: 1–6  (text row)
-* `text`: null-terminated string
-
----
-
-### Oled_Clear
-
-```c
-Oled_Clear();
-```
-
-Clears the OLED immediately using a fast hardware command.
-
-Valid in both SYSTEM and USER modes.
-
----
-
-## USER Mode APIs (Graphics Rendering)
-
-### Framebuffer
-
-All USER-mode drawing operates on a framebuffer:
-
-```c
-uint8_t buffer[1024];  // 128 x 64 OLED
-```
-
-The buffer must persist (global or static).
-
----
-
-### Oled_Update
-
-```c
-Oled_Update(uint8_t *buffer);
-```
-
-* Pushes only changed bytes to the OLED
-* Uses an internal shadow buffer for diff-based updates
-* Ignored unless OLED is in USER mode
-
----
-
-## Drawing Primitives
-
-### Pixel
-
-```c
-Oled_DrawPixel(buffer, x, y, true);
-```
-
-* `x`: 0–127
-* `y`: 0–63
-
----
-
-### Lines
-
-```c
-Oled_DrawHLine(buffer, x, y, length, true);
-Oled_DrawVLine(buffer, x, y, length, true);
-Oled_DrawLine(buffer, x0, y0, x1, y1, true);
-```
-
----
-
-### Rectangles
-
-```c
-Oled_DrawRect(buffer, x, y, w, h, true);
-Oled_FillRect(buffer, x, y, w, h, true);
-```
-
----
-
-### Rounded Rectangles
-
-```c
-Oled_DrawRoundedRect(buffer, x, y, w, h, r, true);
-Oled_FillRoundedRect(buffer, x, y, w, h, r, true);
-```
-
-> Note: Filled rounded rectangles currently ignore radius.
-
----
-
-### Circles
-
-```c
-Oled_DrawCircle(buffer, cx, cy, r, true);
-Oled_FillCircle(buffer, cx, cy, r, true);
-```
-
----
-
-## Flight & RC Visuals
-
-### RC Joysticks
-
-```c
-Oled_DrawRCJoysticks(buffer, throttle, yaw, roll, pitch);
-```
-
-* RC input range: `1000–2000`
-* Natural inverted-Y behavior applied internally
-
----
-
-### Pitch Indicator
-
-```c
-Oled_DrawPitchIndicator(buffer, pitch);
-```
-
-* Pitch range: `-90° to +90°`
-
----
-
-### Roll Indicator
-
-```c
-Oled_DrawRollIndicator(buffer, roll);
-```
-
-* Roll range: `-90° to +90°`
-
----
-
-## Expressive / Eye APIs
-
-### Filled Eye with Pupil
-
-```c
-Oled_DrawEyeWithPupil(buffer, cx, cy, radius, dx, dy);
-```
-
----
-
-### Outline Eye with Pupil
-
-```c
-Oled_DrawEyeOutlineWithPupil(buffer, cx, cy, radius, dx, dy);
-```
-
----
-
-### X Eye (Error / Dead State)
-
-```c
-Oled_DrawXEye(buffer, cx, cy, size);
-```
-
----
-
-## Utility Helpers
-
-### Clamp
-
-```c
-int Oled_Clamp(int v, int min, int max);
-```
-
-### Map
-
-```c
-int Oled_Map(int v, int inMin, int inMax, int outMin, int outMax);
-```
-
-Safe alternatives to raw math for OLED coordinate mapping.
-
----
-
-## Minimal USER Mode Example
-
-```c
-static uint8_t fb[1024];
-
-void plutoInit(void)
-{
-    Oled_Init();
-    Oled_SetMode_User();
+### Tall Eyes That React to Roll
+
+```cpp
+void plutoLoop ( void ) {
+  Oled_Begin();
+  int roll = Estimate_Get(Angle, AG_ROLL) / 10;
+  int fx = roll / 5;
+  if (fx >  8) fx =  8;
+  if (fx < -8) fx = -8;
+  int leftH  = 36 + fx;
+  int rightH = 36 - fx;
+  if (leftH  < 6) leftH  = 6;
+  if (rightH < 6) rightH = 6;
+  Oled_RoundRect(19, 32 - leftH/2, 38, leftH, 10);
+  Oled_RoundRect(69, 32 - rightH/2, 38, rightH, 10);
+  Oled_End();
 }
+```
 
-void plutoLoop(void)
-{
-    memset(fb, 0, sizeof(fb));
-    Oled_DrawCircle(fb, 64, 32, 20, true);
-    Oled_Update(fb);
+### Show Sensor Data
+
+```cpp
+void plutoLoop ( void ) {
+  Oled_Begin();
+  Oled_Text(0, 0, "Pitch:");
+  Oled_Number(40, 0, Estimate_Get(Angle, AG_PITCH) / 10);
+  Oled_Text(0, 10, "Roll:");
+  Oled_Number(36, 10, Estimate_Get(Angle, AG_ROLL) / 10);
+  Oled_Text(0, 20, "Yaw:");
+  Oled_Number(30, 20, RcData_Get(RC_YAW));
+  Oled_End();
 }
 ```
 
 ---
 
+## Advanced API
+
+For users who need full control (custom buffers, erase individual pixels):
+
+```cpp
+static uint8_t screen[1024];
+
+void plutoLoop ( void ) {
+  memset(screen, 0, 1024);
+  Oled_DrawCircle(screen, 64, 32, 20, true);
+  Oled_DrawPixel(screen, 50, 50, false);   // erase a pixel
+  Oled_Update(screen);
+}
+```
+
+All `Oled_Draw*` / `Oled_Fill*` functions accept a framebuffer pointer, x/y coordinates, and an `on` flag (true=white, false=black). See [Oled.h](src/main/API/Oled.h) for full documentation with VS Code hover hints.
+
 ---
 
-## Intended Usage
+## Documentation
 
-* SYSTEM mode → telemetry, debug, status UI
-* USER mode → animations, eyes, HUDs, visual demos
+- [OLED API Wiki](docs/OLED_API_WIKI.md) — test snippets for every function, full examples
+- [Oled.h](src/main/API/Oled.h) — complete API with doxygen `@param` hints
+
+---
+
+## Hardware
+
+| Property | Value |
+|----------|-------|
+| Display | SSD1306 128x64 monochrome OLED |
+| Interface | I2C @ 0x3C |
+| Pins | PB8 (SCL), PB9 (SDA) |
+| MCU | STM32F303xC (72 MHz, 40 KB RAM) |
+| RAM usage | ~2 KB (shadow buffer + simple buffer) |
+| Update rate | 5 Hz system, up to loop rate in USER mode |
+
+---
+
+## File Structure
+
+```
+src/main/API/Oled.h                      — Public API (Simple + Advanced)
+src/main/API-Src/Oled.cpp                — Implementation
+src/main/io/oled_display.c               — System telemetry display
+src/main/drivers/display_ug2864hsweg01.c — SSD1306 hardware driver
+PlutoPilot.cpp                           — User code entry point
+docs/OLED_API_WIKI.md                    — Wiki with all test snippets
+```
+
+---
+
+## Credits
+
+- **Omkar Dandekar** — OLED API design, framebuffer engine, simple layer, boxy eyes
+- **Ashish Jaiswal (MechAsh)** — System telemetry display, SSD1306 driver integration
+- **Dharna Nar** — Original OledEyes reference design
+- **Drona Aviation** — MagisV2 firmware platform
