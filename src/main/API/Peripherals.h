@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2                                                           #
+ #  Project: MagisV2-v3.0.0-beta                                               #
  #  File: \src\main\API\Peripherals.h                                          #
  #  Created Date: Thu, 22nd May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 2nd Sep 2025                                           #
+ #  Last Modified: Thu, 18th Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -203,9 +203,20 @@ void Peripheral_Init ( peripheral_pwm_pin_e _pin, uint16_t pwmRate = 50 );
  * if the PWM channel has been initialized and applies the PWM value accordingly.
  *
  * @param _pwm_pin The PWM pin to write to, represented by an enumerated type.
- * @param _pwm_value The desired PWM value (duty cycle) to set.
+ * @param _pwm_value The desired PWM value (duty cycle) to set `0% to 100%`.
  */
 void Peripheral_Write ( peripheral_pwm_pin_e _pwm_pin, uint16_t _pwm_value );
+
+/**
+ * @brief Adjusts and writes a PWM value to a specified peripheral pin for servo control.
+ *
+ * This function constrains the input PWM value to be within the range of 1000 to 2000,
+ * maps it to a duty cycle range of 5% to 10%, and writes it to the given PWM pin.
+ *
+ * @param _pwm_pin The peripheral PWM pin where the value will be written.
+ * @param _pwm_value The initial PWM value to be constrained and mapped.
+ */
+void Servo_Write ( peripheral_pwm_pin_e _pwm_pin, uint16_t _pwm_value );
 
 void APIAdcInit ( void );
 

@@ -24,3 +24,4 @@ const char *const buildDate        = __BUILD_DATE__;
 const char *const buildTime        = __BUILD_TIME__;
 const char *const FwVersion        = __FW_VER__;
 const char *const ApiVersion       = __API_VER__;
+const char *const Project          = __PROJECT__;

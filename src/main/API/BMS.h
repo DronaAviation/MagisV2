@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -50,7 +50,7 @@ typedef enum BMS_Option {
  * `_bms_option` An enumerator of type BMS_Option_e indicating which BMS parameter to retrieve.
  *        Possible values are:
  *        @param Voltage: To get the current battery voltage.
- *        @param Current: To get the current amperage.
+ *        @param Current: To get the current mAmpRaw.
  *        @param mAh_Consumed: To get the milliamp hours consumed.
  *        @param mAh_Remain: To get the remaining milliamp hours.
  *        @param Battery_Capicity: To get the total battery capacity in milliamp hours.
@@ -59,16 +59,5 @@ typedef enum BMS_Option {
  * @return `uint16_t` The value of the requested BMS parameter. Returns 0 if an undefined option is passed.
  */
 uint16_t Bms_Get ( BMS_Option_e _bms_option );
-
-/**
- * @brief Updates the battery management system's capacity with a new value.
- *
- * This function assigns the provided new capacity, given in milliampere-hours (mAh),
- * to the existing battery capacity variable, effectively updating it to reflect
- * the new capacity.
- *
- * @param _new_cap_mAh The new battery capacity in milliampere-hours (mAh).
- */
-void Bms_Using_Other_Battery ( uint16_t _new_cap_mAh );
 
 #endif

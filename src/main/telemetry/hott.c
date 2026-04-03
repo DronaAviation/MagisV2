@@ -235,17 +235,17 @@ static inline void updateAlarmBatteryStatus(HOTT_EAM_MSG_t *hottEAMMessage)
 
 static inline void hottEAMUpdateBattery(HOTT_EAM_MSG_t *hottEAMMessage)
 {
-    hottEAMMessage->main_voltage_L = vbat & 0xFF;
-    hottEAMMessage->main_voltage_H = vbat >> 8;
-    hottEAMMessage->batt1_voltage_L = vbat & 0xFF;
-    hottEAMMessage->batt1_voltage_H = vbat >> 8;
+    hottEAMMessage->main_voltage_L = vBatRaw & 0xFF;
+    hottEAMMessage->main_voltage_H = vBatRaw >> 8;
+    hottEAMMessage->batt1_voltage_L = vBatRaw & 0xFF;
+    hottEAMMessage->batt1_voltage_H = vBatRaw >> 8;
 
     updateAlarmBatteryStatus(hottEAMMessage);
 }
 
 static inline void hottEAMUpdateCurrentMeter(HOTT_EAM_MSG_t *hottEAMMessage)
 {
-    int32_t amp = amperage / 10;
+    int32_t amp = mAmpRaw / 10;
     hottEAMMessage->current_L = amp & 0xFF;
     hottEAMMessage->current_H = amp >> 8;
 }

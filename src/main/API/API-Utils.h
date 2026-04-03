@@ -102,6 +102,7 @@ void resetUserRCflag ( void );
 
 
 void xRangingInit ( void );
+void applyObjectAvoidance ( );
 
 int getGPIOport ( unibus_e pin );
 GPIO_Pin getGPIOpin ( unibus_e pin );

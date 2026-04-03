@@ -1,19 +1,23 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2025 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\mw.cpp                                                     #
+ #  Created Date: Wed, 31st Dec 2025                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Sun, 1st Feb 2026                                           #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -41,6 +45,7 @@
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/ranging_vl53l1x.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
 #include "sensors/sonar.h"
@@ -100,7 +105,7 @@
 #include "API/FC-Data.h"
 #include "API/Specifiers.h"
 #include "API/Motor.h"
-#include "API/PlutoPilot.h"
+#include "PlutoPilot.h"
 #include "API/XRanging.h"
 #include "API/Localisation.h"
 #include "API/RxConfig.h"
@@ -111,7 +116,8 @@
 /* VBAT monitoring interval (in microseconds) - 1s*/
 #define VBATINTERVAL ( 6 * 3500 )
 /* IBat monitoring interval (in microseconds) - 6 default looptimes */
-#define IBATINTERVAL ( 6 * 3500 )
+#define IBATINTERVAL       ( 6 * 3500 )
+#define BMS_UpdateInterval ( 6 * 3500 )
 
 int8_t returnValue         = 100;
 uint8_t motorControlEnable = false;
@@ -264,7 +270,7 @@ bool isCalibrating ( ) {
   // Note: compass calibration is handled completely differently, outside of the main loop, see f.CALIBRATE_MAG
 #ifdef MAG_ENFORCE
   // to check whether mag calibration is done, if not the don't arm
-  if ( masterConfig.magScale.raw [ 0 ] == 0 || masterConfig.magScale.raw [ 1 ] == 0 || masterConfig.magScale.raw [ 2 ] == 0 ) {
+  if ( masterConfig.magScale.raw [ 0 ] == 0 || masterConfig.magScale.raw [ 1 ] == 0 || masterConfig.magScale.raw [ 2 ] == 0 || !isMagCalibrated ) {
     set_FSI ( Mag_Calibration );
   } else {
     reset_FSI ( Mag_Calibration );
@@ -402,8 +408,15 @@ void annexCode ( void ) {
     if ( cmp32 ( currentTime, ibatLastServiced ) >= IBATINTERVAL ) {
       ibatLastServiced = currentTime;
       // updateCurrentMeter ( ibatTimeSinceLastServiced, &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
-      updateINA219Current ( );
+      updateINA219Current ( currentTime, ARMING_FLAG ( ARMED ) );
     }
+  }
+
+  if ( cmp32 ( currentTime, BMS_UpdateInterval ) >= BMS_UpdateInterval ) {
+    // uint16_t vbatComp = computeVbatComp_mV ( currentTime, vbatLastServiced, ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] /* your 1000..2000 */ );
+    // updateBatteryState ( vbatComp );
+
+    BMS_Update ( currentTime, vbatLastServiced, ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] );
   }
 
   beeperUpdate ( );    // call periodic beeper handler
@@ -443,16 +456,6 @@ void annexCode ( void ) {
       crashRecoveryCheck = false;
     }
 
-    if ( vbat > 34 ) {
-      isBatteryLow = false;
-      // ENABLE_ARMING_FLAG(OK_TO_ARM);???
-      reset_FSI ( Low_battery );
-    } else if ( fsLowBattery ) {
-      isBatteryLow = true;
-      set_FSI ( Low_battery );
-    }
-    //   }
-
     if ( isCalibrating ( ) ) {
       warningLedFlash ( );
       DISABLE_ARMING_FLAG ( OK_TO_ARM );
@@ -485,6 +488,8 @@ void annexCode ( void ) {
   // Read out gyro temperature. can use it for something somewhere. maybe get MCU temperature instead? lots of fun possibilities.
   if ( gyro.temperature )
     gyro.temperature ( &telemTemperature1 );
+
+  applyObjectAvoidance ( );
 }
 
 void mwDisarm ( void ) {
@@ -769,6 +774,11 @@ void executePeriodicTasks ( void ) {
 #ifdef LASER_TOF
 
       getRange ( );
+
+#endif
+#ifdef LASER_TOF_L1x
+
+      getRange_L1 ( );
 
 #endif
       //        if(useRangingSensor)

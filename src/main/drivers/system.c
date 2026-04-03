@@ -1,20 +1,20 @@
-/*
- * This file is part of Cleanflight and Magis.
- *
- * Cleanflight and Magis are free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight and Magis are distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2025 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2-v3.0.0-beta                                               #
+ #  File: \src\main\drivers\system.c                                           #
+ #  Created Date: Mon, 6th Oct 2025                                            #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Mon, 8th Dec 2025                                           #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -203,63 +203,142 @@ void delay ( uint32_t ms ) {
     delayMicroseconds ( 1000 );
 }
 
-#define SHORT_FLASH_DURATION 30      // reduce these to make the led blink faster
-#define CODE_FLASH_DURATION  150
+// --- Timing (ms) ---
 
-void failureMode ( uint8_t mode )    // DD
-{
-  while ( 1 ) {
-    int codeRepeatsRemaining = 10;
-    int codeFlashesRemaining;
-    int shortFlashesRemaining;
-    while ( codeRepeatsRemaining-- ) {
+// Define time intervals in milliseconds for different LED patterns and gaps
+#define HDR_MS              200    // Duration for HDR pattern
+#define DETAIL_MS           200    // Duration for detail pattern
+#define DETAIL_GREEN_OFF_MS 250    // Green LED off duration
+#define DETAIL_RED_OFF_MS   350    // Red LED off duration
+#define DETAIL_BLUE_OFF_MS  500    // Blue LED off duration
+#define CYCLE_GAP_MS        750    // Gap between cycles
 
-      shortFlashesRemaining = 5;
-      codeFlashesRemaining  = 2;
-      uint8_t flashDuration = SHORT_FLASH_DURATION;
+// Enumeration for LED colors
+typedef enum {
+  LED_COLOR_RED,      // Represents the red LED
+  LED_COLOR_GREEN,    // Represents the green LED
+  LED_COLOR_BLUE      // Represents the blue LED
+} LedColor;
 
-      while ( shortFlashesRemaining || codeFlashesRemaining ) {
-        if ( ( mode & 64 ) == 64 ) {
-          LED_R_TOGGLE;
-        }
-        if ( ( mode & 32 ) == 32 ) {
-          LED_B_TOGGLE;
-        }
-        if ( ( mode & 2 ) == 2 ) {
-          LED_G_TOGGLE;
-        }    // drona
-        BEEP_ON;
-        delay ( flashDuration );
+// Structure to define an error pattern
+typedef struct {
+  uint8_t bit;          // Bitmask index in `mode` for identifying specific errors
+  uint8_t blueCount;    // Number of blue blinks indicating the error count or type
+} ErrorPattern;
 
-        if ( ( mode & 64 ) == 64 ) {
-          LED_R_TOGGLE;
-        }
-        if ( ( mode & 32 ) == 32 ) {
-          LED_B_TOGGLE;
-        }
-        if ( ( mode & 2 ) == 2 ) {
-          LED_G_TOGGLE;
-        }
-        BEEP_OFF;
-        delay ( flashDuration );
+/**
+ * @brief Blinks an LED a specified number of times with defined on and off durations.
+ *
+ * This function controls the blinking of a specified color LED (red, green, or blue)
+ * by turning it on for a given duration and then off for another duration. The process
+ * repeats for the specified number of times.
+ *
+ * @param color  The color of the LED to blink (LED_COLOR_RED, LED_COLOR_GREEN, LED_COLOR_BLUE).
+ * @param n      The number of times the LED should blink.
+ * @param on_ms  The duration in milliseconds for which the LED remains on during each blink.
+ * @param off_ms The duration in milliseconds for which the LED remains off between blinks.
+ */
+static inline void blink_led ( LedColor color, uint8_t n, uint16_t on_ms, uint16_t off_ms ) {
+  while ( n-- ) {
+    switch ( color ) {
+      case LED_COLOR_RED: LED_R_ON; break;
+      case LED_COLOR_GREEN: LED_G_ON; break;
+      case LED_COLOR_BLUE: LED_B_ON; break;
+    }
+    delay ( on_ms );
+    switch ( color ) {
+      case LED_COLOR_RED: LED_R_OFF; break;
+      case LED_COLOR_GREEN: LED_G_OFF; break;
+      case LED_COLOR_BLUE: LED_B_OFF; break;
+    }
+    delay ( off_ms );
+  }
+}
 
-        if ( shortFlashesRemaining ) {
-          shortFlashesRemaining--;
-          if ( shortFlashesRemaining == 0 ) {
-            delay ( 500 );
-            flashDuration = CODE_FLASH_DURATION;
-          }
-        } else {
-          codeFlashesRemaining--;
+static const ErrorPattern errorTable [] = {
+  { FAILURE_INA219, 1 },              // INA failure
+  { FAILURE_MISSING_ACC, 2 },         // IMU missing
+  { FAILURE_ACC_INCOMPATIBLE, 2 },    // IMU missing
+  { FAILURE_BARO, 3 },                // Baro failure
+  { FAILURE_BARO_DRIFT, 4 },          // Baro drift
+  { FAILURE_EXTCLCK, 5 },             // Crystal failure
+  { FAILURE_VL53L1X, 6 },             // Crystal failure
+  { FAILURE_PAW3903, 7 }              // Crystal failure
+};
+
+static const uint8_t errorTableCount = sizeof ( errorTable ) / sizeof ( errorTable [ 0 ] );
+
+/**
+ * @brief Executes a failure mode indication based on specified error modes.
+ *
+ * This function interprets the error modes and translates them into LED blink patterns.
+ * It first determines unique failure codes from an error table and then continuously
+ * blinks LEDs to represent these failures.
+ *
+ * @param mode A bitmask representing different error modes to be checked against the error table.
+ */
+void failureMode ( uint16_t mode ) {
+  // Array to store unique failure codes
+  uint8_t failures [ 20 ];
+
+  // Counter to track the number of unique failures detected
+  uint8_t failCount = 0;
+
+  // Iterate over the error table to check for active error bits in the mode
+  for ( uint8_t i = 0; i < errorTableCount; i++ ) {
+    // Check if the current error bit is set in the mode
+    if ( mode & ( 1 << errorTable [ i ].bit ) ) {
+      // Flag to check if the failure code already exists in the failures array
+      bool exists = false;
+
+      // Check for existence of the current failure code in the failures array
+      for ( uint8_t j = 0; j < failCount; j++ ) {
+        if ( failures [ j ] == errorTable [ i ].blueCount ) {
+          exists = true;
+          break;
         }
       }
-      delay ( 1000 );
+
+      // If the failure code already exists, skip adding it
+      if ( exists ) continue;
+
+      // Add new unique failure code to the failures array and increment the counter
+      failures [ failCount ] = errorTable [ i ].blueCount;
+      failCount++;
     }
   }
 
-#ifdef DEBUG
-  systemReset ( );
-#else
-  systemResetToBootloader ( );
-#endif
+  // If no failures were identified, exit the function
+  if ( failCount == 0 )
+    return;
+
+  // Continuously loop to indicate failures using LED blink patterns
+  while ( 1 ) {
+    // Blink green LED to indicate the number of unique failures detected
+    blink_led ( LED_COLOR_GREEN, failCount, HDR_MS, DETAIL_MS );
+
+    // Delay before blinking red and blue LEDs for detailed failure indications
+    delay ( DETAIL_MS );
+    for ( uint8_t i = 0; i < failCount; i++ ) {
+      // Determine the number of red blinks indicating the failure index
+      uint8_t redBlink = i + 1;
+      // Determine the number of blue blinks corresponding to the failure code
+      uint8_t blueBlink = failures [ i ];
+
+      // Blink red LED with determined blink count
+      blink_led ( LED_COLOR_RED, redBlink, HDR_MS, DETAIL_RED_OFF_MS );
+
+      // Delay before blinking blue LED
+      delay ( DETAIL_MS );
+
+      // Blink blue LED with determined blink count
+      blink_led ( LED_COLOR_BLUE, blueBlink, HDR_MS, DETAIL_BLUE_OFF_MS );
+
+      // Delay after blue LED indication
+      delay ( DETAIL_MS );
+    }
+
+    // Delay before starting the next cycle of blink indications
+    delay ( CYCLE_GAP_MS );
+  }
 }

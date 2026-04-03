@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th Aug 2025                                           #
+ #  Last Modified: Wed, 31st Dec 2025                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -46,13 +46,9 @@ bool INA219_Config ( uint16_t RST, uint16_t BRNG, uint16_t PG, uint16_t BADC, ui
   return INA219_RegWrite ( INA219_REG_CONFIG, config );
 }
 
-void INA219_Init ( void ) {
+bool INA219_Init ( void ) {
   // INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
-  while ( ! INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) ) ) {
-    LED_R_TOGGLE;
-    LED_B_TOGGLE;
-    delay ( 100 );
-  }
+  return INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
 }
 
 uint16_t bus_voltage ( void ) {
@@ -68,21 +64,3 @@ int16_t shunt_voltage ( void ) {
   return ( signedRaw * 10 ) / 1000;
 }
 
-/* void configureINA219 ( ) {
-  uint8_t configRegister = INA219_REG_CONFIG;
-  uint16_t configValue   = Ina219Config;
-
-  // Split the 16-bit configuration value into two bytes
-  uint8_t configData [ 2 ];
-  configData [ 0 ] = ( configValue >> 8 ) & 0xFF;    // MSB
-  configData [ 1 ] = configValue & 0xFF;             // LSB
-
-  // Send the configuration to the INA219
-  bool success = i2cWriteBuffer ( INA219_I2C_ADDRESS, configRegister, 2, configData );
-
-  if ( success ) {
-    // Configuration was successful
-  } else {
-    // Handle error
-  }
-} */

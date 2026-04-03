@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Tue, 20th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -108,12 +108,6 @@ static serialPort_t *mspSerialPort;
 // uint16_t cycleTime; // FIXME dependency on mw.c
 extern uint16_t rssi;    // FIXME dependency on mw.c
 
-uint16_t debug_e11;
-extern uint16_t vbatLatestADC;    // adding to read adc
-extern int32_t amperage;
-extern int32_t mAhDrawn;
-extern int32_t mAhRemain;
-
 uint16_t fsIndicator;
 
 #ifdef __cplusplus
@@ -160,7 +154,7 @@ extern "C" {
  * that use the API and the users of those tools.
  */
 
-#define MSP_PROTOCOL_VERSION                0
+#define MSP_PROTOCOL_VERSION                1
 
 #define MULTIWII_IDENTIFIER                 "MWII";
 #define CLEANFLIGHT_IDENTIFIER              "CLFL"
@@ -169,8 +163,10 @@ extern "C" {
 #define FLIGHT_CONTROLLER_IDENTIFIER_LENGTH 8
 static const char *const flightControllerIdentifier = MAGIS_IDENTIFIER;    // 4 UPPER CASE alpha numeric characters that identify the flight controller.
 
-#define FLIGHT_CONTROLLER_VERSION_LENGTH 3
+#define FLIGHT_CONTROLLER_VERSION_LENGTH 6
 #define FLIGHT_CONTROLLER_VERSION_MASK   0xFFF
+
+static const char *const fwReleaseType = FW_RELEASE_TYPE;
 
 static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 #if defined( PRIMUSX2 ) || defined( PRIMUS_V5 )
@@ -199,11 +195,16 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 
 */
 
-#define MSP_API_VERSION   1    // out message
-#define MSP_FC_VARIANT    2    // out message
-#define MSP_FC_FW_VERSION 3    // out message
-#define MSP_BOARD_INFO    4    // out message
-#define MSP_BUILD_INFO    5    // out message
+#define MSP_API_VERSION       1    // out message
+#define MSP_FC_VARIANT        2    // out message
+#define MSP_FC_FW_VERSION     3    // out message
+#define MSP_BOARD_INFO        4    // out message
+#define MSP_BUILD_INFO        5    // out message
+#define MSPII_API_VERSION     6    // out message
+#define MSPII_FC_FW_VERSION   7    // out message
+#define MSPII_FW_RELEASE_TYPE 8    // out message
+#define MSPII_PROJECT_NAME    9    // out message
+#define MSPII_BUILD_DATE      10
 
 //
 // MSP commands for Cleanflight original features
@@ -298,7 +299,7 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 #define MSP_COMP_GPS                107    // out message         distance home, direction home
 #define MSP_ATTITUDE                108    // out message         2 angles 1 heading
 #define MSP_ALTITUDE                109    // out message         altitude, variometer
-#define MSP_ANALOG                  110    // out message         vbat, powermetersum, rssi if available on RX
+#define MSP_ANALOG                  110    // out message         vBatRaw, powermetersum, rssi if available on RX
 #define MSP_RC_TUNING               111    // out message         rc rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID
 #define MSP_PID                     112    // out message         P I D coeff (9 are used currently)
 #define MSP_BOX                     113    // out message         BOX setup (number is dependant of your setup)
@@ -443,6 +444,8 @@ typedef struct mspPort_s {
 } mspPort_t;
 
 static mspPort_t mspPorts [ MAX_MSP_PORT_COUNT ];
+
+static bool BatteryCapacityChanged = false;
 
 static mspPort_t *currentPort;
 
@@ -750,11 +753,21 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 
   switch ( cmdMSP ) {
     case MSP_API_VERSION:
-      headSerialReply ( 1 + API_VERSION_LENGTH );
+      headSerialReply ( 1 + 2 );
       serialize8 ( MSP_PROTOCOL_VERSION );
 
-      serialize8 ( API_VERSION_MAJOR );
-      serialize8 ( API_VERSION_MINOR );
+      // serialize8 ( API_VERSION_MAJOR );
+      serialize8 ( -1 );
+      // serialize8 ( API_VERSION_MINOR );
+      serialize8 ( -1 );
+      break;
+
+    case MSPII_API_VERSION:
+      headSerialReply ( API_VERSION_LENGTH );
+      for ( i = 0; i < API_VERSION_LENGTH; i++ ) {
+        serialize8 ( ApiVersion [ i ] );
+      }
+
       break;
 
     case MSP_FC_VARIANT:
@@ -765,12 +778,38 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       }
       break;
 
-    case MSP_FC_FW_VERSION:
-      headSerialReply ( FLIGHT_CONTROLLER_VERSION_LENGTH );
+      // case MSP_FC_FW_VERSION:
+      //   headSerialReply ( 3 );
 
-      serialize8 ( FC_FW_VERSION_MAJOR );
-      serialize8 ( FC_FW_VERSION_MINOR );
-      serialize8 ( FC_FW_VERSION_PATCH_LEVEL );
+      //   serialize8 ( FC_FW_VERSION_MAJOR );
+      //   serialize8 ( FC_FW_VERSION_MINOR );
+      //   serialize8 ( FC_FW_VERSION_PATCH_LEVEL );
+      //   break;
+
+    case MSPII_FC_FW_VERSION:
+      headSerialReply ( FW_VERSION_LENGTH );
+      for ( i = 0; i < FW_VERSION_LENGTH; i++ ) {
+        serialize8 ( FwVersion [ i ] );
+      }
+      break;
+
+    case MSPII_FW_RELEASE_TYPE:
+      headSerialReply ( 1 );
+      serialize8 ( fwReleaseType [ 0 ] );
+      break;
+
+    case MSPII_PROJECT_NAME:
+      headSerialReply ( PROJECT_LENGTH );
+      for ( i = 0; i < PROJECT_LENGTH; i++ ) {
+        serialize8 ( Project [ i ] );
+      }
+      break;
+
+    case MSPII_BUILD_DATE:
+      headSerialReply ( BUILD_DATE_LENGTH );
+      for ( i = 0; i < BUILD_DATE_LENGTH; i++ ) {
+        serialize8 ( buildDate [ i ] );
+      }
       break;
 
     case MSP_BOARD_INFO:
@@ -976,14 +1015,13 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 #endif
       break;
     case MSP_ANALOG:
-      headSerialReply ( 7 );
-      serialize8 ( ( uint8_t ) constrain ( vbat, 0, 255 ) );
-      serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );    // milliamp hours drawn from battery
-      serialize16 ( rssi );
-      if ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput ) {
-        serialize16 ( ( uint16_t ) constrain ( amperage * 10, 0, 0xFFFF ) );    // send amperage in 0.001 A steps. Negative range is truncated to zero
-      } else
-        serialize16 ( ( int16_t ) constrain ( amperage, -0x8000, 0x7FFF ) );    // send amperage in 0.01 A steps, range is -320A to 320A
+      headSerialReply ( 10 );
+      serialize16 ( ( uint16_t ) constrain ( vBatComp, 0, 0xFFFF ) );
+      serialize16 ( ( uint16_t ) constrain ( mAmpRaw, 0, 0xFFFF ) );
+      serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );
+      serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );
+      serialize8 ( ( uint8_t ) constrain ( soc_Fused, 0, 0x65 ) );
+      serialize8 ( ( uint8_t ) constrain ( BatteryWarningMode, 0, 0x4 ) );
       break;
     case MSP_ARMING_CONFIG:
       headSerialReply ( 2 );
@@ -1092,7 +1130,6 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( masterConfig.escAndServoConfig.minthrottle );
       serialize16 ( masterConfig.escAndServoConfig.maxthrottle );
       serialize16 ( masterConfig.escAndServoConfig.mincommand );
-
       serialize16 ( masterConfig.failsafeConfig.failsafe_throttle );
 
 #ifdef GPS
@@ -1104,16 +1141,16 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize8 ( 0 );    // TODO gps_baudrate (an index, cleanflight uses a uint32_t
       serialize8 ( 0 );    // gps_ubx_sbas
 #endif
-      serialize8 ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput );
+      // serialize8 ( masterConfig.batteryConfig.multiwiiCurrentMeterOutput );
       serialize8 ( masterConfig.rxConfig.rssi_channel );
       serialize8 ( 0 );
 
       serialize16 ( currentProfile->mag_declination / 10 );
 
-      serialize8 ( masterConfig.batteryConfig.vbatscale );
-      serialize8 ( masterConfig.batteryConfig.vbatmincellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatmaxcellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatwarningcellvoltage );
+      // serialize8 ( masterConfig.batteryConfig.vbatscale );
+      serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatMaxVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
       break;
 
     case MSP_MOTOR_PINS:
@@ -1205,19 +1242,19 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       break;
 
     case MSP_VOLTAGE_METER_CONFIG:
-      headSerialReply ( 4 );
-      serialize8 ( masterConfig.batteryConfig.vbatscale );
-      serialize8 ( masterConfig.batteryConfig.vbatmincellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatmaxcellvoltage );
-      serialize8 ( masterConfig.batteryConfig.vbatwarningcellvoltage );
+      headSerialReply ( 5 );
+      serialize8 ( ( uint8_t ) ( batteryMaxVoltage / 100 ) );
+      serialize8 ( masterConfig.batteryConfig.vBatMinVoltage );
+      serialize8 ( masterConfig.batteryConfig.vBatWarningVoltage );
+      serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
       break;
 
     case MSP_CURRENT_METER_CONFIG:
       headSerialReply ( 7 );
-      serialize16 ( masterConfig.batteryConfig.currentMeterScale );
-      serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
-      serialize8 ( masterConfig.batteryConfig.currentMeterType );
-      serialize16 ( masterConfig.batteryConfig.batteryCapacity );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterScale );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
+      // serialize8 ( masterConfig.batteryConfig.currentMeterType );
+      // serialize16 ( masterConfig.batteryConfig.BatteryCapacity );
       break;
 
     case MSP_MIXER:
@@ -1274,8 +1311,8 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( masterConfig.boardAlignment.pitchDegrees );
       serialize16 ( masterConfig.boardAlignment.yawDegrees );
 
-      serialize16 ( masterConfig.batteryConfig.currentMeterScale );
-      serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterScale );
+      // serialize16 ( masterConfig.batteryConfig.currentMeterOffset );
       break;
 
     case MSP_CF_SERIAL_CONFIG:
@@ -1528,16 +1565,16 @@ static bool processInCommand ( void ) {
       read8 ( );    // gps_baudrate
       read8 ( );    // gps_ubx_sbas
 #endif
-      masterConfig.batteryConfig.multiwiiCurrentMeterOutput = read8 ( );
-      masterConfig.rxConfig.rssi_channel                    = read8 ( );
+      // masterConfig.batteryConfig.multiwiiCurrentMeterOutput = read8 ( );
+      masterConfig.rxConfig.rssi_channel = read8 ( );
       read8 ( );
 
       currentProfile->mag_declination = read16 ( ) * 10;
 
-      masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
-      masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
+      // masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
+      // masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
+      // masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
+      // masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
       break;
     case MSP_SET_MOTOR:
       for ( i = 0; i < 8; i++ )    // FIXME should this use MAX_MOTORS or MAX_SUPPORTED_MOTORS instead of 8
@@ -1620,6 +1657,10 @@ static bool processInCommand ( void ) {
       }
       writeEEPROM ( );
       readEEPROM ( );
+
+      if ( BatteryCapacityChanged ) {
+        FC_Reboot_Led ( );
+      }
       break;
 
 #ifdef USE_FLASHFS
@@ -1679,17 +1720,18 @@ static bool processInCommand ( void ) {
       break;
 
     case MSP_SET_VOLTAGE_METER_CONFIG:
-      masterConfig.batteryConfig.vbatscale              = read8 ( );    // actual vbatscale as intended
-      masterConfig.batteryConfig.vbatmincellvoltage     = read8 ( );    // vbatlevel_warn1 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatmaxcellvoltage     = read8 ( );    // vbatlevel_warn2 in MWC2.3 GUI
-      masterConfig.batteryConfig.vbatwarningcellvoltage = read8 ( );    // vbatlevel when buzzer starts to alert
+      masterConfig.batteryConfig.vBatMaxVoltage     = read8 ( );
+      masterConfig.batteryConfig.vBatWarningVoltage = read8 ( );
+      masterConfig.batteryConfig.vBatMinVoltage     = read8 ( );
+      masterConfig.batteryConfig.BatteryCapacity    = read16 ( );
+      BatteryCapacityChanged                        = true;
       break;
 
     case MSP_SET_CURRENT_METER_CONFIG:
-      masterConfig.batteryConfig.currentMeterScale  = read16 ( );
-      masterConfig.batteryConfig.currentMeterOffset = read16 ( );
-      masterConfig.batteryConfig.currentMeterType   = ( currentSensor_e ) read8 ( );
-      masterConfig.batteryConfig.batteryCapacity    = read16 ( );
+      // masterConfig.batteryConfig.currentMeterScale  = read16 ( );
+      // masterConfig.batteryConfig.currentMeterOffset = read16 ( );
+      masterConfig.batteryConfig.currentMeterType = ( currentSensor_e ) read8 ( );
+      // masterConfig.batteryConfig.batteryCapacity    = read16 ( );
       break;
 
 #ifndef USE_QUAD_MIXER_ONLY
@@ -1755,8 +1797,8 @@ static bool processInCommand ( void ) {
       masterConfig.boardAlignment.pitchDegrees = read16 ( );    // board_align_pitch
       masterConfig.boardAlignment.yawDegrees   = read16 ( );    // board_align_yaw
 
-      masterConfig.batteryConfig.currentMeterScale  = read16 ( );
-      masterConfig.batteryConfig.currentMeterOffset = read16 ( );
+      // masterConfig.batteryConfig.currentMeterScale  = read16 ( );
+      // masterConfig.batteryConfig.currentMeterOffset = read16 ( );
       break;
 
     case MSP_SET_CF_SERIAL_CONFIG: {

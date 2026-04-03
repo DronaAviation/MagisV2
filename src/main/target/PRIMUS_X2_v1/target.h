@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 10th Aug 2025                                          #
+ #  Last Modified: Tue, 13th Jan 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -70,7 +70,7 @@ extern "C" {
 #define MAG
 #define USE_MAG_AK09916
 #define MAG_AK09916_ALIGN CW180_DEG_FLIP    // For plutoX-new remove comment  else for old comment
-// #define MAG_ENFORCE
+#define MAG_ENFORCE
 
 #define BARO
 #define USE_BARO_ICP10111
@@ -128,7 +128,7 @@ extern "C" {
 #define USE_SPI_DEVICE_2
 #define SPI2_GPIO            GPIOB
 #define SPI2_GPIO_PERIPHERAL RCC_AHBPeriph_GPIOB
-#define SPI2_NSS_PIN         GPIO_Pin_5
+#define SPI2_NSS_PIN         GPIO_Pin_12
 #define SPI2_NSS_PIN_SOURCE  GPIO_PinSource5
 #define SPI2_SCK_PIN         GPIO_Pin_13
 #define SPI2_SCK_PIN_SOURCE  GPIO_PinSource13
@@ -177,8 +177,11 @@ extern "C" {
 
 #define DCM
 // #define OPTIC_FLOW
+#define PAW3903_SPI
+// #define PAW3903_SC18
 
 // #define LASER_TOF // only to get laser height
+// #define LASER_TOF_L1x // only to get laser height
 // #define LASER_ALT // to integrate with althold
 
 #define FLIGHT_STATUS_INDICATOR
