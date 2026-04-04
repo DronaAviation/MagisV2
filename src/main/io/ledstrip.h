@@ -88,6 +88,7 @@ typedef struct ledConfig_s {
 
 extern uint8_t ledCount;
 extern uint8_t ledsInRingCount;
+extern volatile bool rgbUserControl;
 
 bool parseLedStripConfig(uint8_t ledIndex, const char *config);
 void updateLedStrip(void);

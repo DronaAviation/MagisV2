@@ -232,6 +232,7 @@ uint8_t ledGridWidth;
 uint8_t ledGridHeight;
 uint8_t ledCount;
 uint8_t ledsInRingCount;
+volatile bool rgbUserControl = false;
 
 ledConfig_t *ledConfigs;
 hsvColor_t *colors;
@@ -854,6 +855,10 @@ static void applyLedAnimationLayer ( void ) {
   #endif
 
 void updateLedStrip ( void ) {
+
+  if ( rgbUserControl ) {
+    return;
+  }
 
   if ( ! ( ledStripInitialised && isWS2811LedStripReady ( ) ) ) {
     return;

@@ -311,6 +311,7 @@ DRONA_API =	API/Specifiers.cpp \
 						API-Src/API-Utils.cpp \
 						API-Src/RxConfig.cpp \
 						API-Src/Localisation.cpp \
+						API-Src/RGB-LED.cpp \
 
 DRONA_SRC = $(DRONA_FLIGHT) \
 						$(DRONA_DRIVERS) \
