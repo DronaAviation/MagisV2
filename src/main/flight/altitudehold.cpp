@@ -52,6 +52,7 @@
 
 #include "command/command.h"
 #include "altitudehold.h"
+// #include "API/Debugging.h"
 
 // Kalman Filter Structure
 typedef struct {
@@ -70,6 +71,7 @@ uint8_t velocityControl           = 1;
 int16_t max_altitude              = -1;
 int16_t althold_throttle          = 0;
 int32_t errorVelocityI            = 0;
+int32_t errorAltitudeI            = 0;
 int32_t altHoldThrottleAdjustment = 0;
 int32_t AltHold;
 int32_t vario           = 0;    // variometer in cm/s
@@ -98,7 +100,10 @@ static int16_t itemCount = 0;
 #ifdef LASER_ALT
 float _time_constant_z = 1.5f;
 #else
-float _time_constant_z = 2.0f;
+// Reduced from 2.0 → 1.5 to tighten the baro correction loop.
+// Lower TC means higher k1/k2/k3 gains → EstAlt tracks baro faster →
+// less phase lag → breaks the 3-4 second oscillation cycle.
+float _time_constant_z = 1.5f;
 #endif
 float accZ_tmp;
 static float accZ_old = 0.0f;
@@ -251,6 +256,14 @@ static void applyMultirotorAltHold ( void ) {
     isThrottleStickArmed = false;
   }
 
+  // static int debug_counter = 0;
+  // if ( ++debug_counter >= 10 ) {
+  //   debug_counter = 0;
+  //   Monitor_Println ( "Alt:", EstAlt );
+  //   Monitor_Println ( "Set:", AltHold );
+  //   Monitor_Println ( "Thr:", rcCommand [ THROTTLE ] );
+  // }
+
   altholdDebug  = AltHold;
   altholdDebug1 = altHoldThrottleAdjustment;
   altholdDebug2 = initialThrottleHold;
@@ -280,6 +293,11 @@ void updateAltHoldState ( void ) {
     ENABLE_FLIGHT_MODE ( BARO_MODE );
     // baroResetGroundLevel(); // Reset ground level for barometer
     AltHold                   = EstAlt;
+    // NOTE: Using fixed 1500 as the hover baseline. Capturing rcData[THROTTLE]
+    // at activation was tried but is unsafe: if the stick is at 1204 when BARO
+    // activates, the drone crash-dives 50+ cm while the I-term winds up +481
+    // units. 1500 gives a consistent, predictable starting point. The velocity
+    // I-term will converge to the true hover offset within a few seconds.
     initialThrottleHold       = 1500;
     errorVelocityI            = 0;
     altHoldThrottleAdjustment = 0;
@@ -326,12 +344,25 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
 
   if ( ! velocityControl ) {
     error           = constrain ( AltHold - EstAlt, -500, 500 );
-    error           = applyDeadband ( error, 5 );
+    // Deadband prevents the motors from micro-twitching continuously when the drone 
+    // is parked perfectly within ±1cm of the target setpoint.
+    // error           = applyDeadband ( error, 1 );
     calculatedError = error;
     altholdDebug8   = error;
-    setVel          = constrain ( ( pidProfile->P8 [ PIDALT ] * error / 128 ), -300, +300 );
+
+    if ( ARMING_FLAG ( ARMED ) ) {
+      errorAltitudeI += ( pidProfile->I8 [ PIDALT ] * error );
+      // Severely cap positional I-term windup to max ±15 cm/s drift
+      errorAltitudeI = constrain ( errorAltitudeI, -( 8192 * 15 ), ( 8192 * 15 ) );
+    } else {
+      errorAltitudeI = 0;
+    }
+
+    // Add I-term to position correction (scaled similar to velocity I-term)
+    setVel          = constrain ( ( pidProfile->P8 [ PIDALT ] * error / 128 ) + ( errorAltitudeI / 8192 ), -300, +300 );
   } else {
     setVel = setVelocity;
+    errorAltitudeI = 0;
   }
 
   error         = setVel - velocity_z;
@@ -346,7 +377,12 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
     errorVelocityI = 0;
   }
 
-  errorVelocityI = constrain ( errorVelocityI, -( 8192 * 300 ), ( 8192 * 300 ) );
+  // Severely restrict the inner-loop velocity I-term windup limits.
+  // Previously set to ±300, which allowed massive +300 throttle integration during 
+  // slow large climbs, completely cancelling out P-term braking and causing 15-second
+  // limit-cycle pendulum overshoots. Clamping strictly to ±100 still easily covers
+  // a 1500 -> 1580 hover shift but forces immediate P-braking at the setpoint.
+  errorVelocityI = constrain ( errorVelocityI, -( 8192 * 150 ), ( 8192 * 150 ) );
   result += errorVelocityI / 8192;
 
   velControlDebug [ 1 ] = errorVelocityI / 8192;
@@ -464,9 +500,9 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
 
   altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( vel_tmp, accZ_tmp, accZ_old );
 
-  Temp                         = pidProfile->I8 [ PIDALT ];
-  barometerConfig->baro_cf_alt = 1 - Temp / 1000;
-  accZ_old                     = accZ_tmp;
+  // NOTE: baro_cf_alt override removed — was silently overwriting the EEPROM
+  //       config value with a PID-derived value on every cycle.
+  accZ_old = accZ_tmp;
 
   // Update global variables with filtered values
   EstAlt = filteredAlt;
@@ -569,8 +605,11 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   addHistPositionBaseEstZ ( _position_base_z );
 
   // Apply Kalman filtering to APM estimates
-  float filteredVelocityZ = kalmanFilterUpdate ( &velHoldFilter, VelocityZ );
-  float filteredEstAlt    = kalmanFilterUpdate ( &altHoldFilter, EstAlt );
+  // The Complementary filter calculates the most accurate estimates natively.
+  // Running these outputs through a 1D Kalman filter introduces ~1 second of 
+  // phase-delay lag, causing large slow "wave-like" pendulum limit cycles.
+  float filteredVelocityZ = VelocityZ; // kalmanFilterUpdate ( &velHoldFilter, VelocityZ );
+  float filteredEstAlt    = EstAlt;    // kalmanFilterUpdate ( &altHoldFilter, EstAlt );
 
   // Update global variables with filtered values
   VelocityZ = lrintf ( filteredVelocityZ );
@@ -586,9 +625,10 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   #ifdef LASER_ALT
 void checkReading ( ) {
   uint32_t baro_update_time;
-  float dt;
+  float dt = 0.0f;
   float tilt                 = 0;
   static int32_t baro_offset = 0;
+  bool got_new_baro = false;
 
   baro_update_time = getBaroLastUpdate ( );
   if ( baro_update_time != baro_last_update ) {
@@ -596,25 +636,35 @@ void checkReading ( ) {
     Baro_Height      = baroCalculateAltitude ( );
     filtered         = ( 0.75f * filtered ) + ( ( 1 - 0.75f ) * Baro_Height );
     baro_last_update = baro_update_time;
+    got_new_baro     = true;
   }
     #ifdef LASER_TOF
+  bool got_new_tof = false;
   if ( isTofDataNew ( ) && ( ! isOutofRange ( ) ) ) {
     ToF_Height       = ( float ) NewSensorRange / 10.0f;
     isTofDataNewflag = false;
     tilt             = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
     if ( tilt < 25 )
       ToF_Height *= cos_approx ( tilt );
+    got_new_tof = true;
   }
 
   if ( ( ToF_Height > 0 && ToF_Height < 200 ) && ( ! isOutofRange ( ) ) ) {
-    baro_offset = filtered - ToF_Height;
-    correctedWithTof ( ToF_Height );
+    if ( got_new_baro ) {
+      baro_offset = filtered - ToF_Height;
+    }
+    if ( got_new_tof ) {
+      correctedWithTof ( ToF_Height );
+    }
   } else {
-    correctedWithBaro ( Baro_Height - baro_offset, dt );
+    if ( got_new_baro ) {
+      correctedWithBaro ( Baro_Height - baro_offset, dt );
+    }
   }
     #endif
 
     #ifdef LASER_TOF_L1x
+  bool got_new_tof_L1 = false;
   if ( isTofDataNew_L1 ( ) && ( ! isOutofRange_L1 ( ) ) ) {
 
     ToF_Height       = ( float ) NewSensorRange_L1 / 10.0f;
@@ -623,22 +673,20 @@ void checkReading ( ) {
     tilt = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
     if ( tilt < 25 )
       ToF_Height *= cos_approx ( tilt );
+    got_new_tof_L1 = true;
   }
   // Fusion
   if ( ToF_Height > 0 && ToF_Height < 350 ) {
-    baro_offset = Baro_filtered - EstAlt;
-    correctedWithTof ( ToF_Height );
-  } /* else
-   //{ Baro_Height -= baro_offset;
-   if (ToF_Height >= 120  && ToF_Height <= 200) {
-   //tofTransition = (200 - ToF_Height) / 100.0f;
-   tofTransition = 0.5f;
-   fused = ToF_Height * tofTransition + Baro_Height * (1.0f - tofTransition);
-
-   correctedWithBaro( fused, dt);
-   } */
-  else {
-    correctedWithBaro ( Baro_Height - baro_offset, dt );
+    if ( got_new_baro ) {
+      baro_offset = Baro_filtered - EstAlt;
+    }
+    if ( got_new_tof_L1 ) {
+      correctedWithTof ( ToF_Height );
+    }
+  } else {
+    if ( got_new_baro ) {
+      correctedWithBaro ( Baro_Height - baro_offset, dt );
+    }
   }
 
     #endif
@@ -656,9 +704,20 @@ void checkBaro ( ) {
 }
 
 void correctedWithBaro ( float baroAlt, float dt ) {
+  static bool firstBaroRead = true;
   altholdDebug5 = baroAlt;
+
   if ( dt > 0.5f ) {
     return;
+  }
+
+  // On the very first valid baro reading, seed the position estimator so that
+  // _position_base_z starts at actual altitude (not 0). Without this, the queue
+  // is empty and _position_base_z = 0, causing a large initial _position_error_z
+  // spike equal to the full baro altitude, which takes many cycles to converge.
+  if ( firstBaroRead ) {
+    setAltitude ( baroAlt );
+    firstBaroRead = false;
   }
 
   float hist_position_base_z;
@@ -684,9 +743,12 @@ void correctedWithTof ( float ToF_Height ) {
     setAltitude ( ToF_Height );
     first_reads++;
   }
-  _position_error_z = ToF_Height - EstAlt;
-  if ( _time_constant_z != 1.5f ) {
-    _time_constant_z = 1.5;
+  _position_error_z = ToF_Height - ( _position_base_z + _position_correction_z );
+  // Reduce the TOF time-constant to 0.25s. 
+  // 1.5s forces the drone to slowly phase the laser in over 1.5 seconds.
+  // 0.25s allows the CF to instantly trust and lock onto the true laser distance.
+  if ( _time_constant_z != 0.25f ) {
+    _time_constant_z = 0.25f;
     updateGains ( );
   }
 }
@@ -740,9 +802,9 @@ void AltRst ( void ) {
   errorVelocityI            = 0;
   altHoldThrottleAdjustment = 0;
 
-  // Reset Kalman filters
-  kalmanFilterInit ( &altHoldFilter, 1.0, 0.10, 0.0 );
-  kalmanFilterInit ( &velHoldFilter, 1.0, 0.10, 0.0 );
+  // Reset Kalman filters with same tuning as configureAltitudeHold()
+  kalmanFilterInit ( &altHoldFilter, 0.01, 0.5, 0.0 );    // Low Q, higher R: trust baro more
+  kalmanFilterInit ( &velHoldFilter, 0.1, 1.0, 0.0 );     // Higher Q, higher R for velocity
 }
 
 float getTimeConstant ( ) {

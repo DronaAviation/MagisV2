@@ -148,7 +148,7 @@ static uint32_t activeFeaturesLatch = 0;
 static uint8_t currentControlRateProfileIndex = 0;
 controlRateConfig_t *currentControlRateProfile;
 
-static const uint8_t EEPROM_CONF_VERSION = 106;
+static const uint8_t EEPROM_CONF_VERSION = 107;    // bumped: lowered P8[PIDALT] to 50 and D8[PIDVEL] to 20 for TOF
 
 static void resetAccelerometerTrims ( flightDynamicsTrims_t *accelerometerTrims ) {
   accelerometerTrims->values.pitch = 0;
@@ -199,8 +199,8 @@ static void resetPidProfile ( pidProfile_t *pidProfile ) {
   pidProfile->D8 [ PIDLEVEL ] = 100;
   pidProfile->P8 [ PIDMAG ]   = 40;
   pidProfile->P8 [ PIDVEL ]   = 120;    // 120  //40
-  pidProfile->I8 [ PIDVEL ]   = 45;     // 45    //20
-  pidProfile->D8 [ PIDVEL ]   = 1;      // 1      //0
+  pidProfile->I8 [ PIDVEL ]   = 50;     // reduced from 75: integrator windup was driving long-period limit cycle at P8[PIDALT]=45
+  pidProfile->D8 [ PIDVEL ]   = 20;      // lowered to stop inner-loop fighting against P-term drops
 
   pidProfile->P8 [ PIDUSER ] = 60;
   pidProfile->I8 [ PIDUSER ] = 30;
