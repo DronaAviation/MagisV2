@@ -365,7 +365,7 @@ void updateRx(uint32_t currentTime)
         if (rxDataReceived) {
             rxSignalReceived = true;
             rxIsInFailsafeMode = false;
-            needRxSignalBefore = currentTime + DELAY_5_HZ + 300000;  //temp fix drona failsafe_drona
+            needRxSignalBefore = currentTime + DELAY_5_HZ ;  //temp fix drona failsafe_drona
 
 
         }

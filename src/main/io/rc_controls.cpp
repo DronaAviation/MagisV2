@@ -166,7 +166,7 @@ void processRcStickPositions(rxConfig_t *rxConfig, throttleStatus_e throttleStat
         if (IS_RC_MODE_ACTIVE(BOXARM)) {
             // Arming via ARM BOX
 
-            if (throttleStatus == THROTTLE_LOW) {
+            if (throttleStatus == THROTTLE_LOW && rc_connected) {
                 // AltRst();
                 if (ARMING_FLAG(OK_TO_ARM)) {
 
@@ -180,7 +180,7 @@ void processRcStickPositions(rxConfig_t *rxConfig, throttleStatus_e throttleStat
                     mwArm();
 
                 }
-            } else if (netAccMagnitude < 11 && (!status_FSI(Crash)) && !isLanding) { //&&inclination.values.pitchDeciDegrees <=100&&inclination.values.pitchDeciDegrees >=-100&&inclination.values.rollDeciDegrees >= -100 && inclination.values.rollDeciDegrees <= 100){//Chuck to ARM Check for //intern Akash
+            } else if (netAccMagnitude < 11 && (!status_FSI(Crash)) && !isLanding && rc_connected) { //&&inclination.values.pitchDeciDegrees <=100&&inclination.values.pitchDeciDegrees >=-100&&inclination.values.rollDeciDegrees >= -100 && inclination.values.rollDeciDegrees <= 100){//Chuck to ARM Check for //intern Akash
 
                 pidResetErrorAngle();
                 pidResetErrorGyro();

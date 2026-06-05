@@ -211,7 +211,7 @@ void failsafeOnValidDataReceived ( void ) {
 
 void failsafeOnValidDataFailed ( void ) {
   failsafeState.validRxDataFailedAt = millis ( );
-  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > failsafeState.rxDataFailurePeriod ) {
+  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > PERIOD_RXDATA_FAILURE ) {
     failsafeState.rxLinkState = FAILSAFE_RXLINK_DOWN;
   }
 }
@@ -220,6 +220,8 @@ void failsafeUpdateState ( void ) {
   if ( ! failsafeIsMonitoring ( ) ) {
     return;
   }
+
+  static bool wasFlyingWhenSignalLost = false;
 
   bool receivingRxData    = failsafeIsReceivingRxData ( );
   bool armed              = ARMING_FLAG ( ARMED );
@@ -242,11 +244,23 @@ void failsafeUpdateState ( void ) {
 
           // directly using Land command after rx loss detected
           if ( ! receivingRxData ) {
+            // mwDisarm();
             set_FSI ( Signal_loss );
             current_command = LAND;
+            command_status  = RUNNING;
+            wasFlyingWhenSignalLost = true;
+          } else {
+            wasFlyingWhenSignalLost = false;
           }
 
         } else {
+          if ( receivingRxData ) {
+            reset_FSI ( Signal_loss );
+            set_FSI ( Ok_to_arm );
+            wasFlyingWhenSignalLost = false;
+          } else if ( wasFlyingWhenSignalLost ) {
+            set_FSI ( Signal_loss );
+          }
           // When NOT armed, show rxLinkState of failsafe switch in GUI (failsafe mode)
           if ( failsafeSwitchIsOn ) {
             ENABLE_FLIGHT_MODE ( FAILSAFE_MODE );
