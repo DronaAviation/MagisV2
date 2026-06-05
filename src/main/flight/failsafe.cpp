@@ -362,34 +362,12 @@ void failsafeUpdateState ( void ) {
 
 void failsafeOnCrash ( void ) {
 
-  //
-  // #ifdef ENABLE_ACROBAT
-  //        if(flipState>=1&&(flipState != 4 || flipState != 7 || flipState != 3 || flipState != 6 )){
-  //             return;
-  //
-  //         }else if( (ABS(accSmooth[0]) > 2000) || (ABS(accSmooth[1]) > 2000))
-  //         {
-  //
-  //             set_FSI(Crash);
-  //             mwDisarm();
-  //
-  //             return;
-  //         }
-  //
-  //
-  //            #endif
-
   if ( ARMING_FLAG ( ARMED ) && fsCrash && FLIGHT_MODE ( ANGLE_MODE ) ) {
-    if ( ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700 || ( ABS ( accSmooth [ 0 ] ) > 12000 ) || ( ABS ( accSmooth [ 1 ] ) > 12000 ) ) {    // to indicate that a crash has occurred// || (ABS(accSmooth[0])>5000)||(ABS(accSmooth[1])>5000)
-
-			                                              //  Print.monitor("###################");
-      //       Monitor.println("Fail---: ",FLIGHT_MODE(ANGLE_MODE));
-      //             LED_G_ON;
-      //             LED_B_OFF;
-      //       LED_R_ON;
+    if ( ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700 || 
+         ( ABS ( accSmooth [ 0 ] ) > 1250 ) || ( ABS ( accSmooth [ 1 ] ) > 1250 ) ||
+         ( ABS ( accADC [ 0 ] ) > 1750 ) || ( ABS ( accADC [ 1 ] ) > 1750 ) ) {    // to indicate that a crash has occurred// || (ABS(accSmooth[0])>5000)||(ABS(accSmooth[1])>5000)
 
 #ifdef ENABLE_ACROBAT
-      //  if(flipState > 1 && (millis() - flipStartTime) <= 1500){
       if ( flipState >= 1 ) {
         return;
       }
