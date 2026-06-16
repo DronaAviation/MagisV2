@@ -38,9 +38,6 @@
 #include "drivers/bus_spi.h"
 
 #include "drivers/barometer.h"
-#include "drivers/barometer_bmp085.h"
-#include "drivers/barometer_bmp280.h"
-#include "drivers/barometer_ms5611.h"
 #include "drivers/barometer_icp10111.h"
 
 #include "drivers/compass.h"
@@ -309,40 +306,10 @@ static bool detectBaro(baroSensor_e baroHardwareToUse)
 
     baroSensor_e baroHardware = baroHardwareToUse;
 
-#ifdef USE_BARO_BMP085
 
-    const bmp085Config_t *bmp085Config = NULL;
-
-#if defined(BARO_XCLR_GPIO) && defined(BARO_EOC_GPIO)
-    static const bmp085Config_t defaultBMP085Config = {
-        .gpioAPB2Peripherals = BARO_APB2_PERIPHERALS,
-        .xclrGpioPin = BARO_XCLR_PIN,
-        .xclrGpioPort = BARO_XCLR_GPIO,
-        .eocGpioPin = BARO_EOC_PIN,
-        .eocGpioPort = BARO_EOC_GPIO
-    };
-    bmp085Config = &defaultBMP085Config;
-#endif
-
-#ifdef NAZE
-    if (hardwareRevision == NAZE32) {
-        bmp085Disable(bmp085Config);
-    }
-#endif
-
-#endif
 
     switch (baroHardware) {
         case BARO_DEFAULT:
-            ; // fallthough
-
-        case BARO_MS5611:
-#ifdef USE_BARO_MS5611
-            if (ms5611Detect(&baro)) {
-                baroHardware = BARO_MS5611;
-                break;
-            }
-#endif
             ; // fallthough
 
         case BARO_ICP10111:
@@ -353,22 +320,7 @@ static bool detectBaro(baroSensor_e baroHardwareToUse)
                 break;
             }
 #endif
-            ; // fallthough
-        case BARO_BMP085:
-#ifdef USE_BARO_BMP085
-            if (bmp085Detect(bmp085Config, &baro)) {
-                baroHardware = BARO_BMP085;
-                break;
-            }
-#endif
-            ; // fallthough
-        case BARO_BMP280:
-#ifdef USE_BARO_BMP280
-            if (bmp280Detect(&baro)) {
-                baroHardware = BARO_BMP280;
-                break;
-            }
-#endif
+            break;
         case BARO_NONE:
             baroHardware = BARO_NONE;
             break;
