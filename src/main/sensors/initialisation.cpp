@@ -43,7 +43,6 @@
 #include "drivers/compass.h"
 #include "drivers/compass_ak09916.h"
 
-#include "drivers/sonar_hcsr04.h"
 
 #include "config/runtime_config.h"
 
@@ -52,12 +51,9 @@
 #include "sensors/barometer.h"
 #include "sensors/gyro.h"
 #include "sensors/compass.h"
-#include "sensors/sonar.h"
 #include "sensors/initialisation.h"
 
-#ifdef NAZE
-#include "hardware_revision.h"
-#endif
+
 
 extern float magneticDeclination;
 
@@ -69,74 +65,6 @@ uint8_t detectedSensors[MAX_SENSORS_TO_DETECT] = { GYRO_NONE, ACC_NONE, BARO_NON
 
 const extiConfig_t *selectMPUIntExtiConfig(void)
 {
-#ifdef NAZE
-    // MPU_INT output on rev4 PB13
-    static const extiConfig_t nazeRev4MPUIntExtiConfig = {
-        .gpioAPB2Peripherals = RCC_APB2Periph_GPIOB,
-        .gpioPin = Pin_13,
-        .gpioPort = GPIOB,
-        .exti_port_source = GPIO_PortSourceGPIOB,
-        .exti_line = EXTI_Line13,
-        .exti_pin_source = GPIO_PinSource13,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-    // MPU_INT output on rev5 hardware PC13
-    static const extiConfig_t nazeRev5MPUIntExtiConfig = {
-        .gpioAPB2Peripherals = RCC_APB2Periph_GPIOC,
-        .gpioPin = Pin_13,
-        .gpioPort = GPIOC,
-        .exti_port_source = GPIO_PortSourceGPIOC,
-        .exti_line = EXTI_Line13,
-        .exti_pin_source = GPIO_PinSource13,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-
-    if (hardwareRevision < NAZE32_REV5) {
-        return &nazeRev4MPUIntExtiConfig;
-    } else {
-        return &nazeRev5MPUIntExtiConfig;
-    }
-#endif
-
-#if defined(SPRACINGF3)
-    static const extiConfig_t spRacingF3MPUIntExtiConfig = {
-        .gpioAHBPeripherals = RCC_AHBPeriph_GPIOC,
-        .gpioPort = GPIOC,
-        .gpioPin = Pin_13,
-        .exti_port_source = EXTI_PortSourceGPIOC,
-        .exti_pin_source = EXTI_PinSource13,
-        .exti_line = EXTI_Line13,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-    return &spRacingF3MPUIntExtiConfig;
-#endif
-
-#if defined(CC3D)
-    static const extiConfig_t cc3dMPUIntExtiConfig = {
-        .gpioAPB2Peripherals = RCC_APB2Periph_GPIOA,
-        .gpioPort = GPIOA,
-        .gpioPin = Pin_3,
-        .exti_port_source = GPIO_PortSourceGPIOA,
-        .exti_pin_source = GPIO_PinSource3,
-        .exti_line = EXTI_Line3,
-        .exti_irqn = EXTI3_IRQn
-    };
-    return &cc3dMPUIntExtiConfig;
-#endif
-
-#ifdef MOTOLAB
-    static const extiConfig_t MotolabF3MPUIntExtiConfig = {
-        .gpioAHBPeripherals = RCC_AHBPeriph_GPIOA,
-        .gpioPort = GPIOA,
-        .gpioPin = Pin_15,
-        .exti_port_source = EXTI_PortSourceGPIOA,
-        .exti_pin_source = EXTI_PinSource15,
-        .exti_line = EXTI_Line15,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-    return &MotolabF3MPUIntExtiConfig;
-#endif
-
     return NULL;
 }
 

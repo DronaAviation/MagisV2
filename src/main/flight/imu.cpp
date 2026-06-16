@@ -43,7 +43,6 @@
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
-#include "sensors/sonar.h"
 
 #include "io/rc_controls.h"
 

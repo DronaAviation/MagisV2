@@ -34,7 +34,6 @@
 #include "sensors/boardalignment.h"
 #include "sensors/sensors.h"
 #include "sensors/battery.h"
-#include "sensors/sonar.h"
 #include "sensors/acceleration.h"
 #include "rx/rx.h"
 #include "io/rc_controls.h"

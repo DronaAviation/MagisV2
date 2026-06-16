@@ -67,7 +67,6 @@
 #include "sensors/boardalignment.h"
 #include "sensors/sensors.h"
 #include "sensors/battery.h"
-#include "sensors/sonar.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
 #include "sensors/compass.h"
@@ -246,7 +245,6 @@ static const char *const boardIdentifier = TARGET_BOARD_IDENTIFIER;
 #define MSP_VOLTAGE_METER_CONFIG     56
 #define MSP_SET_VOLTAGE_METER_CONFIG 57
 
-#define MSP_SONAR_ALTITUDE           58    // out message get sonar altitude [cm]
 
 #define MSP_PID_CONTROLLER           59
 #define MSP_SET_PID_CONTROLLER       60
@@ -382,7 +380,6 @@ static const box_t boxes [ CHECKBOX_ITEM_COUNT + 1 ] = { { BOXARM, "ARM;", 0 }, 
                                                          { BOXOSD, "OSD SW;", 19 },
                                                          { BOXTELEMETRY, "TELEMETRY;", 20 },
                                                          { BOXGTUNE, "GTUNE;", 21 },
-                                                         { BOXSONAR, "SONAR;", 22 },
                                                          { BOXSERVO1, "SERVO1;", 23 },
                                                          { BOXSERVO2, "SERVO2;", 24 },
                                                          { BOXSERVO3, "SERVO3;", 25 },
@@ -704,11 +701,6 @@ void mspInit ( serialConfig_t *serialConfig ) {
 
   if ( feature ( FEATURE_TELEMETRY ) && masterConfig.telemetryConfig.telemetry_switch )
     activeBoxIds [ activeBoxIdCount++ ] = BOXTELEMETRY;
-
-  if ( feature ( FEATURE_SONAR ) ) {
-    activeBoxIds [ activeBoxIdCount++ ] = BOXSONAR;
-  }
-
 #ifdef USE_SERVOS
   if ( masterConfig.mixerMode == MIXER_CUSTOM_AIRPLANE ) {
     activeBoxIds [ activeBoxIdCount++ ] = BOXSERVO1;
@@ -861,12 +853,12 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 #else
       serialize16 ( 0 );
 #endif
-      serialize16 ( sensors ( SENSOR_ACC ) | sensors ( SENSOR_BARO ) << 1 | sensors ( SENSOR_MAG ) << 2 | sensors ( SENSOR_GPS ) << 3 | sensors ( SENSOR_SONAR ) << 4 );
+      serialize16 ( sensors ( SENSOR_ACC ) | sensors ( SENSOR_BARO ) << 1 | sensors ( SENSOR_MAG ) << 2 | sensors ( SENSOR_GPS ) << 3  );
       // Serialize the flags in the order we delivered them, ignoring BOXNAMES and BOXINDEXES
       // Requires new Multiwii protocol version to fix
       // It would be preferable to setting the enabled bits based on BOXINDEX.
       junk = 0;
-      tmp  = IS_ENABLED ( FLIGHT_MODE ( ANGLE_MODE ) ) << BOXANGLE | IS_ENABLED ( FLIGHT_MODE ( HORIZON_MODE ) ) << BOXHORIZON | IS_ENABLED ( FLIGHT_MODE ( BARO_MODE ) ) << BOXBARO | IS_ENABLED ( FLIGHT_MODE ( MAG_MODE ) ) << BOXMAG | IS_ENABLED ( FLIGHT_MODE ( HEADFREE_MODE ) ) << BOXHEADFREE | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXHEADADJ ) ) << BOXHEADADJ | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCAMSTAB ) ) << BOXCAMSTAB | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCAMTRIG ) ) << BOXCAMTRIG | IS_ENABLED ( FLIGHT_MODE ( GPS_HOME_MODE ) ) << BOXGPSHOME | IS_ENABLED ( FLIGHT_MODE ( GPS_HOLD_MODE ) ) << BOXGPSHOLD | IS_ENABLED ( FLIGHT_MODE ( PASSTHRU_MODE ) ) << BOXPASSTHRU | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXBEEPERON ) ) << BOXBEEPERON | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLEDMAX ) ) << BOXLEDMAX | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLEDLOW ) ) << BOXLEDLOW | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLLIGHTS ) ) << BOXLLIGHTS | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCALIB ) ) << BOXCALIB | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXGOV ) ) << BOXGOV | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXOSD ) ) << BOXOSD | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXTELEMETRY ) ) << BOXTELEMETRY | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXGTUNE ) ) << BOXGTUNE | IS_ENABLED ( FLIGHT_MODE ( SONAR_MODE ) ) << BOXSONAR | IS_ENABLED ( ARMING_FLAG ( ARMED ) ) << BOXARM | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXBLACKBOX ) ) << BOXBLACKBOX | IS_ENABLED ( FLIGHT_MODE ( FAILSAFE_MODE ) ) << BOXFAILSAFE;
+      tmp  = IS_ENABLED ( FLIGHT_MODE ( ANGLE_MODE ) ) << BOXANGLE | IS_ENABLED ( FLIGHT_MODE ( HORIZON_MODE ) ) << BOXHORIZON | IS_ENABLED ( FLIGHT_MODE ( BARO_MODE ) ) << BOXBARO | IS_ENABLED ( FLIGHT_MODE ( MAG_MODE ) ) << BOXMAG | IS_ENABLED ( FLIGHT_MODE ( HEADFREE_MODE ) ) << BOXHEADFREE | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXHEADADJ ) ) << BOXHEADADJ | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCAMSTAB ) ) << BOXCAMSTAB | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCAMTRIG ) ) << BOXCAMTRIG | IS_ENABLED ( FLIGHT_MODE ( GPS_HOME_MODE ) ) << BOXGPSHOME | IS_ENABLED ( FLIGHT_MODE ( GPS_HOLD_MODE ) ) << BOXGPSHOLD | IS_ENABLED ( FLIGHT_MODE ( PASSTHRU_MODE ) ) << BOXPASSTHRU | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXBEEPERON ) ) << BOXBEEPERON | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLEDMAX ) ) << BOXLEDMAX | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLEDLOW ) ) << BOXLEDLOW | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXLLIGHTS ) ) << BOXLLIGHTS | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXCALIB ) ) << BOXCALIB | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXGOV ) ) << BOXGOV | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXOSD ) ) << BOXOSD | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXTELEMETRY ) ) << BOXTELEMETRY | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXGTUNE ) ) << BOXGTUNE  | IS_ENABLED ( ARMING_FLAG ( ARMED ) ) << BOXARM | IS_ENABLED ( IS_RC_MODE_ACTIVE ( BOXBLACKBOX ) ) << BOXBLACKBOX | IS_ENABLED ( FLIGHT_MODE ( FAILSAFE_MODE ) ) << BOXFAILSAFE;
       for ( i = 0; i < activeBoxIdCount; i++ ) {
         int flag = ( tmp & ( 1 << activeBoxIds [ i ] ) );
         if ( flag )
@@ -1005,14 +997,6 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize32 ( 10 );
 #endif
       serialize16 ( vario );
-      break;
-    case MSP_SONAR_ALTITUDE:
-      headSerialReply ( 4 );
-#if defined( SONAR )
-      serialize32 ( sonarGetLatestAltitude ( ) );
-#else
-      serialize32 ( 0 );
-#endif
       break;
     case MSP_ANALOG:
       headSerialReply ( 10 );

@@ -38,7 +38,6 @@
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
-#include "sensors/sonar.h"
 
 #include "rx/rx.h"
 
@@ -196,7 +195,7 @@ void configureAltitudeHold ( pidProfile_t *initialPidProfile, barometerConfig_t 
   kalmanFilterInit ( &velHoldFilter, 0.1, 1.0, 0.0 );     // Higher Q, higher R for velocity
 }
 
-#if defined( BARO ) || defined( SONAR ) || defined( LASER_ALT )
+#if defined( BARO ) || defined( LASER_ALT )
 
 int16_t initialThrottleHold_test;
 int16_t debug_e1;
@@ -288,20 +287,7 @@ void updateAltHoldState ( void ) {
   debug_e1                 = rcCommand [ THROTTLE ];
 }
 
-void updateSonarAltHoldState ( void ) {
-  if ( ! IS_RC_MODE_ACTIVE ( BOXSONAR ) ) {
-    DISABLE_FLIGHT_MODE ( SONAR_MODE );
-    return;
-  }
 
-  if ( ! FLIGHT_MODE ( SONAR_MODE ) ) {
-    ENABLE_FLIGHT_MODE ( SONAR_MODE );
-    AltHold                   = EstAlt;
-    initialThrottleHold       = rcData [ THROTTLE ];
-    errorVelocityI            = 0;
-    altHoldThrottleAdjustment = 0;
-  }
-}
 
 bool isThrustFacingDownwards ( rollAndPitchInclination_t *inclination ) {
   return ABS ( inclination->values.rollDeciDegrees ) < DEGREES_80_IN_DECIDEGREES && ABS ( inclination->values.pitchDeciDegrees ) < DEGREES_80_IN_DECIDEGREES;
@@ -368,17 +354,11 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   float vel_acc;
   int32_t vel_tmp;
   float accZ_tmp;
-  int32_t sonarAlt      = -1;
+
   static float accZ_old = 0.0f;
   static float vel      = 0.0f;
   static float accAlt   = 0.0f;
   static int32_t lastBaroAlt;
-  static int32_t baroAlt_offset = 0;
-  float sonarTransition;
-
-  #ifdef SONAR
-  int16_t tiltAngle;
-  #endif
 
   dTime = currentTime - previousTime;
   if ( dTime < BARO_UPDATE_FREQUENCY_40HZ )
@@ -396,22 +376,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   BaroAlt = 0;
   #endif
 
-  #ifdef SONAR
-  tiltAngle = calculateTiltAngle ( &inclination );
-  sonarAlt  = sonarRead ( );
-  sonarAlt  = sonarCalculateAltitude ( sonarAlt, tiltAngle );
-  #endif
 
-  if ( sonarAlt > 0 && sonarAlt < 200 ) {
-    baroAlt_offset = BaroAlt - sonarAlt;
-    BaroAlt        = sonarAlt;
-  } else {
-    BaroAlt -= baroAlt_offset;
-    if ( sonarAlt > 0 && sonarAlt <= 300 ) {
-      sonarTransition = ( 300 - sonarAlt ) / 100.0f;
-      BaroAlt         = sonarAlt * sonarTransition + BaroAlt * ( 1.0f - sonarTransition );
-    }
-  }
 
   dt = accTimeSum * 1e-6f;
 
@@ -441,11 +406,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   }
   #endif
 
-  if ( sonarAlt > 0 && sonarAlt < 200 ) {
-    EstAlt = BaroAlt;
-  } else {
-    EstAlt = accAlt;
-  }
+  EstAlt = accAlt;
 
   baroVel     = ( BaroAlt - lastBaroAlt ) * 1000000.0f / dTime;
   lastBaroAlt = BaroAlt;

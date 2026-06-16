@@ -306,13 +306,7 @@ void init ( void ) {
                                   .isInverted = false
   #endif
   };
-  #ifdef NAZE
-  if ( hardwareRevision >= NAZE32_REV5 ) {
-    // naze rev4 and below used opendrain to PNP for buzzer. Rev5 and above use PP to NPN.
-    beeperConfig.gpioMode   = Mode_Out_PP;
-    beeperConfig.isInverted = true;
-  }
-  #endif
+
 
   beeperInit ( &beeperConfig );
 #endif
@@ -330,32 +324,12 @@ void init ( void ) {
   updateHardwareRevision ( );
 #endif
 
-#if defined( NAZE )
-  if ( hardwareRevision == NAZE32_SP ) {
-    serialRemovePort ( SERIAL_PORT_SOFTSERIAL2 );
-  } else {
-    serialRemovePort ( SERIAL_PORT_USART3 );
-  }
-#endif
+
 
 
 
 #ifdef USE_I2C
-  #if defined( NAZE )
-  if ( hardwareRevision != NAZE32_SP ) {
-    i2cInit ( I2C_DEVICE );
-  } else {
-    if ( ! doesConfigurationUsePort ( SERIAL_PORT_USART3 ) ) {
-      i2cInit ( I2C_DEVICE );
-    }
-  }
-  #elif defined( CC3D )
-  if ( ! doesConfigurationUsePort ( SERIAL_PORT_USART3 ) ) {
-    i2cInit ( I2C_DEVICE );
-  }
-  #else
   i2cInit ( I2C_DEVICE );
-  #endif
 #endif
 
 #ifdef USE_ADC
@@ -365,13 +339,7 @@ void init ( void ) {
   adc_params.enableRSSI         = feature ( FEATURE_RSSI_ADC );
   adc_params.enableCurrentMeter = feature ( FEATURE_INA219_CBAT );
   adc_params.enableExternal1    = false;
-  #ifdef OLIMEXINO
-  adc_params.enableExternal1 = true;
-  #endif
-  #ifdef NAZE
-  // optional ADC5 input on rev.5 hardware
-  adc_params.enableExternal1 = ( hardwareRevision >= NAZE32_REV5 );
-  #endif
+
 
   adcInit ( &adc_params );
 #endif
@@ -485,11 +453,7 @@ void init ( void ) {
 #endif
 
 #ifdef USE_FLASHFS
-  #ifdef NAZE
-  if ( hardwareRevision == NAZE32_REV5 ) {
-    m25p16_init ( );
-  }
-  #elif defined( USE_FLASH_M25P16 )
+  #if defined( USE_FLASH_M25P16 )
   m25p16_init ( );
   #endif
 
@@ -548,9 +512,7 @@ void init ( void ) {
   }
 #endif
 
-#ifdef CJMCU
 
-#endif
 
   // Latch active features AGAIN since some may be modified by init().
   latchActiveFeatures ( );

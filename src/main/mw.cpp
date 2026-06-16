@@ -49,7 +49,6 @@ OD	Added CRSF battery telemetry update in main loop           #
 #include "drivers/ranging_vl53l1x.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
-#include "sensors/sonar.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
@@ -711,10 +710,7 @@ typedef enum {
 #ifdef BARO
   UPDATE_BARO_TASK,
 #endif
-#ifdef SONAR
-  UPDATE_SONAR_TASK,
-#endif
-#if defined( BARO ) || defined( SONAR )
+#if defined( BARO )
   CALCULATE_ALTITUDE_TASK,
 #endif
 #ifdef DISPLAY
@@ -751,14 +747,11 @@ void executePeriodicTasks ( void ) {
       break;
 #endif
 
-#if defined( BARO ) || defined( SONAR )
+#if defined( BARO )
     case CALCULATE_ALTITUDE_TASK:
       if ( true
   #if defined( BARO )
            || ( sensors ( SENSOR_BARO ) && isBaroReady ( ) )
-  #endif
-  #if defined( SONAR )
-           || sensors ( SENSOR_SONAR )
   #endif
       ) {
 
@@ -777,13 +770,6 @@ void executePeriodicTasks ( void ) {
 
           isCalibrated = false;
         }
-      }
-      break;
-#endif
-#ifdef SONAR
-    case UPDATE_SONAR_TASK:
-      if ( sensors ( SENSOR_SONAR ) ) {
-        sonarUpdate ( );
       }
       break;
 #endif
@@ -1120,7 +1106,7 @@ void loop ( void ) {
 #endif
 
   static uint32_t loopTime;
-#if defined( BARO ) || defined( SONAR )
+#if defined( BARO )
   static bool haveProcessedAnnexCodeOnce = false;
 #endif
 
@@ -1231,7 +1217,7 @@ void loop ( void ) {
      command_run(currentTime);
      */
 
-#if defined( BARO ) || defined( SONAR )
+#if defined( BARO )
     haveProcessedAnnexCodeOnce = true;
 #endif
 
@@ -1249,9 +1235,9 @@ void loop ( void ) {
     updateGtuneState ( );
 #endif
 
-#if defined( BARO ) || defined( SONAR )
-    if ( sensors ( SENSOR_BARO ) || sensors ( SENSOR_SONAR ) ) {
-      if ( FLIGHT_MODE ( BARO_MODE ) || FLIGHT_MODE ( SONAR_MODE ) ) {
+#if defined( BARO )
+    if ( sensors ( SENSOR_BARO ) ) {
+      if ( FLIGHT_MODE ( BARO_MODE ) ) {
         applyAltHold ( &masterConfig.airplaneConfig );
       }
     }
