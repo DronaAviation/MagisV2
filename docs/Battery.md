@@ -1,6 +1,6 @@
 # Battery Monitoring
 
-Cleanflight has a battery monitoring feature.  The voltage of the main battery can be measured by the system and used to trigger a low-battery warning [buzzer](Buzzer.md), on-board status LED flashing and LED strip patterns.
+MagisV2 has a battery monitoring feature.  The voltage of the main battery can be measured by the system and used to trigger a low-battery warning [buzzer](Buzzer.md), on-board status LED flashing and LED strip patterns.
 
 Low battery warnings can:
 
@@ -23,9 +23,9 @@ Measure expected voltages **first** and then connect to the flight controller.  
 incorrect voltage or reversed polarity will likely fry your flight controller. Ensure your flight controller
 has a voltage divider capable of measuring your particular battery voltage.
 
-### Naze32
+### PRIMUS
 
-The Naze32 has an on-board battery divider circuit; just connect your main battery to the VBAT connector.
+The PRIMUS has an on-board battery divider circuit; just connect your main battery to the VBAT connector.
 
 **CAUTION:**  When installing the connection from main battery to the VBAT connector, be sure to first disconnect the main battery from the frame/power distribution board.  Check the wiring very carefully before connecting battery again.  Incorrect connections can immediately and completely destroy the flight controller and connected peripherals (ESC, GPS, Receiver etc.).
 
@@ -146,7 +146,7 @@ The general method is:
 
 1. Fully charge your flight battery
 2. Fly your craft, using >50% of your battery pack capacity (estimated)
-3. Note Cleanflight's reported mAh draw
+3. Note MagisV2's reported mAh draw
 4. Re-charge your flight battery, noting the mAh charging data needed to restore the pack to fully charged
 5. Adjust `current_meter_scale` to according to the formula given below
 6. Repeat and test
@@ -156,7 +156,7 @@ Given (a) the reported mAh draw and the (b) mAh charging data, calculate a new `
 current_meter_scale = (charging_data_mAh / reported_draw_mAh) * old_current_meter_scale
 ```
 For example, assuming:
-+ A Cleanflight reported current draw of 1260 mAh
++ A MagisV2 reported current draw of 1260 mAh
 + Charging data to restore full charge of 1158 mAh
 + A existing `current_meter_scale` value of 400 (the default)
 

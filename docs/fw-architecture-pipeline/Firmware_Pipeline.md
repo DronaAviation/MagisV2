@@ -1,6 +1,6 @@
 # MagisV2 Firmware Complete Execution & Subsystem Pipeline
 
-This document outlines the core data flow, hardware abstraction, and execution pipeline of the MagisV2 flight controller firmware. The architecture is a customized derivative of Baseflight/Cleanflight, tailored to offer a developer-friendly C++ API layer (`PlutoPilot`) without disrupting the high-frequency control loops.
+This document outlines the core data flow, hardware abstraction, and execution pipeline of the MagisV2 flight controller firmware. The architecture is a customized derivative of MagisV2/MagisV2, tailored to offer a developer-friendly C++ API layer (`PlutoPilot`) without disrupting the high-frequency control loops.
 
 ## 1. High-Level Control Loop Architecture
 

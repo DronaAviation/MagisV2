@@ -87,7 +87,7 @@ These receivers are reported working:
 XG14 14ch DMSS System w/RG731BX XBus Receiver
 http://www.jramericas.com/233794/JRP00631/
 
-There exist a remote receiver made for small BNF-models like the Align T-Rex 150 helicopter. The code also supports using the Align DMSS RJ01 receiver directly with the cleanflight software.
+There exist a remote receiver made for small BNF-models like the Align T-Rex 150 helicopter. The code also supports using the Align DMSS RJ01 receiver directly with the MagisV2 software.
 To use this receiver you must power it with 3V from the hardware, and then connect the serial line as other serial RX receivers.
 In order for this receiver to work, you need to specify the XBUS_MODE_B_RJ01 for serialrx_provider. Note that you need to set your radio mode for XBUS "MODE B" also for this receiver to work.
 Receiver name: Align DMSS RJ01 (HER15001)
@@ -196,7 +196,7 @@ The highest channel value considered valid.  e.g. PWM/PPM pulse length
 
 See the Serial chapter for some some RX configuration examples.
 
-To setup spectrum on the Naze32 or clones in the GUI:
+To setup spectrum on the PRIMUS or clones in the GUI:
 1. Start on the "Ports" tab make sure that UART2 has serial RX.  If not set the checkbox, save and reboot.
 2. Move to the "Configuration" page and in the upper lefthand corner choose Serial RX as the receiver type.
 3. Below that choose the type of serial receiver that you are using.  Save and reboot.
@@ -243,7 +243,7 @@ Do __NOT USE__ the mode indicated with FAILSAFE instead, as this combination is 
 ## Receiver Channel Range Configuration.
 
 If you have a transmitter/receiver, that output a non-standard pulse range (i.e. 1070-1930 as some Spektrum receivers)
-you could use rx channel range configuration to map actual range of your transmitter to 1000-2000 as expected by Cleanflight.
+you could use rx channel range configuration to map actual range of your transmitter to 1000-2000 as expected by MagisV2.
 
 The low and high value of a channel range are often referred to as 'End-points'.  e.g. 'End-point adjustments / EPA'.
 

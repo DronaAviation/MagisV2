@@ -1,7 +1,7 @@
 # MSP Extensions
 
-Cleanflight includes a number of extensions to the MultiWii Serial Protocol (MSP). This document describes 
-those extensions in order that 3rd party tools may identify cleanflight firmware and react appropriately.
+MagisV2 includes a number of extensions to the MultiWii Serial Protocol (MSP). This document describes 
+those extensions in order that 3rd party tools may identify MagisV2 firmware and react appropriately.
 
 Issue the MSP_API_VERSION command to find out if the firmware supports them.
 
@@ -28,7 +28,7 @@ Unassigned slots have rangeStartStep == rangeEndStep. Each element contains the 
 | rangeStartStep | uint8 | The start value for this element in 'blocks' of 25  where 0 == 900 and 48 == 2100 |
 | rangeEndStep | uint8 | The end value for this element in 'blocks' of 25 where 0 == 900 and 48 == 2100 |
 
-Thus, for a cleanflight firmware with 40 slots 160 bytes would be returned in response to MSP\_MODE\_RANGES,
+Thus, for a MagisV2 firmware with 40 slots 160 bytes would be returned in response to MSP\_MODE\_RANGES,
 
 ### MSP\_SET\_MODE\_RANGE
 
@@ -86,7 +86,7 @@ Unassigned slots have rangeStartStep == rangeEndStep. Each element contains the 
 | adjustmentFunction | uint8 | See below |
 | auxSwitchChannelIndex | uint8 | The Aux channel number used to perform the function (indexed from 0) |
 
-Thus, for a cleanflight firmware with 12 slots 72 bytes would be returned in response to MSP\_ADJUSTMENT\_RANGES,
+Thus, for a MagisV2 firmware with 12 slots 72 bytes would be returned in response to MSP\_ADJUSTMENT\_RANGES,
 
 ### MSP\_SET\_ADJUSTMENT\_RANGE
 
@@ -150,12 +150,12 @@ There are many adjustments that can be made, the numbers of them and their use i
 
 The following MSP commands are replaced by the MSP\_MODE\_RANGES and
 MSP\_SET\_MODE\_RANGE extensions, and are not recognised by
-cleanflight.
+MagisV2.
 
 * MSP\_BOX
 * MSP\_SET\_BOX
 
 See also
 --------
-Modes.md describes the user visible implementation for the cleanflight
+Modes.md describes the user visible implementation for the MagisV2
 modes extension.

@@ -18,7 +18,7 @@ This document is primarily for developers only.
 12. Be professional - attempts at humor or slating existing code in the codebase itself is not helpful when you have to change/fix it.
 13. Know that there's always more than one way to do something and that code is never final - but it does have to work.
 
-Before making any code contributions, take a note of the https://github.com/multiwii/baseflight/wiki/CodingStyle
+Before making any code contributions, take a note of the https://github.com/multiwii/MagisV2/wiki/CodingStyle
 
 It is also advised to read about clean code, here are some useful links:
 
@@ -56,7 +56,7 @@ This will build a set of executable files in the `obj/test` folder, one for each
 
 After they have been executed by the make invocation, you can still run them on the command line to execute the tests and to see the test report.
 
-You can also step-debug the tests in eclipse and you can use the GoogleTest test runner to make building and re-running the tests simple.
+You can also step-debug the tests in VSCode using the integrated C++ debugger, and use the GoogleTest test runner to make building and re-running the tests simple.
 
 The tests are currently always compiled with debugging information enabled, there may be additional warnings, if you see any warnings please attempt to fix them and submit pull requests with the fixes.
 
@@ -74,29 +74,29 @@ https://help.github.com/articles/creating-a-pull-request/
 
 The main flow for a contributing is as follows:
 
-1. Login to github, go to the cleanflight repository and press `fork`.
+1. Login to github, go to the MagisV2 repository and press `fork`.
 2. Then using the command line/terminal on your computer: `git clone <url to YOUR fork>`
-3. `cd cleanflight`
+3. `cd MagisV2`
 4. `git checkout master`
 5. `git checkout -b my-new-code`
 6. Make changes
 7. `git add <files that have changed>`
 8. `git commit`
 9. `git push origin my-new-code`
-10. Create pull request using github UI to merge your changes from your new branch into `cleanflight/master`
+10. Create pull request using github UI to merge your changes from your new branch into `MagisV2/master`
 11. Repeat from step 4 for new other changes.
 
 The primary thing to remember is that separate pull requests should be created for separate branches.  Never create a pull request from your `master` branch.
 
-Later, you can get the changes from the cleanflight repo into your `master` branch by adding cleanflight as a git remote and merging from it as follows:
+Later, you can get the changes from the MagisV2 repo into your `master` branch by adding MagisV2 as a git remote and merging from it as follows:
 
-1. `git remote add cleanflight https://github.com/cleanflight/cleanflight.git`
+1. `git remote add MagisV2 https://github.com/MagisV2/MagisV2.git`
 2. `git checkout master`
-3. `git fetch cleanflight`
-4. `git merge cleanflight/master`
+3. `git fetch MagisV2`
+4. `git merge MagisV2/master`
 5. `git push origin master` is an optional step that will update your fork on github
  
 
-You can also perform the git commands using the git client inside Eclipse.  Refer to the Eclipse git manual.
+You can also perform the git commands using the built-in Source Control tab in VSCode.
 
 

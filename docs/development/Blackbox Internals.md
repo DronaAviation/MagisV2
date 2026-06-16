@@ -11,11 +11,11 @@ rate of 900Hz. That's about 25,000 bytes per second, which is 250,000 baud with 
 
 Please refer to the source code to clarify anything this document leaves unclear:
 
-* Cleanflight's Blackbox logger: [blackbox.c](https://github.com/cleanflight/cleanflight/blob/master/src/main/blackbox/blackbox.c),
-[blackbox_io.c](https://github.com/cleanflight/cleanflight/blob/master/src/main/blackbox/blackbox_io.c),
-[blackbox_fielddefs.h](https://github.com/cleanflight/cleanflight/blob/master/src/main/blackbox/blackbox_fielddefs.h)
-* [C implementation of the Blackbox log decoder](https://github.com/cleanflight/blackbox-tools/blob/master/src/parser.c)
-* [JavaScript implementation of the Blackbox log decoder](https://github.com/cleanflight/blackbox-log-viewer/blob/master/js/flightlog_parser.js)
+* MagisV2's Blackbox logger: [blackbox.c](https://github.com/MagisV2/MagisV2/blob/master/src/main/blackbox/blackbox.c),
+[blackbox_io.c](https://github.com/MagisV2/MagisV2/blob/master/src/main/blackbox/blackbox_io.c),
+[blackbox_fielddefs.h](https://github.com/MagisV2/MagisV2/blob/master/src/main/blackbox/blackbox_fielddefs.h)
+* [C implementation of the Blackbox log decoder](https://github.com/MagisV2/blackbox-tools/blob/master/src/parser.c)
+* [JavaScript implementation of the Blackbox log decoder](https://github.com/MagisV2/blackbox-log-viewer/blob/master/js/flightlog_parser.js)
 
 ## Logging cycle
 Blackbox is designed for flight controllers that are based around the concept of a "main loop". During each main loop
@@ -36,7 +36,7 @@ iteration.
 
 Each main frame must contain at least two fields, "loopIteration" which records the index of the current main loop
 iteration (starting at zero for the first logged iteration), and "time" which records the timestamp of the beginning of
-the main loop in microseconds (this needn't start at zero, on Cleanflight it represents the system uptime).
+the main loop in microseconds (this needn't start at zero, on MagisV2 it represents the system uptime).
 
 There are two kinds of main frames, "I" and "P". "I", or "intra" frames are like video keyframes. They can be decoded
 without reference to any previous frame, so they allow log decoding to be resynchronized in the event of log damage. "P"
@@ -65,7 +65,7 @@ All Slow frames are logged as intraframes. An interframe encoding scheme can't b
 damaged frame causes all subsequent interframes to be undecodable. Because Slow frames are written so infrequently, one
 missing Slow frame could invalidate minutes worth of Slow state.
 
-On Cleanflight, Slow frames are currently used to log data like the user-chosen flight mode and the current failsafe
+On MagisV2, Slow frames are currently used to log data like the user-chosen flight mode and the current failsafe
 state.
 
 ### Event frames: E
@@ -74,8 +74,8 @@ controller "state". Instead, we log it as a state *transition* . This data is lo
 frame payload begins with a single byte "event type" field. The format of the rest of the payload is not encoded in the
 flight log, so its interpretation is left up to an agreement of the writer and the decoder.
 
-For example, one event that Cleanflight logs is that the user has adjusted a system setting (such as a PID setting)
-using Cleanflight's inflight adjustments feature. The event payload notes which setting was adjusted and the new value
+For example, one event that MagisV2 logs is that the user has adjusted a system setting (such as a PID setting)
+using MagisV2's inflight adjustments feature. The event payload notes which setting was adjusted and the new value
 for the setting. 
 
 Because these setting updates are so rare, it would be wasteful to treat the settings as "state" and log the fact that
@@ -94,7 +94,7 @@ the raw field value. Finally, the encoder is used to transform the value into by
 ### Field predictors
 The job of the predictor is to bring the value to be encoded as close to zero as possible. The predictor may be based
 on the values seen for the field in a previous frame, or some other value such as a fixed value or a value recorded in
-the log headers. For example, the battery voltage values in "I" intraframes in Cleanflight use a reference voltage that
+the log headers. For example, the battery voltage values in "I" intraframes in MagisV2 use a reference voltage that
 is logged as part of the headers as a predictor. This assumes that battery voltages will be broadly similar to the
 initial pack voltage of the flight (e.g. 4S battery voltages are likely to lie within a small range for the whole
 flight). In "P" interframes, the battery voltage will instead use the previously-logged voltage as a predictor, because
@@ -125,7 +125,7 @@ history is a better predictor of the next value than the previous value on its o
 or motor measurements).
 
 #### Predict minthrottle (4)
-This predictor subtracts the value of "minthrottle" which is included in the log header. In Cleanflight, motors always
+This predictor subtracts the value of "minthrottle" which is included in the log header. In MagisV2, motors always
 lie in the range of `[minthrottle ... maxthrottle]` when the craft is armed, so this predictor is used for the first
 motor value in intraframes.
 
@@ -147,7 +147,7 @@ typically lie close to the midpoint of 1500us.
 
 #### Predict vbatref (9)
 This predictor is set to the "vbatref" field written in the log header. It is used when logging intraframe battery
-voltages in Cleanflight, since these are expected to be broadly similar to the first battery voltage seen during
+voltages in MagisV2, since these are expected to be broadly similar to the first battery voltage seen during
 arming.
 
 #### Predict last main-frame time (10)
@@ -219,7 +219,7 @@ Here are some example integers encoded using ZigZag encoding:
 
 #### Neg 14-bit (3)
 The value is negated, treated as an unsigned 14 bit integer, then encoded using unsigned variable byte encoding. This
-bizarre encoding is used in Cleanflight for battery pack voltages. This is because battery voltages are measured using a
+bizarre encoding is used in MagisV2 for battery pack voltages. This is because battery voltages are measured using a
 14-bit ADC, with a predictor which is set to the battery voltage during arming, which is expected to be higher than any
 voltage experienced during flight. After the predictor is subtracted, the battery voltage will almost certainly be below
 zero.
@@ -233,7 +233,7 @@ number of bytes. If the bitstream isn't aligned on a byte boundary by the time t
 or the end of the frame is reached, the final byte is padded with zeros byte-align the stream. This encoding requires
 more CPU time than the other encodings because of the bit juggling involved in writing the bitstream.
 
-When this encoder is chosen to encode all of the values in Cleanflight interframes, it saves about 10% bandwidth
+When this encoder is chosen to encode all of the values in MagisV2 interframes, it saves about 10% bandwidth
 compared to using a mixture of the other encodings, but uses too much CPU time to be practical.
 
 [The basic encoding algorithm is defined on Wikipedia](https://en.wikipedia.org/wiki/Elias_delta_coding). Given these
@@ -524,7 +524,7 @@ Because Blackbox records the internal flight controller state, the interpretatio
 on knowing which flight controller recorded it. To accomodate this, the name of the flight controller should be recorded:
 
 ```
-H Firmware type:Cleanflight
+H Firmware type:MagisV2
 ```
 
 More details should be included to help narrow down the precise flight-controller version (but these are not required):
@@ -570,7 +570,7 @@ H Field X encoding:1,1,0,0...
 This header provides the reference voltage that will be used by predictor #9.
 
 #### minthrottle
-This header provides the minimum value sent by Cleanflight to the ESCs when armed, it is used by predictor #4.
+This header provides the minimum value sent by MagisV2 to the ESCs when armed, it is used by predictor #4.
 
 #### Additional headers
 The decoder ignores headers that it does not understand, so you can freely add any headers that you require in order to

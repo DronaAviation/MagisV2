@@ -61,17 +61,17 @@ If you are getting oscillations starting at say 3/4 throttle, set tpa breakpoint
 
 ## PID controllers
 
-Cleanflight has 6 built-in PID controllers which each have different flight behavior. Each controller requires
+MagisV2 has 6 built-in PID controllers which each have different flight behavior. Each controller requires
 different PID settings for best performance, so if you tune your craft using one PID controller, those settings will
 likely not work well on any of the other controllers.
 
-You can change between PID controllers by running `set pid_controller=n` on the CLI tab of the Cleanflight
+You can change between PID controllers by running `set pid_controller=n` on the CLI tab of the MagisV2
 Configurator, where `n` is the number of the controller you want to use. Please read these notes first before trying one
 out.
 
 ### PID controller 0, "MultiWii" (default)
 
-PID Controller 0 is the default controller in Cleanflight, and Cleanflight's default PID settings are tuned to be
+PID Controller 0 is the default controller in MagisV2, and MagisV2's default PID settings are tuned to be
 middle-of-the-road settings for this controller. It originates from the old MultiWii PID controller from MultiWii 2.2
 and earlier.
 
@@ -121,7 +121,7 @@ the Angle mode. Note: There is currently a bug in the Configurator which shows t
 shows as 0.03 rather than 3.0).
 
 The transition between self-leveling and acro behavior in Horizon mode is controlled by the "sensitivity_horizon"
-parameter which is labeled "LEVEL Derivative" in the Cleanflight Configurator GUI. This sets the percentage of your
+parameter which is labeled "LEVEL Derivative" in the MagisV2 Configurator GUI. This sets the percentage of your
 stick travel that should have self-leveling applied to it, so smaller values cause more of the stick area to fly using
 only the gyros. The default is 75% 
 
@@ -153,7 +153,7 @@ PID Controller 5 is an port of the PID controller from the Harakiri firmware.
 The algorithm is leveraging more floating point math. This PID controller also compensates for different looptimes on roll and pitch. It likely don't need retuning of the PID values when looptime is changing. There are two additional settings which are configurable via the CLI in Harakiri:
 
         set dterm_cut_hz = 0        [1-50Hz] Cut Off Frequency for D term of main PID controller
-                                    (default of 0 equals to 12Hz which was the hardcoded setting in previous Cleanflight versions)
+                                    (default of 0 equals to 12Hz which was the hardcoded setting in previous MagisV2 versions)
         set pid5_oldyw = 0          [0/1] 0 = multiwii 2.3 yaw (default), 1 = older yaw
 
 The PID controller is flight tested and running well with the default PID settings. If you want do acrobatics start slowly.

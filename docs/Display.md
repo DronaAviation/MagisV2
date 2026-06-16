@@ -1,6 +1,9 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # Display
 
-Cleanflight supports displays to provide information to you about your aircraft and cleanflight state.
+MagisV2 supports displays to provide information to you about your aircraft and MagisV2 state.
 
 When the aircraft is armed the display does not update so flight is not affected.  When disarmed the display cycles between various pages.
 
@@ -67,6 +70,6 @@ More can be read about this procedure here: http://www.multiwii.com/forum/viewto
 
 Connect +5v, Ground, I2C SDA and I2C SCL from the flight controller to the display.
 
-On Naze32 rev 5 boards the SDA and SCL pads are underneath the board.
+On PRIMUS rev 5 boards the SDA and SCL pads are underneath the board.
 
 

@@ -1,3 +1,6 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # G-Tune instructions.
 
 The algorithm has been originally developed by Mohammad Hefny (mohammad.hefny@gmail.com):
@@ -6,7 +9,7 @@ The algorithm has been originally developed by Mohammad Hefny (mohammad.hefny@gm
 > http://diydrones.com/profiles/blogs/zero-pid-tunes-for-multirotors-part-2
 > http://www.multiwii.com/forum/viewtopic.php?f=8&t=5190
 
-The G-Tune functionality for Cleanflight is ported from the Harakiri firmware.
+The G-Tune functionality for MagisV2 is ported from the Harakiri firmware.
 
 ## Safety preamble: _Use at your own risk_
 

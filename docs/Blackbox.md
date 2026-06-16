@@ -1,3 +1,6 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # Blackbox flight data recorder
 
 ![Rendered flight log frame](Screenshots/blackbox-screenshot-1.jpg)
@@ -9,12 +12,12 @@ logging device to be recorded, or to a dataflash chip which is present on some f
 
 After your flight, you can view the resulting logs using the interactive log viewer:
 
-https://github.com/cleanflight/blackbox-log-viewer
+https://github.com/MagisV2/blackbox-log-viewer
 
 You can also use the `blackbox_decode` tool to turn the logs into CSV files for analysis, or render your flight log as a
 video using the `blackbox_render` tool. Those tools can be found in this repository:
 
-https://github.com/cleanflight/blackbox-tools
+https://github.com/MagisV2/blackbox-tools
 
 ## Logged data
 The blackbox records flight data on every iteration of the flight control loop. It records the current time in
@@ -37,14 +40,14 @@ because these craft have more motors to record, they must transmit more data to 
 number of dropped frames. Although the browser-based log viewer supports hexacopters and octocopters, the command-line 
 `blackbox_render` tool currently only supports tri- and quadcopters.
 
-Cleanflight's `looptime` setting decides how frequently an update is saved to the flight log. The default looptime on
-Cleanflight is 3500. If you're using a looptime smaller than about 2400, you may experience some dropped frames due to
+MagisV2's `looptime` setting decides how frequently an update is saved to the flight log. The default looptime on
+MagisV2 is 3500. If you're using a looptime smaller than about 2400, you may experience some dropped frames due to
 the high required data rate. In that case you will need to reduce the sampling rate in the Blackbox settings, or
 increase your logger's baudrate to 250000. See the later section on configuring the Blackbox feature for details.
 
 ## Setting up logging
 
-First, you must enable the Blackbox feature. In the [Cleanflight Configurator][] enter the Configuration tab,
+First, you must enable the Blackbox feature. In the [MagisV2 Configurator][] enter the Configuration tab,
 tick the "BLACKBOX" feature at the bottom of the page, and click "Save and reboot" 
 
 Now you must decide which device to store your flight logs on. You can either transmit the log data over a serial port
@@ -59,13 +62,13 @@ flights to a MicroSD card.
 The OpenLog ships from SparkFun with standard "OpenLog 3" firmware installed. Although this original OpenLog firmware
 will work with the Blackbox, in order to reduce the number of dropped frames it should be reflashed with the
 higher performance [OpenLog Blackbox firmware][]. The special Blackbox variant of the OpenLog firmware also ensures that
-the OpenLog is using Cleanflight compatible settings, and defaults to 115200 baud.
+the OpenLog is using MagisV2 compatible settings, and defaults to 115200 baud.
 
-You can find the Blackbox version of the OpenLog firmware [here](https://github.com/cleanflight/blackbox-firmware), 
+You can find the Blackbox version of the OpenLog firmware [here](https://github.com/MagisV2/blackbox-firmware), 
 along with instructions for installing it onto your OpenLog.
 
 [OpenLog serial data logger]: https://www.sparkfun.com/products/9530
-[OpenLog Blackbox firmware]: https://github.com/cleanflight/blackbox-firmware
+[OpenLog Blackbox firmware]: https://github.com/MagisV2/blackbox-firmware
 
 #### microSDHC
 
@@ -95,10 +98,10 @@ First, tell the Blackbox to log using a serial port (rather than to an onboard d
 Configurator's CLI tab, enter `set blackbox_device=0` to switch logging to serial (this is the default setting), and
 save.
 
-You need to let Cleanflight know which of [your serial ports][] you connect your OpenLog to (i.e. the Blackbox port),
+You need to let MagisV2 know which of [your serial ports][] you connect your OpenLog to (i.e. the Blackbox port),
 which you can do on the Configurator's Ports tab.
 
-You should use a hardware serial port (such as UART1 on the Naze32, the two-pin Tx/Rx header in the center of the
+You should use a hardware serial port (such as UART1 on the PRIMUS, the two-pin Tx/Rx header in the center of the
 board). SoftSerial ports can be used for the Blackbox. However, because they are limited to 19200 baud, your logging 
 rate will need to be severely reduced to compensate. Therefore the use of SoftSerial is not recommended.
 
@@ -114,11 +117,11 @@ Connect the "TX" pin of the serial port you've chosen to the OpenLog's "RXI" pin
 pin to the OpenLog, as this will cause the OpenLog to interfere with any shared functions on the serial port while
 disarmed.
 
-#### Naze32 serial port choices
+#### PRIMUS serial port choices
 
-On the Naze32, the TX/RX pins on top of the board are connected to UART1, and are shared with the USB connector.
+On the PRIMUS, the TX/RX pins on top of the board are connected to UART1, and are shared with the USB connector.
 Therefore, MSP must be enabled on UART1 in order to use the Configurator over USB. If Blackbox is connected to the pins
-on top of the Naze32, the Configurator will stop working once the board is armed. This configuration is usually a good
+on top of the PRIMUS, the Configurator will stop working once the board is armed. This configuration is usually a good
 choice if you don't already have an OSD installed which is using those pins while armed, and aren't using the FrSky
 telemetry pins.
 
@@ -126,13 +129,13 @@ Pin RC3 on the side of the board is UART2's Tx pin. If Blackbox is configured on
 when the board is armed, which means that the Configurator will continue to work simultaneously with Blackbox logging.
 However, the RC3 pin is only available for use by UART2 if the receiver mode is _not_ `PARALLEL_PWM`. In other words, a
 PPM or Serial receiver must be used. If a PWM receiver is used, the RC3 and RC4 pins are used for channel input from the
-receiver. Sharing UART1 between Blackbox and MSP is the only way to use Blackbox on a Naze32 with a PWM receiver.
+receiver. Sharing UART1 between Blackbox and MSP is the only way to use Blackbox on a PRIMUS with a PWM receiver.
 
-The OpenLog tolerates a power supply of between 3.3V and 12V. If you are powering your Naze32 with a standard 5V BEC,
+The OpenLog tolerates a power supply of between 3.3V and 12V. If you are powering your PRIMUS with a standard 5V BEC,
 then you can use a spare motor header's +5V and GND pins to power the OpenLog with.
 
 #### Other flight controller hardware
-Boards other than the Naze32 may have more accessible hardware serial devices, in which case refer to their
+Boards other than the PRIMUS may have more accessible hardware serial devices, in which case refer to their
 documentation to decide how to wire up the logger. The key criteria are:
 
 * Should be a hardware serial port rather than SoftSerial.
@@ -175,9 +178,9 @@ tubing instead.
 Some flight controllers have an onboard SPI NOR dataflash chip which can be used to store flight logs instead of using
 an OpenLog.
 
-The full version of the Naze32 and the CC3D have an onboard "m25p16" 2 megabyte dataflash storage chip. This is a small
-chip with 8 fat legs, which can be found at the base of the Naze32's direction arrow. This chip is not present on the
-"Acro" version of the Naze32.
+The full version of the PRIMUS and the CC3D have an onboard "m25p16" 2 megabyte dataflash storage chip. This is a small
+chip with 8 fat legs, which can be found at the base of the PRIMUS's direction arrow. This chip is not present on the
+"Acro" version of the PRIMUS.
 
 The SPRacingF3 has a larger 8 megabyte dataflash chip onboard which allows for longer recording times.
 
@@ -193,8 +196,8 @@ These chips are also supported:
 On the Configurator's CLI tab, you must enter `set blackbox_device=1` to switch to logging to an onboard dataflash chip,
 then save.
 
-[your serial ports]: https://github.com/cleanflight/cleanflight/blob/master/docs/Serial.md
-[Cleanflight Configurator]: https://chrome.google.com/webstore/detail/cleanflight-configurator/enacoimjcgeinfnnnpajinjgmkahmfgb?hl=en
+[your serial ports]: https://github.com/MagisV2/MagisV2/blob/master/docs/Serial.md
+[MagisV2 Configurator]: https://chrome.google.com/webstore/detail/MagisV2-configurator/enacoimjcgeinfnnnpajinjgmkahmfgb?hl=en
 
 ## Configuring the Blackbox
 
@@ -206,7 +209,7 @@ every iteration.
 If you're using a slower MicroSD card, you may need to reduce your logging rate to reduce the number of corrupted
 logged frames that `blackbox_decode` complains about. A rate of 1/2 is likely to work for most craft.
 
-You can change the logging rate settings by entering the CLI tab in the [Cleanflight Configurator][] and using the `set`
+You can change the logging rate settings by entering the CLI tab in the [MagisV2 Configurator][] and using the `set`
 command, like so:
 
 ```
@@ -234,8 +237,8 @@ not diagnose flight problems like vibration or PID setting issues.
 
 The Blackbox starts recording data as soon as you arm your craft, and stops when you disarm.
 
-If your craft has a buzzer attached, you can use Cleanflight's arming beep to synchronize your Blackbox log with your
-flight video. Cleanflight's arming beep is a "long, short" pattern. The beginning of the first long beep will be shown 
+If your craft has a buzzer attached, you can use MagisV2's arming beep to synchronize your Blackbox log with your
+flight video. MagisV2's arming beep is a "long, short" pattern. The beginning of the first long beep will be shown 
 as a blue line in the flight data log, which you can sync against your recorded audio track.
 
 You should wait a few seconds after disarming your craft to allow the Blackbox to finish saving its data.
@@ -248,7 +251,7 @@ tools will ask you to pick which one of these flights you want to display/decode
 Don't insert or remove the SD card while the OpenLog is powered up.
 
 ### Usage - Dataflash chip
-After your flights, you can use the [Cleanflight Configurator][] to download the contents of the dataflash to your
+After your flights, you can use the [MagisV2 Configurator][] to download the contents of the dataflash to your
 computer. Go to the "dataflash" tab and click the "save flash to file..." button. Saving the log can take 2 or 3
 minutes.
 
@@ -270,9 +273,9 @@ while in flight.
 ## Viewing recorded logs
 After your flights, you'll have a series of flight log files with a .TXT extension.
 
-You can view these .TXT flight log files interactively using your web browser with the Cleanflight Blackbox Explorer:
+You can view these .TXT flight log files interactively using your web browser with the MagisV2 Blackbox Explorer:
 
-https://github.com/cleanflight/blackbox-log-viewer
+https://github.com/MagisV2/blackbox-log-viewer
 
 This allows you to scroll around a graphed version of your log and examine your log in detail. You can also export a
 video of your log to share it with others!
@@ -283,4 +286,4 @@ another software package.
 
 You'll find those tools along with instructions for using them in this repository:
 
-https://github.com/cleanflight/blackbox-tools
+https://github.com/MagisV2/blackbox-tools

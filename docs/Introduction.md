@@ -1,10 +1,10 @@
-# Cleanflight
+# MagisV2
 
-![Cleanflight](assets/cleanflight/cleanflight-logo-light-wide-1-240px.jpg)
+![MagisV2](assets/MagisV2/MagisV2-logo-light-wide-1-240px.jpg)
 
-Welcome to CleanFlight!
+Welcome to MagisV2!
 
-Cleanflight is an community project which attempts to deliver flight controller firmware and related tools.
+MagisV2 is an community project which attempts to deliver flight controller firmware and related tools.
 
 ## Primary Goals
 
@@ -28,8 +28,8 @@ We welcome all feedback.  If you love it we want to hear from you, if you have p
 
 If you want to contribute please see the notes here:
 
-https://github.com/cleanflight/cleanflight#contributing
+https://github.com/MagisV2/MagisV2#contributing
 
 Developers should read this:
 
-https://github.com/cleanflight/cleanflight/blob/master/CONTRIBUTING.md
+https://github.com/MagisV2/MagisV2/blob/master/CONTRIBUTING.md
