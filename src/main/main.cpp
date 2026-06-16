@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Jan 2026                                          #
+ #  Last Modified: Tue, 16th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -149,10 +149,7 @@ uint16_t failureFlag;
 // from system_stm32f30x.c
 uint32_t SetSysClock ( void );
 #endif
-#ifdef STM32F10X
-// from system_stm32f10x.c
-uint32_t SetSysClock ( bool overclock );
-#endif
+
 
 #ifdef __cplusplus
 }
@@ -189,11 +186,7 @@ void init ( void ) {
 #ifdef STM32F303xC
   clockcheck = SetSysClock ( );    // DD
 #endif
-#ifdef STM32F10X
-  // Configure the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers
-  // Configure the Flash Latency cycles and enable prefetch buffer
-  clockcheck = SetSysClock ( masterConfig.emf_avoidance );
-#endif
+
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
   detectHardwareRevision ( );
@@ -562,9 +555,8 @@ void init ( void ) {
     pwm_params.airplane = true;
   else
     pwm_params.airplane = false;
-#if defined( USE_USART2 ) && defined( STM32F10X )
-  pwm_params.useUART2 = doesConfigurationUsePort ( SERIAL_PORT_USART2 );
-#endif
+  
+
 #ifdef STM32F303xC
   pwm_params.useUART3 = doesConfigurationUsePort ( SERIAL_PORT_USART3 );
 #endif

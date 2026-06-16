@@ -88,9 +88,7 @@
 #include "config/config_master.h"
 
 #include "version.h"
-#ifdef NAZE
-  #include "hardware_revision.h"
-#endif
+
 
 #include "serial_msp.h"
 
@@ -812,11 +810,7 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
         serialize8 ( boardIdentifier [ i ] );
       }
 
-#ifdef NAZE
-      serialize16 ( hardwareRevision );
-#else
       serialize16 ( 0 );    // No other build targets currently have hardware revision detection.
-#endif
       break;
 
     case MSP_BUILD_INFO:

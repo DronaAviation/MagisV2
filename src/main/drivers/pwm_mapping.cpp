@@ -198,11 +198,7 @@ pwmOutputConfiguration_t *pwmInit(drv_pwm_config_t *init)
 
 
 
-#ifdef STM32F10X
-        // skip UART2 ports
-        if (init->useUART2 && (timerIndex == PWM3 || timerIndex == PWM4))
-        continue;
-#endif
+
 
 #if defined(STM32F303xC) && defined(USE_USART3)
         // skip UART3 ports (PB10/PB11)

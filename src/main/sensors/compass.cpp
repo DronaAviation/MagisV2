@@ -35,9 +35,7 @@
 #include "sensors/sensors.h"
 #include "sensors/compass.h"
 
-#ifdef NAZE
-  #include "hardware_revision.h"
-#endif
+
 
 bool isMagCalibrated = true;
 

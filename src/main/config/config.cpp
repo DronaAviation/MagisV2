@@ -818,9 +818,7 @@ void writeEEPROM ( void ) {
 #ifdef STM32F303
     FLASH_ClearFlag ( FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR );
 #endif
-#ifdef STM32F10X
-    FLASH_ClearFlag ( FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR );
-#endif
+
     for ( wordOffset = 0; wordOffset < sizeof ( master_t ); wordOffset += 4 ) {
       if ( wordOffset % FLASH_PAGE_SIZE == 0 ) {
         status = FLASH_ErasePage ( CONFIG_START_FLASH_ADDRESS + wordOffset );
