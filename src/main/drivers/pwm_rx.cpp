@@ -166,7 +166,7 @@ static void ppmEdgeCallback(timerCCHandlerRec_t* cbRec, captureCompare_t capture
     /* Convert to 32-bit timer result */
     ppmDev.currentTime += ppmDev.largeCounter;
 
-    // Divide by 8 if Oneshot125 is active and this is a CC3D board
+    // Divide by 8 if Oneshot125 is active
     ppmDev.currentTime = ppmDev.currentTime >> ppmCountShift;
 
     /* Capture computation */

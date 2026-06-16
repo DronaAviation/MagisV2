@@ -96,24 +96,7 @@ void initSpi1 ( void ) {
 
   #endif
 
-  #ifdef STM32F10X
-  gpio_config_t gpio;
-  // MOSI + SCK as output
-  gpio.pin   = SPI1_MOSI_PIN | SPI1_SCK_PIN;
-  gpio.mode  = Mode_AF_PP;
-  gpio.speed = Speed_50MHz;
-  gpioInit ( GPIOA, &gpio );
-  // MISO as input
-  gpio.pin  = SPI1_MISO_PIN;
-  gpio.mode = Mode_IN_FLOATING;
-  gpioInit ( GPIOA, &gpio );
-    #ifdef SPI1_NSS_PIN
-  // NSS as gpio slave select
-  gpio.pin  = SPI1_NSS_PIN;
-  gpio.mode = Mode_Out_PP;
-  gpioInit ( GPIOA, &gpio );
-    #endif
-  #endif
+
 
   // Init SPI hardware
   SPI_I2S_DeInit ( SPI1 );
@@ -203,26 +186,7 @@ void initSpi2 ( void ) {
 
   #endif
 
-  #ifdef STM32F10X
-  gpio_config_t gpio;
 
-  // MOSI + SCK as output
-  gpio.mode  = Mode_AF_PP;
-  gpio.pin   = SPI2_SCK_PIN | SPI2_MOSI_PIN;
-  gpio.speed = Speed_50MHz;
-  gpioInit ( SPI2_GPIO, &gpio );
-  // MISO as input
-  gpio.pin  = SPI2_MISO_PIN;
-  gpio.mode = Mode_IN_FLOATING;
-  gpioInit ( SPI2_GPIO, &gpio );
-
-    #ifdef SPI2_NSS_PIN
-  // NSS as gpio slave select
-  gpio.pin  = SPI2_NSS_PIN;
-  gpio.mode = Mode_Out_PP;
-  gpioInit ( SPI2_GPIO, &gpio );
-    #endif
-  #endif
 
   // Init SPI2 hardware
   SPI_I2S_DeInit ( SPI2 );
@@ -296,9 +260,7 @@ uint8_t spiTransferByte ( SPI_TypeDef *instance, uint8_t data ) {
 #ifdef STM32F303xC
   SPI_SendData8 ( instance, data );
 #endif
-#ifdef STM32F10X
-  SPI_I2S_SendData ( instance, data );
-#endif
+
   spiTimeout = 1000;
   while ( SPI_I2S_GetFlagStatus ( instance, SPI_I2S_FLAG_RXNE ) == RESET )
     if ( ( spiTimeout-- ) == 0 )
@@ -307,9 +269,7 @@ uint8_t spiTransferByte ( SPI_TypeDef *instance, uint8_t data ) {
 #ifdef STM32F303xC
   return ( ( uint8_t ) SPI_ReceiveData8 ( instance ) );
 #endif
-#ifdef STM32F10X
-  return ( ( uint8_t ) SPI_I2S_ReceiveData ( instance ) );
-#endif
+
 }
 
 bool spiTransfer ( SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int len ) {
@@ -327,9 +287,7 @@ bool spiTransfer ( SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int l
     SPI_SendData8 ( instance, b );
     // SPI_I2S_SendData16(instance, b);
 #endif
-#ifdef STM32F10X
-    SPI_I2S_SendData ( instance, b );
-#endif
+
     while ( SPI_I2S_GetFlagStatus ( instance, SPI_I2S_FLAG_RXNE ) == RESET ) {
       if ( ( spiTimeout-- ) == 0 )
         return spiTimeoutUserCallback ( instance );
@@ -338,9 +296,7 @@ bool spiTransfer ( SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int l
     b = SPI_ReceiveData8 ( instance );
     // b = SPI_I2S_ReceiveData16(instance);
 #endif
-#ifdef STM32F10X
-    b = SPI_I2S_ReceiveData ( instance );
-#endif
+
     if ( out )
       *( out++ ) = b;
   }

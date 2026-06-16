@@ -150,19 +150,14 @@ void configureMPUDataReadyInterruptHandling(void)
 {
 #ifdef USE_MPU_DATA_READY_SIGNAL
 
-#ifdef STM32F10X
-    // enable AFIO for EXTI support
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-#endif
+
 
 #ifdef STM32F303xC
     /* Enable SYSCFG clock otherwise the EXTI irq handlers are not called */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 #endif
 
-#ifdef STM32F10X
-    gpioExtiLineConfig(mpuIntExtiConfig->exti_port_source, mpuIntExtiConfig->exti_pin_source);
-#endif
+
 
 #ifdef STM32F303xC
     gpioExtiLineConfig(mpuIntExtiConfig->exti_port_source, mpuIntExtiConfig->exti_pin_source);
@@ -211,11 +206,7 @@ void mpuIntExtiInit(void)
         RCC_AHBPeriphClockCmd(mpuIntExtiConfig->gpioAHBPeripherals, ENABLE);
     }
 #endif
-#ifdef STM32F10X
-    if (mpuIntExtiConfig->gpioAPB2Peripherals) {
-        RCC_APB2PeriphClockCmd(mpuIntExtiConfig->gpioAPB2Peripherals, ENABLE);
-    }
-#endif
+
 
     gpio.pin = mpuIntExtiConfig->gpioPin;
     gpio.speed = Speed_2MHz;

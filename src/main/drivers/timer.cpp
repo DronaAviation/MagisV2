@@ -81,7 +81,7 @@ void timerDataConfiguration ( ) {
   #define TIMER_APB2_PERIPHERALS ( RCC_APB2Periph_TIM1 | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB )
 #endif
 
-#if defined( PRIMUSX ) || defined( ALIENWIIF3 )
+#if defined( PRIMUSX )
   // Virtual Motor 4 Actual Motor M5
   timerHardware_t T4 = { TIM2, GPIOA, Pin_0, TIM_Channel_1, TIM2_IRQn, 1, Mode_AF_PP, GPIO_PinSource0, GPIO_AF_1 };    // PWM1  - PA0  - TIM2_CH1, TIM8
   // Virtual Motor 3 Actual Motor M6
@@ -292,21 +292,13 @@ void timerConfigure ( const timerHardware_t *timerHardwarePtr, uint16_t period, 
   timerNVICConfigure ( timerHardwarePtr->irq );
   // HACK - enable second IRQ on timers that need it
   switch ( timerHardwarePtr->irq ) {
-#if defined( STM32F10X )
-    case TIM1_CC_IRQn:
-      timerNVICConfigure ( TIM1_UP_IRQn );
-      break;
-#endif
+
 #ifdef STM32F303xC
     case TIM1_CC_IRQn:
       timerNVICConfigure ( TIM1_UP_TIM16_IRQn );
       break;
 #endif
-#if defined( STM32F10X_XL )
-    case TIM8_CC_IRQn:
-      timerNVICConfigure ( TIM8_UP_IRQn );
-      break;
-#endif
+
   }
 }
 
@@ -638,9 +630,7 @@ extern "C" {
 
 #if USED_TIMERS & TIM_N( 1 )
 _TIM_IRQ_HANDLER ( TIM1_CC_IRQHandler, 1 );
-  #if defined( STM32F10X )
-_TIM_IRQ_HANDLER ( TIM1_UP_IRQHandler, 1 );    // timer can't be shared
-  #endif
+
   #ifdef STM32F303xC
     #if USED_TIMERS & TIM_N( 16 )
 _TIM_IRQ_HANDLER2 ( TIM1_UP_TIM16_IRQHandler, 1, 16 );    // both timers are in use
@@ -660,11 +650,7 @@ _TIM_IRQ_HANDLER ( TIM4_IRQHandler, 4 );
 #endif
 #if USED_TIMERS & TIM_N( 8 )
 _TIM_IRQ_HANDLER ( TIM8_CC_IRQHandler, 8 );
-  #if defined( STM32F10X_XL )
-_TIM_IRQ_HANDLER ( TIM8_UP_TIM13_IRQHandler, 8 );
-  #else    // f10x_hd, f30x
 _TIM_IRQ_HANDLER ( TIM8_UP_IRQHandler, 8 );
-  #endif
 #endif
 #if USED_TIMERS & TIM_N( 15 )
 _TIM_IRQ_HANDLER ( TIM1_BRK_TIM15_IRQHandler, 15 );
@@ -680,9 +666,6 @@ _TIM_IRQ_HANDLER ( TIM1_TRG_COM_TIM17_IRQHandler, 17 );
 void timerInit ( void ) {
   memset ( timerConfig, 0, sizeof ( timerConfig ) );
 
-#ifdef CC3D
-  GPIO_PinRemapConfig ( GPIO_PartialRemap_TIM3, ENABLE );
-#endif
 
 #ifdef TIMER_APB1_PERIPHERALS
   RCC_APB1PeriphClockCmd ( TIMER_APB1_PERIPHERALS, ENABLE );
