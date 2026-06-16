@@ -32,21 +32,10 @@
 #include "drivers/sensor.h"
 
 #include "drivers/accgyro.h"
-#include "drivers/accgyro_adxl345.h"
-#include "drivers/accgyro_bma280.h"
-#include "drivers/accgyro_l3g4200d.h"
-#include "drivers/accgyro_mma845x.h"
 #include "drivers/accgyro_mpu.h"
-#include "drivers/accgyro_mpu3050.h"
-#include "drivers/accgyro_mpu6050.h"
-#include "drivers/accgyro_mpu6500.h"
 #include "drivers/accgyro_icm20948.h"
-#include "drivers/accgyro_l3gd20.h"
-#include "drivers/accgyro_lsm303dlhc.h"
 
 #include "drivers/bus_spi.h"
-#include "drivers/accgyro_spi_mpu6000.h"
-#include "drivers/accgyro_spi_mpu6500.h"
 
 #include "drivers/barometer.h"
 #include "drivers/barometer_bmp085.h"
@@ -209,83 +198,6 @@ bool detectGyro(void)
     switch (gyroHardware) {
         case GYRO_DEFAULT:
             ; // fallthrough
-        case GYRO_MPU6050:
-#ifdef USE_GYRO_MPU6050
-            if (mpu6050GyroDetect(&gyro)) {
-#ifdef GYRO_MPU6050_ALIGN
-                gyroHardware = GYRO_MPU6050;
-                gyroAlign = GYRO_MPU6050_ALIGN;
-#endif
-                break;
-            }
-#endif
-            ; // fallthrough
-        case GYRO_L3G4200D:
-#ifdef USE_GYRO_L3G4200D
-            if (l3g4200dDetect(&gyro)) {
-#ifdef GYRO_L3G4200D_ALIGN
-                gyroHardware = GYRO_L3G4200D;
-                gyroAlign = GYRO_L3G4200D_ALIGN;
-#endif
-                break;
-            }
-#endif
-            ; // fallthrough
-
-        case GYRO_MPU3050:
-#ifdef USE_GYRO_MPU3050
-            if (mpu3050Detect(&gyro)) {
-#ifdef GYRO_MPU3050_ALIGN
-                gyroHardware = GYRO_MPU3050;
-                gyroAlign = GYRO_MPU3050_ALIGN;
-#endif
-                break;
-            }
-#endif
-            ; // fallthrough
-
-        case GYRO_L3GD20:
-#ifdef USE_GYRO_L3GD20
-            if (l3gd20Detect(&gyro)) {
-#ifdef GYRO_L3GD20_ALIGN
-                gyroHardware = GYRO_L3GD20;
-                gyroAlign = GYRO_L3GD20_ALIGN;
-#endif
-                break;
-            }
-#endif
-            ; // fallthrough
-
-        case GYRO_MPU6000:
-#ifdef USE_GYRO_SPI_MPU6000
-            if (mpu6000SpiGyroDetect(&gyro)) {
-#ifdef GYRO_MPU6000_ALIGN
-                gyroHardware = GYRO_MPU6000;
-                gyroAlign = GYRO_MPU6000_ALIGN;
-#endif
-                break;
-            }
-#endif
-            ; // fallthrough
-
-        case GYRO_MPU6500:
-#ifdef USE_GYRO_MPU6500
-//#ifdef USE_GYRO_SPI_MPU6500            //DD
-//            if (mpu6500GyroDetect(&gyro) || mpu6500SpiGyroDetect(&gyro))
-//#else
-            if (mpu6500GyroDetect(&gyro))
-//#endif
-            {
-                gyroHardware = GYRO_MPU6500;
-#ifdef GYRO_MPU6500_ALIGN
-                gyroAlign = GYRO_MPU6500_ALIGN;
-#endif
-
-                break;
-            }
-#endif
-            ; // fallthrough
-
         case GYRO_ICM20948:
 
 #ifdef USE_GYRO_ICM20948
@@ -340,83 +252,6 @@ static void detectAcc(accelerationSensor_e accHardwareToUse)
     switch (accHardwareToUse) {
         case ACC_DEFAULT:
             ; // fallthrough
-        case ACC_ADXL345: // ADXL345
-#ifdef USE_ACC_ADXL345
-        acc_params.useFifo = false;
-        acc_params.dataRate = 800; // unused currently
-#ifdef NAZE
-        if (hardwareRevision < NAZE32_REV5 && adxl345Detect(&acc_params, &acc)) {
-#else
-            if (adxl345Detect(&acc_params, &acc)) {
-#endif
-#ifdef ACC_ADXL345_ALIGN
-                accAlign = ACC_ADXL345_ALIGN;
-#endif
-                accHardware = ACC_ADXL345;
-                break;
-            }
-#endif
-            ; // fallthrough
-        case ACC_LSM303DLHC:
-#ifdef USE_ACC_LSM303DLHC
-            if (lsm303dlhcAccDetect(&acc)) {
-#ifdef ACC_LSM303DLHC_ALIGN
-                accAlign = ACC_LSM303DLHC_ALIGN;
-#endif
-                accHardware = ACC_LSM303DLHC;
-                break;
-            }
-#endif
-            ; // fallthrough
-        case ACC_MPU6050: // MPU6050
-#ifdef USE_ACC_MPU6050
-        if (mpu6050AccDetect(&acc)) {
-#ifdef ACC_MPU6050_ALIGN
-            accAlign = ACC_MPU6050_ALIGN;
-#endif
-            accHardware = ACC_MPU6050;
-            break;
-        }
-#endif
-            ; // fallthrough
-        case ACC_MMA8452: // MMA8452
-#ifdef USE_ACC_MMA8452
-#ifdef NAZE
-        // Not supported with this frequency
-        if (hardwareRevision < NAZE32_REV5 && mma8452Detect(&acc)) {
-#else
-            if (mma8452Detect(&acc)) {
-#endif
-#ifdef ACC_MMA8452_ALIGN
-                accAlign = ACC_MMA8452_ALIGN;
-#endif
-                accHardware = ACC_MMA8452;
-                break;
-            }
-#endif
-            ; // fallthrough
-        case ACC_BMA280: // BMA280
-#ifdef USE_ACC_BMA280
-        if (bma280Detect(&acc)) {
-#ifdef ACC_BMA280_ALIGN
-            accAlign = ACC_BMA280_ALIGN;
-#endif
-            accHardware = ACC_BMA280;
-            break;
-        }
-#endif
-            ; // fallthrough
-        case ACC_MPU6000:
-#ifdef USE_ACC_SPI_MPU6000
-            if (mpu6000SpiAccDetect(&acc)) {
-#ifdef ACC_MPU6000_ALIGN
-                accAlign = ACC_MPU6000_ALIGN;
-#endif
-                accHardware = ACC_MPU6000;
-                break;
-            }
-#endif
-            ; // fallthrough
         case ACC_ICM20948:
 #ifdef USE_ACC_ICM20948
 //changes made by DD
@@ -436,23 +271,6 @@ static void detectAcc(accelerationSensor_e accHardwareToUse)
             ; // fallthrough
 
 
-        case ACC_MPU6500:
-#ifdef USE_ACC_MPU6500
-//changes made by DD
-//#ifdef USE_ACC_SPI_MPU6500
-//            if (mpu6500AccDetect(&acc) || mpu6500SpiAccDetect(&acc))
-//#else
-            if (mpu6500AccDetect(&acc))
-//#endif
-            {
-#ifdef ACC_MPU6500_ALIGN
-                accAlign = ACC_MPU6500_ALIGN;
-#endif
-                accHardware = ACC_MPU6500;
-                break;
-            }
-#endif
-            ; // fallthrough
         case ACC_FAKE:
 #ifdef USE_FAKE_ACC
             if (fakeAccDetect(&acc)) {

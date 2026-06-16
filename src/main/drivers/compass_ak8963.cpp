@@ -45,8 +45,7 @@
 
 #include "accgyro.h"
 #include "accgyro_mpu.h"
-#include "accgyro_mpu6500.h"
-#include "accgyro_spi_mpu6500.h"
+
 #include "compass_ak8963.h"
 
 // This sensor is available in MPU-9250.
