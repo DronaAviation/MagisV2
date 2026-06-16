@@ -41,9 +41,6 @@
 #include "drivers/barometer_icp10111.h"
 
 #include "drivers/compass.h"
-#include "drivers/compass_hmc5883l.h"
-#include "drivers/compass_ak8975.h"
-#include "drivers/compass_ak8963.h"
 #include "drivers/compass_ak09916.h"
 
 #include "drivers/sonar_hcsr04.h"
@@ -340,53 +337,7 @@ static void detectMag(magSensor_e magHardwareToUse)
 {
     magSensor_e magHardware;
 
-#ifdef USE_MAG_HMC5883
-    const hmc5883Config_t *hmc5883Config = 0;
 
-#ifdef NAZE
-    static const hmc5883Config_t nazeHmc5883Config_v1_v4 = {
-        .gpioAPB2Peripherals = RCC_APB2Periph_GPIOB,
-        .gpioPin = Pin_12,
-        .gpioPort = GPIOB,
-
-        /* Disabled for v4 needs more work.
-         .exti_port_source = GPIO_PortSourceGPIOB,
-         .exti_pin_source = GPIO_PinSource12,
-         .exti_line = EXTI_Line12,
-         .exti_irqn = EXTI15_10_IRQn
-         */
-    };
-    static const hmc5883Config_t nazeHmc5883Config_v5 = {
-        .gpioAPB2Peripherals = RCC_APB2Periph_GPIOC,
-        .gpioPin = Pin_14,
-        .gpioPort = GPIOC,
-        .exti_port_source = GPIO_PortSourceGPIOC,
-        .exti_line = EXTI_Line14,
-        .exti_pin_source = GPIO_PinSource14,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-    if (hardwareRevision < NAZE32_REV5) {
-        hmc5883Config = &nazeHmc5883Config_v1_v4;
-    } else {
-        hmc5883Config = &nazeHmc5883Config_v5;
-    }
-#endif
-
-#ifdef SPRACINGF3
-    static const hmc5883Config_t spRacingF3Hmc5883Config = {
-        .gpioAHBPeripherals = RCC_AHBPeriph_GPIOC,
-        .gpioPin = Pin_14,
-        .gpioPort = GPIOC,
-        .exti_port_source = EXTI_PortSourceGPIOC,
-        .exti_pin_source = EXTI_PinSource14,
-        .exti_line = EXTI_Line14,
-        .exti_irqn = EXTI15_10_IRQn
-    };
-
-    hmc5883Config = &spRacingF3Hmc5883Config;
-#endif
-
-#endif
 
     retry:
 
@@ -395,43 +346,6 @@ static void detectMag(magSensor_e magHardwareToUse)
     switch (magHardwareToUse) {
         case MAG_DEFAULT:
             ; // fallthrough
-
-        case MAG_HMC5883:
-#ifdef USE_MAG_HMC5883
-            if (hmc5883lDetect(&mag, hmc5883Config)) {
-#ifdef MAG_HMC5883_ALIGN
-                magAlign = MAG_HMC5883_ALIGN;
-#endif
-                magHardware = MAG_HMC5883;
-                break;
-            }
-#endif
-            ; // fallthrough
-
-        case MAG_AK8975:
-#ifdef USE_MAG_AK8975
-            if (ak8975Detect(&mag)) {
-#ifdef MAG_AK8975_ALIGN
-                magAlign = MAG_AK8975_ALIGN;
-#endif
-                magHardware = MAG_AK8975;
-                break;
-            }
-#endif
-            ; // fallthrough
-//changes made by DD
-        case MAG_AK8963:
-#ifdef USE_MAG_AK8963
-            if (ak8963Detect(&mag)) {
-#ifdef MAG_AK8963_ALIGN
-                magAlign = MAG_AK8963_ALIGN;
-#endif
-                magHardware = MAG_AK8963;
-                break;
-            }
-#endif
-            ; // fallthrough	
-
 
         case MAG_AK09916:
 #ifdef USE_MAG_AK09916
@@ -443,7 +357,7 @@ static void detectMag(magSensor_e magHardwareToUse)
                 break;
             }
 #endif
-            ; // fallthrough
+            break;
         case MAG_NONE:
             magHardware = MAG_NONE;
             break;

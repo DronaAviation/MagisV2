@@ -48,7 +48,7 @@
 #include "drivers/inverter.h"
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
-#include "drivers/sonar_hcsr04.h"
+
 #include "drivers/ranging_vl53l0x.h"
 #include "drivers/ranging_vl53l1x.h"
 #include "drivers/ina219.h"
@@ -66,7 +66,7 @@
 #include "io/oled_display.h"
 
 #include "sensors/sensors.h"
-#include "sensors/sonar.h"
+
 #include "sensors/barometer.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
@@ -141,8 +141,7 @@ void displayInit ( rxConfig_t *intialRxConfig );
 void ledStripInit ( ledConfig_t *ledConfigsToUse, hsvColor_t *colorsToUse );
 void loop ( void );
 void spektrumBind ( rxConfig_t *rxConfig );
-const sonarHardware_t *sonarGetHardwareConfiguration ( batteryConfig_t *batteryConfig );
-void sonarInit ( const sonarHardware_t *sonarHardware );
+
 
 uint16_t failureFlag;
 
@@ -244,19 +243,7 @@ void init ( void ) {
 
   memset ( &pwm_params, 0, sizeof ( pwm_params ) );
 
-#ifdef SONARz
-  const sonarHardware_t *sonarHardware = NULL;
 
-  if ( feature ( FEATURE_SONAR ) ) {
-    sonarHardware                     = sonarGetHardwareConfiguration ( &masterConfig.batteryConfig );
-    sonarGPIOConfig_t sonarGPIOConfig = {
-      .gpio       = SONAR_GPIO,
-      .triggerPin = sonarHardware->echo_pin,
-      .echoPin    = sonarHardware->trigger_pin,
-    };
-    pwm_params.sonarGPIOConfig = &sonarGPIOConfig;
-  }
-#endif
 
   //// when using airplane/wing mixer, servo/motor outputs are remapped
   // if (masterConfig.mixerMode == MIXER_AIRPLANE
@@ -281,9 +268,7 @@ void init ( void ) {
   // pwm_params.useLEDStrip = feature(FEATURE_LED_STRIP);
   // pwm_params.usePPM = feature(FEATURE_RX_PPM);
   // pwm_params.useSerialRx = feature(FEATURE_RX_SERIAL);
-  // #ifdef SONAR
-  // pwm_params.useSonar = feature(FEATURE_SONAR);
-  // #endif
+
   //
   // #ifdef USE_SERVOS
   // pwm_params.useServos = false;
@@ -353,11 +338,7 @@ void init ( void ) {
   }
 #endif
 
-#if defined( SPRACINGF3 ) && defined( SONAR ) && defined( USE_SOFTSERIAL2 )
-  if ( feature ( FEATURE_SONAR ) && feature ( FEATURE_SOFTSERIAL ) ) {
-    serialRemovePort ( SERIAL_PORT_SOFTSERIAL2 );
-  }
-#endif
+
 
 #ifdef USE_I2C
   #if defined( NAZE )
@@ -487,11 +468,7 @@ void init ( void ) {
   }
 #endif
 
-#ifdef SONAR
-  if ( feature ( FEATURE_SONAR ) ) {
-    sonarInit ( sonarHardware );
-  }
-#endif
+
 
 #ifdef LED_STRIP
   ledStripInit ( masterConfig.ledConfigs, masterConfig.colors );
@@ -637,9 +614,7 @@ void init ( void ) {
   pwm_params.useLEDStrip = feature ( FEATURE_LED_STRIP );
   pwm_params.usePPM      = feature ( FEATURE_RX_PPM );
   pwm_params.useSerialRx = feature ( FEATURE_RX_SERIAL );
-#ifdef SONAR
-  pwm_params.useSonar = feature ( FEATURE_SONAR );
-#endif
+
 
 #ifdef USE_SERVOS
   pwm_params.useServos            = false;
