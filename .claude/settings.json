@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true
+  }
+}
