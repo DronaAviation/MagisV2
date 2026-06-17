@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 31st Mar 2026                                          #
+ #  Last Modified: Wed, 17th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -34,6 +34,7 @@
 #include "drivers/light_led.h"
 #include "drivers/gpio.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/ranging_vl53l1x.h"
 
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
@@ -547,7 +548,7 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   #ifdef LASER_ALT
 void checkReading ( ) {
   uint32_t baro_update_time;
-  float dt;
+  float dt = 0.0f;
   float tilt                 = 0;
   static int32_t baro_offset = 0;
 
@@ -579,7 +580,7 @@ void checkReading ( ) {
   if ( isTofDataNew_L1 ( ) && ( ! isOutofRange_L1 ( ) ) ) {
 
     ToF_Height       = ( float ) NewSensorRange_L1 / 10.0f;
-    isTofDataNewflag = false;
+    isTofDataNewflag_L1 = false;
 
     tilt = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
     if ( tilt < 25 )
@@ -587,7 +588,7 @@ void checkReading ( ) {
   }
   // Fusion
   if ( ToF_Height > 0 && ToF_Height < 350 ) {
-    baro_offset = Baro_filtered - EstAlt;
+    baro_offset = filtered - EstAlt;
     correctedWithTof ( ToF_Height );
   } /* else
    //{ Baro_Height -= baro_offset;
