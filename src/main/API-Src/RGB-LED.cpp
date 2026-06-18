@@ -45,6 +45,7 @@ static rgb_t    rgbBuffer[RGB_MAX_LEDS];
 static uint8_t  rgbLedCount   = 0;
 static uint8_t  rgbBrightness = 100;
 static bool     rgbHwReady    = false;
+static volatile bool rgbReleasePending = false;   // blank queued by RGB_Release()
 
 // Animation state
 static RGB_Animation_e  animType      = RGB_ANIM_NONE;
@@ -72,8 +73,15 @@ static uint8_t mapIndex ( uint8_t frame )
 
 static void rgbWriteDma ( void )
 {
-    // Wait for any in-progress DMA transfer
-    while ( ws2811LedDataTransferInProgress ) {}
+    // Non-blocking: if a DMA transfer is still in flight, skip this update
+    // instead of waiting. The DMA engine owns ledStripDMABuffer until the
+    // transfer completes — writing into it now would corrupt the in-flight
+    // frame. We simply drop this frame; the next RGB_Show() pushes the
+    // latest colors once DMA is free. This guarantees the flight loop can
+    // never stall here, even if the transfer-complete IRQ never fires.
+    if ( ws2811LedDataTransferInProgress ) {
+        return;
+    }
 
     // Write RGB buffer directly into DMA buffer in GRB order
     uint16_t offset = 0;
@@ -104,6 +112,21 @@ static void rgbWriteDma ( void )
 
     ws2811LedDataTransferInProgress = 1;
     ws2811LedStripDMAEnable();
+
+    rgbReleasePending = false;   // a frame just went out; nothing left to flush
+}
+
+/**
+ * Non-blocking retry for the "all-off" frame queued by RGB_Release().
+ * The system LED loop (updateLedStrip) calls this every cycle once user
+ * control is released; it pushes the blank as soon as the DMA channel is
+ * free, then does nothing. Never spins — safe to call from the flight loop.
+ */
+void rgbReleaseFlushTick ( void )
+{
+    if ( rgbReleasePending ) {
+        rgbWriteDma();   // no-op while DMA is busy; sends + clears once free
+    }
 }
 
 // Standard HSV-to-RGB (s=255 means vivid, s=0 means white)
@@ -188,16 +211,22 @@ void RGB_Init ( uint8_t led_count )
 
 void RGB_Release ( void )
 {
-    animType       = RGB_ANIM_NONE;
-    rgbUserControl = false;
-    rgbBrightness  = 100;
+    animType      = RGB_ANIM_NONE;
+    rgbBrightness = 100;
 
     for ( uint8_t i = 0; i < RGB_MAX_LEDS; i++ ) {
         rgbBuffer[i].r = 0;
         rgbBuffer[i].g = 0;
         rgbBuffer[i].b = 0;
     }
+
+    // Queue the blank, then try to push it now. If a DMA transfer is in
+    // flight, rgbWriteDma() skips (non-blocking) and leaves rgbReleasePending
+    // set — rgbReleaseFlushTick() from the system LED loop lands it next cycle.
+    rgbReleasePending = true;
     rgbWriteDma();
+
+    rgbUserControl = false;   // hand control back to the system last
 }
 
 /*=============================================================================

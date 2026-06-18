@@ -31,6 +31,10 @@
 
 #include <build_config.h>
 
+// Defined unconditionally (even when LED_STRIP is off) because the RGB_* API
+// in API-Src/RGB-LED.cpp is always compiled and references it.
+volatile bool rgbUserControl = false;
+
 #ifdef LED_STRIP
 
   #include <common/color.h>
@@ -57,7 +61,7 @@
 
 static bool ledStripInitialised = false;
 static bool ledStripEnabled     = true;
-static bool ledStripFlightStatusEnabled = true;
+static bool ledStripFlightStatusEnabled = true;   // WS2812B shows system flight-status; RGB_* API (rgbUserControl) overrides it in Developer Mode
 
 static void ledStripDisable ( void );
 
@@ -232,7 +236,6 @@ uint8_t ledGridWidth;
 uint8_t ledGridHeight;
 uint8_t ledCount;
 uint8_t ledsInRingCount;
-volatile bool rgbUserControl = false;
 
 ledConfig_t *ledConfigs;
 hsvColor_t *colors;
@@ -857,17 +860,31 @@ static void applyLedAnimationLayer ( void ) {
 void updateLedStrip ( void ) {
 
   if ( rgbUserControl ) {
-    return;
+    return;          // user owns the strip via the RGB_* API
   }
+
+  // Land any "all-off" frame queued by RGB_Release() (non-blocking).
+  rgbReleaseFlushTick ( );
 
   if ( ! ( ledStripInitialised && isWS2811LedStripReady ( ) ) ) {
     return;
   }
 
-  if (ledStripFlightStatusEnabled) {
-    ledStripFlightStatus();
+  // WS2812B flight-status display is DISABLED (ledStripFlightStatusEnabled).
+  // Keep the strip dark: blank it once (so we don't re-push a frame and hit
+  // the DMA wait every loop) and skip the legacy layered rendering below.
+  // Set ledStripFlightStatusEnabled = true to restore the status animation.
+  if ( ! ledStripFlightStatusEnabled ) {
+    static bool stripBlanked = false;
+    if ( ! stripBlanked ) {
+      ledStripDisable ( );
+      stripBlanked = true;
+    }
     return;
   }
+
+  ledStripFlightStatus ( );
+  return;
 
   if ( IS_RC_MODE_ACTIVE ( BOXLEDLOW ) ) {
     if ( ledStripEnabled ) {
@@ -1013,7 +1030,18 @@ void applyDefaultColors ( hsvColor_t *colors, uint8_t colorCount ) {
 
 void applyDefaultLedStripConfig ( ledConfig_t *ledConfigs ) {
   memset ( ledConfigs, 0, MAX_LED_STRIP_LENGTH * sizeof ( ledConfig_t ) );
-  memcpy ( ledConfigs, &defaultLedStripConfig, sizeof ( defaultLedStripConfig ) );
+
+  // BUGFIX: defaultLedStripConfig has 28 entries, but ledConfigs only holds
+  // MAX_LED_STRIP_LENGTH (5). Copying sizeof(defaultLedStripConfig) (112 B)
+  // into the 20 B array overflowed by 92 B — past colors[] and into
+  // profile[]/pidProfile, corrupting the PID/alt-hold gains. That broke BARO
+  // alt-hold whenever LED_STRIP was defined (compile-time, no LED code needed).
+  // Clamp the copy to the destination array size.
+  uint16_t copyBytes = sizeof ( defaultLedStripConfig );
+  uint16_t maxBytes  = MAX_LED_STRIP_LENGTH * sizeof ( ledConfig_t );
+  if ( copyBytes > maxBytes )
+    copyBytes = maxBytes;
+  memcpy ( ledConfigs, &defaultLedStripConfig, copyBytes );
 
   reevalulateLedConfig ( );
 }

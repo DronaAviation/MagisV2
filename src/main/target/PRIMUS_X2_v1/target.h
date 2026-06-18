@@ -70,7 +70,7 @@ extern "C" {
 #define MAG
 #define USE_MAG_AK09916
 #define MAG_AK09916_ALIGN CW180_DEG_FLIP    // For plutoX-new remove comment  else for old comment
-#define MAG_ENFORCE
+//#define MAG_ENFORCE   // disabled: do NOT block arming on mag calibration (mag still reads, just not gated)
 
 #define BARO
 #define USE_BARO_ICP10111
@@ -188,7 +188,7 @@ extern "C" {
 #define ENABLE_ACROBAT
 #define LED_ENABLE
 #define TEST_ENABLE
-#define LED_STRIP
+#define LED_STRIP   // WS2812B strip on PA15/TIM8/DMA2_Ch3. (The earlier "no climb" was alt-hold/BARO on AUX3, not the strip.)
 
 #ifdef __cplusplus
 }
