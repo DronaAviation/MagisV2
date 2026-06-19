@@ -34,12 +34,34 @@ Build outputs land in `Build/<TARGET>/<PROJECT>_<TARGET>_<FW_Version>.hex`
 
 ## Prerequisites
 
-The `arm-none-eabi` GCC toolchain plus `make` and a `bash` shell. PlutoIDE
-installs the toolchain under `<home>/.pluto-ide/tools/ARM GNU ToolChain/bin`;
-the driver probes that location under both `$HOME` (Linux/macOS) and
-`$USERPROFILE` (Windows) and prepends the first that exists, falling back to
-whatever `arm-none-eabi-g++` is already on `PATH`. If it's missing, install
-PlutoIDE or the upstream `gcc-arm-none-eabi` package.
+The `arm-none-eabi` GCC toolchain plus `make` and a `bash` shell. The driver
+probes `<home>/.pluto-ide/tools/ARM GNU ToolChain/bin` under both `$HOME`
+(Linux/macOS) and `$USERPROFILE` (Windows), prepends the first that exists,
+and otherwise falls back to whatever `arm-none-eabi-g++` is already on `PATH`.
+
+PlutoIDE's toolchain location is **not the same on every platform**:
+
+- **Linux / macOS** — under the home dir: `~/.pluto-ide/tools/ARM GNU ToolChain/bin`.
+- **Windows** — the installer puts it at `C:\PlutoIDE\tools\ARM GNU ToolChain\bin`
+  (a fixed root, *not* under the user profile). The `~/.pluto-ide/...` candidate
+  the driver probes does **not** exist on Windows. Verified compiler:
+  `C:\PlutoIDE\tools\ARM GNU ToolChain\bin\arm-none-eabi-g++.exe`,
+  Arm GNU Toolchain 14.2.Rel1 (14.2.1).
+
+**Important — how PlutoIDE exposes the toolchain on Windows:** the extension
+does **NOT** add the toolchain to the persistent system/user PATH. Instead it
+spawns its own **terminal with the PATH set for that session only** and runs
+build/clean inside it; when that terminal closes the PATH is gone. So a fresh
+Git Bash / WSL shell (where this driver runs) will **not** have
+`arm-none-eabi-g++` on PATH by default, and the driver's `~/.pluto-ide`
+probe won't match either — the build will fail with `command not found` unless
+the toolchain `bin` is put on PATH first. Either add it for the session before
+invoking the driver (see Troubleshooting), or persist it to your environment
+manually. Do not assume the extension has set a system-wide PATH.
+
+If the toolchain is missing entirely, install PlutoIDE or the upstream
+`gcc-arm-none-eabi` package. If yours lives somewhere else, just put its `bin`
+on `PATH` before invoking and the fallback will use it.
 
 **Platform / shell:** the driver is a bash script and runs natively on
 **Linux and macOS**. On **Windows** run it from **Git Bash or WSL** — not
@@ -102,8 +124,13 @@ compile-verify only.
 
 ## Troubleshooting
 
-- `arm-none-eabi-g++: command not found` → toolchain not on PATH; the
-  driver handles this, or `export PATH="$HOME/.pluto-ide/tools/ARM GNU ToolChain/bin:$PATH"`.
+- `arm-none-eabi-g++: command not found` → toolchain not on PATH. On
+  Linux/macOS the driver's `~/.pluto-ide` probe usually handles it, or:
+  `export PATH="$HOME/.pluto-ide/tools/ARM GNU ToolChain/bin:$PATH"`.
+  On **Windows** PlutoIDE only sets PATH inside its own spawned terminal (gone
+  when that terminal closes) and does **not** persist it system-wide, so a
+  fresh Git Bash shell won't find the compiler — add it for the session first:
+  `export PATH="/c/PlutoIDE/tools/ARM GNU ToolChain/bin:$PATH"`.
 - `Target '' is not valid, must be one of ...` → you omitted `TARGET=`.
 - `No rule to make target '../main/common/maths.c'` → you ran the stale
   unit-test suite; see Gotchas. Use the firmware build instead.

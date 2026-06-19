@@ -30,21 +30,60 @@ cd "$REPO"
 #
 # Only the Linux path is verified in CI; macOS/Windows rely on the same
 # PlutoIDE layout under $HOME / $USERPROFILE, plus the PATH fallback.
+# Prepend the first existing dir from the args to PATH; return 0 if one was
+# added, 1 if none existed. A drive-letter path ("C:/...") cannot go on PATH
+# verbatim — the colon is the PATH separator and would corrupt it — so convert
+# "C:/..." -> "/c/..." for PATH after testing existence with the original form.
+prepend_first_existing() {
+  for dir in "$@"; do
+    case "$dir" in /|*//*|"") continue ;; esac      # skip empties from unset home vars
+    if [ -d "$dir" ]; then
+      case "$dir" in
+        [A-Za-z]:/*) drive="$(printf '%s' "${dir%%:*}" | tr 'A-Z' 'a-z')"
+                     dir="/$drive/${dir#*:/}" ;;
+      esac
+      export PATH="$dir:$PATH"; return 0
+    fi
+  done
+  return 1
+}
+
+# Windows: the PlutoIDE installer puts the toolchain at a fixed root ("C:\PlutoIDE"),
+# NOT under the user profile, and does NOT persist it to the system PATH — the
+# extension only sets PATH inside its own spawned terminal, which is gone once
+# that terminal closes. So probe the standard install root too, so a fresh Git
+# Bash shell still finds the compiler. ${SYSTEMDRIVE} is e.g. "C:"; the /c/...
+# form is a belt-and-suspenders fallback.
 TOOLCHAIN_SUBDIR=".pluto-ide/tools/ARM GNU ToolChain/bin"
 TOOLCHAIN_CANDIDATES=(
   "$HOME/$TOOLCHAIN_SUBDIR"             # Linux + macOS (Git Bash maps $HOME too)
-  "${USERPROFILE:-}/$TOOLCHAIN_SUBDIR"  # Windows (Git Bash/MSYS expose $USERPROFILE)
+  "${USERPROFILE:-}/$TOOLCHAIN_SUBDIR"  # Windows under user profile (rare)
+  "${SYSTEMDRIVE:-C:}/PlutoIDE/tools/ARM GNU ToolChain/bin"  # Windows install root
+  "/c/PlutoIDE/tools/ARM GNU ToolChain/bin"
 )
-for dir in "${TOOLCHAIN_CANDIDATES[@]}"; do
-  [ -n "${dir%/$TOOLCHAIN_SUBDIR}" ] || continue   # skip if the home var was empty
-  if [ -d "$dir" ]; then export PATH="$dir:$PATH"; break; fi
-done
+prepend_first_existing "${TOOLCHAIN_CANDIDATES[@]}"
+
+# `make` is a system tool on Linux/macOS, but on Windows PlutoIDE ships it under
+# its CYGWIN bundle (same install root). Only add that if make isn't already
+# resolvable, so we never shadow a system make on Unix.
+MAKE_CANDIDATES=(
+  "${SYSTEMDRIVE:-C:}/PlutoIDE/tools/CYGWIN 64/bin"
+  "/c/PlutoIDE/tools/CYGWIN 64/bin"
+)
+command -v make >/dev/null 2>&1 || prepend_first_existing "${MAKE_CANDIDATES[@]}"
 
 # command -v finds arm-none-eabi-g++ or arm-none-eabi-g++.exe (Windows) alike.
 if ! command -v arm-none-eabi-g++ >/dev/null 2>&1; then
   echo "FATAL: arm-none-eabi-g++ not found. Install the PlutoIDE ARM toolchain" >&2
   echo "       or put gcc-arm-none-eabi on PATH. Searched:" >&2
   for dir in "${TOOLCHAIN_CANDIDATES[@]}"; do echo "         $dir" >&2; done
+  exit 1
+fi
+
+if ! command -v make >/dev/null 2>&1; then
+  echo "FATAL: 'make' not found. On Windows it ships with PlutoIDE under" >&2
+  echo "       'CYGWIN 64/bin'; install PlutoIDE or put make on PATH. Searched:" >&2
+  for dir in "${MAKE_CANDIDATES[@]}"; do echo "         $dir" >&2; done
   exit 1
 fi
 
