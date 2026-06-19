@@ -47,6 +47,7 @@
 #include "rx/sumh.h"
 #include "rx/msp.h"
 #include "rx/xbus.h"
+#include "rx/crsf.h"
 
 #include "rx/rx.h"
 
@@ -239,6 +240,10 @@ void serialRxInit(rxConfig_t *rxConfig)
             rxRefreshRate = 11000;
             enabled = xBusInit(rxConfig, &rxRuntimeConfig, &rcReadRawFunc);
             break;
+        case SERIALRX_CRSF:
+            rxRefreshRate = 6000;
+            enabled = crsfInit(rxConfig, &rxRuntimeConfig, &rcReadRawFunc);
+            break;
     }
 
     if (!enabled) {
@@ -271,6 +276,8 @@ uint8_t serialRxFrameStatus(rxConfig_t *rxConfig)
         case SERIALRX_XBUS_MODE_B:
         case SERIALRX_XBUS_MODE_B_RJ01:
             return xBusFrameStatus();
+        case SERIALRX_CRSF:
+            return crsfFrameStatus();
     }
     return SERIAL_RX_FRAME_PENDING;
 }
@@ -348,8 +355,7 @@ void updateRx(uint32_t currentTime)
             needRxSignalBefore = currentTime + DELAY_10_HZ;
         }
 
-
-
+        rc_connected = rxSignalReceived;
     }
 #endif
 
@@ -359,7 +365,7 @@ void updateRx(uint32_t currentTime)
         if (rxDataReceived) {
             rxSignalReceived = true;
             rxIsInFailsafeMode = false;
-            needRxSignalBefore = currentTime + DELAY_5_HZ + 300000;  //temp fix drona failsafe_drona
+            needRxSignalBefore = currentTime + DELAY_5_HZ ;  //temp fix drona failsafe_drona
 
 
         }

@@ -1,6 +1,9 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # Command Line Interface (CLI)
 
-Cleanflight has a command line interface (CLI) that can be used to change settings and configure the FC.
+MagisV2 has a command line interface (CLI) that can be used to change settings and configure the FC.
 
 ## Accessing the CLI.
 

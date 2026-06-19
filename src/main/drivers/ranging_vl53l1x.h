@@ -11,7 +11,7 @@
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 10th Jan 2026                                          #
+ #  Last Modified: Tue, 5th May 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -28,7 +28,6 @@ extern "C" {
 #include "vl53l1_ll_device.h"
 #include "vl53l1_platform.h"
 #include "vl53l1_platform_user_data.h"
-#include "API/Specifiers.h"
 
 class LaserSensor_L1 {
 

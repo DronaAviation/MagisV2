@@ -61,6 +61,8 @@ static uint32_t getBaud ( UART_Baud_Rate_e BAUD ) {
       return 128000;
     case BAUD_RATE_256000:
       return 256000;
+    case BAUD_RATE_420000:
+      return 420000;
   }
 }
 

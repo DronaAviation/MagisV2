@@ -8,12 +8,13 @@
  #  Created Date: Tue, 16th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 29th Apr 2025                                          #
- #  Modified By: AJ                                                            #
+ #  Last Modified: Fri, 4th Apr 2026                                           #
+ #  Modified By: Omkar Dandekar (techsavvyomi)                                 #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-04-04	OD	Added Rx_ELRS and Rx_SBUS to rx_mode_e enum               #
 *******************************************************************************/
 #ifndef RX_CONFIG_H
 #define RX_CONFIG_H
@@ -28,7 +29,8 @@ extern "C" {
 typedef enum {
   Rx_ESP,
   Rx_PPM,
-  Rx_CAM
+  Rx_CAM,
+  Rx_ELRS
 } rx_mode_e;
 
 typedef enum {

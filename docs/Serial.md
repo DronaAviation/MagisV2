@@ -1,8 +1,8 @@
 # Serial
 
-Cleanflight has enhanced serial port flexibility but configuration is slightly more complex as a result.
+MagisV2 has enhanced serial port flexibility but configuration is slightly more complex as a result.
 
-Cleanflight has the concept of a function (MSP, GPS, Serial RX, etc) and a port (VCP, UARTx, SoftSerial x).
+MagisV2 has the concept of a function (MSP, GPS, Serial RX, etc) and a port (VCP, UARTx, SoftSerial x).
 Not all functions can be used on all ports due to hardware pin mapping, conflicting features, hardware, and software
 constraints.
 

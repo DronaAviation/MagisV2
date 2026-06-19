@@ -53,7 +53,6 @@ typedef enum {
     BOXOSD,
     BOXTELEMETRY,
     BOXGTUNE,
-    BOXSONAR,
     BOXSERVO1,
     BOXSERVO2,
     BOXSERVO3,

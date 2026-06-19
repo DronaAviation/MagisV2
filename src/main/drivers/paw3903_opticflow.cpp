@@ -282,6 +282,8 @@ bool paw3903_spi_setup ( void ) {
 
 #endif
 
+#if defined(PAW3903_SPI) || defined(PAW3903_SC18)
+
 bool paw3903_check_id ( uint8_t *product_id, uint8_t *revision_id ) {
   uint8_t pid = paw3903_read_reg ( PAW3903_REG_Product_ID );
   uint8_t rid = paw3903_read_reg ( PAW3903_REG_Revision_ID );
@@ -416,3 +418,5 @@ bool paw3903_read_motion_pin ( void ) {
   }
   return false;
 }
+
+#endif

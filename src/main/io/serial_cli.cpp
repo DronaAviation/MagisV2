@@ -179,7 +179,7 @@ static const char * const mixerNames[] = {
 static const char * const featureNames[] = {
     "RX_PPM", "VBAT", "INFLIGHT_ACC_CAL", "RX_SERIAL", "MOTOR_STOP",
     "SERVO_TILT", "SOFTSERIAL", "GPS", "FAILSAFE",
-    "SONAR", "TELEMETRY", "CURRENT_METER", "3D", "RX_PARALLEL_PWM",
+    "TELEMETRY", "CURRENT_METER", "3D", "RX_PARALLEL_PWM",
     "RX_MSP", "RSSI_ADC", "LED_STRIP", "DISPLAY", "ONESHOT125",
     "BLACKBOX", "CHANNEL_FORWARDING", NULL
 };
@@ -192,10 +192,10 @@ static const rxFailsafeChannelMode_e rxFailsafeModesTable[RX_FAILSAFE_TYPE_COUNT
     { RX_FAILSAFE_MODE_INVALID, RX_FAILSAFE_MODE_HOLD, RX_FAILSAFE_MODE_SET }
 };
 
-#ifndef CJMCU
+
 // sync this with sensors_e
 static const char * const sensorTypeNames[] = {
-    "GYRO", "ACC", "BARO", "MAG", "SONAR", "GPS", "GPS+MAG", NULL
+    "GYRO", "ACC", "BARO", "MAG", "GPS", "GPS+MAG", NULL
 };
 
 #define SENSOR_NAMES_MASK (SENSOR_GYRO | SENSOR_ACC | SENSOR_BARO | SENSOR_MAG)
@@ -206,7 +206,7 @@ static const char * const sensorHardwareNames[4][11] = {
     { "", "None", "BMP085", "MS5611", "BMP280", NULL },
     { "", "None", "HMC5883", "AK8975", NULL }
 };
-#endif
+
 
 typedef struct {
     const char *name;
@@ -2116,7 +2116,7 @@ static void cliStatus(char *cmdline)
 
     printf("CPU Clock=%dMHz", (SystemCoreClock / 1000000));
 
-#ifndef CJMCU
+
     uint8_t i;
     uint32_t mask;
     uint32_t detectedSensorsMask = sensorsMask();
@@ -2139,7 +2139,7 @@ static void cliStatus(char *cmdline)
             }
         }
     }
-#endif
+
     cliPrint("\r\n");
 
 #ifdef USE_I2C

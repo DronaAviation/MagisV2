@@ -21,19 +21,6 @@
 extern "C" {
 #endif 
 
-#if defined(STM32F10X)
-typedef enum
-{
-    Mode_AIN = 0x0,
-    Mode_IN_FLOATING = 0x04,
-    Mode_IPD = 0x28,
-    Mode_IPU = 0x48,
-    Mode_Out_OD = 0x14,
-    Mode_Out_PP = 0x10,
-    Mode_AF_OD = 0x1C,
-    Mode_AF_PP = 0x18
-}GPIO_Mode;
-#endif
 
 #ifdef STM32F303xC
 

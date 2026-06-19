@@ -1,7 +1,4 @@
 ###############################################################################
-#  SPDX-License-Identifier: GPL-3.0-or-later                                  #
-#  SPDX-FileCopyrightText: 2025 Drona Aviation                                #
-#  -------------------------------------------------------------------------  #
 #  Copyright (c) 2025 Drona Aviation                                          #
 #  All rights reserved.                                                       #
 #  -------------------------------------------------------------------------  #
@@ -11,12 +8,13 @@
 #  Created Date: Mon, 28th Apr 2025                                           #
 #  Brief:                                                                     #
 #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
-#  Last Modified: Tue, 29th Apr 2025                                          #
-#  Modified By: AJ                                                            #
+#  Last Modified: Mon, 7th Apr 2026                                           #
+#  Modified By: Ashish Jaiswal (MechAsh) <AJ>                                 #
 #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
 #  HISTORY:                                                                   #
-#  Date      	By	Comments                                                    #
-#  ----------	---	---------------------------------------------------------   #
+#  Date      	By	Comments                                                  #
+#  ----------	---	--------------------------------------------------------- #
+#  2026-04-04	OD	Added rx/crsf.c to MAIN_RX for ELRS CRSF support          #
 ###############################################################################
 #
 # Makefile for building the MasigV2 firmware.
@@ -29,10 +27,8 @@ FORKNAME	=	MAGISV2
 TARGET	?=	
 BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
-LIB_MAJOR_VERSION	=	1
-LIB_MINOR_VERSION	=	1
-FW_Version	=	3.0.0
-API_Version	=	1.0.0
+FW_Version	=	3.3.1
+API_Version	=	1.2.2
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
@@ -215,6 +211,7 @@ MAIN_RX = rx/rx.cpp \
 		   		rx/sumh.c \
 		   		rx/spektrum.c \
 		   		rx/xbus.cpp \
+		   		rx/crsf.c \
 
 MAIN_SENSOR = sensors/acceleration.cpp \
 		   				sensors/battery.cpp \
@@ -288,8 +285,7 @@ DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
 DRONA_COMMAND = command/command.cpp \
             		command/localisationCommand.cpp \
 
-DRONA_API =	API/Specifiers.cpp \
-						API-Src/Status-LED.cpp \
+DRONA_API =	API-Src/Status-LED.cpp \
 		    		API-Src/Peripheral-ADC.cpp \
 		    		API-Src/Peripheral-PWM.cpp \
 		    		API-Src/Peripheral-GPIO.cpp \
@@ -310,6 +306,7 @@ DRONA_API =	API/Specifiers.cpp \
 						API-Src/Motor.cpp \
 						API-Src/API-Utils.cpp \
 						API-Src/RxConfig.cpp \
+						API-Src/Oled.cpp \
 						API-Src/Localisation.cpp \
 						API-Src/RGB-LED.cpp \
 

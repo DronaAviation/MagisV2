@@ -22,7 +22,7 @@ profile <index>
 
 # Rate Profiles
 
-Cleanflight supports rate profiles in addition to regular profiles.
+MagisV2 supports rate profiles in addition to regular profiles.
 
 Rate profiles contain settings that adjust how your craft behaves based on control input.
 

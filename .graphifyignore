@@ -1,0 +1,9 @@
+.continue/*
+.vscode/*
+Build/*
+docs/*
+src/test/*
+report/*
+support/*
+LICENSE
+.clang-format

@@ -6,12 +6,12 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-3.0.0-beta-vl53l1x                                        #
+ #  Project: MagisV2                                                           #
  #  File: \src\main\flight\altitudehold.cpp                                    #
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 8th Nov 2025                                           #
+ #  Last Modified: Wed, 17th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -34,11 +34,11 @@
 #include "drivers/light_led.h"
 #include "drivers/gpio.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/ranging_vl53l1x.h"
 
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
-#include "sensors/sonar.h"
 
 #include "rx/rx.h"
 
@@ -196,7 +196,7 @@ void configureAltitudeHold ( pidProfile_t *initialPidProfile, barometerConfig_t 
   kalmanFilterInit ( &velHoldFilter, 0.1, 1.0, 0.0 );     // Higher Q, higher R for velocity
 }
 
-#if defined( BARO ) || defined( SONAR ) || defined( LASER_ALT )
+#if defined( BARO ) || defined( LASER_ALT )
 
 int16_t initialThrottleHold_test;
 int16_t debug_e1;
@@ -222,6 +222,7 @@ static void applyMultirotorAltHold ( void ) {
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
+        errorVelocityI   = 0;
       }
       rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
     }
@@ -238,6 +239,7 @@ static void applyMultirotorAltHold ( void ) {
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
+        errorVelocityI   = 0;
       }
     }
     rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
@@ -286,20 +288,7 @@ void updateAltHoldState ( void ) {
   debug_e1                 = rcCommand [ THROTTLE ];
 }
 
-void updateSonarAltHoldState ( void ) {
-  if ( ! IS_RC_MODE_ACTIVE ( BOXSONAR ) ) {
-    DISABLE_FLIGHT_MODE ( SONAR_MODE );
-    return;
-  }
 
-  if ( ! FLIGHT_MODE ( SONAR_MODE ) ) {
-    ENABLE_FLIGHT_MODE ( SONAR_MODE );
-    AltHold                   = EstAlt;
-    initialThrottleHold       = rcData [ THROTTLE ];
-    errorVelocityI            = 0;
-    altHoldThrottleAdjustment = 0;
-  }
-}
 
 bool isThrustFacingDownwards ( rollAndPitchInclination_t *inclination ) {
   return ABS ( inclination->values.rollDeciDegrees ) < DEGREES_80_IN_DECIDEGREES && ABS ( inclination->values.pitchDeciDegrees ) < DEGREES_80_IN_DECIDEGREES;
@@ -366,17 +355,11 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   float vel_acc;
   int32_t vel_tmp;
   float accZ_tmp;
-  int32_t sonarAlt      = -1;
+
   static float accZ_old = 0.0f;
   static float vel      = 0.0f;
   static float accAlt   = 0.0f;
   static int32_t lastBaroAlt;
-  static int32_t baroAlt_offset = 0;
-  float sonarTransition;
-
-  #ifdef SONAR
-  int16_t tiltAngle;
-  #endif
 
   dTime = currentTime - previousTime;
   if ( dTime < BARO_UPDATE_FREQUENCY_40HZ )
@@ -394,22 +377,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   BaroAlt = 0;
   #endif
 
-  #ifdef SONAR
-  tiltAngle = calculateTiltAngle ( &inclination );
-  sonarAlt  = sonarRead ( );
-  sonarAlt  = sonarCalculateAltitude ( sonarAlt, tiltAngle );
-  #endif
 
-  if ( sonarAlt > 0 && sonarAlt < 200 ) {
-    baroAlt_offset = BaroAlt - sonarAlt;
-    BaroAlt        = sonarAlt;
-  } else {
-    BaroAlt -= baroAlt_offset;
-    if ( sonarAlt > 0 && sonarAlt <= 300 ) {
-      sonarTransition = ( 300 - sonarAlt ) / 100.0f;
-      BaroAlt         = sonarAlt * sonarTransition + BaroAlt * ( 1.0f - sonarTransition );
-    }
-  }
 
   dt = accTimeSum * 1e-6f;
 
@@ -439,11 +407,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   }
   #endif
 
-  if ( sonarAlt > 0 && sonarAlt < 200 ) {
-    EstAlt = BaroAlt;
-  } else {
-    EstAlt = accAlt;
-  }
+  EstAlt = accAlt;
 
   baroVel     = ( BaroAlt - lastBaroAlt ) * 1000000.0f / dTime;
   lastBaroAlt = BaroAlt;
@@ -584,7 +548,7 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   #ifdef LASER_ALT
 void checkReading ( ) {
   uint32_t baro_update_time;
-  float dt;
+  float dt = 0.0f;
   float tilt                 = 0;
   static int32_t baro_offset = 0;
 
@@ -616,7 +580,7 @@ void checkReading ( ) {
   if ( isTofDataNew_L1 ( ) && ( ! isOutofRange_L1 ( ) ) ) {
 
     ToF_Height       = ( float ) NewSensorRange_L1 / 10.0f;
-    isTofDataNewflag = false;
+    isTofDataNewflag_L1 = false;
 
     tilt = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
     if ( tilt < 25 )
@@ -624,7 +588,7 @@ void checkReading ( ) {
   }
   // Fusion
   if ( ToF_Height > 0 && ToF_Height < 350 ) {
-    baro_offset = Baro_filtered - EstAlt;
+    baro_offset = filtered - EstAlt;
     correctedWithTof ( ToF_Height );
   } /* else
    //{ Baro_Height -= baro_offset;

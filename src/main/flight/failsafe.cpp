@@ -40,7 +40,6 @@
 
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
-#include "sensors/sonar.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
@@ -211,7 +210,7 @@ void failsafeOnValidDataReceived ( void ) {
 
 void failsafeOnValidDataFailed ( void ) {
   failsafeState.validRxDataFailedAt = millis ( );
-  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > failsafeState.rxDataFailurePeriod ) {
+  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > PERIOD_RXDATA_FAILURE ) {
     failsafeState.rxLinkState = FAILSAFE_RXLINK_DOWN;
   }
 }
@@ -220,6 +219,8 @@ void failsafeUpdateState ( void ) {
   if ( ! failsafeIsMonitoring ( ) ) {
     return;
   }
+
+  static bool wasFlyingWhenSignalLost = false;
 
   bool receivingRxData    = failsafeIsReceivingRxData ( );
   bool armed              = ARMING_FLAG ( ARMED );
@@ -242,11 +243,23 @@ void failsafeUpdateState ( void ) {
 
           // directly using Land command after rx loss detected
           if ( ! receivingRxData ) {
+            // mwDisarm();
             set_FSI ( Signal_loss );
             current_command = LAND;
+            command_status  = RUNNING;
+            wasFlyingWhenSignalLost = true;
+          } else {
+            wasFlyingWhenSignalLost = false;
           }
 
         } else {
+          if ( receivingRxData ) {
+            reset_FSI ( Signal_loss );
+            set_FSI ( Ok_to_arm );
+            wasFlyingWhenSignalLost = false;
+          } else if ( wasFlyingWhenSignalLost ) {
+            set_FSI ( Signal_loss );
+          }
           // When NOT armed, show rxLinkState of failsafe switch in GUI (failsafe mode)
           if ( failsafeSwitchIsOn ) {
             ENABLE_FLIGHT_MODE ( FAILSAFE_MODE );
@@ -348,34 +361,12 @@ void failsafeUpdateState ( void ) {
 
 void failsafeOnCrash ( void ) {
 
-  //
-  // #ifdef ENABLE_ACROBAT
-  //        if(flipState>=1&&(flipState != 4 || flipState != 7 || flipState != 3 || flipState != 6 )){
-  //             return;
-  //
-  //         }else if( (ABS(accSmooth[0]) > 2000) || (ABS(accSmooth[1]) > 2000))
-  //         {
-  //
-  //             set_FSI(Crash);
-  //             mwDisarm();
-  //
-  //             return;
-  //         }
-  //
-  //
-  //            #endif
-
   if ( ARMING_FLAG ( ARMED ) && fsCrash && FLIGHT_MODE ( ANGLE_MODE ) ) {
-    if ( ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700 || ( ABS ( accSmooth [ 0 ] ) > 12000 ) || ( ABS ( accSmooth [ 1 ] ) > 12000 ) ) {    // to indicate that a crash has occurred// || (ABS(accSmooth[0])>5000)||(ABS(accSmooth[1])>5000)
-
-			                                              //  Print.monitor("###################");
-      //       Monitor.println("Fail---: ",FLIGHT_MODE(ANGLE_MODE));
-      //             LED_G_ON;
-      //             LED_B_OFF;
-      //       LED_R_ON;
+    if ( ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700 || 
+         ( ABS ( accSmooth [ 0 ] ) > 1250 ) || ( ABS ( accSmooth [ 1 ] ) > 1250 ) ||
+         ( ABS ( accADC [ 0 ] ) > 1750 ) || ( ABS ( accADC [ 1 ] ) > 1750 ) ) {    // to indicate that a crash has occurred// || (ABS(accSmooth[0])>5000)||(ABS(accSmooth[1])>5000)
 
 #ifdef ENABLE_ACROBAT
-      //  if(flipState > 1 && (millis() - flipStartTime) <= 1500){
       if ( flipState >= 1 ) {
         return;
       }

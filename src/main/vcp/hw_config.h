@@ -36,9 +36,7 @@
 #include "stm32f30x.h"
 #endif
 
-#ifdef STM32F10X
-#include "stm32f10x.h"
-#endif
+
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

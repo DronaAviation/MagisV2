@@ -466,6 +466,21 @@ $(OBJECT_DIR)/rx_ranges_unittest : \
 
 	$(CXX) $(CXX_FLAGS) $^ -o $(OBJECT_DIR)/$@
 
+$(OBJECT_DIR)/rx_crsf_unittest.o : \
+	$(TEST_DIR)/rx_crsf_unittest.cc \
+	$(USER_DIR)/rx/rx.h \
+	$(USER_DIR)/rx/crsf.h \
+	$(GTEST_HEADERS)
+
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXX_FLAGS) $(TEST_CFLAGS) -c $(TEST_DIR)/rx_crsf_unittest.cc -o $@
+
+$(OBJECT_DIR)/rx_crsf_unittest : \
+	$(OBJECT_DIR)/rx_crsf_unittest.o \
+	$(OBJECT_DIR)/gtest_main.a
+
+	$(CXX) $(CXX_FLAGS) $^ -o $(OBJECT_DIR)/$@
+
 $(OBJECT_DIR)/drivers/barometer_ms5611.o : \
     $(USER_DIR)/drivers/barometer_ms5611.c \
     $(USER_DIR)/drivers/barometer_ms5611.h \

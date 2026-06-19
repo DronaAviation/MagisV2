@@ -1,6 +1,9 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # GPS
 
-GPS features in Cleanflight are experimental.  Please share your findings with the developers.
+GPS features in MagisV2 are experimental.  Please share your findings with the developers.
 
 GPS works best if the GPS receiver is mounted above and away from other sources of interference.
 
@@ -129,7 +132,7 @@ Select `Save current configuration` and click `Send`.
 
 ### UBlox Navigation model
 
-Cleanflight will use `Pedestrian` when gps auto config is used.
+MagisV2 will use `Pedestrian` when gps auto config is used.
 
 From the UBlox documentation:
 

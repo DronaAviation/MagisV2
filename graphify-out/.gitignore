@@ -1,0 +1,5 @@
+# graphify runtime cache - not needed in git
+cache/
+
+# graphify internal state files
+.graphify_*

@@ -24,13 +24,11 @@ extern "C" {
 #include "vl53l0x_def.h"
 #include "vl53l0x_device.h"
 #include "vl53l0x_platform.h"
-#include "API/Specifiers.h"
 
 class LaserSensor {
 
   int16_t range;
   VL53L0X_Dev_t MyDevice;
-  unibus_e statusLEDPin;
 
  public:
   /**

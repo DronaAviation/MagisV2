@@ -1,0 +1,2098 @@
+{
+  "D:\\MagisV2\\PlutoPilot.cpp": {
+    "mtime": 1779170946.3552103,
+    "hash": "c7fae5accf4369dd18c75d0725f7a119"
+  },
+  "D:\\MagisV2\\PlutoPilot.h": {
+    "mtime": 1779170946.3557267,
+    "hash": "a5e31e788f4e4bdad483ed3b70794503"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_common_tables.h": {
+    "mtime": 1778227849.681895,
+    "hash": "455b6e12f245573eb84dddca6654fb99"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_const_structs.h": {
+    "mtime": 1778227849.681895,
+    "hash": "b52a459ba01fa73587946aba9aafcde9"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_math.h": {
+    "mtime": 1778227849.684284,
+    "hash": "1d8ef0a9ea3321a84f35df38afe7aef3"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm0.h": {
+    "mtime": 1778227849.684284,
+    "hash": "dc2262d942c744f5bc01edc97320bbbe"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm0plus.h": {
+    "mtime": 1778227849.6852899,
+    "hash": "392275c580ea7d029338555daacddc5f"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm3.h": {
+    "mtime": 1778227849.6859002,
+    "hash": "66670b49a91a44665ae3d6bbaf55430f"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm4.h": {
+    "mtime": 1778227849.686328,
+    "hash": "0090ac54a11bd24c007c8e0a20283c40"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm4_simd.h": {
+    "mtime": 1778227849.686328,
+    "hash": "307e421aa5abc33b42efdf5a57dde1ab"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cmFunc.h": {
+    "mtime": 1778227849.6871257,
+    "hash": "c6a92edad399be2a4b2e5ab55f0671df"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cmInstr.h": {
+    "mtime": 1778227849.6871257,
+    "hash": "554f02258e0b76a7d8f415a5f0de5df4"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_sc000.h": {
+    "mtime": 1778227849.6876335,
+    "hash": "1c62c0df7bfb0e8036d74c8323c8b127"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_sc300.h": {
+    "mtime": 1778227849.6879773,
+    "hash": "e4bac36a9f878c9dd1a1d262c13be73e"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x.h": {
+    "mtime": 1778227849.68914,
+    "hash": "50b16376c13aefe629acf89af6afc022"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_conf.h": {
+    "mtime": 1778227849.68914,
+    "hash": "d2f4f9dc169656e1221d3d2674a22be9"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_gpio.c": {
+    "mtime": 1778227849.6906426,
+    "hash": "0e1b9384bfd55e5c24d2836d9b624282"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_gpio.h": {
+    "mtime": 1778227849.6906426,
+    "hash": "847fae58ff5e0124a688dd78c74fb7e9"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_rcc.c": {
+    "mtime": 1778227849.6906426,
+    "hash": "6b90b5bccd93df65ee8dae21abaf143a"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_rcc.h": {
+    "mtime": 1778227849.691645,
+    "hash": "53b0c8ab1b1e936a1695a2d793de2d92"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\CoreSupport\\core_cm3.c": {
+    "mtime": 1778227849.691645,
+    "hash": "cb4c332f507f7e74c49b1afceb5cb252"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\CoreSupport\\core_cm3.h": {
+    "mtime": 1778227849.691645,
+    "hash": "d4e168c9c0f3535810374a9fd648c108"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\DeviceSupport\\ST\\STM32F10x\\stm32f10x.h": {
+    "mtime": 1778227849.6964324,
+    "hash": "a3c6e493e3e33687d36aca60f4b496b6"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\DeviceSupport\\ST\\STM32F10x\\stm32f10x_conf.h": {
+    "mtime": 1778227849.6964324,
+    "hash": "1cd952a19331d0d348251b97a3617c62"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\DeviceSupport\\ST\\STM32F10x\\system_stm32f10x.c": {
+    "mtime": 1778227849.6969619,
+    "hash": "d12b39a9a6f4d67a4f165cdad980cf3f"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\DeviceSupport\\ST\\STM32F10x\\system_stm32f10x.h": {
+    "mtime": 1778227849.6969619,
+    "hash": "1f7c38b57f39b631b6be32d40b69dc1f"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\misc.h": {
+    "mtime": 1778227849.6969619,
+    "hash": "306328f1bacaff0498e1a00df54199c5"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_adc.h": {
+    "mtime": 1778227849.6969619,
+    "hash": "97060dc87c5d2959cfef20209e27e586"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_bkp.h": {
+    "mtime": 1778227849.6969619,
+    "hash": "0843f88dcbc3a5d28071c47fb4effc3c"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_can.h": {
+    "mtime": 1778227849.6969619,
+    "hash": "c6025f7bb87992b527883fdbfebf46e5"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_cec.h": {
+    "mtime": 1778227849.6984627,
+    "hash": "f2031e962e56e3093cdaaf432427f390"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_crc.h": {
+    "mtime": 1778227849.6984627,
+    "hash": "6a090256bd158b6930b651ef5ae7e8a4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_dac.h": {
+    "mtime": 1778227849.6984627,
+    "hash": "5c707d7913bda73685d84007cedd2d35"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_dbgmcu.h": {
+    "mtime": 1778227849.6984627,
+    "hash": "15d6b9bd874bcba93edfd347598bf92a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_dma.h": {
+    "mtime": 1778227849.6994681,
+    "hash": "223590bc07c520fe10686be8d4f7eec6"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_exti.h": {
+    "mtime": 1778227849.6994681,
+    "hash": "3c96383a86459188332a6cc7382bf872"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_flash.h": {
+    "mtime": 1778227849.6997955,
+    "hash": "f30b61b45a1acbc5411db268edd69cf4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_fsmc.h": {
+    "mtime": 1778227849.6997955,
+    "hash": "9fc2daff80f8037ddc2c43c58d0c6988"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_gpio.h": {
+    "mtime": 1778227849.6997955,
+    "hash": "71a206a6edc0ec3721bb4ad501fc8749"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_i2c.h": {
+    "mtime": 1778227849.7007964,
+    "hash": "77ff039e39929a4f13807e24e4e4e93a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_iwdg.h": {
+    "mtime": 1778227849.7007964,
+    "hash": "352ef9c7fbd8ad120b85c9ddb0f79f40"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_pwr.h": {
+    "mtime": 1778227849.7007964,
+    "hash": "c7cea3fcdd3dd0ac0ad47578083709e8"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_rcc.h": {
+    "mtime": 1778227849.7007964,
+    "hash": "a3956b2c4b117ff34e5c1b7bf6eea0f7"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_rtc.h": {
+    "mtime": 1778227849.7017956,
+    "hash": "fbc0cfea6060aa2716cc851696d9e62c"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_sdio.h": {
+    "mtime": 1778227849.7017956,
+    "hash": "e431d98e0ed39ef82b2647cddc3c3139"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_spi.h": {
+    "mtime": 1778227849.7022994,
+    "hash": "396d34d14ee5e8bf074da4a923bcece6"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_tim.h": {
+    "mtime": 1778227849.7022994,
+    "hash": "052ad567a775ebf157f21d74404742c4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_usart.h": {
+    "mtime": 1778227849.7033007,
+    "hash": "ff41d0b548f6ddb095e9b05acbbcb85c"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\inc\\stm32f10x_wwdg.h": {
+    "mtime": 1778227849.7033007,
+    "hash": "eb6753de19e9f61b1f19a85904387b8a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\misc.c": {
+    "mtime": 1778227849.7033007,
+    "hash": "f4ea486a38b95a64ee95399f0cdb17f2"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_adc.c": {
+    "mtime": 1778227849.7033007,
+    "hash": "e3d57f78f0a97ea9fdacbeb280040a8a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_bkp.c": {
+    "mtime": 1778227849.7033007,
+    "hash": "aa21e5e10748ab0f570f80f74582bd46"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_can.c": {
+    "mtime": 1778227849.704803,
+    "hash": "51bf095833816b53aa1436c89287e511"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_cec.c": {
+    "mtime": 1778227849.704803,
+    "hash": "b88dd1c7b656ea4d93ffd66307def02f"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_crc.c": {
+    "mtime": 1778227849.704803,
+    "hash": "ac1005db440cee1125b920715647bb00"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_dac.c": {
+    "mtime": 1778227849.7056074,
+    "hash": "7422bd42e73dda9aa7b00732a51bc22d"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_dbgmcu.c": {
+    "mtime": 1778227849.7061555,
+    "hash": "51675b27ab80b363b7313519ee2e54fc"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_dma.c": {
+    "mtime": 1778227849.7061555,
+    "hash": "e9208b780d4acf788d0b667cdf370353"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_exti.c": {
+    "mtime": 1778227849.7067623,
+    "hash": "9b37dfd47fcf67527418668866a0ec37"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_flash.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "ad2d8c4d628a224c2489cf433cf398e1"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_fsmc.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "2984708f581eea8f7d569265b9fbc371"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_gpio.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "0437d73afc01bee8f1140c94088961b5"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_i2c.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "522a30f6e8bd21411a6d6950fbeb6b14"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_iwdg.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "55dd242fe1041e9cf4a94f4527787bbc"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_pwr.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "55e64bbfb406cd24ab7e1a5a17c1af28"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_rcc.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "b17ace55ed92612d58dd8a1ec67948df"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_rtc.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "7045d3265c82bacaacbee36dc0f573f9"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_sdio.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "3b5643b69f0ce0cc62e02ed07c780d2f"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_spi.c": {
+    "mtime": 1778227849.7072678,
+    "hash": "181ae84d6b28cbb605af731d30c26139"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_tim.c": {
+    "mtime": 1778227849.7104685,
+    "hash": "630d6d8b99dbe097f61b4f39c70ec6c3"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_usart.c": {
+    "mtime": 1778227849.710976,
+    "hash": "3f29f259dc7a112b2275058f285a8326"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F10x_StdPeriph_Driver\\src\\stm32f10x_wwdg.c": {
+    "mtime": 1778227849.710976,
+    "hash": "2b98696aad3d6690a5770afc29381652"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_adc.h": {
+    "mtime": 1778227849.710976,
+    "hash": "e0e38a60961aa765ef3c9955a51d3b06"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_can.h": {
+    "mtime": 1778227849.710976,
+    "hash": "8a383c6e8c0e6c23b4a324e10e1988f5"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_comp.h": {
+    "mtime": 1778227849.710976,
+    "hash": "a3bff0e0fe7ae96a099c3449af192444"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_crc.h": {
+    "mtime": 1778227849.710976,
+    "hash": "5cf81520e7e52bb2bf2f79d5c52298c8"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dac.h": {
+    "mtime": 1778227849.7123423,
+    "hash": "db3bd7b47ee96eb5573132ad0305ff9d"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dbgmcu.h": {
+    "mtime": 1778227849.7123423,
+    "hash": "86fe78d7745c68fc90c9b12e1dded85e"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dma.h": {
+    "mtime": 1778227849.7123423,
+    "hash": "7ee08bd3b0268e972f31231c25dcf477"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_exti.h": {
+    "mtime": 1778227849.7123423,
+    "hash": "fcbbcebc1b0d30ccf8849f405da10c09"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_flash.h": {
+    "mtime": 1778227849.7133472,
+    "hash": "1301fe548fea61a24231d6525e1a0523"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_gpio.h": {
+    "mtime": 1778227849.7133472,
+    "hash": "847fae58ff5e0124a688dd78c74fb7e9"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_hrtim.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "78e53e85e0a917e58d55d74491466f91"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_i2c.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "ef41ca0e21122b4a8a5d2f70a05f6f33"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_iwdg.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "9dc6a944535e5f5b2884037c25974163"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_misc.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "9fbbe384196f0ab6b5e9d0e4bbaf30cb"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_opamp.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "548dda0beb92aeba0cbfbff9ea143782"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_pwr.h": {
+    "mtime": 1778227849.7143466,
+    "hash": "6ee8bf9af928e7dbd240709373d1ccfc"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_rcc.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "53b0c8ab1b1e936a1695a2d793de2d92"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_rtc.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "7fcceadebd83e692a4f04f3ce3a8b644"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_spi.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "89d3be1a57e06db3c765822289304d50"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_syscfg.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "fafd6bad87cb0872a6e5aeb520201188"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_tim.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "f5eb8a44b13b061b3c773751fdfdf3d4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_usart.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "b01675555e4a9e934af54faca4e7e588"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_wwdg.h": {
+    "mtime": 1778227849.7153454,
+    "hash": "3b669f2cb077e38b4913eb09bad4e250"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_adc.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "f5b9d3ff73d3d113e0271eead86a8015"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_can.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "7859d456d9392ff3b55a689330bf4be0"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_comp.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "af6da968d2a6c10ae05f0cfaeb1b14e3"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_crc.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "81bfd1b5a5a624af523f7e103017b630"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dac.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "3faadb63c55a4b887e8e79f7d93cc93e"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dbgmcu.c": {
+    "mtime": 1778227849.7168477,
+    "hash": "f64c243b65af7eee6d888b8a6bb3573b"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dma.c": {
+    "mtime": 1778227849.717851,
+    "hash": "0b681c70d28232c24104ce2e61263237"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_exti.c": {
+    "mtime": 1778227849.717851,
+    "hash": "7eca7de711c0c60f9d7684556406bf09"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_flash.c": {
+    "mtime": 1778227849.717851,
+    "hash": "9c482a33da3f2f11e54955fd17ac4aeb"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_gpio.c": {
+    "mtime": 1778227849.717851,
+    "hash": "0e1b9384bfd55e5c24d2836d9b624282"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_hrtim.c": {
+    "mtime": 1778227849.7195394,
+    "hash": "83ce71d5938ebec8bb1d1f3967005b3b"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_i2c.c": {
+    "mtime": 1778227849.7195394,
+    "hash": "0fbe8756e6094b9d66cc85d210d85fd1"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_iwdg.c": {
+    "mtime": 1778227849.7195394,
+    "hash": "0fd4cce0c7c3cc8ce458cda344ca67f8"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_misc.c": {
+    "mtime": 1778227849.7195394,
+    "hash": "6f0e939f53f74123079a191653aa251a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_opamp.c": {
+    "mtime": 1778227849.720566,
+    "hash": "56a21c95602b900d3c4f74919825a91d"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_pwr.c": {
+    "mtime": 1778227849.720566,
+    "hash": "cbf29f4383767a1b8c6c6e96c3eeab74"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_rcc.c": {
+    "mtime": 1778227849.720566,
+    "hash": "6b90b5bccd93df65ee8dae21abaf143a"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_rtc.c": {
+    "mtime": 1778227849.7215655,
+    "hash": "2848d492b760f01d276fcd75ca5eb7f5"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_spi.c": {
+    "mtime": 1778227849.7215655,
+    "hash": "2d971c5093c487e4df8c0a2def3190a4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_syscfg.c": {
+    "mtime": 1778227849.7215655,
+    "hash": "5062feb705238da45377fdd48278e75b"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_tim.c": {
+    "mtime": 1778227849.7225657,
+    "hash": "137c02ef1630e733a8f16f9bf83b3d7d"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_usart.c": {
+    "mtime": 1778227849.7225657,
+    "hash": "d382c42b43477ffa8d330eaae5b722d2"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_wwdg.c": {
+    "mtime": 1778227849.7225657,
+    "hash": "f2d4734066a8aa27cbbc82f980cc21e2"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_core.h": {
+    "mtime": 1778227849.723479,
+    "hash": "7642eee4a85f18d5f3fbdd435aba7c32"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_def.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "f29aa810f090d21431ae4823d6d73f84"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_init.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "e69cbaf47e62d843c5d6ca6c781b6eae"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_int.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "f49ca940361f3fec56a146a6195f80bb"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_lib.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "1e55d31e96613ec94141c48c1e22ffeb"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_mem.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "0f0987bb5c421963c470837f9995511d"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_regs.h": {
+    "mtime": 1778227849.7240312,
+    "hash": "4a9e058cf03cf9ffa655787b4f313ca1"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_sil.h": {
+    "mtime": 1778227849.7250342,
+    "hash": "65c36f9fb28512a936d38bf8be1b3e36"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_type.h": {
+    "mtime": 1778227849.7250342,
+    "hash": "50bc1303ce5bb50eb5ad06c963140758"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_core.c": {
+    "mtime": 1778227849.7250342,
+    "hash": "3bf1903976b517dab061f97e54349521"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_init.c": {
+    "mtime": 1778227849.7250342,
+    "hash": "94a5c744ba4a8ec7a655a4d8c9eb2369"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_int.c": {
+    "mtime": 1778227849.7250342,
+    "hash": "8d7baafee5b01a5ed4a271b135214d8f"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_mem.c": {
+    "mtime": 1778227849.7250342,
+    "hash": "f957c7130f8072bf435424d2664757e4"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_regs.c": {
+    "mtime": 1778227849.7250342,
+    "hash": "a4df5a35bf10a477ece3861790c680ef"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_sil.c": {
+    "mtime": 1778227849.7265368,
+    "hash": "5d677c1a5520f1d49fc447060390a26e"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "14ff9e6c56ce3f05e9942244dc248c8b"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_calibration.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "74dba72574bf33afaa6852f746e85a2a"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_core.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "f2aa046dafd07ad0ee8c53769baf08ae"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_ranging.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "8bd11856a7919aadb0663b175b68875c"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_strings.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "d5527ad3af1d23758fc0402b99577e41"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_def.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "36e070fe246d776a2f26e5c7022283d5"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_device.h": {
+    "mtime": 1778227849.7265368,
+    "hash": "71110fbf62d1ff0b108d7ffc2f9f3084"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_interrupt_threshold_settings.h": {
+    "mtime": 1778227849.7283247,
+    "hash": "8e75b389b01a05f5c07a35a7d9309135"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_tuning.h": {
+    "mtime": 1778227849.7283247,
+    "hash": "455ff30237196aa796b60a036f8146fb"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api.c": {
+    "mtime": 1778227849.7283247,
+    "hash": "dc9f8d58111ff6f53dbea7c5344ef18c"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_calibration.c": {
+    "mtime": 1778227849.7298334,
+    "hash": "6abd223b29933605ed35d328a48a4443"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_core.c": {
+    "mtime": 1778227849.7298334,
+    "hash": "413399b7cc4dc45c3bfc3c14bb95077f"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_ranging.c": {
+    "mtime": 1778227849.7308362,
+    "hash": "451e6ef4d2c6b809cb24c45449ac7bcb"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_strings.c": {
+    "mtime": 1778227849.7308362,
+    "hash": "35de30ca0b022fcdfdba7f287c4f9fec"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_i2c_platform.h": {
+    "mtime": 1778227849.7308362,
+    "hash": "22805718925c43f4cbaf538b3782b2aa"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_platform.h": {
+    "mtime": 1778227849.7308362,
+    "hash": "821c2564141cb4006b949f2625170f14"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_platform_log.h": {
+    "mtime": 1778227849.7308362,
+    "hash": "ab9d49ed76180e7a87b3817fdbb1e711"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_types.h": {
+    "mtime": 1778227849.7308362,
+    "hash": "5392baedba09ab86dafba0d8414aef38"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_i2c_platform.c": {
+    "mtime": 1778227849.7321067,
+    "hash": "08646f80addc5d7f713b92311596e832"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_platform.c": {
+    "mtime": 1778227849.7321067,
+    "hash": "1a80a395be70203f5d5f9e833a8082a5"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_platform_log.c": {
+    "mtime": 1778227849.7321067,
+    "hash": "ff821386a6e8525ed290298dc5443cbf"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api.h": {
+    "mtime": 1778227849.7331095,
+    "hash": "21d2c7f49bcb7c122bef643db9932e43"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_calibration.h": {
+    "mtime": 1778227849.7336428,
+    "hash": "db7d30385a4e863e94cb155d73b47ca3"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_core.h": {
+    "mtime": 1778227849.7336428,
+    "hash": "d64a435ec3e4f1f6b944c22e83736c8f"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_debug.h": {
+    "mtime": 1778227849.734149,
+    "hash": "9eb8ed84cd5d39b49713b271383cc1a1"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_preset_modes.h": {
+    "mtime": 1778227849.734149,
+    "hash": "45b5c1f8c47e9a8ba4d580049c6febe9"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_strings.h": {
+    "mtime": 1778227849.734655,
+    "hash": "81af05c5c2cf4c1f727202be3c7e14ee"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_core.h": {
+    "mtime": 1778227849.734655,
+    "hash": "c0151f3dc8bb48bff2766cb13056fdee"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_core_support.h": {
+    "mtime": 1778227849.734655,
+    "hash": "742536958e3e455feb4beffc8dc44dc5"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_def.h": {
+    "mtime": 1778227849.734655,
+    "hash": "a5f5ed5a6760ec61fba6fc97206399aa"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_codes.h": {
+    "mtime": 1778227849.734655,
+    "hash": "1739b6326481070005675c48e704f3b8"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_exceptions.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "ae9c56564c2bddcb57bbe8cad09b5946"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_strings.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "eab31c5629537dfea13597f46febfee2"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_ll_def.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "c250126d36a4d4ef0702cf3dc6a98141"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_ll_device.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "7e8d6c90bf816e466969e9d711327d75"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_nvm_map.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "d3f5f3266502140194477cf48d92705c"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_preset_setup.h": {
+    "mtime": 1778227849.7356615,
+    "hash": "e9ca98c0b9cdfafd69e90b1ac7f75f10"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_funcs.h": {
+    "mtime": 1778227849.7371676,
+    "hash": "ab94ee42eaeac105ec051061580526c2"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_map.h": {
+    "mtime": 1778227849.7389743,
+    "hash": "0738fdd051c67c490be768f974729d94"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_settings.h": {
+    "mtime": 1778227849.7389743,
+    "hash": "90f7a343ee74ac1c256fe291eabb41de"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_structs.h": {
+    "mtime": 1778227849.739477,
+    "hash": "20c4c006a5e4a2867ddb9b630c70e173"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_silicon_core.h": {
+    "mtime": 1778227849.7401593,
+    "hash": "b80b185438a0e9060835c5eb5025acc9"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_tuning_parm_defaults.h": {
+    "mtime": 1778227849.7401593,
+    "hash": "f1d391a4092782712966e1310b7fa10f"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_wait.h": {
+    "mtime": 1778227849.7401593,
+    "hash": "1488d3de84935ce055ae8552ace0552a"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api.c": {
+    "mtime": 1778227849.741011,
+    "hash": "1d44db42a20b3d1e21620c46ba5c13f8"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_calibration.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "0e954122dfb182713e75a5429485e976"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_core.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "944d1af95c86f58dae954ac0451e0cb1"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_debug.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "78ea1a6fdadf7291cf7935f314b22080"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_preset_modes.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "c661a73a25a0c3144b4d7222288296ed"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_strings.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "9834e07f1cf8a3cfd4d9d37d235eb3fa"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_core.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "64d78f602d75512033b3b5dd01e9ee04"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_core_support.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "841a7b7d29acbb5979fb315efda316ba"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_error_strings.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "12eccc669d78bd87b18e0d7d7b4d2d7f"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_register_funcs.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "cc1991350b2b37d4bf60690cbad86a88"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_silicon_core.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "bd95dc3ba8f11561f842e5b8b0345194"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_wait.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "d69aa20d702c24c2e13d78899d5dea53"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "d479e2a77ac4ff3499dbd5afa9f8d7bf"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_log.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "b6df03020146d3daeb858119c4faba53"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_config.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "1183787cbf8c84386373fccb20c76f99"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_data.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "da786cfd6ead933734fefc5792916935"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_defines.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "9d7fed7544f08efe78147e8972fbd450"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_types.h": {
+    "mtime": 1778227849.7417085,
+    "hash": "4a1d88fc3f0d047a1c325b9492f069f1"
+  },
+  "D:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\src\\vl53l1_platform.c": {
+    "mtime": 1778227849.7417085,
+    "hash": "a2e66619f420a82d7b366eb645101634"
+  },
+  "D:\\MagisV2\\lib\\test\\gtest\\inc\\gtest\\gtest.h": {
+    "mtime": 1778227849.7500677,
+    "hash": "87cdfa0a713e896eefe2cf3a3a15be84"
+  },
+  "D:\\MagisV2\\lib\\test\\gtest\\src\\gtest-all.cc": {
+    "mtime": 1778227849.752577,
+    "hash": "c8b69b7a38cac6a6a04d4f5c206cac2e"
+  },
+  "D:\\MagisV2\\lib\\test\\gtest\\src\\gtest_main.cc": {
+    "mtime": 1778227849.752577,
+    "hash": "28a044dd3ea0e0d494029c685e7448a4"
+  },
+  "D:\\MagisV2\\src\\main\\build_config.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "d6458ad3d2f0c76051bcb4c3c6439495"
+  },
+  "D:\\MagisV2\\src\\main\\build_config.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "78cf15ee112139daf29536476178bafd"
+  },
+  "D:\\MagisV2\\src\\main\\debug.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "6ae635ca35dda6513ae35c9c727d0523"
+  },
+  "D:\\MagisV2\\src\\main\\debug.h": {
+    "mtime": 1778227849.7669492,
+    "hash": "201b054f58617c11ccdcd61863f7caeb"
+  },
+  "D:\\MagisV2\\src\\main\\main.cpp": {
+    "mtime": 1778227849.8003094,
+    "hash": "9baffcf6aabfaabce98d907d3a522ec0"
+  },
+  "D:\\MagisV2\\src\\main\\mw.cpp": {
+    "mtime": 1779170946.362847,
+    "hash": "aace587fb717000e9957fb56cc6ef99e"
+  },
+  "D:\\MagisV2\\src\\main\\mw.h": {
+    "mtime": 1778227849.8013096,
+    "hash": "91f999a28956160d91c779fa56449a9a"
+  },
+  "D:\\MagisV2\\src\\main\\platform.h": {
+    "mtime": 1778227849.8013096,
+    "hash": "3ac6bf00320e29f5e7ec06bf047ee293"
+  },
+  "D:\\MagisV2\\src\\main\\version.cpp": {
+    "mtime": 1778227849.8109972,
+    "hash": "2daa72f7f758e398ec2b2b966531dc8a"
+  },
+  "D:\\MagisV2\\src\\main\\version.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "eafe1016e6e2c06f33f06c2d450f1590"
+  },
+  "D:\\MagisV2\\src\\main\\API\\API-Utils.h": {
+    "mtime": 1779170946.3583212,
+    "hash": "f835870a6a0d4b245a26726dd824e639"
+  },
+  "D:\\MagisV2\\src\\main\\API\\BMS.h": {
+    "mtime": 1778227849.758016,
+    "hash": "414211011d9de05f8762c144a1622eb7"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Debugging.h": {
+    "mtime": 1779170946.358833,
+    "hash": "eb54e57e43905cf64d24bf01644bcd51"
+  },
+  "D:\\MagisV2\\src\\main\\API\\FC-Config.h": {
+    "mtime": 1778227849.758016,
+    "hash": "f83da94c3be8dcdc1cd4102663c88ca3"
+  },
+  "D:\\MagisV2\\src\\main\\API\\FC-Control.h": {
+    "mtime": 1778227849.7585185,
+    "hash": "a0b8470a690c3ad621c7131d2e7cfd29"
+  },
+  "D:\\MagisV2\\src\\main\\API\\FC-Data.h": {
+    "mtime": 1778227849.7585185,
+    "hash": "f27eca9350b258830bf8576f116af17e"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Localisation.h": {
+    "mtime": 1778227849.7585185,
+    "hash": "3fe349de3ded1be72659ea6fbf8b9b0e"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Motor.h": {
+    "mtime": 1778227849.7585185,
+    "hash": "3a3898f2d683882a86f2c3768c9d3262"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Oled.h": {
+    "mtime": 1779170946.3592207,
+    "hash": "3266ac8948d1d419c280a18abcb4d632"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Peripherals.h": {
+    "mtime": 1778227849.7585185,
+    "hash": "7442da58cf1d4b6bbc4ae7327bf41e72"
+  },
+  "D:\\MagisV2\\src\\main\\API\\RC-Interface.h": {
+    "mtime": 1778227849.7595215,
+    "hash": "15e1943a6fa335f6ba22add2264d6c1a"
+  },
+  "D:\\MagisV2\\src\\main\\API\\RxConfig.h": {
+    "mtime": 1779170946.3592207,
+    "hash": "329f1ce8f004be072450d8ae93ee1868"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Scheduler-Timer.h": {
+    "mtime": 1778227849.7595215,
+    "hash": "20288adddbaef58f474d41c5d7ec9365"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Serial-IO.h": {
+    "mtime": 1779170946.3597658,
+    "hash": "da85dd1c89c12b2962923d3b17f6a149"
+  },
+  "D:\\MagisV2\\src\\main\\API\\Status-LED.h": {
+    "mtime": 1778227849.7595215,
+    "hash": "ae8e962743fa7abff539fb2567b97b24"
+  },
+  "D:\\MagisV2\\src\\main\\API\\XRanging.h": {
+    "mtime": 1778227849.7595215,
+    "hash": "248851dee45018e93b6263094c573f5a"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\API-Utils.cpp": {
+    "mtime": 1779170946.3567624,
+    "hash": "2d253bb6e6e6dffad90d912d98655da9"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\BMS.cpp": {
+    "mtime": 1778227849.7535782,
+    "hash": "e4b7190d1d52ce53af51083c7c80afe0"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Debugging.cpp": {
+    "mtime": 1779170946.3572845,
+    "hash": "3b30052d88b88feedbad2b2e47ae532b"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Config-PID.cpp": {
+    "mtime": 1778227849.7535782,
+    "hash": "01646a3177752900f2e916e155b8a88b"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Config-Setpoints.cpp": {
+    "mtime": 1778227849.7535782,
+    "hash": "d7e2e969c76b014aaadb0ca74eb17c9f"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Control-Command.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "cb46c72260f4cecb3277e73be663a21b"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Control-Status.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "8f0c4c712753bcbfee9829c1c6da3981"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Data-Estimate.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "2c5b79dfa5bb68a17aacb6918c436899"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\FC-Data-Sensors.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "85e2b41cb97ae73eab51388d9d007509"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Localisation.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "71759a269ec80fb4a6e1edd8f321c180"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Motor.cpp": {
+    "mtime": 1778227849.7545784,
+    "hash": "c45ca57c021b1b1261af31ad7f964f20"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Oled.cpp": {
+    "mtime": 1779170946.3572845,
+    "hash": "8e40f035772745a2ef00948c21c0024a"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Peripheral-ADC.cpp": {
+    "mtime": 1778227849.7556736,
+    "hash": "58f59d79c830f206e72336bea24d8b3f"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Peripheral-GPIO.cpp": {
+    "mtime": 1778227849.7556736,
+    "hash": "e3075d68ce693b1e2ac71fe277452f4b"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Peripheral-PWM.cpp": {
+    "mtime": 1778227849.7556736,
+    "hash": "235f9c9a97d5b84414945b3dbd8d61cc"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\RC-Interface.cpp": {
+    "mtime": 1778227849.7556736,
+    "hash": "04fcf485f3e01d7f60514b243b14ee7d"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\RxConfig.cpp": {
+    "mtime": 1779170946.3577986,
+    "hash": "94da94ade507fa23b41f2558c9f80eb5"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Scheduler-Timer.cpp": {
+    "mtime": 1778227849.7556736,
+    "hash": "6b2279791528347789dc544c953a8975"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Serial-IO-I2C.cpp": {
+    "mtime": 1778227849.7566736,
+    "hash": "8fa5d6705df5e7e92f07d3109f74a999"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Serial-IO-SPI.cpp": {
+    "mtime": 1778227849.7566736,
+    "hash": "8bae146f4361442f9125824bacab9a34"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Serial-IO-Uart.cpp": {
+    "mtime": 1779170946.3583212,
+    "hash": "108235a355d2c2d6be89ea5f2aa709ca"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\Status-LED.cpp": {
+    "mtime": 1778227849.7566736,
+    "hash": "91bae762436b96ebcbc0fdf8b35760d2"
+  },
+  "D:\\MagisV2\\src\\main\\API-Src\\XRanging.cpp": {
+    "mtime": 1778227849.7566736,
+    "hash": "66599863c900ccf0e4756d02abb5619e"
+  },
+  "D:\\MagisV2\\src\\main\\blackbox\\blackbox.cpp": {
+    "mtime": 1779170946.3602915,
+    "hash": "2af22bc08f323310e5fc26c67b5e4fe9"
+  },
+  "D:\\MagisV2\\src\\main\\blackbox\\blackbox.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "2bf2a15ae271c0436f7e4b751157a649"
+  },
+  "D:\\MagisV2\\src\\main\\blackbox\\blackbox_fielddefs.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "6b29a17f830eb4c8f4a041a028a0b564"
+  },
+  "D:\\MagisV2\\src\\main\\blackbox\\blackbox_io.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "7a388f7c3b6bc6fd6053d8f5814f4934"
+  },
+  "D:\\MagisV2\\src\\main\\blackbox\\blackbox_io.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "3a0af2a0772c6220033e26650aad75f2"
+  },
+  "D:\\MagisV2\\src\\main\\command\\command.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "e520d4da1fe2d794a6f47d97a1a32d98"
+  },
+  "D:\\MagisV2\\src\\main\\command\\command.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "fce5d3b3b707d83906c7590cbf0d2106"
+  },
+  "D:\\MagisV2\\src\\main\\command\\localisationCommand.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "d0af509e7ab92387f28a5b675adc29bb"
+  },
+  "D:\\MagisV2\\src\\main\\command\\localisationCommand.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "c94795334554c3406cd7a72020050467"
+  },
+  "D:\\MagisV2\\src\\main\\common\\atomic.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "fcae1aa7a6277cfe38d8efea04d535f0"
+  },
+  "D:\\MagisV2\\src\\main\\common\\axis.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "5d51300e26e2e3bb6877785cc5158cd1"
+  },
+  "D:\\MagisV2\\src\\main\\common\\color.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "3dc207cc91d60207039cbc7c0a97ae90"
+  },
+  "D:\\MagisV2\\src\\main\\common\\colorconversion.c": {
+    "mtime": 1778227849.7615733,
+    "hash": "8a2484e00d52197c2bffeefd0b473ce6"
+  },
+  "D:\\MagisV2\\src\\main\\common\\colorconversion.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "b162156cabc13c664af2265b497ff61f"
+  },
+  "D:\\MagisV2\\src\\main\\common\\encoding.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "96f983be95ff3d533d2960e5b1c2a31e"
+  },
+  "D:\\MagisV2\\src\\main\\common\\encoding.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "03ca423110b2ab9865ebdee567cbd11e"
+  },
+  "D:\\MagisV2\\src\\main\\common\\maths.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "bfe31cab9d37dae8f806a1348d96edf9"
+  },
+  "D:\\MagisV2\\src\\main\\common\\maths.h": {
+    "mtime": 1779170946.3602915,
+    "hash": "a3cce2f2c3075f70ca5456e14b1d86d0"
+  },
+  "D:\\MagisV2\\src\\main\\common\\printf.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "29572b39758c49ff4c5234810cf27d45"
+  },
+  "D:\\MagisV2\\src\\main\\common\\printf.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "d57e22461babdd1002b3c9a9915de25f"
+  },
+  "D:\\MagisV2\\src\\main\\common\\typeconversion.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "448fc33fe57606782aa63cb99d394bbc"
+  },
+  "D:\\MagisV2\\src\\main\\common\\typeconversion.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "e3f0c224c0c95f54b2a06ec9a89b333e"
+  },
+  "D:\\MagisV2\\src\\main\\common\\utils.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "5dafe51cef6da801ef6893c1150db3b3"
+  },
+  "D:\\MagisV2\\src\\main\\config\\config.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "47a79450988d1100864019da448ebe80"
+  },
+  "D:\\MagisV2\\src\\main\\config\\config.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "6d29f020aeffe0e1584f4c7b60ffb8d7"
+  },
+  "D:\\MagisV2\\src\\main\\config\\config_master.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "263f7d1f484d7efa001a091bd7ae70d1"
+  },
+  "D:\\MagisV2\\src\\main\\config\\config_profile.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "bafe67f24b1d3a29f2ac93554707851b"
+  },
+  "D:\\MagisV2\\src\\main\\config\\runtime_config.cpp": {
+    "mtime": 1778227849.7615733,
+    "hash": "1f180ca476c656c37471ce778cbb96ab"
+  },
+  "D:\\MagisV2\\src\\main\\config\\runtime_config.h": {
+    "mtime": 1778227849.7615733,
+    "hash": "40ecff76aa8c2d55d02f1f3693a208ba"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro.h": {
+    "mtime": 1778227849.7669492,
+    "hash": "9a2bc9d543da352d90629462fb029c53"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_adxl345.c": {
+    "mtime": 1778227849.7669492,
+    "hash": "3db445fc34a32fca5c74559442921414"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_adxl345.h": {
+    "mtime": 1778227849.7669492,
+    "hash": "1f2b0479f640f254da3d8ce804a2cada"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_bma280.c": {
+    "mtime": 1778227849.7669492,
+    "hash": "64ce4bbe517e6f203b79ae5772cefb34"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_bma280.h": {
+    "mtime": 1778227849.7669492,
+    "hash": "cb5844418abb1b23fe3140d3bef2e9b7"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_icm20948.cpp": {
+    "mtime": 1778227849.7680335,
+    "hash": "35aac7551657200eb24e5c3a4ad69d97"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_icm20948.h": {
+    "mtime": 1778227849.7680335,
+    "hash": "2ae36e6fa1cd82b3c1645af06f134291"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_l3g4200d.c": {
+    "mtime": 1778227849.7685342,
+    "hash": "369ca4bfc7dcb9931102c16ef47b43e3"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_l3g4200d.h": {
+    "mtime": 1778227849.7685342,
+    "hash": "0a684d37a01c44ee9a48ef10a1769d79"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_l3gd20.c": {
+    "mtime": 1778227849.7685342,
+    "hash": "96de1dc1ae53fb84a1aac59c8da9f217"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_l3gd20.h": {
+    "mtime": 1778227849.7685342,
+    "hash": "bacc702cbdc39121ee8c20fa7f59b25e"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_lsm303dlhc.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "692f1ba2fdf3bba166bb1f041e6e9930"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_lsm303dlhc.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "a189a3d4a60f9845d86fe9982f2e9b46"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mma845x.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "95c6e901de18483a3592dfa84f873b7c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mma845x.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "efcb9322c95835113e6b2a78f0a78e95"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu.cpp": {
+    "mtime": 1778227849.7690594,
+    "hash": "e641e8be0f10d20b09f89a26aa5026f9"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "07ef333cc546fedb81009560c0cc6adf"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu3050.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "8f710966e47075a164bba5f4065ce3af"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu3050.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "494c05cba84e9805a091ac22cc5dcd27"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu6050.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "ed1a6d7d694629c1c8d440ba33b0fe61"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu6050.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "08cf4d1c320819f6cd96226bf1f40e9b"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu6500.cpp": {
+    "mtime": 1778227849.7690594,
+    "hash": "468455119466c445d85b30d02cb494ea"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_mpu6500.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "16ee0a33be82a99cbfbf75f633b7b67d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_spi_mpu6000.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "bc32cf00484421d468e02e1b4405e424"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_spi_mpu6000.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "c6d2ece1f16c8e1770b611fe2287e3e9"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_spi_mpu6500.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "d1ed0a18b19417bf7fcc8cfd90cce447"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\accgyro_spi_mpu6500.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "1f42a1947c23c2fc81428c41e8f9b5f4"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\adc.cpp": {
+    "mtime": 1778227849.7690594,
+    "hash": "fd78369e7915ce9bc30f6fd33facc6cd"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\adc.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "fee49468722f795175f1741963c4259c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\adc_impl.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "23ff57a8ce41a5d42179ae58171d0ff6"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\adc_stm32f10x.cpp": {
+    "mtime": 1778227849.7690594,
+    "hash": "a52d736e311e559d44c36f986d55d7f9"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\adc_stm32f30x.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "da4da2338886ae266089cdd7cdf24840"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "80ab69dd7bb791fc71f40df3eb7d4706"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_bmp085.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "66c8a3dfec9dcee4bbef3b2c886cec2d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_bmp085.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "ce889b143fde19893e5db96861e4110c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_bmp280.c": {
+    "mtime": 1778227849.7690594,
+    "hash": "9ea8d721eaf4c618cc9e0ebd6e80fe9c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_bmp280.h": {
+    "mtime": 1778227849.7690594,
+    "hash": "c986cc7583489ebb4df7f802c4431b00"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.cpp": {
+    "mtime": 1778227849.772964,
+    "hash": "0b005c25cbf7b3a5243fa02320b2534c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.h": {
+    "mtime": 1778227849.772964,
+    "hash": "71540a8671b758938b4210ce7b8c48e8"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_ms5611.cpp": {
+    "mtime": 1778227849.773528,
+    "hash": "3b93d4e84e618dce4754aa22d6e983c2"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\barometer_ms5611.h": {
+    "mtime": 1778227849.773528,
+    "hash": "4fa8c46ef31bb74c5e1c001cb7607cbe"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bridge_sc18is602b.cpp": {
+    "mtime": 1778227849.773528,
+    "hash": "d17b275a9f3f21ed36cd0ac25a6d6231"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bridge_sc18is602b.h": {
+    "mtime": 1778227849.773528,
+    "hash": "0a9a3f7c16d7218103f0a4f366c197c7"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_i2c.h": {
+    "mtime": 1778227849.773528,
+    "hash": "719ca30980c06f8a0cc080cfe3542cbd"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_i2c_soft.cpp": {
+    "mtime": 1778227849.7742999,
+    "hash": "2fa65630989dddab4269b53c3f336ef0"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_i2c_stm32f10x.c": {
+    "mtime": 1778227849.7742999,
+    "hash": "33083f68105276075f34bdccc89e5762"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_i2c_stm32f30x.c": {
+    "mtime": 1778227849.7746406,
+    "hash": "ca1ef86702cfb116140b3c0af9be23c7"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_spi.c": {
+    "mtime": 1778227849.7750254,
+    "hash": "6296de5f2f1cc8c60783624426971fe5"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\bus_spi.h": {
+    "mtime": 1778227849.7753403,
+    "hash": "acc3fe18e690a070a35cce3d68f94379"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass.h": {
+    "mtime": 1778227849.7753403,
+    "hash": "39d0a8a77f3a0428eaf86a2602a3a6d1"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak09916.cpp": {
+    "mtime": 1778227849.7753403,
+    "hash": "0e282d37555c0d0b713f352419099533"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak09916.h": {
+    "mtime": 1778227849.7753403,
+    "hash": "ac705c2902c39cb445cf2dc29f42acc8"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak8963.cpp": {
+    "mtime": 1778227849.7753403,
+    "hash": "71ca3fd7b81a12bd07be34fbf983ecdb"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak8963.h": {
+    "mtime": 1778227849.7753403,
+    "hash": "ebc7891a505e97cdc66689a42df0a02a"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak8975.c": {
+    "mtime": 1778227849.7763448,
+    "hash": "a15a53736a1069212169ad8b199c718c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_ak8975.h": {
+    "mtime": 1778227849.7763448,
+    "hash": "ad998573b831425cb69173195e84a97d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_hmc5883l.c": {
+    "mtime": 1778227849.7767437,
+    "hash": "2cddffad3154dd3c4c91ac1759809cfa"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\compass_hmc5883l.h": {
+    "mtime": 1778227849.7767437,
+    "hash": "10c9811560fb4efbe3253717d53c3cb0"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.c": {
+    "mtime": 1779170946.360804,
+    "hash": "b7cc214e87990db08be7dcbcb8fb80fe"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.h": {
+    "mtime": 1779170946.360804,
+    "hash": "f27a1d4e16db0617409a899dae664584"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\exti.h": {
+    "mtime": 1778227849.7767437,
+    "hash": "63e6d70f197b6af4971eba26b39a3dc7"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\flash.h": {
+    "mtime": 1778227849.7767437,
+    "hash": "d387c61a65249194c13147de6d5d952f"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\flash_m25p16.cpp": {
+    "mtime": 1778227849.7777464,
+    "hash": "9c040d676143bdce48ca73fe12fe728c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\flash_m25p16.h": {
+    "mtime": 1778227849.7777464,
+    "hash": "f0a7a45391821d888209acc546a5ef1e"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\gpio.h": {
+    "mtime": 1778227849.7777464,
+    "hash": "4f4941facc203339c41f97da9e2dace8"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\gpio_stm32f10x.cpp": {
+    "mtime": 1778227849.7777464,
+    "hash": "22142a50d41b66c9029250849e48e33a"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\gpio_stm32f30x.c": {
+    "mtime": 1778227849.7777464,
+    "hash": "c6819e86358b2fdc15c104513a14c001"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ina219.c": {
+    "mtime": 1778227849.7777464,
+    "hash": "3007a834f5c3a42d53888b2f49508fa8"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ina219.h": {
+    "mtime": 1778227849.7787497,
+    "hash": "07dabf144f5aa34b2d04cf758ab32b80"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\inverter.c": {
+    "mtime": 1778227849.7787497,
+    "hash": "d0ac8e8245a9928a4ccb1d002a8d007b"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\inverter.h": {
+    "mtime": 1778227849.7787497,
+    "hash": "af387964090f93dba24eab3cfc2c4b78"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_led.c": {
+    "mtime": 1778227849.7787497,
+    "hash": "0ad63a8bc6673215ff02a9c04e98de26"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_led.h": {
+    "mtime": 1778227849.7787497,
+    "hash": "64ef5cfbf5f817d9dd42ed180a5438b0"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_led_stm32f10x.cpp": {
+    "mtime": 1778227849.7787497,
+    "hash": "94ad05303b4729becc210baf7cde53ae"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_led_stm32f30x.c": {
+    "mtime": 1778227849.7797496,
+    "hash": "8511d0e24a64e18ba4737008c336b60f"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_ws2811strip.c": {
+    "mtime": 1778227849.7797496,
+    "hash": "f97df3221b24bd70de5f1b1d964e3ff9"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_ws2811strip.h": {
+    "mtime": 1778227849.7797496,
+    "hash": "e17806728b6b87e369d02a3e254e877c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_ws2811strip_stm32f10x.c": {
+    "mtime": 1778227849.7797496,
+    "hash": "ba8c787e1bf9e07dc793949c03241278"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\light_ws2811strip_stm32f30x.c": {
+    "mtime": 1778227849.7802532,
+    "hash": "20429dba105b3cf2a4475efaf3e58a0a"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\nvic.h": {
+    "mtime": 1778227849.7802532,
+    "hash": "bd82a6750f8743e244b8f1ce03f9bcb0"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\opticflow_paw3903.cpp": {
+    "mtime": 1778227849.7802532,
+    "hash": "380c7b67c9073a896785abb6dc656b61"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\opticflow_paw3903.h": {
+    "mtime": 1778227849.7802532,
+    "hash": "d2a16881d15d61407a2f59d604091754"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\paw3903_opticflow.cpp": {
+    "mtime": 1778227849.7802532,
+    "hash": "75f4a02615d8f06a6a9b6ad07370b7a2"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\paw3903_opticflow.h": {
+    "mtime": 1778227849.781256,
+    "hash": "99cafd59dc57f6da5891468d6e53a3af"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_mapping.cpp": {
+    "mtime": 1778227849.781256,
+    "hash": "a353630128e2eaa5848cac9281d7dc3c"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_mapping.h": {
+    "mtime": 1778227849.781256,
+    "hash": "8c4dd7b884abc231508e9514e6582960"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_output.cpp": {
+    "mtime": 1778227849.7817628,
+    "hash": "436f407ec94274a309826050d44c723d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_output.h": {
+    "mtime": 1778227849.7817628,
+    "hash": "32e5c017bd6b54c2f41792d00dedd843"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_rx.cpp": {
+    "mtime": 1778227849.7817628,
+    "hash": "1becda922a3fc7512284239e96f02dbe"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\pwm_rx.h": {
+    "mtime": 1778227849.7817628,
+    "hash": "8491bfb1ed3e3203e443962e8e8fc342"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.cpp": {
+    "mtime": 1778227849.7817628,
+    "hash": "526fc426edbf2105cf4d12387c1ffb9d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.h": {
+    "mtime": 1779170946.3613124,
+    "hash": "8845f805dffe8287f8f0f4b40c694080"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ranging_vl53l1x.cpp": {
+    "mtime": 1778227849.7817628,
+    "hash": "c49b7a03063d6f0015d8f60eb128e4e5"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\ranging_vl53l1x.h": {
+    "mtime": 1779170946.3613124,
+    "hash": "3f37a6c36a7610790aa8ed46d1142d13"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sc18is602b.cpp": {
+    "mtime": 1778227849.78327,
+    "hash": "808cb07cfc5f7ea9447b086e3fcbda71"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sc18is602b.h": {
+    "mtime": 1778227849.78327,
+    "hash": "dd94ab4c07b857dfadf40a847d79e2ae"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sensor.h": {
+    "mtime": 1778227849.78327,
+    "hash": "1f875c7c2c644faed5190d993d4a8927"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial.cpp": {
+    "mtime": 1778227849.78327,
+    "hash": "1ede708e48678ab96e44052f037b36fd"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial.h": {
+    "mtime": 1778227849.78327,
+    "hash": "d5086afc95fffdee970c868198027d30"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_softserial.c": {
+    "mtime": 1778227849.78327,
+    "hash": "0aa4f2f410f7b6f86ed0a529c7ee4cf5"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_softserial.h": {
+    "mtime": 1778227849.78327,
+    "hash": "02f75b7c4148b694641a21b273dad633"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_uart.c": {
+    "mtime": 1778227849.78327,
+    "hash": "217472372a7bb3b85119498e51ce80b7"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_uart.h": {
+    "mtime": 1778227849.784273,
+    "hash": "a834da869478f8bb40b6d472989f29d4"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_uart_impl.h": {
+    "mtime": 1778227849.784273,
+    "hash": "915ebba7d00b55601fdd711cad965057"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_uart_stm32f10x.c": {
+    "mtime": 1778227849.784775,
+    "hash": "401d4ec81215e388077627b56f347412"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_uart_stm32f30x.c": {
+    "mtime": 1778227849.784775,
+    "hash": "a77433695b89e9158651cbbe7a367c0d"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_usb_vcp.c": {
+    "mtime": 1778227849.784775,
+    "hash": "f56b9a96645344ee456c11c227b8929f"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\serial_usb_vcp.h": {
+    "mtime": 1778227849.784775,
+    "hash": "9cf724b5c1bea3e3e5d22ae1d3b35b23"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sonar_hcsr04.c": {
+    "mtime": 1778227849.784775,
+    "hash": "18893a1dfa3e45c93c029d6ffda170be"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sonar_hcsr04.h": {
+    "mtime": 1778227849.784775,
+    "hash": "0124d5ec9e282c75aed2c20d70d5c4ad"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sound_beeper.c": {
+    "mtime": 1778227849.784775,
+    "hash": "d28620ba72e2cd1e3efefd9dcce5f9c4"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sound_beeper.h": {
+    "mtime": 1778227849.784775,
+    "hash": "cbdd7a0c5d51a2fa836a42579c5603c8"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sound_beeper_stm32f10x.cpp": {
+    "mtime": 1778227849.7857788,
+    "hash": "f0c4960fe81a0df192091593da96847f"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\sound_beeper_stm32f30x.c": {
+    "mtime": 1778227849.7857788,
+    "hash": "e4b697a7fbfa9a3c0b604c5303bfe1e3"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\system.c": {
+    "mtime": 1778227849.7857788,
+    "hash": "ed05b1f044374d6bcfe069d5a4126561"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\system.h": {
+    "mtime": 1778227849.7857788,
+    "hash": "21b8d65f11c82374762645ba9aaf106a"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\system_stm32f10x.cpp": {
+    "mtime": 1778227849.7857788,
+    "hash": "4069d143c6abe9402eddec0451c9438b"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\system_stm32f30x.c": {
+    "mtime": 1778227849.7857788,
+    "hash": "6039cb41798ae887cb761d833c7c5d51"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer.cpp": {
+    "mtime": 1778227849.7857788,
+    "hash": "f3305ab1749f09a1e2cd6c9c221d111e"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer.h": {
+    "mtime": 1778227849.7857788,
+    "hash": "365e4691555ab0581b637e669e9ce4cf"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer_impl.h": {
+    "mtime": 1778227849.7857788,
+    "hash": "665c52a2eb3ccc89f21e25d8c8530c23"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer_stm32f10x.cpp": {
+    "mtime": 1778227849.7857788,
+    "hash": "15a09ae10ed8cd820a32ec34d0d1833f"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer_stm32f10x.h": {
+    "mtime": 1778227849.7857788,
+    "hash": "1d600f9621bbc871e1ae563c97a7faab"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer_stm32f30x.c": {
+    "mtime": 1778227849.7875905,
+    "hash": "5b351cb58db5f85115926b0fb8604a35"
+  },
+  "D:\\MagisV2\\src\\main\\drivers\\timer_stm32f30x.h": {
+    "mtime": 1778227849.7875905,
+    "hash": "7eb4990b72ffa5d723e06011a57f988e"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\acrobats.cpp": {
+    "mtime": 1778227849.7875905,
+    "hash": "63865434f9fcca2dc96e7ad656beb382"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\acrobats.h": {
+    "mtime": 1778227849.7875905,
+    "hash": "f00e56e5b3e58ba644fa2926df1b1906"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
+    "mtime": 1778227849.7875905,
+    "hash": "88d02dcff7c7a2085400053bc1555a66"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
+    "mtime": 1778227849.7875905,
+    "hash": "6225ea591274263e5c3c49b60affaa45"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\failsafe.cpp": {
+    "mtime": 1778227849.7885928,
+    "hash": "bcfc65e593bde23b03cd64801d82af40"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\failsafe.h": {
+    "mtime": 1778227849.7885928,
+    "hash": "8a2feac31d8cdf05c6ab2813849bf9f0"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\filter.cpp": {
+    "mtime": 1778227849.7885928,
+    "hash": "cefa7b97b13bd3b63cd9eb21ea71e1a5"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\filter.h": {
+    "mtime": 1778227849.7885928,
+    "hash": "22fd2e6a745717b5b9dff8d41c838086"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\gps_conversion.c": {
+    "mtime": 1778227849.7885928,
+    "hash": "3b7a78f4f74e7695cddf1e38b3860202"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\gps_conversion.h": {
+    "mtime": 1778227849.7885928,
+    "hash": "e0082d727f14e204a6228170d58c3ef8"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\gtune.c": {
+    "mtime": 1778227849.7897904,
+    "hash": "9c3542e0856796ae9985289b38562bd1"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\gtune.h": {
+    "mtime": 1778227849.7902946,
+    "hash": "c3f8307ebc27b88bf93dcbd875666401"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\imu.cpp": {
+    "mtime": 1778227849.7902946,
+    "hash": "9cda1fa5e4155ad5fa0afdb10147858f"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\imu.h": {
+    "mtime": 1778227849.7912982,
+    "hash": "e59f7317baf1b90578f8b4af7cd210ba"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\lowpass.cpp": {
+    "mtime": 1778227849.7912982,
+    "hash": "4b12997dff2821678409a08c5ceb284e"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\lowpass.h": {
+    "mtime": 1778227849.7912982,
+    "hash": "38c33fa93c0f33354823bb341239920c"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\mixer.cpp": {
+    "mtime": 1778227849.7912982,
+    "hash": "0114dabb5b6c5a2df3a44dfc96b3a59b"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\mixer.h": {
+    "mtime": 1778227849.7912982,
+    "hash": "cb9a18e1a32f495315102ed34e00d4d3"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\motor.cpp": {
+    "mtime": 1778227849.7922988,
+    "hash": "fb80d45ba2398758284e28d53fd811e3"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\motor.h": {
+    "mtime": 1778227849.7922988,
+    "hash": "f09de3fc6296d05f559a8cf2da1c1249"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\navigation.cpp": {
+    "mtime": 1778227849.7922988,
+    "hash": "00b23d3936ac5a330d9c0e91da7d69fe"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\navigation.h": {
+    "mtime": 1778227849.7922988,
+    "hash": "cf97ffae24d76dfb2e5c22e13d2c561e"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\opticflow.cpp": {
+    "mtime": 1778227849.7932982,
+    "hash": "75cf0ff009b5f43e1a8c1c512f39c837"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\opticflow.h": {
+    "mtime": 1778227849.7932982,
+    "hash": "b528edc1ed26ade9b00fa35f39656fad"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\pid.cpp": {
+    "mtime": 1778227849.7932982,
+    "hash": "987647edb8cae0ad5543d9068cad9634"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\pid.h": {
+    "mtime": 1778227849.7938025,
+    "hash": "c5ce025bcde407273bbd0829113daed7"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\posControl.cpp": {
+    "mtime": 1778227849.7938025,
+    "hash": "e8105b82b57690e8c433132f1a867bdf"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\posControl.h": {
+    "mtime": 1778227849.7938025,
+    "hash": "e3fd23640acca79e6335c29704d379f5"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\posEstimate.cpp": {
+    "mtime": 1778227849.7938025,
+    "hash": "cd1ada2337c4aa44067109046212fae1"
+  },
+  "D:\\MagisV2\\src\\main\\flight\\posEstimate.h": {
+    "mtime": 1778227849.7938025,
+    "hash": "4b9c862cc062e0418729b8740b1c9e2e"
+  },
+  "D:\\MagisV2\\src\\main\\io\\beeper.cpp": {
+    "mtime": 1778227849.7938025,
+    "hash": "5052a11663f7bafbdc7489aa6a7c0aad"
+  },
+  "D:\\MagisV2\\src\\main\\io\\beeper.h": {
+    "mtime": 1778227849.7948036,
+    "hash": "5ec5fe33d7a21b772994ad39ccbe8f05"
+  },
+  "D:\\MagisV2\\src\\main\\io\\display.c": {
+    "mtime": 1778227849.7948036,
+    "hash": "e278657dac0f6285856c24eaae28771d"
+  },
+  "D:\\MagisV2\\src\\main\\io\\display.h": {
+    "mtime": 1778227849.7948036,
+    "hash": "e529b417b7b3918a23d336b1b10cae71"
+  },
+  "D:\\MagisV2\\src\\main\\io\\escservo.h": {
+    "mtime": 1778227849.7948036,
+    "hash": "bb92f35c17f98f170a8878690797e4dd"
+  },
+  "D:\\MagisV2\\src\\main\\io\\flashfs.cpp": {
+    "mtime": 1778227849.7948036,
+    "hash": "5427251be2516f913b9afbe737b1d2ee"
+  },
+  "D:\\MagisV2\\src\\main\\io\\flashfs.h": {
+    "mtime": 1778227849.7958052,
+    "hash": "2e4f07521d1edacc03e4aaff332ef2b6"
+  },
+  "D:\\MagisV2\\src\\main\\io\\gimbal.h": {
+    "mtime": 1778227849.7958052,
+    "hash": "37d3605ff274029272d9eb260c6f3d1d"
+  },
+  "D:\\MagisV2\\src\\main\\io\\gps.cpp": {
+    "mtime": 1778227849.7968037,
+    "hash": "498202d98f559242ccf02d28fca0ef02"
+  },
+  "D:\\MagisV2\\src\\main\\io\\gps.h": {
+    "mtime": 1778227849.7968037,
+    "hash": "d343519e83fddc20f16e1dcd986ae041"
+  },
+  "D:\\MagisV2\\src\\main\\io\\ledstrip.c": {
+    "mtime": 1778227849.7968037,
+    "hash": "c05332505700564e4673c3eab4565770"
+  },
+  "D:\\MagisV2\\src\\main\\io\\ledstrip.h": {
+    "mtime": 1778227849.7968037,
+    "hash": "5992936a6c1928b9cd7fd6f73de778be"
+  },
+  "D:\\MagisV2\\src\\main\\io\\oled_display.c": {
+    "mtime": 1779170946.361824,
+    "hash": "c26d4d5ac36e0e6f69d0cd0a12f8c291"
+  },
+  "D:\\MagisV2\\src\\main\\io\\oled_display.h": {
+    "mtime": 1779170946.3623357,
+    "hash": "a1fd22900691cdcab59b14c814ab917a"
+  },
+  "D:\\MagisV2\\src\\main\\io\\rc_controls.cpp": {
+    "mtime": 1778227849.7968037,
+    "hash": "850c9604b8228867634a04ef72287670"
+  },
+  "D:\\MagisV2\\src\\main\\io\\rc_controls.h": {
+    "mtime": 1778227849.7968037,
+    "hash": "543810528453645f7ef8fefe173ff38c"
+  },
+  "D:\\MagisV2\\src\\main\\io\\rc_curves.cpp": {
+    "mtime": 1778227849.7983062,
+    "hash": "6bbfb497686bbdfe730b27364dddfad1"
+  },
+  "D:\\MagisV2\\src\\main\\io\\rc_curves.h": {
+    "mtime": 1778227849.7983062,
+    "hash": "658096314f3c5d7be284af4bff91baea"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial.cpp": {
+    "mtime": 1778227849.7983062,
+    "hash": "6f1022a0a4dd56db39c2e9035d1fe209"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial.h": {
+    "mtime": 1778227849.7983062,
+    "hash": "31cfeb8043f6f85aef26666f4f10e235"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_1wire.cpp": {
+    "mtime": 1778227849.7983062,
+    "hash": "6bcd654bd5be48d68bc0917b530c1ab4"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_1wire.h": {
+    "mtime": 1778227849.7983062,
+    "hash": "ac73d1bde3f25aa072a9de38bd49a984"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_cli.cpp": {
+    "mtime": 1778227849.79931,
+    "hash": "4f059133fcf6e48d6c32add37236c81d"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_cli.h": {
+    "mtime": 1778227849.79931,
+    "hash": "db7b6f95629a8689b965c21e668e8521"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_msp.cpp": {
+    "mtime": 1778227849.8003094,
+    "hash": "9eb4075530a58cd1c09fd57a6c552272"
+  },
+  "D:\\MagisV2\\src\\main\\io\\serial_msp.h": {
+    "mtime": 1778227849.8003094,
+    "hash": "8053cb0b0fa939ad8913d29bf9b76c2d"
+  },
+  "D:\\MagisV2\\src\\main\\io\\statusindicator.cpp": {
+    "mtime": 1778227849.8003094,
+    "hash": "1ec7f77d83bd04197cfef20d5e0f597a"
+  },
+  "D:\\MagisV2\\src\\main\\io\\statusindicator.h": {
+    "mtime": 1778227849.8003094,
+    "hash": "135a05dde40eaddf235f1a1c4dc30d62"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\crsf.c": {
+    "mtime": 1779170946.362847,
+    "hash": "535d84b3714be1de353971f4aedd261a"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\crsf.h": {
+    "mtime": 1779170946.363369,
+    "hash": "777cae8448c9f8fe261a47f86f0fd05d"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\msp.c": {
+    "mtime": 1778227849.8013096,
+    "hash": "178ccfec1d8bcd569b08b6021ab5b842"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\msp.h": {
+    "mtime": 1778227849.8013096,
+    "hash": "b6cccbb4c2fcb57de090839dc0e15f6d"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\pwm.c": {
+    "mtime": 1778227849.8023095,
+    "hash": "42455d1151f324ce2f9cb08c3246411d"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\pwm.h": {
+    "mtime": 1778227849.8023095,
+    "hash": "b0aad97e7492393a5f5079ddbcfc3eea"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\rx.cpp": {
+    "mtime": 1779170946.363369,
+    "hash": "2a421b28e3f5ec9428120e8b15011a03"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\rx.h": {
+    "mtime": 1779170946.3638809,
+    "hash": "12911689b98e7ac12888d1b80e00451d"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sbus.c": {
+    "mtime": 1778227849.8028808,
+    "hash": "2dc34d36e7816a38361d639a2632ee40"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sbus.h": {
+    "mtime": 1778227849.8028808,
+    "hash": "e87961afac32439e4906224e25ddaf53"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\spektrum.c": {
+    "mtime": 1778227849.8028808,
+    "hash": "6d835bca8dcafc6c0bc0659f661123e8"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\spektrum.h": {
+    "mtime": 1778227849.8028808,
+    "hash": "0e9351a2f63219a4d1ffc1fcdb53ceb7"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sumd.c": {
+    "mtime": 1778227849.8028808,
+    "hash": "74ae006107135fc881845eda44dc8568"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sumd.h": {
+    "mtime": 1778227849.8028808,
+    "hash": "7376f3572cbea2b389296d65c9a03ff6"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sumh.c": {
+    "mtime": 1778227849.8028808,
+    "hash": "d427b34c8fe602054fc18345e8c1814f"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\sumh.h": {
+    "mtime": 1778227849.8028808,
+    "hash": "8e5c90c8627f2998e3e635debdb2dc38"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\xbus.cpp": {
+    "mtime": 1778227849.8044176,
+    "hash": "9dbc159b2977590bfd38c04e854a8d77"
+  },
+  "D:\\MagisV2\\src\\main\\rx\\xbus.h": {
+    "mtime": 1778227849.8044176,
+    "hash": "a800ae5fec14baec34e4923699138124"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\acceleration.cpp": {
+    "mtime": 1778227849.8044176,
+    "hash": "f66c0bb9540396e7d90a9ed7a89328f5"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\acceleration.h": {
+    "mtime": 1778227849.8044176,
+    "hash": "c3d04b98037048bba230fac6e04825c0"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\barometer.cpp": {
+    "mtime": 1778227849.8044176,
+    "hash": "659b8ac1259c1d657d11c7c0579996ea"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\barometer.h": {
+    "mtime": 1778227849.8044176,
+    "hash": "8322a4685fdbe5a05642a9f6a9c83342"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\battery.cpp": {
+    "mtime": 1778227849.8054209,
+    "hash": "112cdb6649d70b62f20522da0194ab3d"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\battery.h": {
+    "mtime": 1778227849.8054209,
+    "hash": "ada3752828f95338e5f82d617e8b3c55"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\boardalignment.cpp": {
+    "mtime": 1778227849.8054209,
+    "hash": "305908579cc8f2211b23c99b7b38d448"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\boardalignment.h": {
+    "mtime": 1778227849.8054209,
+    "hash": "1864d9dff8f465027a3c4449b57cf007"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\compass.cpp": {
+    "mtime": 1778227849.8054209,
+    "hash": "1bec71e7b79ff909d381b6d556342b4b"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\compass.h": {
+    "mtime": 1778227849.806421,
+    "hash": "3bc1d9ef737959e08f3f9ac028dd3984"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\gyro.cpp": {
+    "mtime": 1778227849.806421,
+    "hash": "8dc6034b3b1fd763c3f37d1ced830b1c"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\gyro.h": {
+    "mtime": 1778227849.8067396,
+    "hash": "688791ae151404a9c4ba348cabbd386b"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\initialisation.cpp": {
+    "mtime": 1778227849.8067396,
+    "hash": "f0ce247429acfe8395e6014cf0aa2fa8"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\initialisation.h": {
+    "mtime": 1778227849.8067396,
+    "hash": "f08b26dd55937bfe427efb7337f474f0"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\sensors.h": {
+    "mtime": 1778227849.8067396,
+    "hash": "ce638ef8e46c582160ab0e0a13ec3c89"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\sonar.c": {
+    "mtime": 1778227849.8067396,
+    "hash": "fa9b81cf7ea5cfa89043b7ab23f401f5"
+  },
+  "D:\\MagisV2\\src\\main\\sensors\\sonar.h": {
+    "mtime": 1778227849.8074214,
+    "hash": "339803978108fc863da9c86998267f76"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\frsky.c": {
+    "mtime": 1778227849.809495,
+    "hash": "fb1f2620b9fd8e05054a8e88a84d5301"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\frsky.h": {
+    "mtime": 1778227849.809495,
+    "hash": "63145ea36e749d0059cece38230070dd"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\hott.c": {
+    "mtime": 1778227849.809495,
+    "hash": "735e7ae5a40970237619edaf38cba866"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\hott.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "f8796d98c191b63b4713e467a969e3a4"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\msp.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "f1beb40f7022f79b67657af67d142bec"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\msp.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "4cd844c932e7194ca508466562895cc2"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\smartport.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "9f7118dbcf5c5f4fb1c43caf259ddc7c"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\smartport.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "2da15ecfe15c25f4e910332d80f809ae"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\telemetry.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "e8210fc7c105865dc5541802603c26ca"
+  },
+  "D:\\MagisV2\\src\\main\\telemetry\\telemetry.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "a71559236f70d105e8f3a45ca2d5cd92"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\hw_config.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "e59a6202caa6429fa70865ba7d669e88"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\hw_config.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "9d0f952aefaa7668213f6cc865319ed9"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\platform_config.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "6025ae83abfea151cb2fd4a143301d1f"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\stm32_it.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "49a0ee68235d737cdb1631407352502b"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\stm32_it.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "88702a8725bb34be8e7aa314081f561a"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_conf.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "3f0dc4550fb5f8feea37029702ede5df"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_desc.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "15aabfdf405e0cfd8463c8a6ee434315"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_desc.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "49f5e77506d2249941335f196e79491f"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_endp.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "deb339f7a332a9e0fe3a1b70ad1db60d"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_istr.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "6f84157f8b83b147fd35702c95effb64"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_istr.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "1162b9d8faf062c5eca9279c80aa88a8"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_prop.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "ba5cd6860ee599e0571b7a5cb675fc2f"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_prop.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "4c90fdb8db50d3b0c16b799df9b65bb0"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_pwr.c": {
+    "mtime": 1778227849.8109972,
+    "hash": "54c0f076bb91eeb0b595e012e684d934"
+  },
+  "D:\\MagisV2\\src\\main\\vcp\\usb_pwr.h": {
+    "mtime": 1778227849.8109972,
+    "hash": "60fde139da79dc413913871e12eb8a61"
+  },
+  "D:\\MagisV2\\README.md": {
+    "mtime": 1779170946.3557267,
+    "hash": "9e86540a48fa2e1ef55ebecca905c572"
+  },
+  "D:\\MagisV2\\lib\\main\\CMSIS\\CM3\\DeviceSupport\\ST\\STM32F10x\\Release_Notes.html": {
+    "mtime": 1778227849.691645,
+    "hash": "6539075cb457b35859007fe8e76d322e"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\Release_Notes.html": {
+    "mtime": 1778227849.710976,
+    "hash": "d748e48f10425c9de56d270029162b3c"
+  },
+  "D:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\Release_Notes.html": {
+    "mtime": 1778227849.723479,
+    "hash": "0f4248fb0de597b043136fa096273c5b"
+  }
+}

@@ -35,7 +35,8 @@ typedef enum {
   BAUD_RATE_57600,     // Baud rate of 57600 bits per second.
   BAUD_RATE_115200,    // Baud rate of 115200 bits per second.
   BAUD_RATE_128000,    // Baud rate of 128000 bits per second.
-  BAUD_RATE_256000     // Baud rate of 256000 bits per second.
+  BAUD_RATE_256000,    // Baud rate of 256000 bits per second.
+  BAUD_RATE_420000     // Baud rate of 420000 bits per second (CRSF/ELRS).
 } UART_Baud_Rate_e;
 
 // Enumeration for UART ports.

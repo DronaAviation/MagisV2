@@ -8,12 +8,15 @@
  #  Created Date: Tue, 26th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 23rd Mar 2026                                          #
- #  Modified By: AJ                                                            #
+ #  Last Modified: Thu, 10th Apr 2026                                           #
+ #  Modified By: Omkar Dandekar (techsavvyomi)                                 #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-04-04	OD	Added Rx_ELRS (CRSF) and Rx_SBUS modes with USART1 config #
+ #  2026-04-10	OD	Separate ARM (AUX1) and ANGLE/ACRO (AUX2) for ELRS        #
+ #  2026-04-10	OD	Added ALT HOLD on AUX5 + 800mAh battery for ELRS          #
  *******************************************************************************/
 #include "platform.h"
 
@@ -143,6 +146,32 @@ void Receiver_Mode ( rx_mode_e rxMode ) {
       Receiver_Config_Mode_Dev ( Rx_AUX4, 1500, 2100 );
 
       ESP_WiFi_Status = true;
+      break;
+    }
+
+    case Rx_ELRS: {
+      AuxChangeEnable = true;
+      featureSet ( FEATURE_RX_SERIAL );
+      masterConfig.rxConfig.serialrx_provider = 7;    // SERIALRX_CRSF (ELRS)
+      masterConfig.serialConfig.portConfigs [ 0 ].functionMask = FUNCTION_RX_SERIAL;    // USART1 (ESP port, PA9/PA10) for ELRS receiver
+      masterConfig.serialConfig.portConfigs [ 1 ].functionMask = FUNCTION_MSP;          // USART2 takes over MSP (required: at least 1 MSP port)
+
+      // CRSF range: 988..2012 — adjust validation bounds to accept full range
+      masterConfig.rxConfig.rx_min_usec = 885;
+      masterConfig.rxConfig.rx_max_usec = 2115;
+      masterConfig.rxConfig.mincheck    = 1050;    // throttle must be below this to arm
+      masterConfig.rxConfig.maxcheck    = 1900;
+
+      Receiver_Aux_Config ( Mode_ARM, Rx_AUX1, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_ANGLE, Rx_AUX2, 1300, 2100 );
+      Receiver_Aux_Config ( Mode_MAG, Rx_AUX3, 1500, 2100 );
+      Receiver_Aux_Config ( Mode_BARO, Rx_AUX5, 1500, 2100 );    // AUX5: low = THROTTLE mode, high = ALT HOLD mode
+
+      Receiver_Config_Mode_Dev ( Rx_AUX4, 1500, 2100 );
+
+      masterConfig.batteryConfig.BatteryCapacity = 800;    // 800 mAh for ELRS setup
+
+      ESP_WiFi_Status = false;    // ESP must be off — ELRS uses USART1 (shared with ESP)
       break;
     }
 

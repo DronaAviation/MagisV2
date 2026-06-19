@@ -24,12 +24,6 @@ extern "C" {
 typedef enum {
     GYRO_NONE = 0,
     GYRO_DEFAULT,
-    GYRO_MPU6050,
-    GYRO_L3G4200D,
-    GYRO_MPU3050,
-    GYRO_L3GD20,
-    GYRO_MPU6000,
-    GYRO_MPU6500,
     GYRO_ICM20948,
     GYRO_FAKE
 } gyroSensor_e;

@@ -44,7 +44,6 @@
 
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
-#include "sensors/sonar.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"

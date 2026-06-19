@@ -18,7 +18,7 @@ All telemetry systems use serial ports, configure serial ports to use the teleme
 
 FrSky telemetry is transmit only and just requires a single connection from the TX pin of a serial port to the RX pin on an FrSky telemetry receiver.
 
-FrSky telemetry signals are inverted.  To connect a cleanflight capable board to an FrSKy receiver you have some options.
+FrSky telemetry signals are inverted.  To connect a MagisV2 capable board to an FrSKy receiver you have some options.
 
 1. A hardware inverter - Built in to some flight controllers.
 2. Use software serial and enable frsky_inversion.
@@ -34,7 +34,7 @@ set telemetry_inversion = 1
 
 ### Precision setting for VFAS
 
-Cleanflight can send VFAS (FrSky Ampere Sensor Voltage) in two ways:
+MagisV2 can send VFAS (FrSky Ampere Sensor Voltage) in two ways:
 
 ```
 set frsky_vfas_precision  = 0
@@ -93,7 +93,7 @@ It is transmit only, it can work at any supported baud rate.
 
 Smartport is a telemetry system used by newer FrSky transmitters and receivers such as the Taranis/XJR and X8R, X6R and X4R(SB).
 
-More information about the implementation can be found here: https://github.com/frank26080115/cleanflight/wiki/Using-Smart-Port
+More information about the implementation can be found here: https://github.com/frank26080115/MagisV2/wiki/Using-Smart-Port
 
 In time this documentation will be updated with further details.
 

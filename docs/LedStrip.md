@@ -1,6 +1,6 @@
 # LED Strip
 
-Cleanflight supports the use of addressable LED strips.  Addressable LED strips allow each LED in the strip to
+MagisV2 supports the use of addressable LED strips.  Addressable LED strips allow each LED in the strip to
 be programmed with a unique and independant color.  This is far more advanced than the normal RGB strips which
 require that all the LEDs in the strip show the same color.
 
@@ -76,10 +76,10 @@ The led strip feature can be configured via the GUI
 GUI:
 Enable the Led Strip feature via the GUI under setup.
 
-Configure the leds from the Led Strip tab in the cleanflight GUI.
+Configure the leds from the Led Strip tab in the MagisV2 GUI.
 First setup how the led's are laid out so that you can visualize it later as you configure and so the flight controller knows how many led's there are available.
 
-There is a step by step guide on how to use the GUI to configure the Led Strip feature using the GUI http://blog.oscarliang.net/setup-rgb-led-cleanflight/ which was published early 2015 by Oscar Liang which may or may not be up-to-date by the time you read this.
+There is a step by step guide on how to use the GUI to configure the Led Strip feature using the GUI http://blog.oscarliang.net/setup-rgb-led-MagisV2/ which was published early 2015 by Oscar Liang which may or may not be up-to-date by the time you read this.
 
 CLI:
 Enable the `LED_STRIP` feature via the cli:

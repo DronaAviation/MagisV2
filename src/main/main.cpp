@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 24th Mar 2026                                          #
+ #  Last Modified: Tue, 16th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -48,7 +48,7 @@
 #include "drivers/inverter.h"
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
-#include "drivers/sonar_hcsr04.h"
+
 #include "drivers/ranging_vl53l0x.h"
 #include "drivers/ranging_vl53l1x.h"
 #include "drivers/ina219.h"
@@ -66,7 +66,7 @@
 #include "io/oled_display.h"
 
 #include "sensors/sensors.h"
-#include "sensors/sonar.h"
+
 #include "sensors/barometer.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
@@ -141,8 +141,7 @@ void displayInit ( rxConfig_t *intialRxConfig );
 void ledStripInit ( ledConfig_t *ledConfigsToUse, hsvColor_t *colorsToUse );
 void loop ( void );
 void spektrumBind ( rxConfig_t *rxConfig );
-const sonarHardware_t *sonarGetHardwareConfiguration ( batteryConfig_t *batteryConfig );
-void sonarInit ( const sonarHardware_t *sonarHardware );
+
 
 uint16_t failureFlag;
 
@@ -150,10 +149,7 @@ uint16_t failureFlag;
 // from system_stm32f30x.c
 uint32_t SetSysClock ( void );
 #endif
-#ifdef STM32F10X
-// from system_stm32f10x.c
-uint32_t SetSysClock ( bool overclock );
-#endif
+
 
 #ifdef __cplusplus
 }
@@ -190,11 +186,7 @@ void init ( void ) {
 #ifdef STM32F303xC
   clockcheck = SetSysClock ( );    // DD
 #endif
-#ifdef STM32F10X
-  // Configure the System clock frequency, HCLK, PCLK2 and PCLK1 prescalers
-  // Configure the Flash Latency cycles and enable prefetch buffer
-  clockcheck = SetSysClock ( masterConfig.emf_avoidance );
-#endif
+
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
   detectHardwareRevision ( );
@@ -244,19 +236,7 @@ void init ( void ) {
 
   memset ( &pwm_params, 0, sizeof ( pwm_params ) );
 
-#ifdef SONARz
-  const sonarHardware_t *sonarHardware = NULL;
 
-  if ( feature ( FEATURE_SONAR ) ) {
-    sonarHardware                     = sonarGetHardwareConfiguration ( &masterConfig.batteryConfig );
-    sonarGPIOConfig_t sonarGPIOConfig = {
-      .gpio       = SONAR_GPIO,
-      .triggerPin = sonarHardware->echo_pin,
-      .echoPin    = sonarHardware->trigger_pin,
-    };
-    pwm_params.sonarGPIOConfig = &sonarGPIOConfig;
-  }
-#endif
 
   //// when using airplane/wing mixer, servo/motor outputs are remapped
   // if (masterConfig.mixerMode == MIXER_AIRPLANE
@@ -281,9 +261,7 @@ void init ( void ) {
   // pwm_params.useLEDStrip = feature(FEATURE_LED_STRIP);
   // pwm_params.usePPM = feature(FEATURE_RX_PPM);
   // pwm_params.useSerialRx = feature(FEATURE_RX_SERIAL);
-  // #ifdef SONAR
-  // pwm_params.useSonar = feature(FEATURE_SONAR);
-  // #endif
+
   //
   // #ifdef USE_SERVOS
   // pwm_params.useServos = false;
@@ -321,13 +299,7 @@ void init ( void ) {
                                   .isInverted = false
   #endif
   };
-  #ifdef NAZE
-  if ( hardwareRevision >= NAZE32_REV5 ) {
-    // naze rev4 and below used opendrain to PNP for buzzer. Rev5 and above use PP to NPN.
-    beeperConfig.gpioMode   = Mode_Out_PP;
-    beeperConfig.isInverted = true;
-  }
-  #endif
+
 
   beeperInit ( &beeperConfig );
 #endif
@@ -345,36 +317,12 @@ void init ( void ) {
   updateHardwareRevision ( );
 #endif
 
-#if defined( NAZE )
-  if ( hardwareRevision == NAZE32_SP ) {
-    serialRemovePort ( SERIAL_PORT_SOFTSERIAL2 );
-  } else {
-    serialRemovePort ( SERIAL_PORT_USART3 );
-  }
-#endif
 
-#if defined( SPRACINGF3 ) && defined( SONAR ) && defined( USE_SOFTSERIAL2 )
-  if ( feature ( FEATURE_SONAR ) && feature ( FEATURE_SOFTSERIAL ) ) {
-    serialRemovePort ( SERIAL_PORT_SOFTSERIAL2 );
-  }
-#endif
+
+
 
 #ifdef USE_I2C
-  #if defined( NAZE )
-  if ( hardwareRevision != NAZE32_SP ) {
-    i2cInit ( I2C_DEVICE );
-  } else {
-    if ( ! doesConfigurationUsePort ( SERIAL_PORT_USART3 ) ) {
-      i2cInit ( I2C_DEVICE );
-    }
-  }
-  #elif defined( CC3D )
-  if ( ! doesConfigurationUsePort ( SERIAL_PORT_USART3 ) ) {
-    i2cInit ( I2C_DEVICE );
-  }
-  #else
   i2cInit ( I2C_DEVICE );
-  #endif
 #endif
 
 #ifdef USE_ADC
@@ -384,13 +332,7 @@ void init ( void ) {
   adc_params.enableRSSI         = feature ( FEATURE_RSSI_ADC );
   adc_params.enableCurrentMeter = feature ( FEATURE_INA219_CBAT );
   adc_params.enableExternal1    = false;
-  #ifdef OLIMEXINO
-  adc_params.enableExternal1 = true;
-  #endif
-  #ifdef NAZE
-  // optional ADC5 input on rev.5 hardware
-  adc_params.enableExternal1 = ( hardwareRevision >= NAZE32_REV5 );
-  #endif
+
 
   adcInit ( &adc_params );
 #endif
@@ -487,11 +429,7 @@ void init ( void ) {
   }
 #endif
 
-#ifdef SONAR
-  if ( feature ( FEATURE_SONAR ) ) {
-    sonarInit ( sonarHardware );
-  }
-#endif
+
 
 #ifdef LED_STRIP
   ledStripInit ( masterConfig.ledConfigs, masterConfig.colors );
@@ -508,11 +446,7 @@ void init ( void ) {
 #endif
 
 #ifdef USE_FLASHFS
-  #ifdef NAZE
-  if ( hardwareRevision == NAZE32_REV5 ) {
-    m25p16_init ( );
-  }
-  #elif defined( USE_FLASH_M25P16 )
+  #if defined( USE_FLASH_M25P16 )
   m25p16_init ( );
   #endif
 
@@ -571,9 +505,7 @@ void init ( void ) {
   }
 #endif
 
-#ifdef CJMCU
 
-#endif
 
   // Latch active features AGAIN since some may be modified by init().
   latchActiveFeatures ( );
@@ -623,9 +555,8 @@ void init ( void ) {
     pwm_params.airplane = true;
   else
     pwm_params.airplane = false;
-#if defined( USE_USART2 ) && defined( STM32F10X )
-  pwm_params.useUART2 = doesConfigurationUsePort ( SERIAL_PORT_USART2 );
-#endif
+  
+
 #ifdef STM32F303xC
   pwm_params.useUART3 = doesConfigurationUsePort ( SERIAL_PORT_USART3 );
 #endif
@@ -637,9 +568,7 @@ void init ( void ) {
   pwm_params.useLEDStrip = feature ( FEATURE_LED_STRIP );
   pwm_params.usePPM      = feature ( FEATURE_RX_PPM );
   pwm_params.useSerialRx = feature ( FEATURE_RX_SERIAL );
-#ifdef SONAR
-  pwm_params.useSonar = feature ( FEATURE_SONAR );
-#endif
+
 
 #ifdef USE_SERVOS
   pwm_params.useServos            = false;

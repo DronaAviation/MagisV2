@@ -24,8 +24,7 @@
 
 #include "drivers/sensor.h"
 #include "drivers/compass.h"
-#include "drivers/compass_hmc5883l.h"
-#include "drivers/compass_ak8963.h"
+
 #include "drivers/gpio.h"
 #include "drivers/light_led.h"
 
@@ -36,9 +35,7 @@
 #include "sensors/sensors.h"
 #include "sensors/compass.h"
 
-#ifdef NAZE
-  #include "hardware_revision.h"
-#endif
+
 
 bool isMagCalibrated = true;
 

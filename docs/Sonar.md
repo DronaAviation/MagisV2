@@ -1,3 +1,6 @@
+> [!WARNING]
+> **DEPRECATED**: This feature is no longer supported in the active PRIMUS/MagisV2 flight loop. The code remains in the repository for historical or experimental reference only, but is not compiled into the primary targets.
+
 # Sonar
 
 A sonar sensor can be used to measure altitude for use with BARO and SONAR altitude

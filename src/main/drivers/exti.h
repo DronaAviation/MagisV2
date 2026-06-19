@@ -25,9 +25,7 @@ typedef struct extiConfig_s {
 #ifdef STM32F303
         uint32_t gpioAHBPeripherals;
 #endif
-#ifdef STM32F10X
-        uint32_t gpioAPB2Peripherals;
-#endif
+
         uint16_t gpioPin;
         GPIO_TypeDef *gpioPort;
 

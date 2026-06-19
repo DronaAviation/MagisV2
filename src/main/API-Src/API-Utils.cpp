@@ -44,7 +44,6 @@
 #include "drivers/opticflow_paw3903.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
-#include "sensors/sonar.h"
 #include "sensors/compass.h"
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
@@ -107,7 +106,6 @@ int32_t app_GPS_coord [ 2 ];
 int32_t RC_ARRAY [ 4 ] = { 0 };
 
 bool runUserCode            = false;
-bool OledEnable             = false;
 bool useAutoRC              = false;
 bool developerMode          = false;
 bool External_RC_FLAG [ 4 ] = { true, true, true, true };
@@ -143,8 +141,6 @@ bool isUserMotorPwm [ 4 ]       = { false };
 bool isUserSetVelocity          = false;
 bool isUserHeadFreeHoldSet      = false;
 
-
-
 void resetUserRCflag ( void ) {
   if ( ( int32_t ) ( micros ( ) - autoRcTimerLoop ) >= 0 ) {
 
@@ -159,306 +155,304 @@ void resetUser ( void ) {
   rcData [ AUX2 ] = 1200;
 }
 
+// // Extracting GPIO port from unibus pin number
+// int getGPIOport ( unibus_e pin ) {
+//   int x = 99;
 
+//   switch ( pin ) {
+//     case Pin2:
+//     case Pin3:
+//     case Pin8:
+//     case Pin10:
+//     case Pin13:
+//     case Pin18:
+//     case Pin19:
+//       x = 1;    // GPIOA
+//       break;
 
-// Extracting GPIO port from unibus pin number
-int getGPIOport ( unibus_e pin ) {
-  int x = 99;
+//     case Pin4:
+//     case Pin5:
+//     case Pin6:
+//     case Pin7:
+//     case Pin9:
+//     case Pin12:
+//     case Pin14:
+//     case Pin15:
+//     case Pin16:
+//     case Pin17:
+//       x = 2;    // GPIOB
+//       break;
 
-  switch ( pin ) {
-    case Pin2:
-    case Pin3:
-    case Pin8:
-    case Pin10:
-    case Pin13:
-    case Pin18:
-    case Pin19:
-      x = 1;    // GPIOA
-      break;
+//     case Pin1:
+//     case Pin11:
+//     case Pin20:
+//       break;
+//   }
 
-    case Pin4:
-    case Pin5:
-    case Pin6:
-    case Pin7:
-    case Pin9:
-    case Pin12:
-    case Pin14:
-    case Pin15:
-    case Pin16:
-    case Pin17:
-      x = 2;    // GPIOB
-      break;
+//   return x;
+// }
 
-    case Pin1:
-    case Pin11:
-    case Pin20:
-      break;
-  }
+// GPIO_Pin getGPIOpin ( unibus_e pin ) {
+//   GPIO_Pin x;
 
-  return x;
-}
+//   switch ( pin ) {
+//     case Pin12:
+//       x = Pin_0;
+//       break;
 
-GPIO_Pin getGPIOpin ( unibus_e pin ) {
-  GPIO_Pin x;
+//     case Pin19:
+//       x = Pin_2;
+//       break;
 
-  switch ( pin ) {
-    case Pin12:
-      x = Pin_0;
-      break;
+//     case Pin9:
+//     case Pin18:
+//       x = Pin_3;
+//       break;
 
-    case Pin19:
-      x = Pin_2;
-      break;
+//     case Pin13:
+//       x = Pin_4;
+//       break;
 
-    case Pin9:
-    case Pin18:
-      x = Pin_3;
-      break;
+//     case Pin8:
+//       x = Pin_5;
+//       break;
 
-    case Pin13:
-      x = Pin_4;
-      break;
+//     case Pin7:
+//     case Pin10:
+//       x = Pin_8;
+//       break;
 
-    case Pin8:
-      x = Pin_5;
-      break;
+//     case Pin6:
+//       x = Pin_9;
+//       break;
 
-    case Pin7:
-    case Pin10:
-      x = Pin_8;
-      break;
+//     case Pin4:
+//       x = Pin_10;
+//       break;
 
-    case Pin6:
-      x = Pin_9;
-      break;
+//     case Pin5:
+//       x = Pin_11;
+//       break;
 
-    case Pin4:
-      x = Pin_10;
-      break;
+//     case Pin14:
+//       x = Pin_12;
+//       break;
 
-    case Pin5:
-      x = Pin_11;
-      break;
+//     case Pin2:
+//     case Pin15:
+//       x = Pin_13;
+//       break;
 
-    case Pin14:
-      x = Pin_12;
-      break;
+//     case Pin3:
+//     case Pin16:
+//       x = Pin_14;
+//       break;
 
-    case Pin2:
-    case Pin15:
-      x = Pin_13;
-      break;
+//     case Pin17:
+//       x = Pin_15;
+//       break;
 
-    case Pin3:
-    case Pin16:
-      x = Pin_14;
-      break;
+//     case Pin1:
+//     case Pin11:
+//     case Pin20:
+//       break;
+//   }
 
-    case Pin17:
-      x = Pin_15;
-      break;
+//   return x;
+// }
 
-    case Pin1:
-    case Pin11:
-    case Pin20:
-      break;
-  }
+// uint32_t getGPIOclock ( unibus_e pin ) {
+//   uint32_t x = 99;
+//   switch ( pin ) {
+//     case Pin2:
+//     case Pin3:
+//     case Pin8:
+//     case Pin10:
+//     case Pin13:
+//     case Pin18:
+//     case Pin19:
+//       x = RCC_AHBPeriph_GPIOA;
+//       break;
 
-  return x;
-}
+//     case Pin4:
+//     case Pin5:
+//     case Pin6:
+//     case Pin7:
+//     case Pin9:
+//     case Pin12:
+//     case Pin14:
+//     case Pin15:
+//     case Pin16:
+//     case Pin17:
+//       x = RCC_AHBPeriph_GPIOB;
+//       break;
 
-uint32_t getGPIOclock ( unibus_e pin ) {
-  uint32_t x = 99;
-  switch ( pin ) {
-    case Pin2:
-    case Pin3:
-    case Pin8:
-    case Pin10:
-    case Pin13:
-    case Pin18:
-    case Pin19:
-      x = RCC_AHBPeriph_GPIOA;
-      break;
+//     case Pin1:
+//     case Pin11:
+//     case Pin20:
+//       break;
+//   }
+//   return x;
+// }
 
-    case Pin4:
-    case Pin5:
-    case Pin6:
-    case Pin7:
-    case Pin9:
-    case Pin12:
-    case Pin14:
-    case Pin15:
-    case Pin16:
-    case Pin17:
-      x = RCC_AHBPeriph_GPIOB;
-      break;
+// uint8_t getGPIOpinSource ( unibus_e pin ) {
+//   uint8_t x = 99;
+//   switch ( pin ) {
+//     case Pin12:
+//       x = GPIO_PinSource0;
+//       break;
 
-    case Pin1:
-    case Pin11:
-    case Pin20:
-      break;
-  }
-  return x;
-}
+//     case Pin19:
+//       x = GPIO_PinSource2;
+//       break;
 
-uint8_t getGPIOpinSource ( unibus_e pin ) {
-  uint8_t x = 99;
-  switch ( pin ) {
-    case Pin12:
-      x = GPIO_PinSource0;
-      break;
+//     case Pin9:
+//     case Pin18:
+//       x = GPIO_PinSource3;
+//       break;
 
-    case Pin19:
-      x = GPIO_PinSource2;
-      break;
+//     case Pin13:
+//       x = GPIO_PinSource4;
+//       break;
 
-    case Pin9:
-    case Pin18:
-      x = GPIO_PinSource3;
-      break;
+//     case Pin8:
+//       x = GPIO_PinSource5;
+//       break;
 
-    case Pin13:
-      x = GPIO_PinSource4;
-      break;
+//     case Pin7:
+//     case Pin10:
+//       x = GPIO_PinSource8;
+//       break;
 
-    case Pin8:
-      x = GPIO_PinSource5;
-      break;
+//     case Pin6:
+//       x = GPIO_PinSource9;
+//       break;
 
-    case Pin7:
-    case Pin10:
-      x = GPIO_PinSource8;
-      break;
+//     case Pin4:
+//       x = GPIO_PinSource10;
+//       break;
 
-    case Pin6:
-      x = GPIO_PinSource9;
-      break;
+//     case Pin5:
+//       x = GPIO_PinSource11;
+//       break;
 
-    case Pin4:
-      x = GPIO_PinSource10;
-      break;
+//     case Pin14:
+//       x = GPIO_PinSource12;
+//       break;
 
-    case Pin5:
-      x = GPIO_PinSource11;
-      break;
+//     case Pin2:
+//     case Pin15:
+//       x = GPIO_PinSource13;
+//       break;
 
-    case Pin14:
-      x = GPIO_PinSource12;
-      break;
+//     case Pin3:
+//     case Pin16:
+//       x = GPIO_PinSource14;
+//       break;
 
-    case Pin2:
-    case Pin15:
-      x = GPIO_PinSource13;
-      break;
+//     case Pin17:
+//       x = GPIO_PinSource15;
+//       break;
 
-    case Pin3:
-    case Pin16:
-      x = GPIO_PinSource14;
-      break;
+//     case Pin1:
+//     case Pin11:
+//     case Pin20:
+//       break;
+//   }
 
-    case Pin17:
-      x = GPIO_PinSource15;
-      break;
+//   return x;
+// }
 
-    case Pin1:
-    case Pin11:
-    case Pin20:
-      break;
-  }
+// uint16_t getTimerCh ( unibus_e pin ) {
+//   uint16_t temp = 99;
 
-  return x;
-}
+//   switch ( pin ) {
+//     case Pin8:
+//     case Pin10:
+//       temp = TIM_Channel_1;
+//       break;
 
-uint16_t getTimerCh ( unibus_e pin ) {
-  uint16_t temp = 99;
+//     case Pin3:
+//     case Pin9:
+//     case Pin13:
+//       temp = TIM_Channel_2;
+//       break;
 
-  switch ( pin ) {
-    case Pin8:
-    case Pin10:
-      temp = TIM_Channel_1;
-      break;
+//     case Pin2:
+//     case Pin4:
+//     case Pin12:
+//     case Pin19:
+//       temp = TIM_Channel_3;
+//       break;
 
-    case Pin3:
-    case Pin9:
-    case Pin13:
-      temp = TIM_Channel_2;
-      break;
+//     case Pin5:
+//     case Pin18:
+//       temp = TIM_Channel_4;
+//       break;
 
-    case Pin2:
-    case Pin4:
-    case Pin12:
-    case Pin19:
-      temp = TIM_Channel_3;
-      break;
+//     case Pin1:
+//     case Pin6:
+//     case Pin7:
+//     case Pin11:
+//     case Pin14:
+//     case Pin15:
+//     case Pin16:
+//     case Pin17:
+//     case Pin20:
+//       break;
+//   }
 
-    case Pin5:
-    case Pin18:
-      temp = TIM_Channel_4;
-      break;
+//   return temp;
+// }
 
-    case Pin1:
-    case Pin6:
-    case Pin7:
-    case Pin11:
-    case Pin14:
-    case Pin15:
-    case Pin16:
-    case Pin17:
-    case Pin20:
-      break;
-  }
+// uint8_t getADCCh ( unibus_e pin ) {
+//   uint8_t temp = 99;
 
-  return temp;
-}
+//   switch ( pin ) {
+//     case Pin13:
+//       temp = ADC_Channel_1;
+//       break;
 
-uint8_t getADCCh ( unibus_e pin ) {
-  uint8_t temp = 99;
+//     case Pin8:
+//       temp = ADC_Channel_2;
+//       break;
 
-  switch ( pin ) {
-    case Pin13:
-      temp = ADC_Channel_1;
-      break;
+//     case Pin14:
+//     case Pin19:
+//       temp = ADC_Channel_3;
+//       break;
 
-    case Pin8:
-      temp = ADC_Channel_2;
-      break;
+//     case Pin16:
+//     case Pin18:
+//       temp = ADC_Channel_4;
+//       break;
 
-    case Pin14:
-    case Pin19:
-      temp = ADC_Channel_3;
-      break;
+//     case Pin15:
+//     case Pin17:
+//       temp = ADC_Channel_5;
+//       break;
 
-    case Pin16:
-    case Pin18:
-      temp = ADC_Channel_4;
-      break;
+//     case Pin12:
+//       temp = ADC_Channel_12;
+//       break;
 
-    case Pin15:
-    case Pin17:
-      temp = ADC_Channel_5;
-      break;
+//     case Pin1:
+//     case Pin2:
+//     case Pin3:
+//     case Pin4:
+//     case Pin5:
+//     case Pin6:
+//     case Pin7:
+//     case Pin9:
+//     case Pin10:
+//     case Pin11:
+//     case Pin20:
+//       // shouldn't be allowed by IDE
+//       break;
+//   }
 
-    case Pin12:
-      temp = ADC_Channel_12;
-      break;
-
-    case Pin1:
-    case Pin2:
-    case Pin3:
-    case Pin4:
-    case Pin5:
-    case Pin6:
-    case Pin7:
-    case Pin9:
-    case Pin10:
-    case Pin11:
-    case Pin20:
-      // shouldn't be allowed by IDE
-      break;
-  }
-
-  return temp;
-}
+//   return temp;
+// }
 
 // void _Adc1init ( void ) {
 

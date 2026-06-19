@@ -25,13 +25,6 @@ extern "C" {
 typedef enum {
     ACC_DEFAULT = 0,
     ACC_NONE = 1,
-    ACC_ADXL345 = 2,
-    ACC_MPU6050 = 3,
-    ACC_MMA8452 = 4,
-    ACC_BMA280 = 5,
-    ACC_LSM303DLHC = 6,
-    ACC_MPU6000 = 7,
-    ACC_MPU6500 = 8,
     ACC_ICM20948=9,
     ACC_FAKE = 10,
 } accelerationSensor_e;
