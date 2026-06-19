@@ -1,6 +1,16 @@
 // Do not remove the include below
 #include "PlutoPilot.h"
 
+/* ─────────────────────────────────────────────────────────────────────────
+ *  Simple WS2812B glow — the whole 8-LED strip lights up in one steady
+ *  (constant) color. Set once; nothing to update each loop.
+ *
+ *  Change the color by editing the (r,g,b) in RGB_SetColorAll below.
+ *  Change overall intensity with RGB_SetBrightness.
+ * ───────────────────────────────────────────────────────────────────────*/
+
+
+
 /**
  * Configures Pluto's receiver mode.
  * AUX channel configurations for ELRS:
@@ -26,7 +36,10 @@ void plutoInit ( void ) {
 
 // The function is called once before plutoLoop when you activate Developer Mode
 void onLoopStart ( void ) {
-  // do your one time stuffs here
+  RGB_Init ( 8 );                  // take control of the 8-LED strip
+  RGB_SetBrightness ( 80 );        // 80% brightness
+  RGB_SetColorAll ( 0, 180, 255 ); // steady glow color (R,G,B) — soft cyan
+  RGB_Show ( );                    // push to the strip
 }
 
 // The loop function is called in an endless loop
@@ -35,5 +48,5 @@ void plutoLoop ( void ) {
 
 // The function is called once after plutoLoop when you deactivate Developer Mode
 void onLoopFinish ( void ) {
-  // do your cleanup stuffs here
+  RGB_Release ( );                 // hand the strip back to the system
 }

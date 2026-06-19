@@ -11,7 +11,7 @@
  #  Created Date: Tue, 20th May 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Mon, 23rd Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -48,6 +48,7 @@
 
 #include "io/rc_controls.h"
 #include "io/serial.h"
+#include "io/ledstrip.h"
 
 #include "telemetry/telemetry.h"
 

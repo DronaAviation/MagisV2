@@ -3,7 +3,7 @@
  #  All rights reserved.                                                       #
  #  -------------------------------------------------------------------------  #
  #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
- #  Project: MagisV2-MechAsh-Dev                                               #
+ #  Project: MagisV2                                                           #
  #  File: \RxConfig.cpp                                                        #
  #  Created Date: Tue, 26th Jan 2025                                           #
  #  Brief:                                                                     #
@@ -42,6 +42,7 @@
 
 #include "io/serial.h"
 #include "io/rc_controls.h"
+#include "io/ledstrip.h"
 
 #include "telemetry/telemetry.h"
 

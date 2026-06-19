@@ -1,19 +1,23 @@
-/*
- * This file is part of Cleanflight.
- *
- * Cleanflight is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Cleanflight is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
- */
+/*******************************************************************************
+ #  SPDX-License-Identifier: GPL-3.0-or-later                                  #
+ #  SPDX-FileCopyrightText: 2026 Cleanflight & Drona Aviation                  #
+ #  -------------------------------------------------------------------------  #
+ #  Copyright (c) 2026 Drona Aviation                                          #
+ #  All rights reserved.                                                       #
+ #  -------------------------------------------------------------------------  #
+ #  Author: Ashish Jaiswal (MechAsh) <AJ>                                      #
+ #  Project: MagisV2                                                           #
+ #  File: \src\main\drivers\light_ws2811strip_stm32f30x.c                      #
+ #  Created Date: Mon, 23rd Mar 2026                                           #
+ #  Brief:                                                                     #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Tue, 24th Mar 2026                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  HISTORY:                                                                   #
+ #  Date      	By	Comments                                                   #
+ #  ----------	---	---------------------------------------------------------  #
+*******************************************************************************/
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,16 +31,16 @@
 #include "drivers/light_ws2811strip.h"
 
 #ifndef WS2811_GPIO
-#define USE_LED_STRIP_ON_DMA1_CHANNEL3
-#define WS2811_GPIO                     GPIOB
-#define WS2811_GPIO_AHB_PERIPHERAL      RCC_AHBPeriph_GPIOB
-#define WS2811_GPIO_AF                  GPIO_AF_1
-#define WS2811_PIN                      GPIO_Pin_8 // TIM16_CH1
-#define WS2811_PIN_SOURCE               GPIO_PinSource8
-#define WS2811_TIMER                    TIM16
-#define WS2811_TIMER_APB2_PERIPHERAL    RCC_APB2Periph_TIM16
-#define WS2811_DMA_CHANNEL              DMA1_Channel3
-#define WS2811_IRQ                      DMA1_Channel3_IRQn
+#define USE_LED_STRIP_ON_DMA2_CHANNEL3
+#define WS2811_GPIO                     GPIOA
+#define WS2811_GPIO_AHB_PERIPHERAL      RCC_AHBPeriph_GPIOA
+#define WS2811_GPIO_AF                  GPIO_AF_2
+#define WS2811_PIN                      GPIO_Pin_15 // TIM8_CH1
+#define WS2811_PIN_SOURCE               GPIO_PinSource15
+#define WS2811_TIMER                    TIM8
+#define WS2811_TIMER_APB2_PERIPHERAL    RCC_APB2Periph_TIM8
+#define WS2811_DMA_CHANNEL              DMA2_Channel3
+#define WS2811_IRQ                      DMA2_Channel3_IRQn
 #endif
 
 void ws2811LedStripHardwareInit(void)
@@ -88,7 +92,7 @@ void ws2811LedStripHardwareInit(void)
 
     /* configure DMA */
     /* DMA clock enable */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
 
     /* DMA1 Channel Config */
     DMA_DeInit(WS2811_DMA_CHANNEL);
@@ -120,17 +124,18 @@ void ws2811LedStripHardwareInit(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    setStripColor(&hsv_white);
+    const hsvColor_t green = {120, 255, 255};
+    setStripColor(&green);
     ws2811UpdateStrip();
 }
 
-#ifdef USE_LED_STRIP_ON_DMA1_CHANNEL3
-void DMA1_Channel3_IRQHandler(void)
+#ifdef USE_LED_STRIP_ON_DMA2_CHANNEL3
+void DMA2_Channel3_IRQHandler(void)
 {
-    if (DMA_GetFlagStatus(DMA1_FLAG_TC3)) {
+    if (DMA_GetFlagStatus(DMA2_FLAG_TC3)) {
         ws2811LedDataTransferInProgress = 0;
-        DMA_Cmd(DMA1_Channel3, DISABLE);            // disable DMA channel
-        DMA_ClearFlag(DMA1_FLAG_TC3);               // clear DMA1 Channel transfer complete flag
+        DMA_Cmd(DMA2_Channel3, DISABLE);            // disable DMA channel
+        DMA_ClearFlag(DMA2_FLAG_TC3);               // clear DMA2 Channel transfer complete flag
     }
 }
 #endif

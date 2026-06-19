@@ -17,6 +17,7 @@
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-04-04	techsavvyomi	Added RGB-LED.h include for WS2812B API        #
 *******************************************************************************/
 
 #ifndef _PlutoPilot_H_
@@ -35,6 +36,7 @@
 #include "src/main/API/Debugging.h"
 #include "src/main/API/Serial-IO.h"
 #include "src/main/API/XRanging.h"
+#include "src/main/API/RGB-LED.h"
 #include "src/main/API/Oled.h"
 
 void plutoRxConfig ( void );

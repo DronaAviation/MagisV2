@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Tue, 24th Mar 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -24,6 +24,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Define a function pointer type `task_fn_t` for tasks that take no arguments and return void.
 typedef void ( *task_fn_t ) ( void );
@@ -89,12 +93,14 @@ void Scheduler_Clear ( Scheduler_Task *t );
  */
 void Execute_Scheduled ( Scheduler_Task *t );
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 uint32_t micros ( void );
 uint32_t millis ( void );
+
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 class Interval {
 
  private:
@@ -132,9 +138,6 @@ class Interval {
    */
   bool check ( );
 };
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif

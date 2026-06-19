@@ -17,12 +17,13 @@
 
 #pragma once
 
+#include "API/Scheduler-Timer.h"
+#include "rx/rx.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif 
-
-#include "rx/rx.h"
-#include "API/Scheduler-Timer.h"
+  #endif 
+  
 
 #define FAILSAFE_POWER_ON_DELAY_US (1000 * 1000 * 5)
 #define MILLIS_PER_TENTH_SECOND      100
@@ -90,7 +91,9 @@ void failsafeInit(rxConfig_t *intialRxConfig, uint16_t deadband3d_throttle);
 void failsafeOnLowBattery(void);
 void failsafeOnCrash(void);
 
+#ifdef __cplusplus
 extern Interval crashTimer;
+#endif
 
 #ifdef __cplusplus
 }
