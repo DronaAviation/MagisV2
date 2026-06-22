@@ -22,23 +22,18 @@ void plutoRxConfig ( void ) {
 // The setup function is called once at Pluto's hardware startup
 void plutoInit ( void ) {
   // Add your hardware initialization code here
-  Oled_Init ( );
 }
 
 // The function is called once before plutoLoop when you activate Developer Mode
 void onLoopStart ( void ) {
-  // RGB_Init ( 8 );                  // take control of the 8-LED strip
-  // RGB_SetBrightness ( 80 );        // 80% brightness
-  // RGB_SetColorAll ( 0, 180, 255 ); // steady glow color (R,G,B) — soft cyan
-  // RGB_Show ( );                    // push to the strip
+  // do your one time stuffs here
 }
 
 // The loop function is called in an endless loop
 void plutoLoop ( void ) {
-  Oled_Print ( 1, 1, "HELLO" );
 }
 
 // The function is called once after plutoLoop when you deactivate Developer Mode
 void onLoopFinish ( void ) {
-  // RGB_Release ( );                 // hand the strip back to the system
+  // do your cleanup stuffs here
 }
