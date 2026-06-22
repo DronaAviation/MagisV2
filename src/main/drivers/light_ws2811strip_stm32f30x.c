@@ -29,6 +29,7 @@
 
 #include "common/color.h"
 #include "drivers/light_ws2811strip.h"
+#include "drivers/dma_registry.h"
 
 #ifndef WS2811_GPIO
 #define USE_LED_STRIP_ON_DMA2_CHANNEL3
@@ -93,6 +94,9 @@ void ws2811LedStripHardwareInit(void)
     /* configure DMA */
     /* DMA clock enable */
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
+
+    /* Reserve this DMA channel so nothing else can reuse it */
+    dmaClaim(WS2811_DMA_CHANNEL, DMA_OWNER_LED_STRIP);
 
     /* DMA1 Channel Config */
     DMA_DeInit(WS2811_DMA_CHANNEL);

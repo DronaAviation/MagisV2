@@ -24,6 +24,7 @@
 #include "drivers/adc.h"
 #include "drivers/adc_impl.h"
 #include "drivers/system.h"
+#include "drivers/dma_registry.h"
 
 #include "API/Peripherals.h"
 
@@ -48,26 +49,33 @@ volatile uint16_t _adc4Values [ ADC4_CHANNEL_COUNT ];
 struct ADC_PinMapping {
   volatile uint16_t *valueArray;    // Pointer to the correct value array for the ADC.
   uint8_t adcIndex;                 // Index of the ADC channel.
+  DMA_Channel_TypeDef *dma;         // DMA channel the parent ADC streams into.
 };
 
-// Static constant array that maps each ADC pin to its corresponding
-// value array and index. This defines how ADC pins are associated with ADC arrays.
+// Static constant array that maps each ADC pin to its corresponding value array,
+// index and DMA channel. Pins that share a physical ADC also share its DMA channel
+// (e.g. ADC_1/ADC_6/ADC_7 are all ADC2 -> DMA2_Channel1).
 // static const ADC_PinMapping adcPinMap [] = {
 static const ADC_PinMapping adcPinMap [] = {
-  [ADC_1] = { _adc2Values, ADC2_IN12 },
-  [ADC_2] = { _adc4Values, ADC4_IN5 },
-  [ADC_3] = { _adc4Values, ADC4_IN4 },
-  [ADC_4] = { _adc3Values, ADC3_IN5 },
-  [ADC_5] = { _adc4Values, ADC4_IN3 },
-  [ADC_6] = { _adc2Values, ADC2_IN1 },
-  [ADC_7] = { _adc2Values, ADC2_IN2 },
-  [ADC_8] = { _adc1Values, ADC1_IN4 },
-  [ADC_9] = { _adc1Values, ADC1_IN3 },
+  [ADC_1] = { _adc2Values, ADC2_IN12, DMA2_Channel1 },
+  [ADC_2] = { _adc4Values, ADC4_IN5,  DMA2_Channel2 },
+  [ADC_3] = { _adc4Values, ADC4_IN4,  DMA2_Channel2 },
+  [ADC_4] = { _adc3Values, ADC3_IN5,  DMA2_Channel5 },
+  [ADC_5] = { _adc4Values, ADC4_IN3,  DMA2_Channel2 },
+  [ADC_6] = { _adc2Values, ADC2_IN1,  DMA2_Channel1 },
+  [ADC_7] = { _adc2Values, ADC2_IN2,  DMA2_Channel1 },
+  [ADC_8] = { _adc1Values, ADC1_IN4,  DMA1_Channel1 },
+  [ADC_9] = { _adc1Values, ADC1_IN3,  DMA1_Channel1 },
 };
 
 void Peripheral_Init ( peripheral_adc_pin _adc_pin ) {
   if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_9 ) {
-    _isAdcEnable [ adcPinMap [ _adc_pin ].adcIndex ] = true;
+    // Reserve this ADC's DMA channel up front. If another subsystem already owns
+    // it (e.g. user code grabbed it for something else), do NOT enable the pin so
+    // the ADC never fights an in-use DMA channel.
+    if ( dmaClaim ( adcPinMap [ _adc_pin ].dma, DMA_OWNER_ADC ) ) {
+      _isAdcEnable [ adcPinMap [ _adc_pin ].adcIndex ] = true;
+    }
   }
 }
 
@@ -111,6 +119,17 @@ typedef struct {
  */
 void _AdcInitGeneric ( const ADC_Config *config ) {
   if ( config->channelCount == 0 ) return;    // Return if no channels are configured
+
+  // Count how many of this ADC's pins the user actually enabled. If none, leave
+  // the DMA channel completely untouched so it stays free for other use.
+  uint8_t enabledCount = 0;
+  for ( uint8_t i = 0; i < config->channelCount; i++ )
+    if ( config->enabledChannels [ i ] ) enabledCount++;
+  if ( enabledCount == 0 ) return;
+
+  // Reserve the DMA channel. Bail out if a different subsystem already owns it,
+  // so we never reconfigure a DMA channel that is in use elsewhere.
+  if ( ! dmaClaim ( config->dmaChannel, DMA_OWNER_ADC ) ) return;
 
   // Enable GPIO clocks (safe to call repeatedly)
   RCC_AHBPeriphClockCmd ( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE );

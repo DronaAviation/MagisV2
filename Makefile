@@ -281,6 +281,7 @@ DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
             		drivers/bridge_sc18is602b.cpp \
 								drivers/light_ws2811strip_stm32f30x.c \
 								drivers/light_ws2811strip.c \
+								drivers/dma_registry.c \
 
 DRONA_COMMAND = command/command.cpp \
             		command/localisationCommand.cpp \

@@ -36,6 +36,7 @@
 #include "serial.h"
 #include "serial_uart.h"
 #include "serial_uart_impl.h"
+#include "drivers/dma_registry.h"
 
 // Using RX DMA disables the use of receive callbacks
 //#define USE_USART1_RX_DMA
@@ -102,8 +103,10 @@ uartPort_t *serialUSART1(uint32_t baudRate, portMode_t mode, portOptions_t optio
 
 #ifdef USE_USART1_RX_DMA
     s->rxDMAChannel = DMA1_Channel5;
+    dmaClaim(DMA1_Channel5, DMA_OWNER_SERIAL_RX);
 #endif
     s->txDMAChannel = DMA1_Channel4;
+    dmaClaim(DMA1_Channel4, DMA_OWNER_SERIAL_TX);
 
     s->USARTx = USART1;
 
@@ -182,10 +185,12 @@ uartPort_t *serialUSART2(uint32_t baudRate, portMode_t mode, portOptions_t optio
 #ifdef USE_USART2_RX_DMA
     s->rxDMAChannel = DMA1_Channel6;
     s->rxDMAPeripheralBaseAddr = (uint32_t)&s->USARTx->RDR;
+    dmaClaim(DMA1_Channel6, DMA_OWNER_SERIAL_RX);
 #endif
 #ifdef USE_USART2_TX_DMA
     s->txDMAChannel = DMA1_Channel7;
     s->txDMAPeripheralBaseAddr = (uint32_t)&s->USARTx->TDR;
+    dmaClaim(DMA1_Channel7, DMA_OWNER_SERIAL_TX);
 #endif
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
@@ -265,10 +270,12 @@ uartPort_t *serialUSART3(uint32_t baudRate, portMode_t mode, portOptions_t optio
 #ifdef USE_USART3_RX_DMA
     s->rxDMAChannel = DMA1_Channel3;
     s->rxDMAPeripheralBaseAddr = (uint32_t)&s->USARTx->RDR;
+    dmaClaim(DMA1_Channel3, DMA_OWNER_SERIAL_RX);
 #endif
 #ifdef USE_USART3_TX_DMA
     s->txDMAChannel = DMA1_Channel2;
     s->txDMAPeripheralBaseAddr = (uint32_t)&s->USARTx->TDR;
+    dmaClaim(DMA1_Channel2, DMA_OWNER_SERIAL_TX);
 #endif
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
