@@ -8,7 +8,7 @@
  #  Created Date: Thu, 18th Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 5th May 2026                                           #
+ #  Last Modified: Wed, 24th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -96,12 +96,17 @@ void Oled_Print ( uint8_t col, uint8_t row, const char *text );
  * Each character is approximately 6px wide and 7px tall.
  * Max capacity is around 21 characters per line.
  *
+ * When @p inverted is true the glyphs are drawn in black (cleared pixels)
+ * instead of white, e.g. to render text on top of a filled shape. No
+ * background is drawn — the caller controls what sits behind the text.
+ *
  * @param x X pixel coordinate (0–127).
  * @param y Y pixel coordinate (0–63).
  * @param text The null-terminated string to be displayed.
+ * @param inverted Draw glyphs in black when true. Defaults to false.
  */
 
-void Oled_Text ( int16_t x, int16_t y, const char *text );
+void Oled_Text ( int16_t x, int16_t y, const char *text, bool inverted = false );
 
 /**
  * @brief Draws a signed integer number at a pixel position.

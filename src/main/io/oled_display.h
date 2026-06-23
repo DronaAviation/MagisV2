@@ -8,7 +8,7 @@
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th May 2026                                           #
+ #  Last Modified: Wed, 24th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -172,6 +172,16 @@ void Oled_DrawLine ( uint8_t *screen, int16_t x0, int16_t y0, int16_t x1, int16_
  * @param text Null-terminated string.
  */
 void Oled_DrawText ( uint8_t *screen, int16_t x, int16_t y, const char *text );
+
+/**
+ * @brief Draw text using a 5x7 bitmap font in the given colour.
+ * @param screen Target buffer.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param text Null-terminated string.
+ * @param on True to set glyph pixels (white), false to clear them (black).
+ */
+void Oled_DrawTextColor ( uint8_t *screen, int16_t x, int16_t y, const char *text, bool on );
 
 /**
  * @brief Draw an integer as text.

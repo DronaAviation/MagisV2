@@ -8,7 +8,7 @@
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th May 2026                                           #
+ #  Last Modified: Wed, 24th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -393,7 +393,7 @@ bool Oled_IsSystemMode ( void ) {
  * @brief Clear OLED display.
  */
 void Oled_display_Clear ( void ) {
-  // if ( ! OledEnable ) return;
+  if ( OledStartupPageEnd ) return;
   if ( ARMING_FLAG ( ARMED ) ) return;
 
   i2c_OLED_clear_display_quick ( );
@@ -403,7 +403,7 @@ void Oled_display_Clear ( void ) {
  * @brief Push framebuffer changes to OLED hardware.
  */
 void Oled_display_Update ( uint8_t *buf ) {
-  // if ( ! OledEnable ) return;
+  if ( OledStartupPageEnd ) return;
   if ( oledMode != OLED_MODE_USER ) return;
   if ( ! buf ) return;
 
@@ -485,7 +485,7 @@ void Oled_DrawLine ( uint8_t *buf, int16_t x0, int16_t y0, int16_t x1, int16_t y
 /**
  * @brief Draw text into framebuffer at pixel coordinates.
  */
-void Oled_DrawText ( uint8_t *screen, int16_t x, int16_t y, const char *text ) {
+void Oled_DrawTextColor ( uint8_t *screen, int16_t x, int16_t y, const char *text, bool on ) {
   if ( ! screen || ! text ) return;
 
   while ( *text ) {
@@ -498,16 +498,20 @@ void Oled_DrawText ( uint8_t *screen, int16_t x, int16_t y, const char *text ) {
       uint8_t bits = multiWiiFont [ idx ][ col ];
       for ( int16_t row = 0; row < 7; row++ ) {
         if ( bits & ( 1 << row ) ) {
-          Oled_DrawPixel ( screen, x + col, y + row, true );
+          Oled_DrawPixel ( screen, x + col, y + row, on );
         }
       }
     }
-    // 6th column = gap (already clear from memset)
+    // 6th column = gap (caller-provided background)
 
     x += 6;                      // advance cursor
     if ( x > 127 - 5 ) break;    // stop at screen edge
     text++;
   }
+}
+
+void Oled_DrawText ( uint8_t *screen, int16_t x, int16_t y, const char *text ) {
+  Oled_DrawTextColor ( screen, x, y, text, true );
 }
 
 /**

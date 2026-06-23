@@ -11,7 +11,7 @@
  #  Created Date: Thu, 18th Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th May 2026                                           #
+ #  Last Modified: Wed, 24th Jun 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -90,8 +90,8 @@ void Oled_Update ( void ) {
 }
 
 /* --- Simple text --- */
-void Oled_Text ( int16_t x, int16_t y, const char *text ) {
-  Oled_DrawText ( oledSimpleBuffer, x, y, text );
+void Oled_Text ( int16_t x, int16_t y, const char *text, bool inverted ) {
+  Oled_DrawTextColor ( oledSimpleBuffer, x, y, text, ! inverted );
 }
 void Oled_Number ( int16_t x, int16_t y, int16_t number ) {
   Oled_DrawNumber ( oledSimpleBuffer, x, y, number );

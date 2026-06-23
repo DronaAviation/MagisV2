@@ -61,6 +61,7 @@ The Simple API uses an internal 1024-byte framebuffer. You don't need to manage 
 | Function | Description |
 |----------|-------------|
 | `Oled_Text(x, y, "text")` | Draws text at `(x, y)`. Each char is 6x7 pixels. |
+| `Oled_Text(x, y, "text", inverted)` | Same, but `inverted = true` draws the glyphs in **black** (cleared pixels) instead of white — useful for labelling text on top of a filled shape. No background is drawn; the caller controls what sits behind the text. `inverted` defaults to `false`. |
 | `Oled_Number(x, y, val)` | Draws a signed 16-bit integer. |
 
 ### Drawing Primitives (Filled)
@@ -132,6 +133,14 @@ These functions draw two eyes automatically centered on the screen.
   Oled_Text(50, 56, "R:"); Oled_Number(64, 56, roll);
 ```
 
+### Inverted Text (Label on a Filled Shape)
+
+```cpp
+  // Draw a filled white pill, then punch the label out in black.
+  Oled_RoundRect(10, 10, 60, 16, 4);
+  Oled_Text(16, 14, "ARMED", true);   // inverted = true → black glyphs
+```
+
 ---
 
 ## Advanced API
@@ -148,6 +157,8 @@ For power users who need full control over external buffers or direct grid print
 ```
 
 ### External Framebuffers
+
+For colour-controlled text into your own buffer, use `Oled_DrawTextColor(screen, x, y, "text", on)` — `on = true` sets glyph pixels (white), `on = false` clears them (black). `Oled_DrawText(...)` is the white-only shorthand.
 
 You can use the lower-level `Oled_display_Update` to flush your own 1024-byte buffer.
 
