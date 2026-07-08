@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Wed, 8th Jul 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -53,7 +53,7 @@ typedef enum {
  *
  * @param _sensor The type of sensor (Accelerometer, Gyroscope, Magnetometer).
  * @param _axis The axis for which to retrieve the data (e.g., X, Y, Z, Net_Acc for accelerometer).
- * @return uint32_t Scaled sensor reading or 0 if the sensor type is unsupported.
+ * @return Signed (int32_t) Scaled sensor reading or 0 if the sensor type is unsupported.
  *
  * - For the Accelerometer:
  *   - If _axis is Net_Acc, it returns the net acceleration magnitude.
@@ -67,7 +67,7 @@ typedef enum {
  *
  * - Returns 0 for unsupported sensor types.
  */
-uint32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis );
+int32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis );
 /**
  * @brief Retrieves barometer data for the specified sensor and data type.
  *
@@ -76,10 +76,10 @@ uint32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis );
  *
  * @param _sensor The sensor type, which should be Barometer for valid data retrieval.
  * @param _data The type of barometric data to retrieve (Pressure or Temperature).
- * @return uint32_t The retrieved barometric pressure in units of 100*millibar,
+ * @return Signed (int32_t) The retrieved barometric pressure in units of 100*millibar,
  *         temperature in units of 100*degreeCelsius, or 0 for unsupported types.
  */
-uint32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
+int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
 
 /**
  * @brief Retrieves the estimated value based on the type of estimate and specified axis.
