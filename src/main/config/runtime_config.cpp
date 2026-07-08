@@ -36,6 +36,8 @@ uint16_t flightModeFlags       = 0;
 uint16_t flightIndicatorFlag   = 0;
 static uint32_t enabledSensors = 0;
 bool rc_connected;
+
+extern bool magCalibrationInProgress;    // set in sensors/compass.cpp while a mag cal is actively running
 /**
  * Enables the given flight mode.  A beep is sounded if the flight mode
  * has changed.  Returns the new 'flightModeFlags' value.
@@ -105,7 +107,26 @@ void flightStatusIndicator ( void ) {
       case Mag_Calibration: {
         delay_time = 100;
 
-        if ( toggle_switch ) {
+        if ( magCalibrationInProgress ) {
+
+          if ( toggle_switch ) {
+
+            ledOperator ( LEDb, LED_OFF );
+            ledOperator ( LEDr, LED_ON );
+            ledOperator ( LEDg, LED_ON );
+
+            toggle_switch = 0;
+
+          } else {
+
+            ledOperator ( LEDr, LED_OFF );
+            ledOperator ( LEDg, LED_OFF );
+            ledOperator ( LEDb, LED_ON );
+
+            toggle_switch = 1;
+          }
+
+        } else if ( toggle_switch ) {
 
           ledOperator ( LEDb, LED_OFF );
           ledOperator ( LEDr, LED_ON );

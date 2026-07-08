@@ -38,6 +38,7 @@
 
 
 bool isMagCalibrated = true;
+bool magCalibrationInProgress = false;    // true only while the sample-collection window is running
 
 mag_t mag;    // mag access functions
 int16_t mag_declination = 0;
@@ -75,8 +76,9 @@ void updateCompass ( flightDynamicsTrims_t *magZero, flightDynamicsTrims_t *magS
   mag.read ( magADC );
   alignSensors ( magADC, magADC, magAlign );
   if ( STATE ( CALIBRATE_MAG ) ) {
-    tCal             = nextUpdateAt;
-    have_initial_yaw = false;
+    tCal                     = nextUpdateAt;
+    magCalibrationInProgress = true;
+    have_initial_yaw         = false;
     for ( axis = 0; axis < 3; axis++ ) {
       magZero->raw [ axis ]       = 0;
       magZeroTempMin.raw [ axis ] = magADC [ axis ];
@@ -95,7 +97,8 @@ void updateCompass ( flightDynamicsTrims_t *magZero, flightDynamicsTrims_t *magS
           magZeroTempMax.raw [ axis ] = magADC [ axis ];
       }
     } else {
-      tCal = 0;
+      tCal                     = 0;
+      magCalibrationInProgress = false;
       for ( axis = 0; axis < 3; axis++ ) {
         magZero->raw [ axis ]     = ( magZeroTempMin.raw [ axis ] + magZeroTempMax.raw [ axis ] ) / 2;    // Calculate offsets: hard iron correction
         magScaleTemp.raw [ axis ] = ( ( magZeroTempMax.raw [ axis ] - magZeroTempMin.raw [ axis ] ) * 10 ) / 2;

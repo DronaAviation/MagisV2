@@ -49,6 +49,7 @@ extern mag_t mag;
 extern float magneticDeclination;
 
 extern bool isMagCalibrated;
+extern bool magCalibrationInProgress;
 
 #ifdef __cplusplus
 }
