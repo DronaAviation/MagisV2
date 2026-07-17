@@ -15,6 +15,28 @@ work together.
 
 ---
 
+## Update — selectable data pin + System/User control (added after this report)
+
+Since this root-cause writeup, the WS2812B API gained two capabilities. Full reference:
+**[WS2812_RGB.md](WS2812_RGB.md)**.
+
+- **Selectable data pin (`RGB_1 .. RGB_8`).** The strip is no longer hard-wired to PA15 —
+  `RGB_Init(pin, led_count)` picks one of 8 vetted `{ pin, timer channel, DMA channel }`
+  slots. The driver's fixed `WS2811_*` macros were replaced by a `ws2811HwTable[]` LUT in
+  [`light_ws2811strip_stm32f30x.c`](../src/main/drivers/light_ws2811strip_stm32f30x.c);
+  PA15/TIM8/DMA2_Ch3 is now just the default (`RGB_8`). Each slot's PWM/ADC conflicts are
+  tabulated in [WS2812_RGB.md §3](WS2812_RGB.md).
+- **`RGB_Control(RGB_USER | RGB_SYSTEM)`.** Toggles who owns the strip. `RGB_SYSTEM` (the
+  default after `RGB_Init`) runs a self-contained flight-status indicator — a faithful
+  port of `ledStripFlightStatus()` into the RGB layer (`rgbSystemTick()`), driven from
+  `mw.cpp` each loop **without** the `LED_STRIP` feature (so it can't re-trigger the BARO
+  overflow below). `RGB_USER` hands the strip to your `RGB_*` calls.
+
+> **Signature change:** `RGB_Init(uint8_t led_count)` → `RGB_Init(peripheral_rgb_pin_e pin,
+> uint8_t led_count)`. The examples in Part 6 below use the current signature.
+
+---
+
 ## Part 1 — The actual bug (a classic buffer overflow)
 
 ### The offending line
@@ -190,41 +212,45 @@ the loop) and it can't hold/climb — while plain attitude flight still works. T
 ## Part 6 — Using the WS2812B from `PlutoPilot.cpp`
 
 The strip is controlled with the `RGB_*` API (header: `src/main/API/RGB-LED.h`). It's
-**non-blocking** and safe to use in `plutoLoop`.
+**non-blocking** and safe to use in `plutoLoop`. Full reference incl. the pin-selection map
+and per-pin conflicts: **[WS2812_RGB.md](WS2812_RGB.md)**.
 
 ### Steady glow (current demo)
 ```c
 void onLoopStart ( void ) {
-  RGB_Init ( 8 );                   // take control of the 8-LED strip
+  RGB_Init ( RGB_1, 8 );            // 8-LED strip on PA8 (RGB_1..RGB_8 select the pin)
+  RGB_Control ( RGB_USER );         // take over from the flight-status indicator
   RGB_SetBrightness ( 80 );         // 80% brightness
   RGB_SetColorAll ( 0, 180, 255 );  // color (R,G,B) — soft cyan
   RGB_Show ( );                     // push to the strip
 }
 void plutoLoop   ( void ) { }       // steady — nothing to update
-void onLoopFinish( void ) { RGB_Release ( ); }   // hand strip back to system
+void onLoopFinish( void ) { RGB_Control ( RGB_SYSTEM ); }   // flight status resumes
 ```
 
 ### Breathing glow (pulse)
 ```c
 void onLoopStart ( void ) {
-  RGB_Init ( 8 );
+  RGB_Init ( RGB_1, 8 );
+  RGB_Control ( RGB_USER );
   RGB_SetBrightness ( 80 );
   RGB_StartAnimation ( RGB_ANIM_BREATHE, 30, RGB_DIR_FORWARD, 0, 180, 255 );
 }
 void plutoLoop   ( void ) { RGB_UpdateAnimation ( ); }   // advance each loop
-void onLoopFinish( void ) { RGB_Release ( ); }
+void onLoopFinish( void ) { RGB_Control ( RGB_SYSTEM ); }
 ```
 
 ### Handy calls
 | Call | Does |
 |---|---|
-| `RGB_Init(n)` | Take control of an `n`-LED strip |
+| `RGB_Init(pin, n)` | Init an `n`-LED strip on `pin` (`RGB_1..RGB_8`); starts in `RGB_SYSTEM` |
+| `RGB_Control(RGB_USER \| RGB_SYSTEM)` | Choose who drives the strip — you or the flight-status indicator |
 | `RGB_SetColorAll(r,g,b)` / `RGB_SetColor(i,r,g,b)` | Set whole strip / one LED (then `RGB_Show()`) |
 | `RGB_SetBrightness(percent)` | Global brightness 0–100 |
 | `RGB_Show()` | Push the buffer to the strip |
 | `RGB_StartAnimation(anim, speed_ms, dir, r,g,b)` | Start one of 21 built-in effects |
 | `RGB_UpdateAnimation()` | Advance the running animation (call every loop) |
-| `RGB_Release()` | Give the strip back to the system (system flight-status resumes) |
+| `RGB_Release()` | Blank the strip and give it back to the system |
 
 Colors: Red `255,0,0` · Green `0,255,0` · Blue `0,0,255` · White `255,255,255` ·
 Yellow `255,255,0` · Cyan `0,255,255` · Purple `128,0,128`.

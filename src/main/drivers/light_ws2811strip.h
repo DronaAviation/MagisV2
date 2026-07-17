@@ -17,7 +17,7 @@
 
 #pragma once
 
-#define WS2811_LED_STRIP_LENGTH 8
+#define WS2811_LED_STRIP_LENGTH 64   // 8x8 matrix = 64 LEDs; must match RGB_MAX_LEDS
 #define WS2811_BITS_PER_LED 24
 #define WS2811_DELAY_BUFFER_LENGTH 42 // for 50us delay
 
@@ -29,6 +29,11 @@
 #define BIT_COMPARE_0 9  // timer compare value for logical 0
 
 void ws2811LedStripInit(void);
+
+// Select which physical pin slot the strip is driven on (0..7, indexed like the
+// RGB_n enum in API/RGB-LED.h). Must be called BEFORE ws2811LedStripInit() /
+// ws2811LedStripHardwareInit(). Defaults to the PA15 slot (system LED pin).
+void ws2811LedStripSetPin(uint8_t slot);
 
 void ws2811LedStripHardwareInit(void);
 void ws2811LedStripDMAEnable(void);

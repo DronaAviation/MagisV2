@@ -31,8 +31,9 @@
 extern "C" {
 #endif
 
-/** Maximum number of WS2812B LEDs supported by the hardware (8 LEDs). */
-#define RGB_MAX_LEDS 8
+/** Maximum number of WS2812B LEDs supported (e.g. an 8x8 matrix = 64 LEDs).
+ *  Must match WS2811_LED_STRIP_LENGTH in drivers/light_ws2811strip.h. */
+#define RGB_MAX_LEDS 64
 
 /*=============================================================================
  *  Animation Types
@@ -94,33 +95,103 @@ typedef enum {
 } RGB_Direction_e;
 
 /*=============================================================================
+ *  LED Data Pin Selection
+ *
+ *  The WS2812B data line can be driven from any one of the pins below, indexed
+ *  like GPIO_n / PWM_n and following the physical pin-map order. Each entry is
+ *  a pre-vetted { pin, timer channel, DMA channel } combination. Pass one to
+ *  RGB_Init(). Only ONE strip is active at a time (selectable, not simultaneous).
+ *
+ *  Pin      Timer/Ch    DMA        Note
+ *  -------  ----------  ---------  ------------------------------------------
+ *  PA8      TIM1_CH1    DMA1_Ch2   shared with PPM RC-IN / 5th motor output
+ *  PB6      TIM4_CH1    DMA1_Ch1   shares DMA with ADC1 (ADC_8/ADC_9)
+ *  PB14     TIM15_CH1   DMA1_Ch5   ! also SPI2 MISO — disables flash/blackbox
+ *  PA13     TIM4_CH3    DMA1_Ch5   ! SWDIO — disables SWD debugging
+ *  PA14     TIM8_CH2    DMA2_Ch5   ! SWCLK — disables SWD debugging
+ *  PB4      TIM3_CH1    DMA1_Ch6   free pin (recommended alternate)
+ *  PB5      TIM17_CH1   DMA1_Ch1   free pin (shares DMA with ADC1)
+ *  PA15     TIM8_CH1    DMA2_Ch3   default — system flight-status LED pin
+ *===========================================================================*/
+typedef enum {
+  RGB_1 = 0,   /**< PA8   · TIM1_CH1  · DMA1_Ch2  — PPM RC-IN / 5th motor pin  */
+  RGB_2,       /**< PB6   · TIM4_CH1  · DMA1_Ch1  — shares DMA with ADC1       */
+  RGB_3,       /**< PB14  · TIM15_CH1 · DMA1_Ch5  — ! disables flash/blackbox  */
+  RGB_4,       /**< PA13  · TIM4_CH3  · DMA1_Ch5  — ! SWDIO debug pin          */
+  RGB_5,       /**< PA14  · TIM8_CH2  · DMA2_Ch5  — ! SWCLK debug pin          */
+  RGB_6,       /**< PB4   · TIM3_CH1  · DMA1_Ch6  — free pin (recommended)     */
+  RGB_7,       /**< PB5   · TIM17_CH1 · DMA1_Ch1  — free pin, shares ADC1 DMA  */
+  RGB_8,       /**< PA15  · TIM8_CH1  · DMA2_Ch3  — default flight-status pin  */
+} peripheral_rgb_pin_e;
+
+/**
+ * @brief  Who owns the LED strip — the firmware, or your user code.
+ *
+ *  RGB_SYSTEM : the firmware paints the flight-status indicator on the strip
+ *               (arm state, calibration, low battery, signal loss, crash …),
+ *               exactly like the onboard status LEDs. This is the default
+ *               after RGB_Init().
+ *  RGB_USER   : you drive the strip yourself with the RGB_* functions.
+ *
+ *  Toggle at any time with RGB_Control().
+ */
+typedef enum {
+  RGB_USER = 0,   /**< user code drives the strip via RGB_* calls   */
+  RGB_SYSTEM,     /**< firmware draws the flight-status indicator    */
+} rgb_control_e;
+
+/*=============================================================================
  *  Initialization & Control
  *===========================================================================*/
 
 /**
- * @brief  Initialize the WS2812B LED strip and take control from the system.
+ * @brief  Initialize the WS2812B LED strip on the selected data pin.
  *
- *         Configures DMA, timer, and GPIO for the LED data pin (PA15).
- *         After calling this, the built-in flight-status LEDs are disabled
- *         and you have full control via the RGB_* functions.
+ *         Configures DMA, timer, and GPIO for the chosen pin. The strip
+ *         starts in RGB_SYSTEM mode: the firmware paints the flight-status
+ *         indicator on it automatically. Call RGB_Control(RGB_USER) when you
+ *         want to drive it yourself with the RGB_* functions.
  *
- *         Safe to call multiple times — hardware is only configured once.
- *         Call this inside onLoopStart() so it re-initializes on every
- *         Developer Mode activation.
+ *         Safe to call multiple times — hardware is only configured once, and
+ *         the data pin is locked to the slot passed on the first call.
  *
+ * @param  pin        Data pin slot to drive the strip on (RGB_1 .. RGB_8).
+ *                    See peripheral_rgb_pin_e for the pin/timer/DMA map.
+ *                    RGB_8 (PA15) is the default flight-status LED pin.
  * @param  led_count  Number of LEDs on your strip (1 to RGB_MAX_LEDS).
- *                    Values above RGB_MAX_LEDS are clamped to 8.
+ *                    Values above RGB_MAX_LEDS are clamped to RGB_MAX_LEDS.
  *
  * @code
+ *   void plutoInit ( void ) {
+ *     RGB_Init ( RGB_1, 3 );        // 3-LED strip on PA8, shows flight status
+ *   }
+ *
  *   void onLoopStart ( void ) {
- *     RGB_Init ( 8 );             // 8-LED ring
- *     RGB_SetBrightness ( 80 );   // 80% brightness
+ *     RGB_Control ( RGB_USER );     // take over the strip in Developer Mode
  *     RGB_SetColorAll ( 255, 0, 0 );
  *     RGB_Show();
  *   }
  * @endcode
  */
-void RGB_Init ( uint8_t led_count );
+void RGB_Init ( peripheral_rgb_pin_e pin, uint8_t led_count );
+
+/**
+ * @brief  Choose who drives the LED strip: the firmware or your code.
+ *
+ *         RGB_SYSTEM hands the strip back to the built-in flight-status
+ *         indicator (updated automatically every control loop). RGB_USER
+ *         takes control so the RGB_* functions drive the strip. Call this
+ *         after RGB_Init(); the strip defaults to RGB_SYSTEM.
+ *
+ * @param  mode  RGB_USER (you draw) or RGB_SYSTEM (firmware draws status).
+ *
+ * @code
+ *   RGB_Init ( RGB_1, 1 );
+ *   RGB_Control ( RGB_SYSTEM );   // strip shows live flight status
+ *   RGB_Control ( RGB_USER );     // your RGB_* calls now drive the strip
+ * @endcode
+ */
+void RGB_Control ( rgb_control_e mode );
 
 /**
  * @brief  Release the LED strip back to the system.

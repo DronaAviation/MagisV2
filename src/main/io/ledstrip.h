@@ -94,6 +94,12 @@ extern volatile bool rgbUserControl;
 // Defined in API-Src/RGB-LED.cpp; called from updateLedStrip() each cycle.
 void rgbReleaseFlushTick(void);
 
+// Renders the flight-status indicator on the WS2812 strip when the RGB API is
+// in RGB_SYSTEM mode. Self-timed, non-blocking, no-op in RGB_USER mode or when
+// the strip isn't initialised. Defined in API-Src/RGB-LED.cpp; called from the
+// control loop (mw.cpp) every cycle — independent of the LED_STRIP feature.
+void rgbSystemTick(void);
+
 bool parseLedStripConfig(uint8_t ledIndex, const char *config);
 void updateLedStrip(void);
 void updateLedRing(void);

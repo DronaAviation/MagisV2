@@ -31,6 +31,11 @@ extern "C" {
 #include "io/ledstrip.h"
 }
 
+// Inputs for the RGB_SYSTEM flight-status renderer (rgbSystemTick).
+#include "common/maths.h"           // leastSignificantBit()
+#include "config/runtime_config.h"  // flightIndicatorFlag, FlightStatus_e
+#include "rx/rx.h"                  // rc_connected
+
 /*=============================================================================
  *  Internal RGB buffer — we own this, bypass HSV entirely
  *===========================================================================*/
@@ -184,7 +189,7 @@ static uint8_t sineLookup ( uint8_t angle )
  *  Initialization & Control
  *===========================================================================*/
 
-void RGB_Init ( uint8_t led_count )
+void RGB_Init ( peripheral_rgb_pin_e pin, uint8_t led_count )
 {
     if ( led_count > RGB_MAX_LEDS ) {
         led_count = RGB_MAX_LEDS;
@@ -193,10 +198,12 @@ void RGB_Init ( uint8_t led_count )
     rgbLedCount   = led_count;
     rgbBrightness = 100;
     animType      = RGB_ANIM_NONE;
-    rgbUserControl = true;
+    rgbUserControl = false;    // default: firmware owns the strip (RGB_SYSTEM)
 
-    // Hardware init only once
+    // Hardware init only once. The data pin is locked to the slot passed on the
+    // first RGB_Init() of this power cycle (selectable, not simultaneous).
     if ( !rgbHwReady ) {
+        ws2811LedStripSetPin ( ( uint8_t ) pin );
         ws2811LedStripInit();
         rgbHwReady = true;
     }
@@ -227,6 +234,128 @@ void RGB_Release ( void )
     rgbWriteDma();
 
     rgbUserControl = false;   // hand control back to the system last
+}
+
+/*=============================================================================
+ *  System / User control
+ *===========================================================================*/
+
+void RGB_Control ( rgb_control_e mode )
+{
+    if ( mode == RGB_SYSTEM ) {
+        animType       = RGB_ANIM_NONE;   // stop any user animation
+        rgbUserControl = false;           // firmware flight-status owns the strip
+    } else {
+        rgbUserControl = true;            // user code owns the strip
+    }
+}
+
+/*
+ * Flight-status indicator on the WS2812 strip — a faithful port of
+ * ledStripFlightStatus() (io/ledstrip.c), driven through the RGB API instead
+ * of the LED_STRIP feature (which is compiled out on this board). Called every
+ * control loop from mw.cpp; self-timed and non-blocking. Renders only when the
+ * strip is initialised AND in RGB_SYSTEM mode.
+ */
+void rgbSystemTick ( void )
+{
+    if ( rgbUserControl || !rgbHwReady ) {
+        return;                           // user owns it, or strip not ready
+    }
+
+    static int32_t activeTime    = 500;
+    static int     delay_time     = 100;
+    static uint8_t counter        = 0;
+    static uint8_t toggle_switch  = 1;
+
+    int32_t ledTime = ( int32_t ) millis();
+    if ( ( int32_t ) ( ledTime - activeTime ) < delay_time ) {
+        return;
+    }
+    counter++;
+
+    switch ( leastSignificantBit ( flightIndicatorFlag ) ) {
+        case Mag_Calibration:
+            delay_time = 100;
+            if ( toggle_switch ) { RGB_SetColorAll ( 255, 255, 0 ); toggle_switch = 0; }   // yellow
+            else                 { RGB_SetColorAll ( 0, 0, 0 );     toggle_switch = 1; }
+            break;
+
+        case Accel_Gyro_Calibration:
+            delay_time = 100;
+            if ( toggle_switch ) { RGB_SetColorAll ( 255, 0, 255 ); toggle_switch = 0; }   // magenta
+            else                 { RGB_SetColorAll ( 0, 0, 0 );     toggle_switch = 1; }
+            break;
+
+        case Ok_to_arm:
+            if ( rc_connected ) {
+                delay_time = 100;
+                RGB_SetColorAll ( 0, 255, 0 );                                             // green
+            } else {
+                delay_time = 120;
+                switch ( counter % 4 ) {
+                    case 0: RGB_SetColorAll ( 0, 255, 0 );     break;                       // green
+                    case 1: RGB_SetColorAll ( 0, 255, 255 );   break;                       // cyan
+                    case 2: RGB_SetColorAll ( 255, 255, 255 ); break;                       // white
+                    case 3: RGB_SetColorAll ( 0, 0, 0 );       break;
+                }
+            }
+            break;
+
+        case Not_ok_to_arm:
+            if ( rc_connected ) {
+                delay_time = 100;
+                if ( toggle_switch ) { RGB_SetColorAll ( 255, 0, 0 ); toggle_switch = 0; }  // red
+                else                 { RGB_SetColorAll ( 0, 0, 0 );   toggle_switch = 1; }
+            } else {
+                delay_time = 120;
+                switch ( counter % 4 ) {
+                    case 0: RGB_SetColorAll ( 0, 255, 0 );     break;                       // green
+                    case 1: RGB_SetColorAll ( 0, 255, 255 );   break;                       // cyan
+                    case 2: RGB_SetColorAll ( 255, 255, 255 ); break;                       // white
+                    case 3: RGB_SetColorAll ( 0, 0, 0 );       break;
+                }
+            }
+            break;
+
+        case Armed:
+            if ( rc_connected ) {
+                delay_time = 100;
+                RGB_SetColorAll ( 0, 0, 255 );                                             // blue
+            }
+            break;
+
+        case LowBattery_inFlight:
+            delay_time = 100;
+            if ( toggle_switch ) { RGB_SetColorAll ( 255, 0, 0 ); toggle_switch = 0; }      // red
+            else                 { RGB_SetColorAll ( 0, 0, 0 );   toggle_switch = 1; }
+            break;
+
+        case Low_battery:
+            delay_time = 100;
+            RGB_SetColorAll ( 255, 0, 0 );                                                 // red
+            break;
+
+        case Signal_loss:
+            delay_time = 100;
+            if ( toggle_switch ) { RGB_SetColorAll ( 0, 0, 255 ); toggle_switch = 0; }      // blue
+            else                 { RGB_SetColorAll ( 0, 0, 0 );   toggle_switch = 1; }
+            break;
+
+        case Crash:
+            delay_time = 100;
+            switch ( counter % 2 ) {
+                case 0: RGB_SetColorAll ( 0, 255, 0 ); break;                              // green
+                case 1: RGB_SetColorAll ( 255, 0, 0 ); break;                              // red
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    RGB_Show();
+    activeTime = ledTime + delay_time;
 }
 
 /*=============================================================================

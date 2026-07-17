@@ -1316,6 +1316,11 @@ void loop ( void ) {
   }
 #endif
 
+  // WS2812 flight-status indicator driven through the RGB API (RGB_SYSTEM mode).
+  // Independent of the LED_STRIP feature; no-op until RGB_Init() runs and only
+  // renders when the strip is in RGB_SYSTEM (not RGB_USER) mode.
+  rgbSystemTick ( );
+
 #ifdef OPTIC_FLOW
   if ( runUserCode ) {
 
