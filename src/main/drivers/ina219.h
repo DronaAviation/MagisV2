@@ -8,7 +8,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 6th Oct 2025                                           #
+ #  Last Modified: Tue, 21st Jul 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,7 +26,7 @@ extern "C" {
 #include <stdbool.h>
 
 #define INA219_I2C_ADDRESS        0x40    //< Default I2C address
-#define INA219_SHUNT_RESISTOR     0.4     //< Default shunt resistor in Ohm
+#define INA219_SHUNT_RESISTOR     0.02f     //< Default shunt resistor in Ohm
 
 #define INA219_REG_CONFIG         0x00    //< Config register
 #define INA219_REG_SHUNTVOLTAGE   0x01    //< Shunt/voltage register
@@ -73,7 +73,7 @@ extern "C" {
 #define INA219_CONFIG_MODE_BUS_CNT       6                //< Bus voltage, continuous
 #define INA219_CONFIG_MODE_SHUNT_BUS_CNT 7
 
-#define INA219_SHUNT_RESISTOR_MILLIOHM   0.002f    // 2 mΩ for PE1206FRE470R02L
+// #define INA219_SHUNT_RESISTOR_MILLIOHM   0.002f    // 2 mΩ for PE1206FRE470R02L
 
 /*!
  * \brief Default config register value

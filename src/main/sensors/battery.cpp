@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Jan 2026                                          #
+ #  Last Modified: Tue, 21st Jul 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -92,7 +92,7 @@ uint16_t vBatRaw = 0;    // battery voltage in 0.1V steps (filtered)
 
 // Function ina219_auto_calibrate_current
 #define SYSTEM_R_MOHM           100.0f    // effective system resistance (battery + wiring + PCB)
-#define CURR_CAL_ALPHA          0.002f    // convergence speed (0.001–0.005 recommended)
+#define CURR_CAL_ALPHA          0.003f    // convergence speed (0.001–0.005 recommended)
 #define CURR_CAL_MIN_GAIN       0.95f
 #define CURR_CAL_MAX_GAIN       1.05f
 #define CURR_CAL_MIN_CURRENT_MA 1000    // only learn above this current
@@ -162,7 +162,7 @@ batteryState_e getBatteryState ( void ) {
  */
 void batteryInit ( batteryConfig_t *initialBatteryConfig ) {
   // Assign the initial configuration to the global battery configuration pointer
-  batteryConfig        = initialBatteryConfig;
+  batteryConfig = initialBatteryConfig;
 
   // Initialize battery state and parameters
   batteryState = BATTERY_NOT_PRESENT;    // Set the initial state as battery not present
@@ -186,7 +186,7 @@ static inline void handleBatteryConnected ( ) {
   batteryState = BATTERY_OK;
 
   // Initialize battery parameters with predefined values.
-  batteryCapacity_mAh = batteryConfig->BatteryCapacity;                                    // Set the battery capacity in milliamp hours.
+  batteryCapacity_mAh = batteryConfig->BatteryCapacity;                          // Set the battery capacity in milliamp hours.
   batteryMaxVoltage   = ( uint16_t ) ( batteryConfig->vBatMaxVoltage * 100 );    // Set the maximum voltage of the battery in millivolts.
 
   // Calculate critical and warning voltage levels based on the number of cells and predefined constants.
@@ -280,7 +280,7 @@ static inline float ina219_auto_calibrate_current ( uint16_t _mAmpRaw, bool arme
   if ( gain_err > CURR_CAL_MAX_GAIN ) gain_err = CURR_CAL_MAX_GAIN;
 
   // Slow convergence (EMA-style)
-  ina219_current_gain += INA219_SHUNT_RESISTOR_MILLIOHM * ( gain_err - ina219_current_gain );
+  ina219_current_gain += CURR_CAL_ALPHA * ( gain_err - ina219_current_gain );
   _ina219_current_gain = ina219_current_gain;
   return ina219_current_gain;
 }
@@ -303,7 +303,7 @@ static inline uint16_t ProcessedINA219Current ( bool armed ) {
     return 0;    // Return 0 if the current is negative or zero.
   }
 
-  mAmpRaw = static_cast< uint32_t > ( ( vShuntRaw / 10.0f ) / INA219_SHUNT_RESISTOR_MILLIOHM );
+  mAmpRaw = static_cast< uint32_t > ( ( vShuntRaw / 10.0f ) / ( INA219_SHUNT_RESISTOR / 10.0f ) );
 
   if ( mAmpRaw > 0xFFFF ) {
     mAmpRaw = 0xFFFF;    // Clamp to the maximum value of a 16-bit unsigned integer.

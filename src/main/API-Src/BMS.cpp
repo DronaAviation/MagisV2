@@ -11,7 +11,7 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 20th Jan 2026                                          #
+ #  Last Modified: Tue, 21st Jul 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -30,7 +30,7 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
       return vBatRaw*100;
     case Current:
       // Return the current mAmpRaw
-      return mAmpRaw;
+      return mAmpWithGain;
     case mAh_Consumed:
       // Return the milliamp hours consumed
       return mAhDrawn;
