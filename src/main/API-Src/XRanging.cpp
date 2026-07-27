@@ -179,7 +179,7 @@ XRanging_P XRanging;
 #define RC_MIN                1000    // Minimum value for RC signal, lower bound
 #define RC_MAX                2000    // Maximum value for RC signal, upper bound
 
-#define AVOID_RC_MAX          50       // Maximum RC value deviation allowed during avoidance
+#define AVOID_RC_MAX          25       // Maximum RC value deviation allowed during avoidance
 #define OA_MAX_PUSH_TIME_MS   500      // Maximum time in milliseconds to push forward during obstacle avoidance
 #define OA_CLEAR_HOLD_MS      500      // Time in milliseconds to hold clear state after an obstacle is no longer detected
 #define OA_BRAKE_GAIN         0.45f    // Gain factor applied to braking during obstacle avoidance

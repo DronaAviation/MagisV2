@@ -11,137 +11,127 @@
 
 ---
 
+## Table of Contents
+
+- [What is MagisV2?](#what-is-magisv2)
+- [Features](#features)
+- [Supported Hardware](#supported-hardware)
+- [Getting Started with PlutoIDE](#getting-started-with-plutoide)
+- [PlutoIDE Quick Reference](#plutoide-quick-reference)
+- [Building from Source](#building-from-source)
+- [Repository Structure](#repository-structure)
+- [API Reference](#api-reference)
+- [Interactive Codebase Explorer](#interactive-codebase-explorer)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
+- [Support](#support)
+- [License](#license)
+
+---
+
 ## What is MagisV2?
 
-MagisV2 is the firmware that powers the **Pluto Drone**, a programmable micro quadcopter by [Drona Aviation](https://www.dronaaviation.com/). It is a fork of the Baseflight/Cleanflight flight controller stack, rebuilt and extended with a clean **user-facing API** that lets developers write custom flight behaviour directly in C++, without needing to understand the full internals of the flight controller.
+MagisV2 is the firmware that powers the **Pluto Drone**, a programmable micro quadcopter by [Drona Aviation](https://www.dronaaviation.com/). It is a fork of the Baseflight/Cleanflight flight controller stack, rebuilt and extended with a clean **user-facing C++ API** that lets developers write custom flight behaviour without needing to understand the full internals of the flight controller.
 
 Think of it as an **Arduino-style programming model for a real drone**: you write `plutoInit()` and `plutoLoop()`, and the firmware handles all the low-level stabilisation, sensor fusion, motor control, and communication.
 
-**Supported hardware targets:**
+---
+
+## Features
+
+- **Simple programming model**: write flight behaviour in a single user file using lifecycle hooks (`plutoInit`, `plutoLoop`, and more); no need to touch firmware internals.
+- **Two-layer API**: a stable, public C++ API sits on top of the Cleanflight core, keeping user code decoupled from driver-level changes.
+- **Full flight stack**: IMU-based attitude estimation, PID stabilisation, mixer, altitude hold, and position control, all running in a bounded real-time loop.
+- **Multiple receiver protocols**: onboard Wi-Fi (ESP), serial RC, and PPM input.
+- **Rich peripheral support**: OLED display, addressable RGB LED strip, GPIO/I2C/SPI/UART access, and ranging/optical-flow sensors.
+- **Strict, budget-aware build**: hard-float, size-optimised, and compiled warning-clean for a 256 KB-flash / 40 KB-RAM MCU.
+
+---
+
+## Supported Hardware
 
 | Target | Board | MCU |
-|--------|-------|-----|
-| `PRIMUS_X2_v1` | Primus X2 *(default)* | STM32F303xC, 72 MHz, 40 KB RAM |
+| -------- | ------- | ----- |
+| `PRIMUS_X2_v1` | Primus X2 *(default)* | STM32F303xC, 72 MHz, 256 KB flash / 40 KB RAM |
 | `PRIMUS_V5` | Primus V5 | STM32F30x |
 | `PRIMUSX2` | Primus X2 *(legacy)* | STM32F30x |
 
 ---
 
-## Getting Started
+## Getting Started with PlutoIDE
+
+[PlutoIDE](https://marketplace.visualstudio.com/items?itemName=Drona-Aviation.pluto-ide) is the official VS Code extension for building and flashing MagisV2. It manages the ARM toolchain, IntelliSense, and project scaffolding automatically; you do not need to clone this repository manually.
 
 ### Prerequisites
 
-- **[PlutoIDE VS Code Extension](https://marketplace.visualstudio.com/items?itemName=Drona-Aviation.pluto-ide):** handles toolchain, build, flash, and monitoring automatically
-- **Visual Studio Code:** [download here](https://code.visualstudio.com/)
+- **[Visual Studio Code](https://code.visualstudio.com/)**
+- **[PlutoIDE VS Code Extension](https://marketplace.visualstudio.com/items?itemName=Drona-Aviation.pluto-ide)**
 - A **Pluto Drone** (Primus X2 or compatible)
 
----
+### 1. Install PlutoIDE
 
-## Setting Up with PlutoIDE
+1. Open VS Code and press `Ctrl+Shift+X` to open the Extensions panel.
+2. Search for **Pluto IDE** and click **Install**.
 
-PlutoIDE is the official VS Code extension for building and flashing MagisV2 firmware. It manages the ARM toolchain, IntelliSense, and project scaffolding automatically. You do not need to clone this repository manually.
+> PlutoIDE installs two helper extensions on first run: **C/C++** (`ms-vscode.cpptools`) for IntelliSense and **Teleplot** (`alexnesnes.teleplot`) for live sensor plotting.
 
-### Step 1 - Install PlutoIDE
+### 2. Create a New Project
 
-1. Open VS Code
-2. Press `Ctrl+Shift+X` to open the Extensions panel
-3. Search for **Pluto IDE**
-4. Click **Install**
+1. Open the **Dashboard** from the VS Code status bar, or run `PlutoIDE > Open Dashboard` via `Ctrl+Shift+P`.
+2. Click **Create New Project**, enter a name, and choose a destination directory.
+3. Select your **Board Type** and click **Create**.
 
-> PlutoIDE will automatically install two required extensions on first run:
-> - **C/C++** by Microsoft (`ms-vscode.cpptools`): for IntelliSense
-> - **Teleplot** by Alex Nesnes (`alexnesnes.teleplot`): for live sensor plotting
+> **Project types:**
+>
+> - **Source (SRC)**: full, editable firmware source. Use this to customise core behaviour or work with driver-level code.
+> - **Library**: a lighter project that links against pre-compiled board libraries. Use this for writing user application code only.
 
-### Step 2 - Create a New Project
+### 3. Select a Target
 
-1. Click the **Dashboard** icon in the VS Code status bar (bottom), or run `PlutoIDE > Open Dashboard` via `Ctrl+Shift+P`
-2. In the dashboard, click **Create New Project**
-3. Fill in your **Project Name** and choose a **Destination Directory**
-4. Select your **Board Type** (e.g. MagisV2 for Primus X2)
-5. Check the **"Include Sources"** checkbox - this automatically downloads the latest MagisV2 firmware release from GitHub and sets up the full source project
-6. Click **Create**. The workspace opens with all files and IntelliSense configured.
+Click **Select Target** in the status bar (or run `PlutoIDE > Select Target`) and choose `PRIMUS_X2_v1` for the Primus X2.
 
-> **Project Types:**
-> - **Source (SRC) - Include Sources checked:** Downloads the full editable firmware source. Use this when you want to customise core behaviour or work with driver-level code.
-> - **Library - Include Sources unchecked:** Creates a lighter project that links against pre-compiled board libraries. Use this for writing user application code only (`PlutoPilot.cpp`).
+### 4. Write Your Code
 
-### Step 3 - Select Target
-
-Click the **Select Target** button in the VS Code status bar (bottom), or run:
-
-```
-PlutoIDE > Select Target
-```
-
-Choose `PRIMUS_X2_v1` for the Primus X2 drone.
-
-### Step 4 - Write Your Code
-
-All user code lives in **`PlutoPilot.cpp`**, the only file you need to edit:
+All user code lives in **`PlutoPilot.cpp`**. The firmware calls a small set of lifecycle hooks:
 
 ```cpp
 #include "PlutoPilot.h"
 
-// Choose your receiver type
+// Select your receiver
 void plutoRxConfig ( void ) {
-    Receiver_Mode ( Rx_ESP );    // Onboard ESP Wi-Fi (default)
-    // Receiver_Mode ( Rx_ELRS );   // ExpressLRS (CRSF) on USART1
-    // Receiver_Mode ( Rx_PPM );    // PPM receiver
-    // Receiver_Mode ( Rx_CAM );    // Wi-Fi camera mode
 }
 
-// Runs once on power-up
+// Runs once at power-up
 void plutoInit ( void ) {
-    Oled_Init();
 }
 
 // Runs once when Developer Mode is activated
 void onLoopStart ( void ) {
 }
 
-// Runs in a loop while Developer Mode is active
+// Runs repeatedly while Developer Mode is active
 void plutoLoop ( void ) {
-    Oled_Begin();
-    Oled_Text(0, 0, "Hello, Pluto!");
-    Oled_Number(0, 16, FC_Data_Get(FC_ALTITUDE));
-    Oled_End();
 }
 
 // Runs once when Developer Mode is deactivated
 void onLoopFinish ( void ) {
-    Oled_Clear();
 }
 ```
 
-### Step 5 - Build
+Everything available to user code is exposed through `PlutoPilot.h`. See the [API Reference](#api-reference) for the full list of calls.
 
-Click **Build** in the status bar or run:
+### 5. Build and Flash
 
-```
-PlutoIDE > Build
-```
-
-### Step 6 - Flash
-
-**USB:**
-1. Connect your Pluto via USB
-2. Click **USB Flash** (PlutoIDE installs the STM32 bootloader driver automatically on first use)
-
-**Wi-Fi:**
-1. Connect to your drone's Wi-Fi network
-2. Click **WiFi Flash**
-
-```
-PlutoIDE > USB Flash
-PlutoIDE > WiFi Flash
-```
+- **Build:** click **Build** in the status bar, or run `PlutoIDE > Build`.
+- **Flash over USB:** connect the drone and click **USB Flash** (the STM32 bootloader driver installs automatically on first use).
+- **Flash over Wi-Fi:** connect to the drone's Wi-Fi network and click **WiFi Flash**.
 
 ---
 
 ## PlutoIDE Quick Reference
 
 | Action | Status Bar Button | Command Palette |
-|--------|------------------|-----------------|
+| -------- | ------------------ | ----------------- |
 | Open Dashboard | Dashboard icon | `PlutoIDE > Open Dashboard` |
 | Build firmware | Build icon | `PlutoIDE > Build` |
 | Clean build | Clean icon | `PlutoIDE > Clean` |
@@ -155,61 +145,21 @@ All commands are also accessible via `Ctrl+Shift+P`.
 
 ---
 
-## API Reference
+## Building from Source
 
-For the full API reference, see the **[MagisV2 Wiki](https://github.com/DronaAviation/MagisV2/wiki)**.
+For working directly in the repository, the build is driven by `make`. A `TARGET` is required for every command; outputs go to `Build/<TARGET>/`.
 
----
+```bash
+make TARGET=PRIMUS_X2_v1              # build firmware (.hex + .bin) and print flash/RAM usage
+make TARGET=PRIMUS_X2_v1 clean        # remove build artifacts for that target
+make TARGET=PRIMUS_X2_v1 memory       # flash/RAM usage from the linked ELF
+make TARGET=PRIMUS_X2_v1 flash        # flash .hex over serial via stm32flash
+make TARGET=PRIMUS_X2_v1 st-flash     # flash .bin via st-flash (ST-Link)
+make TARGET=PRIMUS_X2_v1 cppcheck     # static analysis over all C sources
+make help                             # list documented targets
+```
 
-
-## ExpressLRS (ELRS) Support
-
-MagisV2 supports **ExpressLRS** receivers via CRSF protocol on USART1.
-
-### Wiring
-
-Connect the ELRS receiver to the **CAM port** on the Primus X2. The CAM port exposes the following pins:
-
-| CAM Port Pin | ELRS Receiver Pin | Notes |
-|--------------|-------------------|-------|
-| `RX-1` | `TX` | Serial data into the flight controller |
-| `GND` | `GND` | Common ground |
-| `vBAT` | `VCC` | Battery voltage out - check receiver input voltage rating |
-
-> **Note:** `TX-1` on the CAM port is the flight controller's transmit line. It is not required for basic RC control but can be used if your receiver supports telemetry input. `vBAT` supplies raw battery voltage - use a voltage regulator if your receiver requires 3.3 V or 5 V.
-
-### CRSF Protocol Parameters
-
-| Parameter | Value |
-|-----------|-------|
-| Baud rate | 420,000 |
-| Format | 8N1, non-inverted |
-| Channels | 16 (11-bit packed, raw range: 172-1811, RC range: 988-2012) |
-| Frame types | RC Channels `0x16`, Link Stats `0x14`, Battery Telemetry `0x08` |
-
-### AUX Channel Mapping (default)
-
-| AUX | Channel | Function | Trigger |
-|-----|---------|----------|---------|
-| AUX1 | CH5 | ARM | 2-pos switch HIGH = armed |
-| AUX2 | CH6 | ANGLE / ACRO | 3-pos: low = ACRO, mid+high = ANGLE |
-| AUX3 | CH7 | MAG | Switch HIGH (optional) |
-| AUX4 | CH8 | Developer Mode | Switch HIGH |
-| AUX5 | CH9 | ALT HOLD / THROTTLE | 2-pos: low = THROTTLE, high = ALT HOLD |
-
-### Battery Telemetry
-
-Battery voltage from the onboard INA219 sensor is sent back to the radio via CRSF frame type `0x08`. To view it on EdgeTX/OpenTX, go to **Model Setup - Telemetry - Discover sensors** and look for **RxBt**.
-
-
----
-
-## Arming Sequence
-
-1. Power on the drone and place it on a flat surface
-2. Wait for the gyro/accelerometer calibration to complete (LED stops blinking)
-3. Move the throttle stick fully down
-4. Flip **AUX1 (CH5)** HIGH → drone arms
+> **Toolchain:** builds use the `arm-none-eabi` GCC toolchain with hard-float (`fpv4-sp-d16`), `-Os`, and strict warnings (`-Wall -Wextra -Wconversion -Wsign-conversion -Wshadow -Wdouble-promotion`). In normal use PlutoIDE manages this toolchain for you.
 
 ---
 
@@ -219,37 +169,32 @@ Battery voltage from the onboard INA219 sensor is sent back to the radio via CRS
 MagisV2/
 ├── PlutoPilot.cpp          ← Your code goes here (user entry point)
 ├── PlutoPilot.h            ← Includes all user APIs
-├── plutoide.ini            ← PlutoIDE project config
+├── Makefile                ← Build configuration and source groups
 │
 ├── src/main/
 │   ├── API/                ← Public C++ API headers
-│   │   ├── RxConfig.h      ← Receiver mode selection
-│   │   ├── FC-Data.h       ← Flight controller sensor data
-│   │   ├── FC-Control.h    ← Arming, flight modes
-│   │   ├── Motor.h         ← Motor control
-│   │   ├── Oled.h          ← OLED display driver
-│   │   ├── Peripherals.h   ← GPIO, I2C, SPI, UART
-│   │   ├── Serial-IO.h     ← Serial communication
-│   │   ├── Debugging.h     ← Monitor_Print / debug output
-│   │   ├── Scheduler-Timer.h ← Task scheduling
-│   │   └── XRanging.h      ← ToF/optical flow sensor API
-│   │
-│   ├── drivers/            ← Hardware drivers (IMU, barometer, I2C, SPI)
-│   ├── flight/             ← PID, attitude estimation, mixer
-│   ├── rx/                 ← Receiver protocols (CRSF/ELRS, PPM, MSP)
-│   │   ├── crsf.c          ← CRSF protocol driver (RX + battery telemetry TX)
-│   │   └── crsf.h
+│   ├── API-Src/            ← API implementations (wrap firmware internals)
+│   ├── drivers/            ← Hardware drivers (IMU, barometer, I2C, SPI, DMA)
+│   ├── flight/             ← PID, attitude estimation, mixer, navigation
 │   ├── sensors/            ← Barometer, magnetometer, optical flow
-│   ├── telemetry/          ← FrSky, HoTT, MSP telemetry
+│   ├── rx/                 ← Receiver protocols
+│   ├── io/                 ← Serial, displays, LED
+│   ├── telemetry/          ← Telemetry protocols
 │   └── target/             ← Board-specific config
 │       ├── PRIMUS_X2_v1/   ← Default target (Primus X2)
 │       ├── PRIMUS_V5/
 │       └── PRIMUSX2/
 │
-├── lib/                    ← Third-party libraries (CMSIS, VL53L1X, STM32 HAL)
-├── docs/                   ← Documentation and API wikis
+├── lib/                    ← Third-party libraries (CMSIS, STM32 StdPeriph, VL53L1X)
+├── docs/                   ← Documentation, API wikis, hardware reference
 └── graphify-out/           ← Knowledge graph (interactive codebase explorer)
 ```
+
+---
+
+## API Reference
+
+For the full API reference, see the **[MagisV2 Wiki](https://github.com/DronaAviation/MagisV2/wiki)**.
 
 ---
 
@@ -257,24 +202,23 @@ MagisV2/
 
 A pre-built knowledge graph of the entire codebase is included in [`graphify-out/`](graphify-out/):
 
-- **[`graphify-out/graph.html`](graphify-out/graph.html):** Download and open in any browser. Shows all 4,547 functions, modules, and relationships as an interactive graph with 477 detected communities.
-- **[`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md):** Plain-language audit report with god nodes, surprising connections, and suggested exploration questions.
+- **[`graphify-out/graph.html`](graphify-out/graph.html)**: open in any browser for an interactive graph of the codebase's functions, modules, and relationships.
+- **[`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md)**: a plain-language audit report with hotspots, notable connections, and suggested exploration questions.
 
 ---
 
-## Documentation
+## Changelog
 
-For guides, API references, and configuration details, visit the **[MagisV2 Wiki](https://github.com/DronaAviation/MagisV2/wiki)**.
-
+Release notes and version history are maintained in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## Contributing
 
-1. Fork this repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "feat: add my feature"`
-4. Push and open a Pull Request
+1. Fork this repository.
+2. Create a feature branch: `git checkout -b feature/my-feature`.
+3. Commit your changes: `git commit -m "feat: add my feature"`.
+4. Push and open a Pull Request.
 
 ---
 
@@ -289,4 +233,4 @@ For guides, API references, and configuration details, visit the **[MagisV2 Wiki
 
 This project is licensed under the **GNU General Public License v3.0**. See [LICENSE](LICENSE) for details.
 
-© 2025 Drona Aviation. All rights reserved.
+© 2026 Drona Aviation. All rights reserved.
