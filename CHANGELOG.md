@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Consolidates all work merged into `main` since `v3.0.0`. Highlights: a unified
 non-blocking OLED subsystem, a WS2812B RGB LED API on a selectable data pin,
 ExpressLRS (CRSF) receiver support with battery telemetry, a DMA channel
-ownership registry, and a large driver/platform cleanup that removes all legacy
-STM32F10x support.
+ownership registry, pilot override of user RC commands, and a large
+driver/platform cleanup that removes all legacy STM32F10x support.
 
 ### Added
 
@@ -31,6 +31,20 @@ STM32F10x support.
 - **RX**: CRSF battery telemetry: voltage, current, capacity, and remaining %
   (800 mAh default for ELRS).
 - **RX**: THROTTLE / ALT HOLD switch on AUX5 with LED feedback in `plutoLoop`.
+- **RC**: Pilot override of user RC commands. A channel driven by
+  `RcCommand_Set` is now cross-faded against the pilot's own sticks by how far
+  they are deflected, so the pilot can manoeuvre mid-manoeuvre instead of being
+  locked out: sticks centred gives the commanded value unchanged, part
+  deflection gives a proportional mix, and `USER_RC_STICK_TRAVEL` counts off
+  centre gives the pilot sole authority. No API change - the behaviour is
+  built into `RcCommand_Set`, so existing sketches gain it without edits.
+- **RC**: Hold watchdog for user RC overrides. An override now expires after
+  `max ( 250 ms, 2 x userLoopFrequency )` unless re-asserted, so a channel is
+  handed back by simply no longer calling `RcCommand_Set`, rather than staying
+  latched for the rest of the Developer Mode session.
+- **RX**: `rcDataPilot []` - a snapshot of the pilot's four primary sticks taken
+  in the RX layer before user code can write to `rcData`, giving the override
+  path a source of pilot input that its own writes cannot contaminate.
 - **Compass**: Magnetometer calibration progress indicator.
 - **Drivers**: DMA channel ownership registry (`dmaClaim`/`dmaRelease`/
   `dmaIsFree`/`dmaGetOwner`) enforcing DMA allocation at runtime.
@@ -43,7 +57,13 @@ STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.4.1 (API 1.3.0).
+- **Firmware version** bumped to 3.5.0 (API 1.3.1). The API patch bump reflects
+  `RcCommand_Set`'s new pilot-override behaviour; no public signature changed,
+  so existing projects compile and link untouched.
+- **RC**: `RcCommand_Set ( RC_THROTTLE, ... )` deflection is measured from where
+  the throttle stick sat when the override latched rather than from mid-stick,
+  since throttle does not self-centre - a stick resting at minimum can no longer
+  fade an autonomous climb away.
 - **BMS**: Improved current-measurement accuracy: current return now uses
   `mAmpWithGain` instead of `mAmpRaw`, the INA219 shunt resistor value corrected
   from 0.4 Ω to 0.02 Ω, and the current-calibration convergence rate
@@ -58,6 +78,16 @@ STM32F10x support.
 
 ### Fixed
 
+- **RC**: Out-of-bounds write in `RcCommand_Set ( CHANNEL, value )`. Channels
+  above `RC_THROTTLE` (`RC_AUX1`..`RC_USER3`, indices 4-10) indexed the
+  4-element `RC_ARRAY` and `userRCflag` arrays, corrupting adjacent globals.
+  Those channels have no override storage and are now rejected.
+- **RC**: User RC overrides latched permanently. `userRCflag` was set by
+  `RcCommand_Set` and only cleared on leaving Developer Mode, so a single call
+  disabled that stick for the rest of the session; `resetUserRCflag()` was
+  written to expire them but was never called. It is now wired into the control
+  loop and reworked to a per-channel timestamp check, so an override that is
+  still being asserted cannot be dropped mid-flight.
 - **LED**: Clamped LED default-config `memcpy` that corrupted PID / alt-hold gains.
 - **AltitudeHold**: Reset `errorVelocityI` on AltHold state change.
 - **RX**: Set `rc_connected` for serial RX.

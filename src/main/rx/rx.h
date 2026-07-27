@@ -78,6 +78,13 @@ extern const char rcChannelLetters [];
 
 extern int16_t rcData [ MAX_SUPPORTED_RC_CHANNEL_COUNT ];    // interval [1000;2000]
 
+/* Snapshot of the pilot's four primary sticks exactly as the receiver
+ * delivered them, taken before any user/API code is allowed to write to
+ * rcData. rcData [ THROTTLE ] is overwritten by the user RC override path
+ * (see applyUserRcOverride() in mw.cpp), so this is the only reliable
+ * source for "what is the pilot actually asking for". Interval [1000;2000]. */
+extern int16_t rcDataPilot [ NON_AUX_CHANNEL_COUNT ];
+
 #define MAX_MAPPABLE_RX_INPUTS 8
 
 #define RSSI_SCALE_MIN         1

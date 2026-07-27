@@ -105,7 +105,26 @@ void RcCommand_Set ( int16_t *rcValueArray );
  * 1500 and stores in `rcCommand`. Stores final value in `RC_ARRAY`, sets flag. If
  * `RC_THROTTLE`, assigns directly to `rcData`.
  *
- * @param CHANNEL The RC channel (`rc_channel_e` type).
+ * The override never locks the pilot out. It is cross-faded against the
+ * pilot's own sticks by how far they are deflected:
+ *
+ *   - sticks centred        — the commanded value, exactly as asked for
+ *   - stick part deflected  — proportional mix of command and pilot
+ *   - stick half deflected  — the pilot alone, full manual authority
+ *
+ * Full authority is reached at `USER_RC_STICK_TRAVEL` counts off centre (half
+ * stick), so a moderate command is already flying the other way before then.
+ *
+ * Throttle deflection is measured from wherever the stick sat when the
+ * override latched, since it does not self-centre.
+ *
+ * The override is also dropped automatically if it stops being re-asserted,
+ * so call this every `plutoLoop()` for as long as you want the channel held
+ * and simply stop calling it to hand the channel back.
+ *
+ * Channels above `RC_THROTTLE` have no override storage and are ignored.
+ *
+ * @param CHANNEL The RC channel (`rc_channel_e` type), `RC_ROLL`..`RC_THROTTLE`.
  * @param rcValue Raw RC value for the channel.
  */
 

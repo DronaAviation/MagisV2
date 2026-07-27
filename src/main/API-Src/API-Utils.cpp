@@ -103,7 +103,10 @@ uint32_t autoRcTimerLoop   = 0;
 int32_t user_GPS_coord [ 2 ];
 int32_t MOTOR_ARRAY [ 4 ] = { 0 };
 int32_t app_GPS_coord [ 2 ];
-int32_t RC_ARRAY [ 4 ] = { 0 };
+int32_t RC_ARRAY [ 4 ]       = { 0 };
+uint32_t userRCsetTime [ 4 ] = { 0 };
+float userRCauthority [ 4 ]  = { USER_RC_AUTHORITY_DEFAULT, USER_RC_AUTHORITY_DEFAULT, USER_RC_AUTHORITY_DEFAULT, USER_RC_AUTHORITY_DEFAULT };
+int16_t userRCthrottleRef    = 1500;
 
 bool runUserCode            = false;
 bool useAutoRC              = false;
@@ -141,13 +144,62 @@ bool isUserMotorPwm [ 4 ]       = { false };
 bool isUserSetVelocity          = false;
 bool isUserHeadFreeHoldSet      = false;
 
+/**
+ * @brief Latches a user RC override on a channel and stamps it as fresh.
+ *
+ * Every producer of an override (RcCommand_Set, applyObjectAvoidance, …)
+ * must go through this so the watchdog in resetUserRCflag() can tell an
+ * actively driven channel from a stale one.
+ *
+ * @param channel         Primary channel index (ROLL..THROTTLE).
+ * @param pilotAuthority  How far a fully deflected stick may fade this
+ *                        override out, 0.0f..1.0f. Pass 0.0f if the producer
+ *                        has already folded the pilot's input into RC_ARRAY.
+ */
+void userRCassert ( uint8_t channel, float pilotAuthority ) {
+  if ( channel >= 4 ) return;
+
+  // Capture the pilot's throttle on the rising edge. Throttle does not
+  // self-centre, so its deflection has to be measured from wherever the stick
+  // happened to sit when the override latched rather than from mid-stick.
+  if ( channel == THROTTLE && ! userRCflag [ channel ] )
+    userRCthrottleRef = rcDataPilot [ THROTTLE ];
+
+  userRCauthority [ channel ] = constrainf ( pilotAuthority, 0.0f, 1.0f );
+  userRCsetTime [ channel ]   = micros ( );
+  userRCflag [ channel ]      = true;
+}
+
+/**
+ * @brief Hands a channel back to the pilot immediately.
+ *
+ * @param channel Primary channel index (ROLL..THROTTLE).
+ */
+void userRCrelease ( uint8_t channel ) {
+  if ( channel >= 4 ) return;
+
+  RC_ARRAY [ channel ]   = 0;
+  userRCflag [ channel ] = false;
+}
+
+/**
+ * @brief Watchdog: drops overrides that are no longer being re-asserted.
+ *
+ * User code must keep calling RcCommand_Set() (once per plutoLoop() is
+ * enough) to hold a channel. The moment it stops, the channel returns to the
+ * pilot instead of staying latched for the rest of the Developer Mode
+ * session. The timeout scales with the user loop period so a slow user loop
+ * does not fight the watchdog.
+ */
 void resetUserRCflag ( void ) {
-  if ( ( int32_t ) ( micros ( ) - autoRcTimerLoop ) >= 0 ) {
+  uint32_t holdTimeout = 2 * userLoopFrequency;
+  if ( holdTimeout < USER_RC_HOLD_MIN_US ) holdTimeout = USER_RC_HOLD_MIN_US;
 
-    for ( int i = 0; i < 4; i++ )
-      userRCflag [ i ] = 0;
+  uint32_t now = micros ( );
 
-    autoRcTimerLoop = micros ( ) + 100000;
+  for ( int i = 0; i < 4; i++ ) {
+    if ( userRCflag [ i ] && ( now - userRCsetTime [ i ] ) > holdTimeout )
+      userRCrelease ( ( uint8_t ) i );
   }
 }
 

@@ -125,7 +125,7 @@ void RcCommand_Set ( int16_t *rcValueArray ) {
   // Loop through the first 4 elements of rcValueArray
   for ( int i = 0; i < 4; i++ ) {
     // Constrain rcValue to be between 1000 and 2000
-    int16_t rcValue = constrain ( rcValueArray [ i ], 1000, 2000 );
+    int16_t rcValue = ( int16_t ) constrain ( rcValueArray [ i ], 1000, 2000 );
 
     if ( i < 3 ) {
       // Adjust rcValue and assign to rcCommand for the first three indices
@@ -139,14 +139,17 @@ void RcCommand_Set ( int16_t *rcValueArray ) {
     // Store the constrained value in RC_ARRAY
     RC_ARRAY [ i ] = rcValue;
 
-    // Set userRCflag to true indicating that the command has been set
-    userRCflag [ i ] = true;
+    // Latch the override and stamp it fresh for the hold watchdog
+    userRCassert ( ( uint8_t ) i, USER_RC_AUTHORITY_DEFAULT );
   }
 }
 
 void RcCommand_Set ( rc_channel_e CHANNEL, int16_t rcValue ) {
+  // Only the four primary channels have override storage behind them
+  if ( CHANNEL > RC_THROTTLE ) return;
+
   // Constrain the input value between 1000 and 2000
-  int16_t setValue = constrain ( rcValue, 1000, 2000 );
+  int16_t setValue = ( int16_t ) constrain ( rcValue, 1000, 2000 );
 
   // Update values if channel is below RC_THROTTLE
   if ( CHANNEL < RC_THROTTLE ) {
@@ -159,8 +162,8 @@ void RcCommand_Set ( rc_channel_e CHANNEL, int16_t rcValue ) {
   // Store the constrained or adjusted value in RC_ARRAY
   RC_ARRAY [ CHANNEL ] = setValue;
 
-  // Set the userRCflag to true indicating a command has been set for the channel
-  userRCflag [ CHANNEL ] = true;
+  // Latch the override and stamp it fresh for the hold watchdog
+  userRCassert ( ( uint8_t ) CHANNEL, USER_RC_AUTHORITY_DEFAULT );
 
   // Assign rcData only if channel is RC_THROTTLE
   if ( CHANNEL == RC_THROTTLE ) {

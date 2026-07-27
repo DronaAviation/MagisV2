@@ -1027,6 +1027,75 @@ void filterRc ( void ) {
   }
 }
 
+/**
+ * @brief How hard the pilot is asking for a channel, as 0.0f..1.0f.
+ *
+ * Measured from the pilot's own sticks, with the same deadband annexCode()
+ * applies, so stick noise around centre reads as zero demand and a fully
+ * deflected stick reads as 1.0f. Throttle is measured from where the stick
+ * sat when the override latched, because it does not self-centre.
+ */
+static float userRcPilotDemand ( int axis ) {
+
+  int32_t travel, span, deadband;
+
+  if ( axis == THROTTLE ) {
+    travel   = ABS ( rcDataPilot [ THROTTLE ] - userRCthrottleRef );
+    deadband = 0;
+  } else {
+    travel   = ABS ( rcDataPilot [ axis ] - masterConfig.rxConfig.midrc );
+    deadband = ( axis == YAW ) ? currentProfile->rcControlsConfig.yaw_deadband : currentProfile->rcControlsConfig.deadband;
+  }
+
+  travel -= deadband;
+  if ( travel <= 0 ) return 0.0f;
+
+  span = USER_RC_STICK_TRAVEL - deadband;
+  if ( span <= 0 ) return 1.0f;
+
+  return constrainf ( ( float ) travel / ( float ) span, 0.0f, 1.0f );
+}
+
+/**
+ * @brief Cross-fades the user RC overrides against the pilot's sticks.
+ *
+ * Runs every loop iteration while user code is active, right after
+ * annexCode() has turned the pilot's rcData into rcCommand. Rather than
+ * discarding that pilot value, the two are mixed by how far the pilot has
+ * moved the stick:
+ *
+ *   sticks centred      -> the override alone, exactly as user code asked
+ *   stick part deflected-> proportional mix of override and pilot
+ *   stick fully deflected-> the pilot alone, full manual authority
+ *
+ * So a user manoeuvre never locks the pilot out, and the pilot never has to
+ * fight a command they cannot out-push. ROLL/PITCH/YAW fade towards
+ * annexCode's rcCommand, which already carries deadband, expo and yaw
+ * direction; THROTTLE fades towards the pilot's raw stick.
+ */
+static void applyUserRcOverride ( void ) {
+
+  for ( int i = 0; i < 4; i++ ) {
+
+    if ( ! userRCflag [ i ] ) continue;
+
+    float pilotShare = userRcPilotDemand ( i ) * userRCauthority [ i ];
+    float userShare  = 1.0f - pilotShare;
+
+    if ( i < 3 ) {
+      float mixed = ( float ) RC_ARRAY [ i ] * userShare + ( float ) rcCommand [ i ] * pilotShare;
+
+      rcCommand [ i ] = ( int16_t ) constrain ( ( int32_t ) mixed, -500, 500 );
+
+    } else {
+      float mixed = ( float ) RC_ARRAY [ THROTTLE ] * userShare + ( float ) rcDataPilot [ THROTTLE ] * pilotShare;
+
+      // annexCode() converts this into rcCommand [ THROTTLE ] next iteration.
+      rcData [ THROTTLE ] = ( int16_t ) constrain ( ( int32_t ) mixed, PWM_RANGE_MIN, PWM_RANGE_MAX );
+    }
+  }
+}
+
 void userCode ( ) {
 
   if ( ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) ) {
@@ -1055,17 +1124,6 @@ void userCode ( ) {
       }
     } else {
 
-      for ( int i = 0; i < 4; i++ ) {
-
-        if ( userRCflag [ i ] ) {
-
-          if ( i < 3 )
-            rcCommand [ i ] = RC_ARRAY [ i ];
-          else if ( i == 3 )
-            rcData [ i ] = RC_ARRAY [ i ];
-        }
-      }
-
       if ( isUserHeadingSet ) {
 
         magHold = userHeading;
@@ -1078,6 +1136,12 @@ void userCode ( ) {
       }
     }
 
+    // Drop overrides user code has stopped re-asserting, then apply the ones
+    // still live on top of the pilot's sticks. Both run on every iteration,
+    // including the one that just called plutoLoop ( ), so the pilot's share
+    // of authority never drops out for a cycle.
+    resetUserRCflag ( );
+    applyUserRcOverride ( );
   }
 
   else {

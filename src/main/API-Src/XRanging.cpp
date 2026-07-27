@@ -372,9 +372,13 @@ void applyObjectAvoidance ( void ) {
   RC_ARRAY [ ROLL ]  = constrain ( RC_ARRAY [ ROLL ], -500, 500 );
   RC_ARRAY [ PITCH ] = constrain ( RC_ARRAY [ PITCH ], -500, 500 );
 
-  // Set flags indicating that the roll and pitch values have been updated
-  userRCflag [ ROLL ]  = true;
-  userRCflag [ PITCH ] = true;
+  // Latch the override and keep it fresh against the watchdog. Pilot authority
+  // is 0 here because the pilot's stick is already folded into RC_ARRAY above
+  // (USER_OA_BLEND_PUSH / USER_OA_BLEND_BRAKE); letting mw.cpp cross-fade it in
+  // again would both double-count the pilot and let a full stick fade the
+  // obstacle push away, which is exactly when it is needed most.
+  userRCassert ( ROLL, 0.0f );
+  userRCassert ( PITCH, 0.0f );
 }
 
 // #include "API/API-Utils.h"

@@ -43,6 +43,27 @@ extern "C" {
 
 #define RESET_CHECK 3
 
+/* --- User RC override (RC_ARRAY / userRCflag) ----------------------------- *
+ * How much of the pilot's stick deflection is allowed to cross-fade a user RC
+ * override away. 1.0f means a fully deflected stick takes the channel back
+ * completely; 0.0f means the pilot cannot fade the override at all, which is
+ * what producers that already fold the pilot's input into RC_ARRAY themselves
+ * (applyObjectAvoidance) ask for.                                           */
+#define USER_RC_AUTHORITY_DEFAULT 1.0f
+
+/* Stick travel, either side of centre, at which the pilot has taken a channel
+ * back completely. Deliberately shorter than the 500 counts of physical stick
+ * travel so the handover is decisive: at half stick the override is gone
+ * entirely, and a user command starts reversing well before that. Raise it
+ * towards 500 for a gentler, more gradual handover.                         */
+#define USER_RC_STICK_TRAVEL      200
+
+/* An override is dropped if it has not been re-asserted within this window.
+ * The actual timeout is max ( this, 2 * userLoopFrequency ) so that
+ * re-asserting once per plutoLoop() always keeps the override alive; the
+ * floor also covers applyObjectAvoidance(), which re-asserts every 100 ms. */
+#define USER_RC_HOLD_MIN_US       250000
+
 extern uint8_t resetCounter;
 extern uint8_t intLogCounter;
 extern uint8_t floatLogCounter;
@@ -55,6 +76,9 @@ extern uint32_t autoRcTimerLoop;
 extern int32_t MOTOR_ARRAY [ 4 ];
 extern int32_t app_GPS_coord [ 2 ];
 extern int32_t RC_ARRAY [ 4 ];
+extern uint32_t userRCsetTime [ 4 ];    // micros() when each override was last asserted
+extern float userRCauthority [ 4 ];     // how far the pilot's stick may fade each override out
+extern int16_t userRCthrottleRef;       // pilot throttle captured when the throttle override latched
 
 extern bool runUserCode;
 extern bool developerMode;
@@ -94,6 +118,8 @@ extern bool isUserHeadFreeHoldSet;
 
 void userEnabledLand ( );
 void resetUserRCflag ( void );
+void userRCassert ( uint8_t channel, float pilotAuthority );
+void userRCrelease ( uint8_t channel );
 
 void xRangingInit ( void );
 void applyObjectAvoidance ( );

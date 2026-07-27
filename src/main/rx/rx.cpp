@@ -81,6 +81,7 @@ static uint8_t skipRxSamples = 0;
 
 int16_t rcRaw[MAX_SUPPORTED_RC_CHANNEL_COUNT];     // interval [1000;2000]
 int16_t rcData[MAX_SUPPORTED_RC_CHANNEL_COUNT];     // interval [1000;2000]
+int16_t rcDataPilot[NON_AUX_CHANNEL_COUNT] = { 1500, 1500, 1500, 1500 };    // pilot sticks, pre-override
 uint32_t rcInvalidPulsPeriod[MAX_SUPPORTED_RC_CHANNEL_COUNT];
 
 #define MAX_INVALID_PULS_TIME    600// original 300?? failsafe_drona
@@ -556,6 +557,11 @@ static void detectAndApplySignalLossBehaviour(void)
         for (channel = 0; channel < rxRuntimeConfig.channelCount; channel++) {
             rcData[channel] = getRxfailValue(channel);
         }
+    }
+
+    // Snapshot the pilot's sticks before user/API code can overwrite rcData.
+    for (channel = 0; channel < NON_AUX_CHANNEL_COUNT; channel++) {
+        rcDataPilot[channel] = rcData[channel];
     }
 
 
