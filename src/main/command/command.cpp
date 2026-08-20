@@ -78,7 +78,7 @@ bool setTakeOffTimer    = true;
 bool isTookOff          = false;
 bool isTakeOffHeightSet = false;
 
-uint32_t loopTime;
+uint32_t landStartTime;
 uint32_t takeOffLoopTime;
 int32_t takeOffThrottle = 950;
 int8_t checkVelocity    = -8;
@@ -128,55 +128,108 @@ void takeOff ( ) {
     }
   }
 }
+/*
+ * Landing is open loop - the craft is flown down on a commanded throttle and
+ * the touchdown is inferred, since there is no downward rangefinder in the
+ * default build. A stopped descent on its own cannot tell "resting on the
+ * floor" apart from "held up by ground effect": in both cases thrust balances
+ * weight and the vertical velocity is zero.
+ *
+ * Prop size decides whether that ambiguity bites. Thrust augmentation near a
+ * surface goes roughly as 1 / ( 1 - ( R / 4z )^2 ), so at 3 cm a 110 mm rotor
+ * gains about 27 % against roughly 5 % for a 55 mm one - enough to turn a
+ * fixed 1300 from a descent throttle into a hover throttle a few centimetres
+ * off the ground. The craft then parks there and the old velocity-only test
+ * read the arrest as a landing and disarmed in mid-air.
+ *
+ * So the descent throttle is bled down for the whole descent, and an arrest is
+ * only believed once the ramp has passed below a throttle at which hovering is
+ * impossible. The ramp doubles as the probe that separates the two states: in
+ * ground effect less thrust means the descent resumes, while on the floor
+ * nothing happens. Still not descending at LAND_CONFIRM_THROTTLE therefore
+ * means something other than the rotors is carrying the weight.
+ *
+ * The ramp also removes the need for the old two-second blanking window - at
+ * land entry the throttle is far above LAND_CONFIRM_THROTTLE, so the "velocity
+ * is already zero because we have not started moving yet" case cannot fire.
+ */
+#define LAND_RAMP_RATE        40      // throttle counts shed per second
+#define LAND_THROTTLE_MIN     1150    // motors near idle - nothing hovers here
+#define LAND_CONFIRM_THROTTLE 1200    // below any plausible in-ground-effect hover
+#define LAND_SETTLE_MS        300     // an arrest must persist this long to count
+#define LAND_IMPACT_ACC       6000    // ~1.46 G with acc_1G = 4096 - firm contact
+#define LAND_VEL_STOP         ( -8 )  // cm/s - slower descent counts as arrested
+#define LAND_TIMEOUT_MS       30000   // backstop if nothing else ever fires
+
+static uint16_t landThrottleStart = 1300;
+static uint32_t landSettleStart   = 0;
+
+static void finishLanding ( void ) {
+
+  command_status = FINISHED;
+
+  mwDisarm ( );
+
+  isLanding         = false;
+  setLandTimer      = true;
+  landSettleStart   = 0;
+  isUserLandCommand = false;
+}
+
 void land ( ) {
 
-  if ( command_status != FINISHED ) {
+  if ( command_status == FINISHED )
+    return;
 
-    isLanding = true;
+  isLanding = true;
 
-    if ( setLandTimer ) {
+  if ( setLandTimer ) {
 
-      loopTime     = millis ( ) + 30000;
-      setLandTimer = false;
+    landStartTime = millis ( );
+    // mwDisarm ( ) restores landThrottle to its default, so the value standing
+    // at land entry - the default, or whatever Command_Land ( ) asked for - is
+    // the top of the ramp.
+    landThrottleStart = landThrottle;
+    landSettleStart   = 0;
+    setLandTimer      = false;
+  }
+
+  uint32_t elapsed = millis ( ) - landStartTime;
+
+  // Bleed the descent throttle down, so ground effect can delay the descent but
+  // never stop it. Never ramp up past what was asked for, and never below idle.
+  int32_t rampFloor = ( ( int32_t ) landThrottleStart < LAND_THROTTLE_MIN ) ? ( int32_t ) landThrottleStart : LAND_THROTTLE_MIN;
+  int32_t ramped    = ( int32_t ) landThrottleStart - ( int32_t ) ( ( LAND_RAMP_RATE * elapsed ) / 1000 );
+
+  landThrottle = ( uint16_t ) constrain ( ramped, rampFloor, ( int32_t ) landThrottleStart );
+
+  if ( elapsed >= LAND_TIMEOUT_MS ) {
+    finishLanding ( );
+    return;
+  }
+
+  // Firm contact needs no corroboration.
+  if ( ABS ( accADC [ 2 ] ) > LAND_IMPACT_ACC ) {
+    finishLanding ( );
+    return;
+  }
+
+  // Confirmed touchdown: the descent has stopped AND the ramp has already gone
+  // below a throttle that could have held the craft up. The settle timer throws
+  // out momentary arrests from gusts or baro noise.
+  bool arrested   = ( getEstVelocity ( ) > LAND_VEL_STOP );
+  bool conclusive = ( landThrottle <= LAND_CONFIRM_THROTTLE );
+
+  if ( arrested && conclusive ) {
+
+    if ( landSettleStart == 0 ) {
+      landSettleStart = millis ( );
+    } else if ( ( millis ( ) - landSettleStart ) >= LAND_SETTLE_MS ) {
+      finishLanding ( );
     }
 
-    if ( ( int32_t ) ( millis ( ) - loopTime ) >= 0 ) {
-
-      mwDisarm ( );
-
-      command_status = FINISHED;
-
-      isLanding    = false;
-      setLandTimer = true;
-    } else {
-
-      if ( ABS ( accADC [ 2 ] ) > 8500 ) {
-
-        command_status = FINISHED;
-
-        mwDisarm ( );
-
-        isLanding         = false;
-        setLandTimer      = true;
-        isUserLandCommand = false;
-
-        return;
-      }
-
-      if ( ABS ( ( int32_t ) ( millis ( ) - loopTime ) ) <= 28000 ) {
-
-        if ( getEstVelocity ( ) > -8 ) {
-
-          command_status = FINISHED;
-
-          mwDisarm ( );
-
-          isLanding         = false;
-          setLandTimer      = true;
-          isUserLandCommand = false;
-        }
-      }
-    }
+  } else {
+    landSettleStart = 0;
   }
 }
 

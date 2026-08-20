@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 13th Jan 2026                                          #
+ #  Last Modified: Wed, 19th Aug 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -178,7 +178,7 @@ extern "C" {
 
 #define DCM
 // #define OPTIC_FLOW
-#define PAW3903_SPI
+// #define PAW3903_SPI
 // #define PAW3903_SC18
 
 

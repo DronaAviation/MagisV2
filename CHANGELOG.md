@@ -89,7 +89,26 @@ driver/platform cleanup that removes all legacy STM32F10x support.
   loop and reworked to a per-channel timestamp check, so an override that is
   still being asserted cannot be dropped mid-flight.
 - **LED**: Clamped LED default-config `memcpy` that corrupted PID / alt-hold gains.
-- **AltitudeHold**: Reset `errorVelocityI` on AltHold state change.
+- **AltitudeHold**: Alt-hold collapsed whenever the throttle stick returned to
+  centre after a climb. `errorVelocityI` is the only integrator in the alt-hold
+  cascade (`PIDALT I8` is 0) and, because `initialThrottleHold` is pinned at
+  1500, it carries the *entire* hover-throttle trim rather than a small
+  correction. Zeroing it on a mid-flight setpoint change therefore stepped the
+  motor command straight down to 1500, dropping the craft instead of capturing
+  the new altitude. The reset now happens only on genuine transitions - BARO
+  mode entry, disarm, and the explicit reset - where there is no trim to
+  preserve.
+- **AltitudeHold**: Landing disarmed in mid-air on larger airframes. Touchdown
+  was inferred from the descent stopping, which cannot distinguish resting on
+  the floor from being held up by ground effect - both give zero vertical
+  velocity. A 110 mm rotor gains roughly 27 % thrust at 3 cm against about 5 %
+  for a 55 mm one, enough to turn the fixed 1300 descent throttle into a hover
+  throttle just off the ground, so the craft parked there and was disarmed a few
+  centimetres up. The descent throttle is now bled down throughout the descent,
+  and an arrest only counts as a landing once that ramp has passed below a
+  throttle at which hovering is impossible. The ramp doubles as the probe that
+  separates the two states. The impact threshold was also lowered from 2.08 G to
+  about 1.46 G, which a gentle touchdown can actually reach.
 - **RX**: Set `rc_connected` for serial RX.
 
 ### Removed
