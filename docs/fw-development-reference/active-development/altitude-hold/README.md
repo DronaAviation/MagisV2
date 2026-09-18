@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( FW 3.7.0, 18 Sep 2026 ). Fill in the hash here and in [../README.md](../README.md) after committing. Follow-up tests remain under Open items. |
+| **Status** | **Closed** in `4657cbf` ( FW 3.7.0, 18 Sep 2026 ). Follow-up tests remain under Open items. |
 | **Branch** | `BugFix-June26`, base `f60c9ad` (20 Aug 2026) |
 | **Target** | `PRIMUS_V5` from 17 Sep 2026 (August work on `PRIMUS_X2_v1`; same barometer chain) |
 | **Last updated** | 18 Sep 2026 ( commit preparation ) |

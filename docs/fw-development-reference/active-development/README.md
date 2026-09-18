@@ -41,4 +41,4 @@ Links to source from a topic folder use `../../../../src/main/...`.
 
 | Topic | Status | Branch | Summary |
 |---|---|---|---|
-| [altitude-hold](altitude-hold/README.md) | **Closed - pending commit** ( FW 3.7.0, 18 Sep 2026 ) | `BugFix-June26` | Barometer altitude hold sank in flight. Four firmware bugs fixed, throttle and temperature compensation added, validated on one PRIMUS_V5 with a laser. |
+| [altitude-hold](altitude-hold/README.md) | **Closed** in `4657cbf` ( FW 3.7.0, 18 Sep 2026 ) | `BugFix-June26` | Barometer altitude hold sank in flight. Four firmware bugs fixed, throttle and temperature compensation added, validated on one PRIMUS_V5 with a laser. |
