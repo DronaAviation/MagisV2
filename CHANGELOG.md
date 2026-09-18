@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Consolidates all work merged into `main` since `v3.0.0`. Highlights: a unified
 non-blocking OLED subsystem, a WS2812B RGB LED API on a selectable data pin,
 ExpressLRS (CRSF) receiver support with battery telemetry, a DMA channel
-ownership registry, pilot override of user RC commands, and a large
-driver/platform cleanup that removes all legacy STM32F10x support.
+ownership registry, pilot override of user RC commands, barometer altitude hold
+that no longer sinks as the board warms ( throttle and temperature compensation
+plus four estimator / controller fixes ), and a large driver/platform cleanup
+that removes all legacy STM32F10x support.
 
 ### Added
 
@@ -45,19 +47,44 @@ driver/platform cleanup that removes all legacy STM32F10x support.
 - **RX**: `rcDataPilot []` - a snapshot of the pilot's four primary sticks taken
   in the RX layer before user code can write to `rcData`, giving the override
   path a source of pilot input that its own writes cannot contaminate.
+- **Barometer**: Throttle and temperature compensation of the ICP-10111 reading
+  (`sensors/barometer.cpp`). Sensed pressure falls by ~8.6 Pa per 1000 throttle
+  counts (rotor inflow) and ~2.3 Pa per °C of die temperature. Both are corrected
+  relative to the arm instant, so the correction cannot add an absolute offset,
+  and the total is clamped (`BARO_COMP_LIMIT_PA`, 25 Pa). Temperature coefficient
+  `BARO_COMP_TEMP_PA_PER_DEGC` is 2.1, set just below seven flight measurements
+  (−2.17 to −2.42 Pa/°C) so any residual error sinks gently rather than climbs.
+- **Barometer**: Ground zero is tracked while disarmed and frozen on arm
+  (`getBaroZeroOffset`), so warm-up between boot and takeoff no longer offsets
+  the flight.
+- **AltitudeHold**: Hover-trim offload. The hover throttle trim is moved out of
+  the clamped velocity integrator into the throttle baseline while the craft is
+  settled, so the sustainable hover throttle is no longer capped at ~1800 as the
+  battery sags. Builds on the `errorVelocityI` fix under Fixed: that fix keeps
+  the trim through setpoint changes, this moves it where it cannot saturate.
 - **Compass**: Magnetometer calibration progress indicator.
 - **Drivers**: DMA channel ownership registry (`dmaClaim`/`dmaRelease`/
   `dmaIsFree`/`dmaGetOwner`) enforcing DMA allocation at runtime.
 - **PlutoPilot**: API hooks for receiver configuration and initialization.
 - **Tooling**: Graphify toolchain integration for project architecture analysis
-  and navigation reports.
+  and navigation reports; `tools/graph_labels.py` gives graph communities
+  readable names ( `area/file: symbol` ) after each AST-only refresh.
+- **Tooling**: `tools/flightlog.py` - PlutoMonitor flight-log analysis
+  (`summary`, `table`, `report`: pressure-vs-temperature fit, height hold against
+  a laser, applied barometer correction and clamp headroom).
 - **Docs**: Hardware resource reference documentation (DMA/timer/pin maps) and
   firmware architecture pipeline docs.
-- **Meta**: `embedded-systems` and `cpp-pro` agent definitions.
+- **Meta**: Development agent definitions ( `embedded-systems`, `cpp-pro`,
+  `c-pro`, and the read-only `flightlog-analyst` ) and skills: `run-magisv2`
+  ( working target in development, all targets at commit ), `commit-magisv2`
+  ( all-target build, version bump, doc promotion ), `flight-test` and
+  `add-driver`. Trail of Bits analysis plugins enabled in `.claude/settings.json`.
 
 ### Changed
 
-- **Firmware version** bumped to 3.5.0 (API 1.3.1). The API patch bump reflects
+- **Firmware version** bumped to 3.7.0 (API 1.3.1) over this release: 3.5.0 for
+  the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
+  compensation and altitude-hold fixes. The API patch bump reflects
   `RcCommand_Set`'s new pilot-override behaviour; no public signature changed,
   so existing projects compile and link untouched.
 - **RC**: `RcCommand_Set ( RC_THROTTLE, ... )` deflection is measured from where
@@ -75,6 +102,14 @@ driver/platform cleanup that removes all legacy STM32F10x support.
   header block and include order to match project convention.
 - **Includes**: Reordered and optimized include statements across modules.
 - **Altitude**: Sensor integration updated alongside driver cleanup.
+- **Barometer**: Pressure-to-altitude conversion uses the ISA standard atmosphere
+  at a fixed 288.15 K instead of scaling by the sensor's self-heating die
+  temperature, making the altitude scale identical on every flight.
+- **AltitudeHold**: Outer-loop gain `P8[PIDALT]` 100 → 128 (unity).
+  `EEPROM_CONF_VERSION` bumped 106 → 107, so **saved settings reset to defaults on
+  the first boot after flashing**.
+- **AltitudeHold**: Altitude-ceiling stand-off named `ALT_CEILING_MARGIN_CM` and
+  reduced from 50 to 25 cm.
 
 ### Fixed
 
@@ -109,6 +144,20 @@ driver/platform cleanup that removes all legacy STM32F10x support.
   throttle at which hovering is impossible. The ramp doubles as the probe that
   separates the two states. The impact threshold was also lowered from 2.08 G to
   about 1.46 G, which a gentle touchdown can actually reach.
+- **Barometer**: The ground reference could be re-zeroed in flight. Dropping the
+  throttle stick to the bottom while armed called `baroResetGroundLevel`, so a
+  throttle chop at 2 m left every later reading 2 m wrong. The reset is now
+  limited to the ground.
+- **AltitudeHold**: Estimator ran permanently in its slow (~15 s) mode. A tilt
+  threshold meant as 30° was written in the wrong units as 3°.
+- **AltitudeHold**: The position-error deadband subtracted 5 cm from every error
+  instead of ignoring small ones, halving the loop's authority around hover.
+  Removed.
+- **ICP-10111**: Die temperature was frozen at its power-on average, so the
+  sensor's own compensation ran on a stale temperature as the board warmed. It is
+  now tracked with a low-pass filter.
+- **ICP-10111**: OTP calibration constants were read as unsigned; they are signed
+  16-bit.
 - **RX**: Set `rc_connected` for serial RX.
 
 ### Removed
@@ -130,6 +179,16 @@ driver/platform cleanup that removes all legacy STM32F10x support.
 - Reorganized API documentation structure; streamlined and deprecated outdated
   hardware info.
 - `run-magisv2`: clarified toolchain path setup for Windows.
+- `docs/fw-development-reference/active-development/`: working docs for in-progress
+  topics ( README / INVESTIGATION / CHANGES / TESTING / staged PIPELINE_UPDATE ),
+  kept separate from `fw-architecture-pipeline/`, which now describes committed
+  firmware only. First topic: `altitude-hold`.
+- `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`: barometer
+  compensation chain added; function names and source files corrected
+  ( `updateZVelocity`, `updateZPosition` and `calculateBaseThrottle` do not exist,
+  and the Z estimate lives in `altitudehold.cpp`, not `posEstimate.cpp` ).
+- `CLAUDE.md`: barometer compensation, `Monitor_Print` 250-byte budget, build-target
+  policy ( working target in development, all targets at commit ), graphify usage.
 
 ## [v3.0.0] - 2026-02-10
 

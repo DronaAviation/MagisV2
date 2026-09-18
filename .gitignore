@@ -6,3 +6,6 @@ libs/
 .vscode
 plutoide.ini
 #!.gitignore
+compile_commands.json
+__pycache__/
+

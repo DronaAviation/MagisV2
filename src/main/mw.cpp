@@ -170,6 +170,9 @@ bool isBlackboxOn = false;
 
 bool TakeOffFlag = false;
 
+// True once throttle rose above mincheck since arming ( airborne ): blocks the ground re-zero in mwArm ( ).
+static bool throttleRaisedSinceArm = false;
+
 enum { ALIGN_GYRO  = 0,
        ALIGN_ACCEL = 1,
        ALIGN_MAG   = 2 };
@@ -389,6 +392,10 @@ void annexCode ( void ) {
   //   }
   // }
 
+  if ( ARMING_FLAG ( ARMED ) && rcData [ THROTTLE ] > masterConfig.rxConfig.mincheck ) {
+    throttleRaisedSinceArm = true;
+  }
+
   tmp                    = constrain ( rcData [ THROTTLE ], masterConfig.rxConfig.mincheck, PWM_RANGE_MAX );
   tmp                    = ( uint32_t ) ( tmp - masterConfig.rxConfig.mincheck ) * PWM_RANGE_MIN / ( PWM_RANGE_MAX - masterConfig.rxConfig.mincheck );    // [MINCHECK;2000] -> [0;1000]
   tmp2                   = tmp / 100;
@@ -545,6 +552,7 @@ void mwDisarm ( void ) {
   setTakeOffTimer    = true;
   isTookOff          = false;
   isTakeOffHeightSet = false;
+  throttleRaisedSinceArm = false;
   takeOffThrottle    = 950;
   takeOffHeight      = 120;
   landThrottle       = 1300;    //! new change
@@ -579,7 +587,11 @@ void mwArm ( void ) {
 
   if ( ( ARMING_FLAG ( OK_TO_ARM ) || netAccMagnitude < 2 ) && isCalibrated && ! isBatteryLow ) {
     if ( ARMING_FLAG ( ARMED ) ) {
-      baroResetGroundLevel ( );
+      // mwArm ( ) also runs on every throttle-low loop in flight; re-zeroing there
+      // would snap the datum to the current altitude. Only re-zero on the ground.
+      if ( ! throttleRaisedSinceArm ) {
+        baroResetGroundLevel ( );
+      }
       return;
     }
     if ( IS_RC_MODE_ACTIVE ( BOXFAILSAFE ) ) {

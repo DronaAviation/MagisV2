@@ -1,3 +1,19 @@
+# Altitude Hold: Staged Pipeline Update
+
+[README](README.md) · [INVESTIGATION](INVESTIGATION.md) · [CHANGES](CHANGES.md) · [TESTING](TESTING.md) · [PIPELINE_UPDATE](PIPELINE_UPDATE.md)
+
+> **Applied at commit ( FW 3.7.0, 18 Sep 2026 ).** Kept as the record of what was promoted. This is how [Altitude_Hold_Estimator.md](../../fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md)
+> should read once the altitude-hold work is committed. At commit, replace that
+> file with everything below the line. Until then the pipeline doc describes the
+> committed firmware.
+>
+> Besides adding the barometer chain, this corrects errors already in the live
+> doc: it names `updateZVelocity()`, `updateZPosition()` and
+> `calculateBaseThrottle()`, which do not exist, and places the Z estimate in
+> `posEstimate.cpp` instead of `altitudehold.cpp`.
+
+---
+
 # Altitude Hold & Estimator (`altitudehold.cpp`)
 
 ## Overview

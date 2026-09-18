@@ -148,7 +148,11 @@ bool icp10111Detect ( baro_t *baro ) {
       return false;
     }
 
-    _scal [ i ] = ( buf [ 0 ] << 8 ) | buf [ 1 ];
+    // OTP constants are signed 16-bit ( as in InvenSense's reference driver ).
+    // Read unsigned, a negative one is 65536 too high and silently breaks the
+    // temperature term of the pressure compensation ( _scal [ 0..2 ] scale t^2 ).
+    const uint16_t rawScal = ( uint16_t ) ( ( ( uint16_t ) buf [ 0 ] << 8 ) | ( uint16_t ) buf [ 1 ] );
+    _scal [ i ]            = ( float ) ( int16_t ) rawScal;
   }
 
   baro->measurment_start = icp10111_measureStart;
@@ -268,10 +272,13 @@ void icp10111_calculate ( float *pressure, float *temperature, uint32_t raw_p, u
 //   return true;
 // }
 
-static uint32_t tempAccum       = 0;    // sum of first N temperature samples
-static uint16_t tempAvgRaw      = 0;    // frozen raw temperature value after averaging
+static uint32_t tempAccum       = 0;       // sum of first N temperature samples
+static float tempFiltered       = 0.0f;    // low-pass filtered raw temperature
 static uint16_t tempSampleCount = 0;
-#define TEMP_AVG_COUNT 50    // number of samples to average
+#define TEMP_AVG_COUNT 50       // samples averaged to seed the filter
+#define TEMP_LPF_ALPHA 0.02f    // 1 / TEMP_AVG_COUNT: a 50-sample time constant, so the
+                                // smoothing matches the seed average regardless of the
+                                // baro task rate - but it keeps tracking instead of freezing
 static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temperature ) {
   if ( ! pressure || ! temperature ) {
     return false;
@@ -290,20 +297,25 @@ static bool icp10111_read ( uint32_t currentTime, float *pressure, float *temper
   _raw_t = ( ( uint16_t ) res_buf [ 0 ] << 8 ) | res_buf [ 1 ];
   // _raw_t = ICP_FIXED_RAW_TEMP;
 
-  // ------------------- New Temperature Averaging Logic -------------------
+  // ------------------- Temperature smoothing -------------------
+  // Smooth raw_t ( it is squared in icp10111_calculate ( ), so noise hurts ) but
+  // never freeze it: the pressure compensation depends on die temperature and
+  // the board self-heats, so a frozen power-on value let pressure drift while
+  // degC read flat. Seed from TEMP_AVG_COUNT samples, then track with an IIR.
 
   if ( tempSampleCount < TEMP_AVG_COUNT ) {
     // accumulate raw temperature
     tempAccum += _raw_t;
     tempSampleCount++;
 
-    // once enough samples collected → compute average
+    // once enough samples collected → seed the filter with their average
     if ( tempSampleCount == TEMP_AVG_COUNT ) {
-      tempAvgRaw = ( uint16_t ) ( tempAccum / TEMP_AVG_COUNT );
+      tempFiltered = ( float ) tempAccum / ( float ) TEMP_AVG_COUNT;
     }
   } else {
-    // after 50 samples → use frozen average value
-    _raw_t = tempAvgRaw;
+    // after seeding → keep following the sensor, smoothed
+    tempFiltered += ( ( float ) _raw_t - tempFiltered ) * TEMP_LPF_ALPHA;
+    _raw_t = ( uint16_t ) ( tempFiltered + 0.5f );
   }
 
 

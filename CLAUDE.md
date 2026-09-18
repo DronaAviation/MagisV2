@@ -22,6 +22,8 @@ make TARGET=PRIMUS_X2_v1 cppcheck     # static analysis over all C sources
 make help                             # list documented targets
 ```
 
+**Which target to build.** During development and testing, build only the target being flown (`PRIMUS_V5` or `PRIMUS_X2_v1`): ask once per session, suggesting `selected_target` from `plutoide.ini`, then keep using it. Build all targets only at commit time. When the user says they are committing or asks to bump the Makefile version, use the `commit-magisv2` skill: all-target build, version bump, and promotion of the `active-development/` docs into the pipeline docs and `CHANGELOG.md`.
+
 Build outputs go to `Build/<TARGET>/`. `SERIAL_DEVICE` defaults to the first `/dev/ttyUSB*`; override on the command line for flashing.
 
 - `BUILD_TYPE=BIN` (default) builds the full firmware binary including `PlutoPilot.cpp`. `BUILD_TYPE=LIB` (`make ... libcreate`) builds a static `.a` library with user code excluded — this is the "Library" project mode where user code links against a precompiled core.
@@ -29,7 +31,7 @@ Build outputs go to `Build/<TARGET>/`. `SERIAL_DEVICE` defaults to the first `/d
 
 ## Tests
 
-**The `src/test/` GoogleTest suite is unmaintained and does not build — do not use it.** Its Makefile still references `.c` sources that were migrated to `.cpp`, so `make test` fails immediately (`No rule to make target '../main/common/maths.c'`). It was never updated after the C++ migration and is not part of any current workflow. The working verification path for a change is the firmware **build** (see above) — confirm it compiles for all targets and fits in flash/RAM. Don't try to revive these tests unless explicitly asked.
+**The `src/test/` GoogleTest suite is unmaintained and does not build — do not use it.** Its Makefile still references `.c` sources that were migrated to `.cpp`, so `make test` fails immediately (`No rule to make target '../main/common/maths.c'`). It was never updated after the C++ migration and is not part of any current workflow. The working verification path for a change is the firmware **build** (see above) — confirm it compiles clean and fits in flash/RAM for the working target, and for all targets before committing. Don't try to revive these tests unless explicitly asked.
 
 In normal use, the maintainer builds, cleans, selects targets, and flashes (STM32 DFU/bootloader mode) through the **PlutoIDE VS Code extension**, which wraps this Makefile and the toolchain.
 
@@ -48,6 +50,12 @@ User-facing API reference wikis live in `docs/API/` (e.g. `OLED_API_WIKI.md`). W
 The **WS2812B RGB LED API** (`API/RGB-LED.h`) drives an addressable strip from a **selectable data pin** — `RGB_Init(RGB_1..RGB_8, led_count)` picks one of 8 vetted `{pin, timer channel, DMA channel}` slots (LUT `ws2811HwTable[]` in `drivers/light_ws2811strip_stm32f30x.c`; PA15 is the default). `RGB_Control(RGB_USER|RGB_SYSTEM)` toggles ownership between user code and a self-contained flight-status indicator (`rgbSystemTick()` in `API-Src/RGB-LED.cpp`, called from `mw.cpp` every loop — it does **not** use the Cleanflight `LED_STRIP` feature, which stays off because enabling it corrupts config/BARO). Reference + per-pin conflict matrix: `docs/WS2812_RGB.md`.
 
 **User RC overrides share the axis with the pilot.** `RcCommand_Set` (`API/RC-Interface.h`) stores into `RC_ARRAY[]` and latches `userRCflag[]` via `userRCassert()`; `applyUserRcOverride()` in `mw.cpp` then runs every loop iteration after `annexCode()` and **cross-fades** the override against the pilot's sticks by deflection (`final = command × (1−d) + pilot × d`, `d` reaching 1.0 at `USER_RC_STICK_TRAVEL` counts off centre — see the tuning block in `API/API-Utils.h`). Overrides expire unless re-asserted (`resetUserRCflag()`, `max(250 ms, 2 × userLoopFrequency)`), so user code hands a channel back by not calling `RcCommand_Set`. Pilot input is read from `rcDataPilot[]` (snapshot taken in `rx/rx.cpp` before user code can write `rcData`) — never from `rcData` for throttle, which the override path itself writes. `applyObjectAvoidance()` asserts with authority `0.0f` because it already blends the pilot in itself.
+
+**Barometer altitude is compensated relative to the arm instant.** In `sensors/barometer.cpp`, the ICP-10111 pressure gets a throttle term (`BARO_COMP_THROTTLE_PA_PER_COUNT`, rotor inflow) and a die-temperature term (`BARO_COMP_TEMP_PA_PER_DEGC` = 2.1, measured −2.17 to −2.42 Pa/°C on PRIMUS_V5) added back, both zero at arm and clamped to `BARO_COMP_LIMIT_PA`; conversion to altitude uses a fixed ISA temperature, and the ground zero tracks while disarmed and freezes on arm. The ground reference must never be re-zeroed in flight (`throttleRaisedSinceArm` in `mw.cpp`). Reasoning, changes, measurements and open items: `docs/fw-development-reference/active-development/altitude-hold/`.
+
+**`Monitor_Print` output over ~250 bytes per tick is silently corrupted.** It writes into the MSP UART's 256-byte TX ring buffer and `uartWrite()` does not check for full, so the oldest unsent bytes (the start of the line) are overwritten.
+
+**Hardware validation is by flight log.** PlutoMonitor captures (`logs*.txt`) are analysed with `tools/flightlog.py` (`summary` / `table` / `report`); the `flight-test` skill covers test plans, logging and how to read results, and the `flightlog-analyst` agent runs it on large logs. New drivers and peripherals: the `add-driver` skill. Tooling backlog: `.claude/TOOLING_BACKLOG.md`.
 
 **Source layout under `src/main/`** (Cleanflight heritage): `drivers/` (MCU peripherals, IMU/ICM20948, baro/ICP10111, compass/AK09916, SPI/I2C, optical-flow PAW3903, VL53L0X/L1X ToF), `flight/` (`pid`, `imu`, `mixer`, `altitudehold`, `navigation`, plus Drona's `opticflow`/`posControl`/`posEstimate`/`acrobats`), `sensors/`, `rx/` (protocols incl. `crsf.c` for ELRS + battery telemetry), `io/`, `telemetry/`, `blackbox/`, `command/`, `config/`, `vcp/` (USB CDC), and `target/<TARGET>/` (board pin maps, feature `#define`s, linker scripts).
 
@@ -72,8 +80,19 @@ A prebuilt codebase knowledge graph is in `graphify-out/` (`graph.html`, `GRAPH_
 - `TIMER_MAP.md` — timer inventory: motors = TIM2 (all 4 channels), `TIM1_CH1`, WS2811 = `TIM8_CH1`, SysTick timebase; free = TIM6/TIM7/TIM16; the user `PWM_1..10` map.
 - `PIN_MAP.md` — master per-physical-pin table tying GPIO/ADC/PWM/Serial + DMA + timer together, with the multiplexing conflicts (e.g. PB12–15 = ADC vs SPI2/M25P16 flash, PA8 `PWM_1` vs 5th motor output, PA15 `PWM_10` vs LED strip, PA13/PA14 = SWD debug).
 - `datasheets/` — `rm0316-stm32f303xbcde.pdf` (RM0316: DMA request Tables 76/78) and `stm32f303vc.pdf` (DS9118: alternate-function Tables 14/15). Extract text with `pdftotext -layout`.
-- `fw-architecture-pipeline/` — firmware architecture and per-subsystem pipeline docs.
+- `fw-architecture-pipeline/` — firmware architecture and per-subsystem pipeline docs. **Describes committed firmware only**: do not edit it for work in progress.
+- `active-development/` — one folder per in-progress topic (`README`, `INVESTIGATION`, `CHANGES`, `TESTING`, and a staged `PIPELINE_UPDATE`). Record work there while it is live; apply `PIPELINE_UPDATE.md` to the pipeline docs and mark the topic Closed only when the change is confirmed and being committed. Rules: `active-development/README.md`.
 
 DMA ownership is enforced at runtime by `drivers/dma_registry.{h,c}` (`dmaClaim`/`dmaRelease`/`dmaIsFree`/`dmaGetOwner`); ADC DMA is lazy (a channel is claimed only when a `Peripheral_Init(ADC_x)` pin on that ADC is used). When DMA/timer/pin assignments change in `Peripheral-ADC.cpp`, `Peripheral-PWM.cpp`, `Peripheral-GPIO.cpp`, `serial_uart_stm32f30x.c`, `light_ws2811strip_stm32f30x.c`, `timer.cpp`, or `target/<TARGET>/target.h`, update the affected map(s). Doc-to-source links use `../../src/main/...`.
 </content>
 </invoke>
+
+## graphify
+
+This project has a graphify knowledge graph at graphify-out/.
+
+Rules:
+- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
+- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
+- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
+- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost), then `python tools/graph_labels.py` to give the communities readable names in `graph.html` / `GRAPH_REPORT.md` (the update alone leaves them as "Community N"). `inav-9.1.0/` must stay in `.graphifyignore`, or the graph grows ~14x.

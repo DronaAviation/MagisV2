@@ -59,6 +59,8 @@ void performBaroCalibrationCycle ( void );
 void baroCalibrate ( void );
 // Add this declaration with other barometer function declarations
 void baroResetGroundLevel ( void );
+// Current zero offset in cm - tracks the reading while disarmed, frozen on arm.
+float getBaroZeroOffset ( void );
 bool checkBaroDriftDuringStartup ( void );
 
 #endif

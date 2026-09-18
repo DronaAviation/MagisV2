@@ -30,8 +30,10 @@
 
 #include "drivers/system.h"
 #include "config/config.h"
+#include "config/runtime_config.h"
 
 #include "sensors/barometer.h"
+#include "io/rc_controls.h"    // rcCommand [ THROTTLE ] for the compensation below
 
 #define UPDATE_FREQUENCY_10HZ ( 1000 * 101.5 )
 
@@ -306,26 +308,124 @@ float apmBaroCalculateAltitude ( void ) {
   return BaroAlt;
 }
 
+/*
+ * Pressure to altitude ( cm ), ISA standard atmosphere at a fixed 288.15 K, as in
+ * INAV. No temperature term on purpose: the ICP-10111 reports self-heating die
+ * temperature, not air temperature, so using it made the altitude scale vary
+ * flight to flight. A fixed scale is repeatable; thermal drift is corrected
+ * separately in baroCompensationPa ( ).
+ */
+static float pressureToAltitude ( const float pressure ) {
+  return ( 1.0f - powf ( pressure / 101325.0f, 0.190295f ) ) * 4433000.0f;
+}
+
+/*
+ * powf ( ) is not cheap, and the ground pressure only moves when the reference
+ * is recalibrated - so convert it once and reuse until it actually changes.
+ */
+static float baroGroundAltitudeCm      = 0.0f;
+static float baroGroundPressureCached  = 0.0f;
+
+static float getBaroGroundAltitude ( void ) {
+
+  if ( baroGroundPressure != baroGroundPressureCached ) {
+    baroGroundPressureCached = baroGroundPressure;
+    baroGroundAltitudeCm     = pressureToAltitude ( baroGroundPressure );
+  }
+
+  return baroGroundAltitudeCm;
+}
+
+/*
+ * Zero upkeep. The boot-time ground reference goes stale as the die self-heats
+ * before takeoff ( ~13 Pa / ~110 cm measured ). While disarmed the craft is on
+ * the ground, so the zero tracks the reading ( IIR, to reject pressure noise )
+ * and freezes on arm. Kept as a separate offset, not by rewriting
+ * baroGroundPressure, as INAV does. In-flight drift is baroCompensationPa ( ).
+ */
+#define BARO_ZERO_TRACK_ALPHA 0.05f    // ~20-sample average at the baro rate
+
+static float baroAltitudeOffset = 0.0f;
+static bool baroOffsetSeeded    = false;
+
+static void baroUpdateZero ( const float rawAltitude ) {
+
+  // Frozen while armed - this is the datum the flight is measured against.
+  if ( ARMING_FLAG ( ARMED ) ) {
+    return;
+  }
+
+  if ( ! baroOffsetSeeded ) {
+    baroAltitudeOffset = rawAltitude;
+    baroOffsetSeeded   = true;
+    return;
+  }
+
+  baroAltitudeOffset += ( rawAltitude - baroAltitudeOffset ) * BARO_ZERO_TRACK_ALPHA;
+}
+
+float getBaroZeroOffset ( void ) {
+  return baroAltitudeOffset;
+}
+
+/*
+ * Throttle and temperature compensation. The sensed pressure falls with:
+ *   throttle : 8.6 Pa per 1000 counts ( FC sits in the rotor inflow )
+ *   temp     : ~2.3 Pa per degC of die temperature ( measured -2.17 to -2.42 on
+ *              PRIMUS_V5 ). Set to 2.1, below the mean, so any error sinks
+ *              gently rather than climbs.
+ * Both are relative to the arm instant ( zero on the first armed sample ) and
+ * clamped so a bad coefficient or reading cannot move the datum more than ~2 m.
+ * A 4 min cold-start hover used ~70 % of the 25 Pa clamp: if longer cold flights
+ * sink late, raise the clamp to 30-35 Pa rather than lowering the coefficient.
+ * Measured on one airframe; re-check on a new frame. Detail and data:
+ * docs/fw-development-reference/active-development/altitude-hold/TESTING.md
+ */
+#define BARO_COMP_THROTTLE_PA_PER_COUNT 0.0086f
+#define BARO_COMP_TEMP_PA_PER_DEGC      2.10f
+#define BARO_COMP_LIMIT_PA              25.0f
+
+static float baroCompThrottleRef = 0.0f;
+static float baroCompTempRef     = 0.0f;
+static bool baroCompLatched      = false;
+
+static float baroCompensationPa ( void ) {
+
+  if ( ! ARMING_FLAG ( ARMED ) ) {
+    baroCompLatched = false;
+    return 0.0f;
+  }
+
+  const float thr  = ( float ) rcCommand [ THROTTLE ];
+  const float temp = getBaroTemperature ( );
+
+  if ( ! baroCompLatched ) {
+    baroCompThrottleRef = thr;
+    baroCompTempRef     = temp;
+    baroCompLatched     = true;
+    return 0.0f;
+  }
+
+  // Sensed pressure falls with both, so add back what they took.
+  const float correction = BARO_COMP_THROTTLE_PA_PER_COUNT * ( thr - baroCompThrottleRef )
+                           + BARO_COMP_TEMP_PA_PER_DEGC * ( temp - baroCompTempRef );
+
+  return constrainf ( correction, -BARO_COMP_LIMIT_PA, BARO_COMP_LIMIT_PA );
+}
+
 float icp10111BaroCalculateAltitude ( void ) {
-  // Prevent division by zero
-  if ( baroPressure <= 0 || baroGroundPressure <= 0 ) {
+
+  if ( baroPressure <= 0.0f || baroGroundPressure <= 0.0f ) {
     return 0.0f;    // Return 0 altitude if readings are invalid
   }
-  // calculates height from ground via baro readings
-  // see: https://github.com/diydrones/ardupilot/blob/master/libraries/AP_Baro/AP_Baro.cpp#L140
-  // Calculate scaling factor
-  float scaling = ( float ) baroGroundPressure / ( float ) baroPressure;
 
-  // Ensure scaling is positive before applying log
-  if ( scaling <= 0 ) {
-    return 0.0f;    // Invalid readings
-  }
+  // Height above the ground reference: both sides converted through the same
+  // fixed curve, so everything common to them cancels.
+  const float rawAltitude = pressureToAltitude ( baroPressure + baroCompensationPa ( ) ) - getBaroGroundAltitude ( );
 
-  // Convert ground temperature to Kelvin
-  float temp_K = baroGroundTemperature + 273.15f;
+  baroUpdateZero ( rawAltitude );
 
-  // Calculate altitude using barometric formula
-  BaroAlt = logf ( scaling ) * temp_K * 29.271267f * 100.0f;
+  BaroAlt = rawAltitude - baroAltitudeOffset;
 
   return BaroAlt;
 }

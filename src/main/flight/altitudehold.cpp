@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 17th Jun 2026                                          #
+ #  Last Modified: Wed, 19th Aug 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -29,6 +29,7 @@
 #include "common/maths.h"
 #include "common/axis.h"
 
+#include "drivers/system.h"
 #include "drivers/sensor.h"
 #include "drivers/accgyro.h"
 #include "drivers/light_led.h"
@@ -65,6 +66,11 @@ typedef struct {
 // Global Kalman filter instances
 static KalmanFilter altHoldFilter;
 static KalmanFilter velHoldFilter;
+
+// Distance below max_altitude where limitAltitude ( ) stops accepting climb.
+// It has no velocity term, so this is the stopping distance: keep it at least
+// the overshoot at the fastest climb flown, or the ceiling gets breached.
+#define ALT_CEILING_MARGIN_CM 25
 
 uint8_t velocityControl           = 1;
 int16_t max_altitude              = -1;
@@ -209,6 +215,52 @@ static int32_t EstAlt = 0;    // in cm
 
   #define DEGREES_80_IN_DECIDEGREES  800
 
+/*
+ * Hover-trim offload. With initialThrottleHold pinned at 1500, the whole hover
+ * trim lives in errorVelocityI, clamped at +/- 300 counts, so hover throttle
+ * could not go above 1800 and the craft sank as the battery sagged.
+ *
+ * While settled ( armed, stick centred, setpoint fixed, |VelocityZ| small ) the
+ * trim moves into initialThrottleHold one count at a time. Commanded throttle
+ * is unchanged: the baseline gains what the integrator loses, and
+ * altHoldThrottleAdjustment is corrected here too, since it only updates at
+ * 100 Hz. Never offload mid-climb - a transient would stick in the baseline.
+ */
+  #define ALT_TRIM_OFFLOAD_MS  20    // at most one count this often
+  #define ALT_TRIM_OFFLOAD_VEL 10    // cm/s below which the craft counts as settled
+
+static void offloadHoverTrim ( const uint8_t isAltHoldChanged ) {
+
+  static uint32_t lastOffload = 0;
+
+  if ( ! ARMING_FLAG ( ARMED ) || velocityControl || isAltHoldChanged )
+    return;
+
+  if ( ABS ( VelocityZ ) > ALT_TRIM_OFFLOAD_VEL )
+    return;
+
+  uint32_t now = millis ( );
+  if ( ( now - lastOffload ) < ALT_TRIM_OFFLOAD_MS )
+    return;
+
+  lastOffload = now;
+
+  int32_t trim = errorVelocityI / 8192;
+  if ( trim == 0 )
+    return;
+
+  int32_t step     = ( trim > 0 ) ? 1 : -1;
+  int32_t baseline = ( int32_t ) initialThrottleHold + step;
+
+  // Never walk the baseline outside what the ESCs can be commanded anyway.
+  if ( baseline < escAndServoConfig->minthrottle || baseline > escAndServoConfig->maxthrottle )
+    return;
+
+  initialThrottleHold       = ( int16_t ) baseline;
+  errorVelocityI           -= step * 8192;
+  altHoldThrottleAdjustment -= step;
+}
+
 static void applyMultirotorAltHold ( void ) {
   static uint8_t isAltHoldChanged = 0;
   static int16_t throttle_history = 0;
@@ -222,7 +274,10 @@ static void applyMultirotorAltHold ( void ) {
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
-        errorVelocityI   = 0;
+        // Do NOT reset errorVelocityI here: it holds the hover trim, so clearing
+        // it drops the throttle and the craft falls. Reset only on BARO entry /
+        // disarm.
+        // errorVelocityI   = 0;
       }
       rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
     }
@@ -236,10 +291,14 @@ static void applyMultirotorAltHold ( void ) {
     } else {
       velocityControl = 0;
       setVelocity     = 0;
+      offloadHoverTrim ( isAltHoldChanged );
       if ( isAltHoldChanged ) {
         AltHold          = EstAlt;
         isAltHoldChanged = 0;
-        errorVelocityI   = 0;
+        // Do NOT reset errorVelocityI here: it holds the hover trim, so clearing
+        // it drops the throttle and the craft falls. Reset only on BARO entry /
+        // disarm.
+        // errorVelocityI   = 0;
       }
     }
     rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
@@ -312,8 +371,10 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   }
 
   if ( ! velocityControl ) {
-    error           = constrain ( AltHold - EstAlt, -500, 500 );
-    error           = applyDeadband ( error, 5 );
+    error = constrain ( AltHold - EstAlt, -500, 500 );
+    // No deadband on the position error: applyDeadband ( ) subtracts, so a 5 cm
+    // band took 5 cm off every error ( a 10 cm sag read as 5 ) and caused a limit
+    // cycle. EstAlt is already smooth ( ~1 cm between samples ), so none is needed.
     calculatedError = error;
     altholdDebug8   = error;
     setVel          = constrain ( ( pidProfile->P8 [ PIDALT ] * error / 128 ), -300, +300 );
@@ -631,7 +692,10 @@ void correctedWithBaro ( float baroAlt, float dt ) {
   }
   _position_error_z = baroAlt - ( hist_position_base_z + _position_correction_z );
 
-  if ( ABS ( inclination_generalised.values.rollDeciDegrees ) > 30 || ABS ( inclination_generalised.values.pitchDeciDegrees ) > 30 ) {
+  // Deci-degrees: 300 = 30 deg ( the old 30 meant 3 deg, so the slow ~15 s filter
+  // ran all the time and the estimate lagged high in descents ). 30 deg is above
+  // the 20 deg max_angle_inclination, so this only trips in aggressive flight.
+  if ( ABS ( inclination_generalised.values.rollDeciDegrees ) > 300 || ABS ( inclination_generalised.values.pitchDeciDegrees ) > 300 ) {
     _time_constant_z = 5;
     updateGains ( );
   } else {
@@ -740,7 +804,7 @@ int32_t getEstVelocity1 ( ) {
 
 bool limitAltitude ( ) {
   if ( max_altitude != -1 && IS_RC_MODE_ACTIVE ( BOXBARO ) ) {
-    if ( EstAlt >= ( max_altitude - 50 ) ) {
+    if ( EstAlt >= ( max_altitude - ALT_CEILING_MARGIN_CM ) ) {
       return true;
     }
   }

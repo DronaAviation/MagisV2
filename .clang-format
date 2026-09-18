@@ -1,0 +1,100 @@
+---
+AccessModifierOffset: -1 
+AlignAfterOpenBracket: AlwaysBreak #Align #AlwaysBreak 
+AlignConsecutiveAssignments: 
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros:  
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: false
+AlignEscapedNewlines: Left 
+AlignOperands: true
+AlignTrailingComments: 
+  Kind: Always
+  OverEmptyLines: 0
+AllowAllArgumentsOnNextLine: true
+PackConstructorInitializers: NextLine
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Empty 
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty 
+AllowShortIfStatementsOnASingleLine: WithoutElse 
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakTemplateDeclarations: Yes
+
+
+BinPackArguments: true
+BinPackParameters: false
+BreakBeforeBinaryOperators: All 
+BreakBeforeBraces: Attach 
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: AfterColon 
+BreakInheritanceList: AfterComma 
+BreakStringLiterals: true
+
+ColumnLimit: 0
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 10
+
+ContinuationIndentWidth: 10
+Cpp11BracedListStyle: false
+
+DerivePointerAlignment: false
+
+FixNamespaceComments: true
+
+IndentCaseLabels: true
+IndentPPDirectives: BeforeHash   
+IndentWidth: 2
+IndentWrappedFunctionNames: true
+
+MaxEmptyLinesToKeep: 1
+
+NamespaceIndentation: All 
+
+PointerAlignment: Right 
+
+ReflowComments: true
+
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: true
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: Always
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: true
+SpacesBeforeTrailingComments: 4
+SpacesInAngles: Always
+SpacesInCStyleCastParentheses: true
+SpacesInParentheses: true
+SpacesInSquareBrackets: true
+SpacesInContainerLiterals: true
+SpaceBeforeSquareBrackets: true
+SpacesInConditionalStatement: true
+
+
+BitFieldColonSpacing: Both
+TabWidth: 50
+UseTab: AlignWithSpaces 
+
+IncludeBlocks: Regroup
+SortIncludes: false
+
+
+PenaltyBreakAssignment: 5
+PenaltyBreakBeforeFirstCallParameter: 5
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 10
+PenaltyBreakTemplateDeclaration : 30
+PenaltyExcessCharacter: 30
+PenaltyReturnTypeOnItsOwnLine: 30

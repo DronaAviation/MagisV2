@@ -1,6 +1,6 @@
 ---
 name: run-magisv2
-description: Build, compile-verify, and check the flash/RAM budget of MagisV2 Pluto drone firmware. Use when asked to run, build, compile, smoke-test, or verify MagisV2 / Pluto firmware, or to confirm a firmware change still builds and fits for all board targets (PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5).
+description: Build, compile-verify, and check the flash/RAM budget of MagisV2 Pluto drone firmware. Use when asked to run, build, compile, smoke-test, or verify MagisV2 / Pluto firmware, or to confirm a firmware change still builds and fits. During development builds only the session's working target (PRIMUS_V5 or PRIMUS_X2_v1, asked once per session); all targets (PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5) are built at commit time via commit-magisv2.
 ---
 
 # Run / build MagisV2 firmware
@@ -8,18 +8,40 @@ description: Build, compile-verify, and check the flash/RAM budget of MagisV2 Pl
 MagisV2 is **bare-metal ARM firmware** (STM32F303xC, Cortex-M4) for the
 Pluto drone. There is no app to launch in this container — the firmware
 only "runs" when flashed onto real hardware. The meaningful verification
-for a change here is: **does it still cross-compile for every board
-target, produce a flashable `.hex`, and fit in the 256 KB flash / 40 KB
-RAM budget.** The driver does exactly that.
+for a change here is: **does it cross-compile clean, produce a flashable
+`.hex`, and fit in the 256 KB flash / 40 KB RAM budget** - for the working
+target during development, for every target at commit. The driver does
+exactly that.
 
 Paths below are relative to the repo root (the unit dir).
+
+## Which target to build
+
+**During development and testing, build only the target being flown.** A
+single-target build is about a third of the time of all three, and the
+edit-build-flash loop is where the time goes.
+
+- **Ask once per session**, the first time a build is needed: "Are you working
+  on `PRIMUS_V5` or `PRIMUS_X2_v1`?" Offer the `selected_target` from
+  `plutoide.ini` (the target selected in PlutoIDE) as the suggested answer.
+  Then use that target for every build in the session without asking again,
+  unless the user names a different one.
+- **All targets** (`driver.sh` with no target) only when:
+  - the user says they are committing, or asks for a version bump → use the
+    `commit-magisv2` skill, which does the full build;
+  - the user explicitly asks for all targets;
+  - a change touches something target-specific in a way the working target
+    would not exercise (another target's `target.h`, a `#ifdef` for a define
+    the working target does not set). Say why when doing this.
+- When an edit touches a `target.h`, edit the working target's file; do not
+  mirror it into the other targets unless asked.
 
 ## Run (agent path) — the driver
 
 ```bash
-.claude/skills/run-magisv2/driver.sh              # clean-build ALL targets, verify .hex + memory
-.claude/skills/run-magisv2/driver.sh PRIMUS_X2_v1 # single target
-.claude/skills/run-magisv2/driver.sh --no-clean   # incremental (faster, skips clean)
+.claude/skills/run-magisv2/driver.sh PRIMUS_V5    # development: the session's target
+.claude/skills/run-magisv2/driver.sh --no-clean PRIMUS_V5   # incremental, fastest
+.claude/skills/run-magisv2/driver.sh              # commit: clean-build ALL targets
 ```
 
 The driver puts the PlutoIDE ARM toolchain on `PATH`, builds each
@@ -124,6 +146,13 @@ compile-verify only.
 
 ## Troubleshooting
 
+- **Board looks dead after flashing** (no LEDs, app says not connected) → almost
+  always the STM32 is still in its DFU bootloader. Remove **all** power (battery
+  and USB), wait a few seconds, power up again. Only if it stays dead: check the
+  I2C bus (an unpowered or 5 V device on PB8/PB9 can hold it low and stall boot in
+  barometer calibration for 35 s+ with no LEDs), then re-flash. Remember
+  `plutoLoop ( )` only runs in Developer Mode with a live RC link, so user-code
+  changes cannot stop the board from booting.
 - `arm-none-eabi-g++: command not found` → toolchain not on PATH. On
   Linux/macOS the driver's `~/.pluto-ide` probe usually handles it, or:
   `export PATH="$HOME/.pluto-ide/tools/ARM GNU ToolChain/bin:$PATH"`.
