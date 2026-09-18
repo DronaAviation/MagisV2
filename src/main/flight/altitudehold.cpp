@@ -72,7 +72,6 @@ static KalmanFilter velHoldFilter;
 // the overshoot at the fastest climb flown, or the ceiling gets breached.
 #define ALT_CEILING_MARGIN_CM 25
 
-uint8_t velocityControl           = 1;
 int16_t max_altitude              = -1;
 int16_t althold_throttle          = 0;
 int32_t errorVelocityI            = 0;
@@ -229,11 +228,64 @@ static int32_t EstAlt = 0;    // in cm
   #define ALT_TRIM_OFFLOAD_MS  20    // at most one count this often
   #define ALT_TRIM_OFFLOAD_VEL 10    // cm/s below which the craft counts as settled
 
-static void offloadHoverTrim ( const uint8_t isAltHoldChanged ) {
+/*
+ * Setpoint shaping ( ArduPilot / DJI style ). The throttle stick never takes the
+ * position loop out of the chain: it sets a climb rate that moves AltHold, and
+ * the position loop keeps tracking the moving target with that rate fed
+ * forward. The rate is ramped, so climbs and descents start and stop without a
+ * step, and centring the stick lets the target coast to a stop instead of
+ * snapping it to wherever EstAlt happens to be ( which overshot ).
+ *
+ * A new AltHold written from outside ( take-off, setAltitude ( ), MSP ) is not
+ * jumped to. It becomes a goal, and the target travels there on a profile:
+ * ramp up, cruise at the command rate, and brake at ALT_GOAL_DECEL_CMSS just in
+ * time to stop on it. Stepping AltHold instead left the P = 1 position loop to
+ * close the gap, and its demand shrinks with the gap, so the last 40 cm of a
+ * 120 cm take-off crawled ( ~4.3 s total ). Moving the stick cancels the goal.
+ *
+ * The final velocity setpoint is clamped and slewed as well.
+ */
+  #define ALT_MAX_CLIMB_CMS    40     // cm/s, full stick up
+  #define ALT_MAX_DESCENT_CMS  30     // cm/s, full stick down
+  #define ALT_CMD_MAX_CLIMB_CMS   60  // cm/s, cruise up to a commanded goal ( take-off )
+  #define ALT_CMD_MAX_DESCENT_CMS 30  // cm/s, cruise down to a commanded goal
+  #define ALT_GOAL_DECEL_CMSS  80     // cm/s^2, braking into a goal ( below the ramp, so the ramp can follow it )
+  #define ALT_STICK_FULL_TRAVEL 500   // stick counts from centre to end
+  #define ALT_STICK_ACCEL_CMSS 100    // cm/s^2, ramp of the profile rate
+  #define ALT_VEL_ACCEL_CMSS   150    // cm/s^2, slew of the final velocity setpoint
+  #define ALT_TARGET_LEASH_CM  50     // target stops advancing this far from EstAlt
+
+/*
+ * Landing keeps its own descent profile, not the stick limits. land ( ) ramps
+ * landThrottle 1300 -> 1150 and it is flown as ( landThrottle - 1500 ) / 4, so
+ * -50 -> -87 cm/s, as before setpoint shaping. Near the floor the baro drifts
+ * low in the craft's own downwash; at the stick's 10-20 cm/s that drift alone
+ * met the descent demand, so the craft hovered a few cm up with EstAlt still
+ * falling and the touchdown test ( descent stopped ) never fired.
+ */
+  #define ALT_LAND_MAX_DESCENT_CMS 100    // cm/s, descent clamp while isLanding
+
+static float altRate           = 0.0f;     // ramped profile rate moving the target, cm/s
+static float altVelTarget      = 0.0f;     // slewed velocity setpoint, cm/s
+static float altTarget         = 0.0f;     // AltHold with the fraction kept, cm
+static float altGoal           = 0.0f;     // commanded altitude the target is travelling to, cm
+static bool altGoalActive      = false;
+static bool altHoldGroundIdle  = false;    // armed on the throttle stick, motors held at idle
+
+// Drop all setpoint shaping state and pin the target to the current estimate.
+static void resetAltSetpoint ( void ) {
+  altRate       = 0.0f;
+  altVelTarget  = 0.0f;
+  altGoalActive = false;
+  AltHold       = EstAlt;
+  altTarget     = ( float ) EstAlt;
+}
+
+static void offloadHoverTrim ( void ) {
 
   static uint32_t lastOffload = 0;
 
-  if ( ! ARMING_FLAG ( ARMED ) || velocityControl || isAltHoldChanged )
+  if ( ! ARMING_FLAG ( ARMED ) || altHoldGroundIdle || setVelocity != 0 || altRate != 0.0f || altGoalActive )
     return;
 
   if ( ABS ( VelocityZ ) > ALT_TRIM_OFFLOAD_VEL )
@@ -283,31 +335,32 @@ static void applyMultirotorAltHold ( void ) {
     }
     throttle_history = rcCommand [ THROTTLE ];
   } else {
-    if ( ABS ( rcData [ THROTTLE ] - 1500 ) > rcControlsConfig->alt_hold_deadband ) {
-      setVelocity      = ( rcData [ THROTTLE ] - 1500 ) / 4;
-      setVelocity      = constrain ( setVelocity, -100, 120 );
-      velocityControl  = 1;
-      isAltHoldChanged = 1;
+    // Stick sets the climb rate that moves AltHold ( see setpoint shaping ). The
+    // rate starts at zero on the deadband edge, so leaving the deadband is not a
+    // step, and reaches the maximum at full stick.
+    const int32_t deflection = rcData [ THROTTLE ] - 1500;
+    const int32_t deadband   = rcControlsConfig->alt_hold_deadband;
+
+    if ( isLanding ) {
+      // rcData [ THROTTLE ] holds landThrottle here ( mw.cpp ).
+      setVelocity = constrain ( deflection / 4, -ALT_LAND_MAX_DESCENT_CMS, 0 );
+    } else if ( ABS ( deflection ) > deadband ) {
+      const int32_t maxRate = ( deflection > 0 ) ? ALT_MAX_CLIMB_CMS : ALT_MAX_DESCENT_CMS;
+      const int32_t rate    = constrain ( ( ABS ( deflection ) - deadband ) * maxRate / ( ALT_STICK_FULL_TRAVEL - deadband ), 0, maxRate );
+      setVelocity           = ( deflection > 0 ) ? rate : -rate;
     } else {
-      velocityControl = 0;
-      setVelocity     = 0;
-      offloadHoverTrim ( isAltHoldChanged );
-      if ( isAltHoldChanged ) {
-        AltHold          = EstAlt;
-        isAltHoldChanged = 0;
-        // Do NOT reset errorVelocityI here: it holds the hover trim, so clearing
-        // it drops the throttle and the craft falls. Reset only on BARO entry /
-        // disarm.
-        // errorVelocityI   = 0;
-      }
+      setVelocity = 0;
+      offloadHoverTrim ( );
     }
     rcCommand [ THROTTLE ] = constrain ( initialThrottleHold + altHoldThrottleAdjustment, escAndServoConfig->minthrottle, escAndServoConfig->maxthrottle );
   }
 
   if ( isThrottleStickArmed && rcData [ THROTTLE ] <= 1500 ) {
     rcCommand [ THROTTLE ] = 1000;
+    altHoldGroundIdle      = true;
   } else {
     isThrottleStickArmed = false;
+    altHoldGroundIdle    = false;
   }
 
   altholdDebug  = AltHold;
@@ -332,13 +385,16 @@ void applyAltHold ( airplaneConfig_t *airplaneConfig ) {
 void updateAltHoldState ( void ) {
   if ( ! IS_RC_MODE_ACTIVE ( BOXBARO ) ) {
     DISABLE_FLIGHT_MODE ( BARO_MODE );
+    // applyAltHold ( ) no longer runs, so nothing else clears the stick inputs.
+    setVelocity       = 0;
+    altHoldGroundIdle = false;
     return;
   }
 
   if ( ! FLIGHT_MODE ( BARO_MODE ) ) {
     ENABLE_FLIGHT_MODE ( BARO_MODE );
     // baroResetGroundLevel(); // Reset ground level for barometer
-    AltHold                   = EstAlt;
+    resetAltSetpoint ( );
     initialThrottleHold       = 1500;
     errorVelocityI            = 0;
     altHoldThrottleAdjustment = 0;
@@ -357,7 +413,7 @@ int16_t calculateTiltAngle ( rollAndPitchInclination_t *inclination ) {
   return MAX ( ABS ( inclination->values.rollDeciDegrees ), ABS ( inclination->values.pitchDeciDegrees ) );
 }
 
-int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp, float accZ_old ) {
+int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp, float accZ_old, float ctrlDt ) {
   int32_t result = 0;
   int32_t error;
   int32_t setVel;
@@ -366,21 +422,75 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
     return result;
   }
 
-  if ( ! ARMING_FLAG ( ARMED ) ) {
-    AltHold = EstAlt;
+  // Disarmed, or armed on the throttle stick with the motors held at idle: the
+  // craft is on the ground, so hold the whole controller in reset. Otherwise the
+  // integrator winds down against a craft that cannot move and the take-off is
+  // late and sluggish.
+  if ( ! ARMING_FLAG ( ARMED ) || altHoldGroundIdle ) {
+    resetAltSetpoint ( );
+    errorVelocityI = 0;
+    return result;
   }
 
-  if ( ! velocityControl ) {
-    error = constrain ( AltHold - EstAlt, -500, 500 );
-    // No deadband on the position error: applyDeadband ( ) subtracts, so a 5 cm
-    // band took 5 cm off every error ( a 10 cm sag read as 5 ) and caused a limit
-    // cycle. EstAlt is already smooth ( ~1 cm between samples ), so none is needed.
-    calculatedError = error;
-    altholdDebug8   = error;
-    setVel          = constrain ( ( pidProfile->P8 [ PIDALT ] * error / 128 ), -300, +300 );
-  } else {
-    setVel = setVelocity;
+  ctrlDt = constrainf ( ctrlDt, 0.0f, 0.05f );
+
+  // AltHold written elsewhere ( take-off, setAltitude ( ), MSP ) becomes the goal;
+  // the target stays where it is and travels there below.
+  if ( AltHold != lrintf ( altTarget ) ) {
+    altGoal       = ( float ) AltHold;
+    altGoalActive = true;
   }
+  if ( setVelocity != 0 ) {
+    altGoalActive = false;    // the stick ( or landing ) takes over
+  }
+
+  // Rate the target should move at: the stick's, or the goal profile's - the
+  // fastest rate that can still brake to a stop on the goal, capped at cruise.
+  float profileRate = ( float ) setVelocity;
+  if ( altGoalActive ) {
+    const float remaining = altGoal - altTarget;
+    const float stopRate  = sqrtf ( 2.0f * ALT_GOAL_DECEL_CMSS * fabsf ( remaining ) );
+    if ( remaining > 0.0f ) {
+      profileRate = fminf ( stopRate, ( float ) ALT_CMD_MAX_CLIMB_CMS );
+    } else {
+      profileRate = -fminf ( stopRate, ( float ) ALT_CMD_MAX_DESCENT_CMS );
+    }
+  }
+
+  const float rateStep = ALT_STICK_ACCEL_CMSS * ctrlDt;
+  altRate += constrainf ( profileRate - altRate, -rateStep, rateStep );
+
+  // Move the target. The leash stops it running away from a craft that cannot
+  // keep up ( still on the ground, weak battery ); the rate is kept, so it resumes
+  // as soon as the craft catches up.
+  const float nextTarget = altTarget + altRate * ctrlDt;
+  if ( ! ( ( altRate > 0.0f && nextTarget > ( float ) ( EstAlt + ALT_TARGET_LEASH_CM ) ) || ( altRate < 0.0f && nextTarget < ( float ) ( EstAlt - ALT_TARGET_LEASH_CM ) ) ) ) {
+    altTarget = nextTarget;
+  }
+
+  // Arrived: land exactly on the goal once the profile has braked.
+  if ( altGoalActive && fabsf ( altGoal - altTarget ) < 1.0f && fabsf ( altRate ) <= 2.0f * rateStep ) {
+    altTarget     = altGoal;
+    altRate       = 0.0f;
+    altGoalActive = false;
+  }
+  AltHold = lrintf ( altTarget );
+
+  error = constrain ( AltHold - EstAlt, -500, 500 );
+  // No deadband on the position error: applyDeadband ( ) subtracts, so a 5 cm
+  // band took 5 cm off every error ( a 10 cm sag read as 5 ) and caused a limit
+  // cycle. EstAlt is already smooth ( ~1 cm between samples ), so none is needed.
+  calculatedError = error;
+  altholdDebug8   = error;
+
+  // Profile rate fed forward plus the position loop, clamped and slewed.
+  const float maxClimb   = altGoalActive ? ( float ) ALT_CMD_MAX_CLIMB_CMS : ( float ) ALT_MAX_CLIMB_CMS;
+  const float maxDescent = isLanding ? ( float ) ALT_LAND_MAX_DESCENT_CMS : ( altGoalActive ? ( float ) ALT_CMD_MAX_DESCENT_CMS : ( float ) ALT_MAX_DESCENT_CMS );
+  float velDemand        = altRate + ( float ) pidProfile->P8 [ PIDALT ] * ( float ) error / 128.0f;
+  velDemand              = constrainf ( velDemand, -maxDescent, maxClimb );
+  const float velStep = ALT_VEL_ACCEL_CMSS * ctrlDt;
+  altVelTarget       += constrainf ( velDemand - altVelTarget, -velStep, velStep );
+  setVel              = lrintf ( altVelTarget );
 
   error         = setVel - velocity_z;
   altholdDebug9 = error;
@@ -485,7 +595,7 @@ void calculateEstimatedAltitude ( uint32_t currentTime ) {
   float filteredVel = kalmanFilterUpdate ( &velHoldFilter, vel_tmp );
   float filteredAlt = kalmanFilterUpdate ( &altHoldFilter, EstAlt );
 
-  altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( vel_tmp, accZ_tmp, accZ_old );
+  altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( vel_tmp, accZ_tmp, accZ_old, ( float ) dTime * 1e-6f );
 
   Temp                         = pidProfile->I8 [ PIDALT ];
   barometerConfig->baro_cf_alt = 1 - Temp / 1000;
@@ -599,7 +709,7 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   VelocityZ = lrintf ( filteredVelocityZ );
   EstAlt    = lrintf ( filteredEstAlt );
 
-  altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( VelocityZ, accZ_tmp, accZ_old );
+  altHoldThrottleAdjustment = calculateAltHoldThrottleAdjustment ( VelocityZ, accZ_tmp, accZ_old, dt );
   accZ_old                  = accZ_tmp;
   vario                     = applyDeadband ( VelocityZ, 5 );
   if ( abs ( VelocityZ ) > 200 )

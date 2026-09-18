@@ -82,11 +82,33 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.7.0 (API 1.3.1) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.8.0 (API 1.3.2) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
-  compensation and altitude-hold fixes. The API patch bump reflects
-  `RcCommand_Set`'s new pilot-override behaviour; no public signature changed,
-  so existing projects compile and link untouched.
+  compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
+  shaping. The API patch bumps reflect behaviour changes only: 1.3.1 for
+  `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
+  (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
+  descent rate. No public signature changed, so existing projects compile and
+  link untouched.
+- **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
+  style ) instead of switching the controller to raw velocity control. The
+  climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at
+  full stick (`ALT_MAX_CLIMB_CMS` / `ALT_MAX_DESCENT_CMS`; was up to +120 /
+  -100 cm/s), is ramped at 100 cm/s², and moves `AltHold` with the rate fed
+  forward to the velocity loop. Centring the stick lets the target coast to a
+  stop instead of snapping to `EstAlt`, removing the overshoot. A commanded
+  altitude (take-off, `DesiredPosition_set*`, MSP) is no longer stepped: it
+  becomes a goal, and the target travels to it on a trapezoidal profile
+  (cruise `ALT_CMD_MAX_CLIMB_CMS` 60 / `ALT_CMD_MAX_DESCENT_CMS` 30 cm/s,
+  braking at 80 cm/s² to stop on the goal). The 120 cm take-off takes about
+  2.7 s instead of about 4.3 s with the old ±300 cm/s step, which had no slow
+  final approach cut out. Moving the stick cancels a goal. `Command_Land` keeps its own descent profile
+  (`( landThrottle - 1500 ) / 4`, about -50 to -87 cm/s, clamp
+  `ALT_LAND_MAX_DESCENT_CMS`). Flown through the stick limits it came down
+  at 10-20 cm/s, hovered just above the floor, and never detected touchdown.
+- **AltitudeHold**: While disarmed or armed on the throttle stick with the
+  motors held at idle, the altitude controller is held in reset, so waiting on
+  the ground no longer winds the velocity integrator down and delays take-off.
 - **RC**: `RcCommand_Set ( RC_THROTTLE, ... )` deflection is measured from where
   the throttle stick sat when the override latched rather than from mid-stick,
   since throttle does not self-centre - a stick resting at minimum can no longer

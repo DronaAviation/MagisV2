@@ -13,14 +13,16 @@ Fuses barometric pressure (and, when `LASER_ALT` is defined, laser Time-of-Fligh
 - `EstAlt`: estimated altitude in cm. What the controller and `limitAltitude()` use.
 - `VelocityZ`: estimated vertical velocity in cm/s.
 - `BaroAlt`: compensated barometric altitude in cm, the measurement the estimator is corrected towards. Noisier than `EstAlt` by design.
-- `AltHold`: the altitude setpoint.
+- `AltHold`: the altitude setpoint. Moved by the setpoint shaping below; a write from outside becomes a goal ( `altGoal` ) rather than a step. `altTarget` is its float copy.
+- `altRate`: the ramped rate moving `AltHold` ( stick rate or goal profile ), fed forward to the velocity loop.
 - `initialThrottleHold`: the hover-throttle baseline. `errorVelocityI` (the only alt-hold integrator) carries the residual trim.
 
 ## Primary Functions
 - `apmCalculateEstimatedAltitude()`: runs the third-order complementary filter each altitude task, integrating accel-Z and correcting towards the height measurement.
 - `checkBaro()` → `correctedWithBaro()`: barometer path (no `LASER_ALT`). Time constant `_time_constant_z` is 2 s, or 5 s above 30° of tilt.
 - `checkReading()` → `correctedWithTof()`: with `LASER_ALT`, laser below 200 cm (hard switch, no blend), barometer above, with `baro_offset` aligning the two at handover.
-- `applyAltHold()`: outer position loop (`P8[PIDALT]`, 128 = unity) feeding an inner velocity loop; output added to `initialThrottleHold`.
+- `applyAltHold()` → `applyMultirotorAltHold()` (main loop): turns the throttle stick into `setVelocity` (or the landing descent while `isLanding`), sets `altHoldGroundIdle`, and writes `rcCommand[THROTTLE] = initialThrottleHold + altHoldThrottleAdjustment`.
+- `calculateAltHoldThrottleAdjustment()` (100 Hz): setpoint shaping, then the outer position loop (`P8[PIDALT]`, 128 = unity) plus the fed-forward rate, feeding the inner velocity loop.
 - `offloadHoverTrim()`: while settled, moves hover trim from `errorVelocityI` into `initialThrottleHold` one count per 20 ms, keeping the integrator's range free.
 - `limitAltitude()`: altitude ceiling at `max_altitude - ALT_CEILING_MARGIN_CM` (25 cm).
 
@@ -44,7 +46,68 @@ Rules that keep this working:
 - **Coefficients are per airframe.** The throttle term depends on where the FC sits relative to the rotors. Re-measure on a new frame from a log of `degC`, `PaI` and laser height over a 3+ minute hover.
 
 ## Data Flow & Boundaries
-- **Stick deadband**: in `ALT_HOLD`, `alt_hold_deadband` (40) is applied to the throttle stick. Inside it the drone holds altitude; beyond it, climb/descend at a rate set by stick deflection. There is no deadband on the position error.
+- **Stick deadband**: in `ALT_HOLD`, `alt_hold_deadband` (40 counts, stick 1460-1540) is applied to the throttle stick. Inside it the drone holds altitude; beyond it, the stick sets a climb/descent rate. There is no deadband on the position error.
+
+## Setpoint shaping (`calculateAltHoldThrottleAdjustment()`)
+
+ArduPilot / DJI style: the throttle stick never takes the position loop out of the chain. It moves the setpoint, and the loop tracks the moving setpoint with the rate fed forward.
+
+Why it is built this way:
+- **One controller, no mode switch.** Earlier firmware switched to a raw velocity command outside the deadband and snapped `AltHold` to `EstAlt` on return. That gave a speed step at the deadband edge and an overshoot on centring.
+- **Feed-forward instead of a gap.** A P = 1 position loop needs a 60 cm error to demand 60 cm/s, so a stepped target is approached ever more slowly. Feeding the planned rate forward leaves the position term as a small correction.
+- **Height stays controlled while the stick is in use**, and stick, commands and landing are all bounded by the same ramp and clamp.
+
+The legacy flow, the full comparison and the reasoning are in [althold-setpoint-shaping/CHANGES.md](../../active-development/althold-setpoint-shaping/CHANGES.md#before--after).
+
+| Source of `altRate` | Rate | Limits |
+|---|---|---|
+| **Stick** outside the deadband | Linear from 0 at the deadband edge to full stick | `ALT_MAX_CLIMB_CMS` 40 / `ALT_MAX_DESCENT_CMS` 30 cm/s |
+| **Goal**: `AltHold` written from outside (take-off, `DesiredPosition_set*` / `setAltitude()`, MSP) | Trapezoid: `min(sqrt(2·a·remaining), cruise)`, stops on the goal | Cruise `ALT_CMD_MAX_CLIMB_CMS` 60 / `ALT_CMD_MAX_DESCENT_CMS` 30 cm/s, brake `ALT_GOAL_DECEL_CMSS` 80 cm/s² |
+| **Landing** (`isLanding`) | `(landThrottle − 1500) / 4`: land() ramps 1300 → 1150, i.e. about −50 → −87 cm/s | Descent clamp `ALT_LAND_MAX_DESCENT_CMS` 100 |
+
+Each 10 ms tick:
+1. `altRate` ramps toward the source rate at `ALT_STICK_ACCEL_CMSS` (100 cm/s²). Moving the stick cancels a goal.
+2. `AltHold += altRate · dt`. It stops advancing when it is `ALT_TARGET_LEASH_CM` (50) ahead of `EstAlt` in the direction of travel, e.g. while still on the ground.
+3. Velocity demand = `altRate + P_ALT · (AltHold − EstAlt)`. It is clamped to the limits of the active source and slewed at `ALT_VEL_ACCEL_CMSS` (150 cm/s²), then goes to the velocity PID.
+
+Behaviour that follows: centring the stick lets the target coast to a stop, with no snap to `EstAlt` and no overshoot. A 120 cm take-off takes about 2.7 s with no slow final approach.
+
+Flow of `calculateAltHoldThrottleAdjustment()`:
+
+```mermaid
+flowchart TD
+    A([100 Hz alt task]) --> E[Estimator: EstAlt, VelocityZ]
+    E --> G{Disarmed or<br/>idle-held on ground?}
+    G -- Yes --> R0[Reset: AltHold = EstAlt<br/>altRate = 0, goal cleared<br/>errorVelocityI = 0]
+
+    G -- No --> SRC{Who sets the rate?}
+    SRC -- isLanding --> L[Landing rate<br/>landThrottle−1500 / 4<br/>−50 … −87 cm/s]
+    SRC -- stick outside deadband --> ST[Stick rate<br/>0 → 40 up / 30 down<br/><i>cancels any goal</i>]
+    SRC -- goal active --> GP[Goal profile<br/>min √2·80·remaining , cruise 60 / 30]
+    SRC -- none --> Z[Rate 0]
+
+    CMD([Take-off / setAltitude / MSP]) -- AltHold written --> GOAL[Becomes goal<br/>target not jumped] --> SRC
+
+    L --> RAMP
+    ST --> RAMP
+    GP --> RAMP
+    Z --> RAMP[altRate ramps toward it<br/>≤ 100 cm/s²]
+
+    RAMP --> MOVE[<b>AltHold += altRate × dt</b><br/>stop if 50 cm ahead of EstAlt]
+    MOVE --> ARR{Goal reached?}
+    ARR -- Yes --> CLR[Snap on goal, clear it] --> PL
+    ARR -- No --> PL[<b>Position loop always on</b><br/>setVel = altRate + P × AltHold − EstAlt]
+
+    PL --> CL[Clamp per source<br/>stick 40/30 · goal 60/30 · land 100<br/>slew 150 cm/s²]
+    CL --> VEL[Velocity PID<br/>P + I errorVelocityI + D]
+    VEL --> OUT[throttle = initialThrottleHold + adjustment]
+```
+
+**Ground reset:** while disarmed, or armed on the throttle stick with the motors held at 1000 (`isThrottleStickArmed` → `altHoldGroundIdle`), the setpoint, goal, rate and `errorVelocityI` are held in reset. Waiting armed on the ground therefore cannot wind the integrator down.
+
+**Landing must keep its own descent rate.** Near the floor the barometer drifts low in the craft's own downwash. At the stick's 10-20 cm/s that drift alone met the descent demand: the craft hovered a few cm up with `EstAlt` still falling, and `land()`'s touchdown test (descent stopped) never fired.
+
+**Not covered:** there is no general landed detector. A touchdown and re-take-off without disarming can still wind the integrator down. `limitAltitude()` only clamps the stick, and the target coasts about 8 cm past the clamp, which is inside the 25 cm margin.
 - **ToF vs Baro**: with `LASER_ALT`, the VL53L0X (200 cm) or VL53L1X (350 cm) replaces the barometer below its range. Without it, the estimator is barometer and accel-Z only. `LASER_TOF` alone reads the laser for logging and does not affect altitude.
 
 ```mermaid
@@ -63,9 +126,12 @@ flowchart TD
     EstAlt --> CheckMode{Is AltHold active?}
 
     CheckMode -- No --> Reset[Reset alt controller]
-    CheckMode -- Yes --> Target[Setpoint from stick outside deadband]
-    Target --> PosLoop[Position loop P8 PIDALT]
+    CheckMode -- Yes --> Ground{Disarmed or idle-held?}
+    Ground -- Yes --> GReset[Hold setpoint + integrator in reset]
+    Ground -- No --> Target[Rate: stick / goal profile / landing<br/>ramped, moves AltHold, leash]
+    Target --> PosLoop[Rate feed-forward + position loop P8 PIDALT<br/>clamped + slewed]
     PosLoop --> VelLoop[Velocity loop + errorVelocityI]
+    GReset --> End
     VelLoop --> Offload[offloadHoverTrim into baseline]
     Offload --> Mix[initialThrottleHold + adjustment]
 

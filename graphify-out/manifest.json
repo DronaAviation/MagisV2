@@ -1,7 +1,7 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1789636672.8938675,
-    "hash": "322a580cc4b36673104602c5222351e1"
+    "mtime": 1789707311.7198277,
+    "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
     "mtime": 1785830612.0,
@@ -616,8 +616,8 @@
     "hash": "fa8922fb37b49f4a00d85bda08db7069"
   },
   "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1789636667.7121992,
-    "hash": "ce69ec356338d5be35c898c3203db711"
+    "mtime": 1789707614.4493203,
+    "hash": "df3c365a2e8dfe7042146f923f62ae5f"
   },
   "F:\\MagisV2\\src\\main\\mw.h": {
     "mtime": 1777868741.0,
@@ -892,8 +892,8 @@
     "hash": "229ab6c39489bc9c46edeb1c7e0b05b8"
   },
   "F:\\MagisV2\\src\\main\\config\\config.cpp": {
-    "mtime": 1788998638.0,
-    "hash": "7b2e7908e85bfb13b52a51455e9a99cd"
+    "mtime": 1789707379.4145668,
+    "hash": "0e5a17e4f113e49ca27dc31a88b6d140"
   },
   "F:\\MagisV2\\src\\main\\config\\config.h": {
     "mtime": 1785830612.0,
@@ -956,8 +956,8 @@
     "hash": "76386cd0f629d81a410d34e205643b8a"
   },
   "F:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.cpp": {
-    "mtime": 1788998638.0,
-    "hash": "8fb178bc1215391791ce486828d7ed9c"
+    "mtime": 1789707445.1365006,
+    "hash": "c2380e1de5f69d90e753bb6687cf0939"
   },
   "F:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.h": {
     "mtime": 1777868741.0,
@@ -1248,8 +1248,8 @@
     "hash": "5ad5fab4c6288f5d324d83f90d6eb6e1"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
-    "mtime": 1788998638.0,
-    "hash": "554444d21a459bd6f05a55de10c610a0"
+    "mtime": 1789724392.1329684,
+    "hash": "640774808c89b94d69fbb04e488e08b5"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
     "mtime": 1788998638.0,
@@ -1552,8 +1552,8 @@
     "hash": "e1d20b0d4e4897cbb615a5b7d6b685ab"
   },
   "F:\\MagisV2\\src\\main\\sensors\\barometer.cpp": {
-    "mtime": 1789643867.8593993,
-    "hash": "f9b742461382808b121ba1f61fa2a78c"
+    "mtime": 1789707597.0044591,
+    "hash": "7449246a60004f3b03ace296e90789bb"
   },
   "F:\\MagisV2\\src\\main\\sensors\\barometer.h": {
     "mtime": 1788998638.0,
@@ -1707,13 +1707,17 @@
     "mtime": 1789702379.2947032,
     "hash": "79a56fcf35444122bdd04c73eed7956a"
   },
+  "F:\\MagisV2\\tools\\graph_labels.py": {
+    "mtime": 1789705228.2147949,
+    "hash": "0b4a49df5235113ee6197f1005315fe9"
+  },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1789643910.444708,
-    "hash": "9fff05d83f67ded84eadd64746e520fa"
+    "mtime": 1789724776.1749432,
+    "hash": "109ae341eb8568f89ae5d1706ce02c9a"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1789704542.7336147,
-    "hash": "960e982ae007c764e6fe9f4a90c13898"
+    "mtime": 1789705245.6330056,
+    "hash": "2470d23a263084d9dbf3c5ac048f581f"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,
