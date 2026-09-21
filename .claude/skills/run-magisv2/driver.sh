@@ -11,6 +11,10 @@
 #   driver.sh                 # clean-build all targets, verify artifacts + memory
 #   driver.sh PRIMUS_X2_v1    # build a single target
 #   driver.sh --no-clean      # incremental build all targets (faster)
+#   driver.sh --gate PRIMUS_X2_v1   # build, then fail if the change added warnings
+#
+# Build output for each target is kept at Build/<TARGET>/build.log so the
+# warning gate (tools/warnings.py) can diff it against the recorded baseline.
 #
 # Run from the repo root.
 set -uo pipefail
@@ -89,27 +93,60 @@ fi
 
 ALL_TARGETS="PRIMUS_X2_v1 PRIMUSX2 PRIMUS_V5"
 CLEAN=1
+GATE=0
 TARGETS=""
 for arg in "$@"; do
   case "$arg" in
     --no-clean) CLEAN=0 ;;
+    --gate)     GATE=1 ;;
     *) TARGETS="$TARGETS $arg" ;;
   esac
 done
 [ -n "$TARGETS" ] || TARGETS="$ALL_TARGETS"
 
+# The gate compares a whole-tree warning set against the baseline. An
+# incremental build only recompiles what changed, so most baseline warnings
+# would look "fixed" and a new warning in an untouched-but-cached file would be
+# missed entirely. --gate therefore always builds clean.
+if [ "$GATE" = 1 ] && [ "$CLEAN" = 0 ]; then
+  echo "note: --gate requires a clean build; ignoring --no-clean" >&2
+  CLEAN=1
+fi
+
+# The warning gate needs a Python; the Windows Store "python3" shim on PATH is
+# a stub that exits 49 without running anything, so probe for a real one.
+find_python() {
+  for c in python3 python py; do
+    command -v "$c" >/dev/null 2>&1 || continue
+    "$c" -c "import sys" >/dev/null 2>&1 && { printf '%s' "$c"; return 0; }
+  done
+  return 1
+}
+
 rc=0
 for t in $TARGETS; do
   echo "==================== $t ===================="
   [ "$CLEAN" = 1 ] && make TARGET="$t" clean >/dev/null 2>&1
-  if ! make TARGET="$t" 2>&1 | tail -8; then
-    echo "BUILD FAILED: $t" >&2; rc=1; continue
+  mkdir -p Build/"$t"
+  log="Build/$t/build.log"
+  if ! make TARGET="$t" 2>&1 | tee "$log" | tail -8; then
+    echo "BUILD FAILED: $t (full output in $log)" >&2; rc=1; continue
   fi
   hex=$(ls Build/"$t"/*.hex 2>/dev/null | head -1)
   if [ -z "$hex" ]; then
     echo "NO ARTIFACT: $t produced no .hex" >&2; rc=1; continue
   fi
   echo "OK: $hex"
+
+  if [ "$GATE" = 1 ]; then
+    echo "-------- warning gate --------"
+    if PY=$(find_python); then
+      "$PY" tools/warnings.py check "$log" || {
+        echo "WARNING GATE FAILED: $t added warnings under src/" >&2; rc=1; }
+    else
+      echo "SKIPPED: no working Python found for tools/warnings.py" >&2
+    fi
+  fi
 done
 
 echo

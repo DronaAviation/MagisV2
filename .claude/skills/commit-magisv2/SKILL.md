@@ -20,6 +20,8 @@ failing build to finish the docs.
 - `git status --short` and `git diff --stat HEAD`.
 - Read `active-development/README.md` and find the **Active** topic(s) whose
   changes are in this diff. If none match, say so and skip steps 4-5.
+- If the topic has a `TASKS.md`, list any task not `done` / `dropped` ( other
+  than this commit task ) so the user sees unfinished work before committing.
 - Read each matching topic's `README.md` for anything flagged **"remove before
   release"** (diagnostic code, test defines such as `LASER_TOF`). List what is
   still present. Do not remove it unless the user asks - just make sure they see

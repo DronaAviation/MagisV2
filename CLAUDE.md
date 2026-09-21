@@ -18,7 +18,7 @@ make TARGET=PRIMUS_X2_v1 clean        # remove build artifacts for that target
 make TARGET=PRIMUS_X2_v1 memory       # flash/RAM usage bars from the linked ELF
 make TARGET=PRIMUS_X2_v1 flash        # flash .hex over serial via stm32flash (triggers bootloader with 'R')
 make TARGET=PRIMUS_X2_v1 st-flash     # flash .bin via st-flash (ST-Link)
-make TARGET=PRIMUS_X2_v1 cppcheck     # static analysis over all C sources
+make TARGET=PRIMUS_X2_v1 cppcheck     # legacy; NOT the analysis path — see Tests
 make help                             # list documented targets
 ```
 
@@ -32,6 +32,14 @@ Build outputs go to `Build/<TARGET>/`. `SERIAL_DEVICE` defaults to the first `/d
 ## Tests
 
 **The `src/test/` GoogleTest suite is unmaintained and does not build — do not use it.** Its Makefile still references `.c` sources that were migrated to `.cpp`, so `make test` fails immediately (`No rule to make target '../main/common/maths.c'`). It was never updated after the C++ migration and is not part of any current workflow. The working verification path for a change is the firmware **build** (see above) — confirm it compiles clean and fits in flash/RAM for the working target, and for all targets before committing. Don't try to revive these tests unless explicitly asked.
+
+**The compiler is the static analyser, and new warnings must be diffed.** A clean `PRIMUS_X2_v1` build emits ~2674 warnings, ~1712 of them from vendored `lib/` — so a warning your change introduced is invisible unless you compare against a baseline. `tools/warnings.py` does that (`baseline` / `check` / `summary`, baseline committed at `tools/warnings-baseline.json`); `.claude/skills/run-magisv2/driver.sh --gate <TARGET>` runs it as part of the build and fails on any new warning under `src/`. Warnings in `lib/` never fail the gate, and the baseline is never regenerated to silence a newly introduced warning. **`make cppcheck` is not the analysis path** — it covers only the 49 `.c` files (none of `flight/`, `sensors/`, `API-Src/`), hardcodes Linux include paths, and needs a binary that isn't installed.
+
+**Plan before working: `/grill-magisv2 <request>`, and start it yourself when the request isn't typed as a command.** When the user describes an issue or a change in plain words ("I'm facing…", "X isn't working", "I want to change…") and no active topic's `TASKS.md` covers it, invoke `grill-magisv2` before reading or editing code. Skip it for pure questions, trivial one-line edits, or when the user says "no grill" / "just do it". Before implementing, changing or fixing anything, the `grill-magisv2` skill interviews the user (the `magisv2-scout` agent does the graphify/code/doc reconnaissance in its own context), then writes `active-development/<topic>/TASKS.md`: numbered tasks, each routed to a project skill, always ending with build gate → hardware validation → staged `PIPELINE_UPDATE.md` for the architecture/pipeline docs → graph refresh → commit. Work it with `/grill-magisv2 next`, one task per turn.
+
+**Code review always runs in the `magisv2-reviewer` subagent** — any review of a diff, branch, commit range, PR or task, whether asked for or done as part of a skill. Launch the agent and relay its findings; never run the review in the main conversation.
+
+**Firmware coding rules and the review checklist live in the `magisv2-rules` skill** — the invariants that have cost flights here (`rcData` vs `rcDataPilot`, user-override expiry, the baro datum freeze, landing bypassing the ALT_HOLD stick limits, the `Monitor_Print` byte ceiling, DMA registry ownership, Makefile source registration) plus style and doc-sync obligations. Use it both when writing firmware and when reviewing a diff; generic C/C++ review tools do not know any of it.
 
 In normal use, the maintainer builds, cleans, selects targets, and flashes (STM32 DFU/bootloader mode) through the **PlutoIDE VS Code extension**, which wraps this Makefile and the toolchain.
 

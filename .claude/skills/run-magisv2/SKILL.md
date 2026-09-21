@@ -105,6 +105,47 @@ make TARGET=PRIMUS_X2_v1 memory    # memory bars from the linked ELF
 `PRIMUS_V5` (the build errors out otherwise). All three currently
 compile the same source set.
 
+## Pre-flight gate — did the change add warnings?
+
+A clean build emits **~2700 warnings**, ~1700 of them from vendored `lib/`
+(CMSIS, StdPeriph, VL53L0X) that we do not own and never fix. A warning your
+change introduced is invisible in that noise, and the dominant classes —
+`-Wconversion` (1149) and `-Wsign-conversion` (903) — are exactly the ones that
+produce scale and sign bugs in this tree.
+
+`tools/warnings.py` records a baseline and reports only what a build **added**
+over it. Run it before flying a build:
+
+```bash
+.claude/skills/run-magisv2/driver.sh --gate PRIMUS_X2_v1
+```
+
+The driver keeps each build's full output at `Build/<TARGET>/build.log`, runs
+the check, and fails the run if anything new appeared under `src/`. By hand:
+
+```bash
+make TARGET=PRIMUS_X2_v1 clean && make TARGET=PRIMUS_X2_v1 2>&1 | tee build.log
+python3 tools/warnings.py check   build.log    # exit 1 = new warnings in src/
+python3 tools/warnings.py summary build.log    # counts by flag and file
+```
+
+Rules for the gate:
+
+- **New warnings under `src/` fail the gate.** Fix them, don't hide them.
+- **New warnings under `lib/` never fail it** — that tree is upstream. They are
+  listed only with `-v`.
+- **Never run `warnings.py baseline` to silence a warning you introduced.**
+  Regenerate the baseline only when warnings were deliberately *removed*, or
+  after a toolchain change, and say so in the commit.
+- The baseline lives at `tools/warnings-baseline.json` and is committed.
+  It was recorded on `PRIMUS_X2_v1` with Arm GNU Toolchain 14.2.1.
+
+**`make cppcheck` is not the analysis path here.** It scans only the 49 `.c`
+files (a third of the tree — none of `flight/`, `sensors/` or `API-Src/`, which
+are `.cpp`), hardcodes Linux include paths (`--platform=unix64`,
+`-I/usr/include`), and needs a `cppcheck` binary that is not installed. The
+compiler already analyses 100% of the tree with stricter flags; use the gate.
+
 ## How the firmware is normally built & flashed (human path)
 
 In day-to-day use the maintainer does **not** drive the Makefile by hand.

@@ -30,6 +30,7 @@ reasoning behind a change is kept even after it ships.
 | File | Contents |
 |---|---|
 | `README.md` | Status, branch, target, one-paragraph summary, gotchas, open items, next actions. Start here. |
+| `TASKS.md` | Numbered task list ( serial number, title, description, status ) and dated decisions log, written by the `grill-magisv2` skill after the planning interview and worked one task at a time. |
 | `INVESTIGATION.md` | **Why**: the problem, evidence, root causes, decisions. Readable without the code. |
 | `CHANGES.md` | **What and how**: each code change with file and line links, and a file index. |
 | `TESTING.md` | **Evidence**: test method, measurements, results, how to reproduce. |
