@@ -42,5 +42,6 @@ Links to source from a topic folder use `../../../../src/main/...`.
 
 | Topic | Status | Branch | Summary |
 |---|---|---|---|
-| [althold-setpoint-shaping](althold-setpoint-shaping/README.md) | **Closed - pending commit** ( FW 3.8.0, 18 Sep 2026 ) | `BugFix-June26` | Throttle stick moves the altitude setpoint ( ArduPilot / DJI style ) instead of switching to raw velocity control; commanded altitudes flown on a trapezoidal goal profile; landing keeps its own descent rate; controller held in reset while armed at idle. |
+| [flip-althold-regression](flip-althold-regression/README.md) | **Closed - pending commit** ( FW 3.8.1, 21 Sep 2026 ) | `BugFix-June26` | App back-flip stopped rotating after `2a8d59a`: ALT_HOLD stays on through AUX3 and the shaped 40 cm/s stick cap stops ASCEND reaching its 100 cm/s threshold. Fix: the flip bypasses setpoint shaping, with a clean handover on exit. |
+| [althold-setpoint-shaping](althold-setpoint-shaping/README.md) | **Closed** in `2a8d59a` ( FW 3.8.0, 18 Sep 2026 ) | `BugFix-June26` | Throttle stick moves the altitude setpoint ( ArduPilot / DJI style ) instead of switching to raw velocity control; commanded altitudes flown on a trapezoidal goal profile; landing keeps its own descent rate; controller held in reset while armed at idle. |
 | [altitude-hold](altitude-hold/README.md) | **Closed** in `4657cbf` ( FW 3.7.0, 18 Sep 2026 ) | `BugFix-June26` | Barometer altitude hold sank in flight. Four firmware bugs fixed, throttle and temperature compensation added, validated on one PRIMUS_V5 with a laser. |

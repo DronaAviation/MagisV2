@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 19th Aug 2026                                          #
+ #  Last Modified: Mon, 21st Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -52,6 +52,7 @@
 #include "config/runtime_config.h"
 
 #include "command/command.h"
+#include "flight/acrobats.h"
 #include "altitudehold.h"
 
 // Kalman Filter Structure
@@ -281,6 +282,55 @@ static void resetAltSetpoint ( void ) {
   altTarget     = ( float ) EstAlt;
 }
 
+static int32_t shapedVelocitySetpoint ( float ctrlDt );
+
+/*
+ * Flip ( acrobats.cpp ) keeps ALT_HOLD on: its DEACTIVATE_RC_MODE ( BOXBARO ) is
+ * undone on the next RX frame while the app holds AUX3. It drives
+ * rcData [ THROTTLE ] itself ( 2000 in ASCEND and HOLD ) and ASCEND waits for
+ * VelocityZ >= 100 cm/s before it starts the rotation. Through setpoint shaping
+ * full stick is 40 cm/s, so ASCEND timed out after 2.2 s and never flipped
+ * ( flip-althold-regression, log-1.txt ). While a flip runs, the controller flies
+ * the raw rate path it had before setpoint shaping instead.
+ */
+  #define ALT_FLIP_MAX_CLIMB_CMS   120    // cm/s, ( 2000 - 1500 ) / 4 = 125, clamped as before shaping
+  #define ALT_FLIP_MAX_DESCENT_CMS 100    // cm/s
+  #define ALT_FLIP_EXIT_IGNORE_MS  100    // ms, throttle ignored after a flip ( RX refresh <= 20 ms )
+  #define ALT_FLIP_RETURN_MIN_CM   20     // cm, pre-flip AltHold below this is treated as on the ground: no return
+  #define ALT_FLIP_EXIT_I_HOLD_MS  500    // ms, velocity integrator held after a flip while its climb is braked
+
+static bool flipActive ( void ) {
+  #ifdef ENABLE_ACROBAT
+  return flipState != 0;
+  #else
+  return false;
+  #endif
+}
+
+// Pre-shaping controller: outside the deadband the rate is fed straight to the
+// velocity loop with no cap, ramp or slew; inside it the position loop holds
+// AltHold. The shaping state follows; the hand-back on exit is in
+// calculateAltHoldThrottleAdjustment ( ). cm/s.
+static int32_t flipVelocitySetpoint ( void ) {
+  int32_t setVel;
+
+  if ( setVelocity != 0 ) {
+    AltHold = EstAlt;
+    setVel  = setVelocity;
+  } else {
+    const int32_t error = constrain ( AltHold - EstAlt, -500, 500 );
+    calculatedError     = error;
+    altholdDebug8       = error;
+    setVel              = constrain ( ( pidProfile->P8 [ PIDALT ] * error / 128 ), -300, +300 );
+  }
+
+  altTarget     = ( float ) AltHold;
+  altRate       = 0.0f;
+  altGoalActive = false;
+  altVelTarget  = ( float ) setVel;
+  return setVel;
+}
+
 static void offloadHoverTrim ( void ) {
 
   static uint32_t lastOffload = 0;
@@ -341,9 +391,28 @@ static void applyMultirotorAltHold ( void ) {
     const int32_t deflection = rcData [ THROTTLE ] - 1500;
     const int32_t deadband   = rcControlsConfig->alt_hold_deadband;
 
+    // flip ( ) writes 2000 into rcData [ THROTTLE ] on its last tick as well, and
+    // it stays there until the next RX frame. Read as stick it would cancel the
+    // return-to-height goal set on flip exit, so ignore the throttle briefly.
+    static bool flipSeen          = false;
+    static uint32_t flipEndedAtMs = 0;
+    if ( flipActive ( ) ) {
+      flipSeen = true;
+    } else if ( flipSeen ) {
+      flipSeen      = false;
+      flipEndedAtMs = millis ( );
+    }
+    const bool flipExitGrace = ( flipEndedAtMs != 0 ) && ( ( millis ( ) - flipEndedAtMs ) < ALT_FLIP_EXIT_IGNORE_MS );
+
     if ( isLanding ) {
       // rcData [ THROTTLE ] holds landThrottle here ( mw.cpp ).
       setVelocity = constrain ( deflection / 4, -ALT_LAND_MAX_DESCENT_CMS, 0 );
+    } else if ( flipExitGrace ) {
+      setVelocity = 0;
+    } else if ( flipActive ( ) ) {
+      // rcData [ THROTTLE ] is written by flip ( ), not the pilot: raw rate as
+      // before setpoint shaping ( see flipVelocitySetpoint ( ) ).
+      setVelocity = ( ABS ( deflection ) > deadband ) ? constrain ( deflection / 4, -ALT_FLIP_MAX_DESCENT_CMS, ALT_FLIP_MAX_CLIMB_CMS ) : 0;
     } else if ( ABS ( deflection ) > deadband ) {
       const int32_t maxRate = ( deflection > 0 ) ? ALT_MAX_CLIMB_CMS : ALT_MAX_DESCENT_CMS;
       const int32_t rate    = constrain ( ( ABS ( deflection ) - deadband ) * maxRate / ( ALT_STICK_FULL_TRAVEL - deadband ), 0, maxRate );
@@ -418,6 +487,43 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   int32_t error;
   int32_t setVel;
 
+  // Flip hand-back ( flip-althold-regression, log-2.txt ). HOLD asks for 120 cm/s
+  // while the craft falls out of the rotation, so the velocity integrator winds
+  // up, and the flip's last setpoint ( 120 ) was left for the slew to walk down:
+  // together they drove a flyaway into the ceiling. On exit, restart from a zero
+  // setpoint with the hover trim from before the flip, and fly back to the
+  // altitude ALT_HOLD was holding when the flip was sent: HOLD's fixed 1.5 s of
+  // full throttle ends the flip 40-120 cm high ( log-3.txt, log-4.txt ). Writing
+  // AltHold makes it a goal, flown on the goal profile like take-off; the stick
+  // cancels it. Checked ahead of the tilt test so a flip that ends tilted is
+  // still handed back.
+  static bool altFlipWasActive       = false;
+  static int32_t altPreFlipVelocityI = 0;
+  static int32_t altPreFlipAltHold   = 0;
+  static bool altPreFlipReturn       = false;
+  static uint32_t altFlipExitAtMs    = 0;
+  const bool flipping                = flipActive ( );
+  if ( flipping && ! altFlipWasActive ) {
+    // Without BARO_MODE the integrator is chasing an AltHold nothing actuates;
+    // save what BARO entry would reset it to instead, and hold where the flip
+    // ends ( a user-code flip can start with ALT_HOLD off, command.cpp only
+    // checks MAG_MODE ).
+    altPreFlipVelocityI = FLIGHT_MODE ( BARO_MODE ) ? errorVelocityI : 0;
+    // Only return to a height the craft was flying at: a flip sent while armed on
+    // the floor ( idle-held, or AltHold still at the ground datum ) would fly back
+    // down to the floor with the motors running, so hold where the flip ends.
+    altPreFlipReturn    = FLIGHT_MODE ( BARO_MODE ) && ! altHoldGroundIdle && AltHold >= ALT_FLIP_RETURN_MIN_CM;
+    altPreFlipAltHold   = AltHold;
+  } else if ( ! flipping && altFlipWasActive ) {
+    resetAltSetpoint ( );
+    errorVelocityI  = altPreFlipVelocityI;
+    altFlipExitAtMs = millis ( );
+    if ( altPreFlipReturn ) {
+      AltHold = altPreFlipAltHold;
+    }
+  }
+  altFlipWasActive = flipping;
+
   if ( ! isThrustFacingDownwards ( &inclination ) ) {
     return result;
   }
@@ -428,11 +534,50 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   // late and sluggish.
   if ( ! ARMING_FLAG ( ARMED ) || altHoldGroundIdle ) {
     resetAltSetpoint ( );
-    errorVelocityI = 0;
+    errorVelocityI  = 0;
+    altFlipExitAtMs = 0;    // no post-flip integrator hold after a re-arm
     return result;
   }
 
   ctrlDt = constrainf ( ctrlDt, 0.0f, 0.05f );
+
+  setVel = flipActive ( ) ? flipVelocitySetpoint ( ) : shapedVelocitySetpoint ( ctrlDt );
+
+  error         = setVel - velocity_z;
+  altholdDebug9 = error;
+  result        = constrain ( ( pidProfile->P8 [ PIDVEL ] * error / 32 ), -300, +300 );
+
+  velControlDebug [ 0 ] = result;
+
+  // The flip ends climbing at ~120 cm/s; braking that from a near-zero setpoint
+  // drove the integrator to -20 counts in 0.4 s, and once the climb stopped that
+  // trim dropped the craft 15-46 cm below the target ( log-5.txt ). Hold the
+  // restored pre-flip trim while the P term ( at its clamp ) brakes the climb.
+  const bool holdFlipExitI = ( altFlipExitAtMs != 0 ) && ( ( millis ( ) - altFlipExitAtMs ) < ALT_FLIP_EXIT_I_HOLD_MS );
+
+  if ( ARMING_FLAG ( ARMED ) ) {
+    if ( ! holdFlipExitI ) {
+      errorVelocityI += ( pidProfile->I8 [ PIDVEL ] * error );
+    }
+  } else {
+    errorVelocityI = 0;
+  }
+
+  errorVelocityI = constrain ( errorVelocityI, -( 8192 * 300 ), ( 8192 * 300 ) );
+  result += errorVelocityI / 8192;
+
+  velControlDebug [ 1 ] = errorVelocityI / 8192;
+
+  result -= constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 );
+  velControlDebug [ 2 ] = constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 );
+
+  return result;
+}
+
+// Velocity setpoint from setpoint shaping: stick rate or goal profile moving the
+// target, fed forward with the position loop, clamped and slewed. cm/s.
+static int32_t shapedVelocitySetpoint ( float ctrlDt ) {
+  int32_t error;
 
   // AltHold written elsewhere ( take-off, setAltitude ( ), MSP ) becomes the goal;
   // the target stays where it is and travels there below.
@@ -490,29 +635,7 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   velDemand              = constrainf ( velDemand, -maxDescent, maxClimb );
   const float velStep = ALT_VEL_ACCEL_CMSS * ctrlDt;
   altVelTarget       += constrainf ( velDemand - altVelTarget, -velStep, velStep );
-  setVel              = lrintf ( altVelTarget );
-
-  error         = setVel - velocity_z;
-  altholdDebug9 = error;
-  result        = constrain ( ( pidProfile->P8 [ PIDVEL ] * error / 32 ), -300, +300 );
-
-  velControlDebug [ 0 ] = result;
-
-  if ( ARMING_FLAG ( ARMED ) ) {
-    errorVelocityI += ( pidProfile->I8 [ PIDVEL ] * error );
-  } else {
-    errorVelocityI = 0;
-  }
-
-  errorVelocityI = constrain ( errorVelocityI, -( 8192 * 300 ), ( 8192 * 300 ) );
-  result += errorVelocityI / 8192;
-
-  velControlDebug [ 1 ] = errorVelocityI / 8192;
-
-  result -= constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 );
-  velControlDebug [ 2 ] = constrain ( pidProfile->D8 [ PIDVEL ] * ( accZ_tmp + accZ_old ) / 512, -150, 150 );
-
-  return result;
+  return lrintf ( altVelTarget );
 }
 
 int16_t accalttemp;

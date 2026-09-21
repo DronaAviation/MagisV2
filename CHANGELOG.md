@@ -82,10 +82,10 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.8.0 (API 1.3.2) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.8.1 (API 1.3.2) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
-  shaping. The API patch bumps reflect behaviour changes only: 1.3.1 for
+  shaping, 3.8.1 for the flip fix under setpoint shaping. The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
   descent rate. No public signature changed, so existing projects compile and
@@ -166,6 +166,18 @@ that removes all legacy STM32F10x support.
   throttle at which hovering is impossible. The ramp doubles as the probe that
   separates the two states. The impact threshold was also lowered from 2.08 G to
   about 1.46 G, which a gentle touchdown can actually reach.
+- **AltitudeHold / Flip**: The app back-flip stopped rotating after altitude-hold
+  setpoint shaping (see *Changed*). The app keeps ALT_HOLD on through AUX3, so the
+  flip's full-throttle climb went through the shaped 40 cm/s stick limit and
+  never reached the 100 cm/s the flip waits for; it timed out after 2.2 s. While a
+  flip runs, altitude hold now flies the flip's throttle as a raw rate (up to
+  120 cm/s, no ramp) as before shaping. When the flip ends, the setpoint is
+  restarted at zero, the hover trim from before the flip is restored and held for
+  500 ms while the exit climb is braked (it had wound up and caused a flyaway into
+  the ceiling), and the drone flies back to the altitude it was holding when the
+  flip was sent, on the take-off goal profile (the flip ends 40-120 cm high). The
+  return is skipped for a flip sent on the ground, and moving the stick cancels
+  it. Validated on PRIMUS_X2_v1 over 7 flips.
 - **Barometer**: The ground reference could be re-zeroed in flight. Dropping the
   throttle stick to the bottom while armed called `baroResetGroundLevel`, so a
   throttle chop at 2 m left every later reading 2 m wrong. The reset is now

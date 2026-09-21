@@ -1,6 +1,6 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1789707311.7198277,
+    "mtime": 1789982644.6582634,
     "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
@@ -616,8 +616,8 @@
     "hash": "fa8922fb37b49f4a00d85bda08db7069"
   },
   "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1789707614.4493203,
-    "hash": "df3c365a2e8dfe7042146f923f62ae5f"
+    "mtime": 1789982644.6592693,
+    "hash": "5c173e6cc2284cb21ce7dcc3905d6e45"
   },
   "F:\\MagisV2\\src\\main\\mw.h": {
     "mtime": 1777868741.0,
@@ -1248,8 +1248,8 @@
     "hash": "5ad5fab4c6288f5d324d83f90d6eb6e1"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
-    "mtime": 1789724392.1329684,
-    "hash": "640774808c89b94d69fbb04e488e08b5"
+    "mtime": 1789982644.6816685,
+    "hash": "3726b4efdaabd45160ef1b8115bf926a"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
     "mtime": 1788998638.0,
@@ -1711,13 +1711,17 @@
     "mtime": 1789705228.2147949,
     "hash": "0b4a49df5235113ee6197f1005315fe9"
   },
+  "F:\\MagisV2\\tools\\warnings.py": {
+    "mtime": 1789966447.2663162,
+    "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
+  },
   "F:\\MagisV2\\CHANGELOG.md": {
     "mtime": 1789724776.1749432,
     "hash": "109ae341eb8568f89ae5d1706ce02c9a"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1789705245.6330056,
-    "hash": "2470d23a263084d9dbf3c5ac048f581f"
+    "mtime": 1789982210.085148,
+    "hash": "65ae5cddbfef0f15572cd768ca4a9b1b"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,

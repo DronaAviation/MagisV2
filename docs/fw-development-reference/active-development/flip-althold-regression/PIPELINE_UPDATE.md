@@ -1,3 +1,46 @@
+# PIPELINE_UPDATE: flip-althold-regression
+
+Staged for commit. **Target:** `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`,
+replaced by the full text below the line. `Firmware_Pipeline.md` does not change (no new
+task or loop stage). No DMA / timer / pin or public API changes, so no map or `docs/API/`
+updates.
+
+What changed against the current doc:
+- Key data structures: `flipState` / `flipActive()`. Source files: `acrobats.cpp`.
+- Primary functions: `applyMultirotorAltHold()` (exit-ignore window and flip branch),
+  `calculateAltHoldThrottleAdjustment()` (flip edge handling, `flipVelocitySetpoint()` /
+  `shapedVelocitySetpoint()`).
+- `altRate` source table: a Flip row.
+- The `calculateAltHoldThrottleAdjustment()` flowchart: edge block, flip branch, integrator hold.
+- New section **Flip interaction**, with its own flowchart.
+- The estimator/controller flowchart: flip branch.
+
+Every diagram edge was checked against the source (2026-09-21):
+- `mw.cpp`: 1255 `flip ( true )` → 1278 `annexCode()` → 1317 `applyAltHold()`; 772
+  `apmCalculateEstimatedAltitude()`; 904 `updateActivatedModes()`.
+- `altitudehold.cpp`: 835 `calculateAltHoldThrottleAdjustment()` (from the estimator);
+  366 `applyMultirotorAltHold()` (410 exit window, 412 flip branch); 506 / 517 edges;
+  527 tilt return; 535 ground reset; 544 setpoint selection; 556 integrator hold.
+- `rc_controls.h`: 69 `DEACTIVATE_RC_MODE` (XOR).
+
+The knowledge graph predates these functions, so it was not used for the check.
+
+## CLAUDE.md addition (draft, applied at commit)
+
+Add after the ALT_HOLD paragraph:
+
+> **During a flip, altitude hold is bypassed, not switched off.** `flip()`'s
+> `DEACTIVATE_RC_MODE(BOXBARO)` is an XOR that `updateActivatedModes()` undoes on the next
+> RX frame, so BARO_MODE stays on while the app holds AUX3. The flip drives
+> `rcData[THROTTLE]` (2000 in ASCEND/HOLD), and `calculateAltHoldThrottleAdjustment()`
+> flies the raw rate for it (`flipVelocitySetpoint()`): ASCEND needs 100 cm/s, and the
+> shaped 40 cm/s never gets there. On flip exit the setpoint is reset, the pre-flip
+> integrator is restored and held for 500 ms, and the pre-flip `AltHold` becomes a goal.
+> Details: `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md` (Flip
+> interaction) and `active-development/flip-althold-regression/`.
+
+---
+
 # Altitude Hold & Estimator (`altitudehold.cpp`)
 
 ## Overview

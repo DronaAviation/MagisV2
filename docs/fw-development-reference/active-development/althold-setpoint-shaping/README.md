@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( FW 3.8.0 / API 1.3.2, 18 Sep 2026 ). Stick shaping and landing flown; goal-profile take-off built after the last flight - see Open items |
+| **Status** | **Closed** in `2a8d59a` ( FW 3.8.0 / API 1.3.2, 18 Sep 2026 ). Stick shaping and landing flown; goal-profile take-off built after the last flight - see Open items |
 | **Branch** | `BugFix-June26`, base `d2e900c` |
 | **Target** | `PRIMUS_X2_v1` |
 | **Last updated** | 18 Sep 2026 |
