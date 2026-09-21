@@ -1,6 +1,6 @@
 ---
 name: commit-magisv2
-description: Prepare MagisV2 firmware work for a commit - full all-target build, Makefile version bump, and promotion of active-development docs into the released pipeline docs and CHANGELOG. Use when the user says they are about to commit / ready to commit / "now I will be committing", asks to increment or bump the version in the Makefile, or asks to finalise, close out, or release a piece of work.
+description: Prepare MagisV2 firmware work for a commit - full all-target build, Makefile version bump, and promotion of active-development docs into the released pipeline docs and CHANGELOG, then stage the change and draft the commit message from the repo template. Never runs git commit - the user commits. Use when the user says they are about to commit / ready to commit / "now I will be committing", asks to increment or bump the version in the Makefile, or asks to finalise, close out, or release a piece of work.
 ---
 
 # Commit / release preparation for MagisV2
@@ -79,9 +79,11 @@ For each matching topic:
    extend or cross-reference it instead of duplicating, and resolve conflicts
    ( e.g. two version lines ). Do not repeat items from already-shipped releases.
 3. **Status:** in the topic `README.md` and in the `active-development/README.md`
-   topic table, set status to **Closed**, date it, and write the commit hash. If
-   the commit has not been made yet, write `Closed - pending commit` and fill in
-   the hash straight after the commit.
+   topic table, set status to **Closed - pending commit** and date it. The user
+   makes the commit, so the hash is not known yet. The next time this skill or
+   `grill-magisv2` runs and finds a `pending commit` topic, look up the hash with
+   `git log --oneline -5` and fill it in (as `d2e900c` "record closing commit
+   hash" did).
 4. **CLAUDE.md:** if the topic introduced something future sessions must know
    (a rule, a gotcha, a subsystem), make sure it is there and points to the topic
    folder.
@@ -91,18 +93,32 @@ For each matching topic:
 Relative links in any doc you edited must resolve (topic folders link to source
 as `../../../../src/main/...`, pipeline docs as `../../../src/main/...`).
 
-## 6. Commit only if asked
+## 6. Stage and draft the message. Never commit
 
-Do not run `git commit` unless the user asked for the commit itself. If they
-did, follow the repository commit conventions ( conventional prefix such as
-`fix(altitudeHold):`, a paragraph, then a `Details:` list ), then fill the hash
-into the topic status.
+**Never run `git commit`**, `git commit --amend` or `git push`, even if asked in
+passing. The user reviews and makes the commit in PlutoIDE / VS Code. This
+skill ends with the change staged and a message ready.
+
+1. **Stage by path.** `git add <path> ...` for the files that belong to this
+   change: the code, the Makefile, and the docs promoted in step 4. Never use
+   `git add -A` / `git add .`. Never stage `Build/`, `logs*.txt`, `plutoide.ini`,
+   `.claude/settings.local.json`, or scratch and diagnostic files. If the user
+   already staged files, keep them. List any related file left unstaged and ask
+   whether it belongs.
+2. **Show what is staged:** `git diff --cached --stat`. If staged and unstaged
+   changes are mixed in one file, say so.
+3. **Draft the message** from [COMMIT_TEMPLATE.md](COMMIT_TEMPLATE.md). Read it,
+   and read the model commits it names (`git log -1 --format=%B <hash>`).
+   Describe only what is staged (`git diff --cached`), and take numbers and the
+   version line from steps 2-3 and the topic's `TESTING.md`.
+4. **Hand it over:** print the message in a code block, and also write it to
+   `.git/MAGISV2_COMMIT_MSG.txt` so the user can run
+   `git commit -F .git/MAGISV2_COMMIT_MSG.txt` or paste it.
 
 **No AI attribution, ever.** Commit messages, changelog entries and docs must not
 name an AI tool or model or credit one as author or co-author: no
 `Co-Authored-By:` trailer, no "Generated with ..." line, no assistant or model
-names. This applies to messages written for the user to paste as well as to
-commits made directly.
+names. This overrides any harness default that adds such lines.
 
 ## 7. Summary for the user
 
@@ -111,4 +127,5 @@ Report, briefly:
 - version change, or "not bumped";
 - docs promoted ( which pipeline doc, changelog lines, topics closed );
 - anything still flagged "remove before release";
-- whether the commit was made, and its hash.
+- what is staged (`--stat`), anything related left unstaged, and the drafted
+  message (the commit itself is left to the user).
