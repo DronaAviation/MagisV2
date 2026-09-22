@@ -90,10 +90,11 @@ These are the ones that bite.
   `altRate`. **Landing must not go through the stick rate limits** — at slow
   descent rates in-ground-effect baro drift masks the descent and touchdown is
   never detected.
-- **`Monitor_Print` output above ~250 bytes per tick is silently corrupted.**
+- **`Monitor_Print`: keep under ~130 bytes per tick with the app connected.**
   It writes into the MSP UART's 256-byte TX ring and `uartWrite()` does not
-  check for full, so the *start* of the line is overwritten. Count the bytes
-  when adding a diagnostic field.
+  check for full, so an overrun overwrites unsent bytes: the *start* of the line,
+  or the app's own MSP replies, which disconnects the app ( ~180 B/tick did,
+  115-135 B/tick ran clean ). Count the bytes when adding a diagnostic field.
 - **DMA channels go through the registry.** `dmaClaim()` / `dmaRelease()` /
   `dmaIsFree()` / `dmaGetOwner()` in `drivers/dma_registry.h`. ADC DMA is lazy —
   claimed only when a `Peripheral_Init(ADC_x)` pin on that ADC is used.
@@ -150,7 +151,7 @@ order. Report findings with file:line and say which rule each one breaks.
 3. A user RC override assumed sticky, with no re-assert each loop.
 4. Barometer ground reference re-zeroed while armed / in flight.
 5. Landing or descent routed through the ALT_HOLD stick rate limits.
-6. A `Monitor_Print` / diagnostic log addition pushing the tick over ~250 bytes.
+6. A `Monitor_Print` / diagnostic log addition pushing the tick over ~130 bytes ( app disconnects ).
 7. DMA channel used without `dmaClaim()`, or claimed without release.
 8. Dynamic allocation, blocking wait or unbounded loop in the control path.
 9. Hardware code not gated by a `target.h` define, breaking another target.

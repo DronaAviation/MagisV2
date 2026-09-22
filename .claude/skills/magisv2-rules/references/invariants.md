@@ -83,7 +83,7 @@ and touchdown is never detected — the aircraft hovers a few cm up indefinitely
 
 The controller is held in reset while disarmed, and idle-held after stick-arming.
 
-## 7. `Monitor_Print` has a ~250 byte/tick ceiling
+## 7. `Monitor_Print`: keep under ~130 bytes/tick with the app connected ( ~180 disconnected the app )
 
 - **API:** `src/main/API/Debugging.h:45,52,78`
 

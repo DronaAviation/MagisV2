@@ -102,7 +102,62 @@ static int16_t head      = 0;
 static int16_t rear      = -1;
 static int16_t itemCount = 0;
 #ifdef LASER_ALT
-float _time_constant_z = 1.5f;
+// Complementary-filter time constant, s. One value for the laser and the baro path, so a
+// source change does not also change the filter gains ( tof-althold-fusion task 3 ).
+  #define ALT_EST_TAU_S 1.5f
+// Laser samples taken above this tilt are rejected ( slant range, e.g. during a flip ).
+  #define ALT_TOF_MAX_TILT_DECIDEG 250
+// Laser <-> baro handover ( tof-althold-fusion task 5 ). The VL53L0X dropped out at ~172 cm
+// on the test floor, so the laser hands over to the baro above the upper edge and takes back
+// below the lower edge; the 20 cm band stops it chattering.
+  #define ALT_TOF_HANDOVER_UP_CM   160.0f
+  #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
+// No good laser sample for this long ( dropout, tilt, sensor silent ) hands over to the baro.
+// Shorter out-of-range or tilt gaps coast on the accelerometer; a silent sensor keeps its last
+// reading, which keeps correcting until the timeout. 120 ms is 3 missed samples at 33 ms plus the
+// 10 ms estimator tick ( 100 ms tripped on 2 ).
+  #define ALT_TOF_DROPOUT_MS       120
+// Consecutive good samples before the laser takes back over: below the lower edge after a
+// climb above the band, below the upper edge after a dropout or tilt handover ( a hover
+// between the edges must not stay on the baro for good ).
+  #define ALT_TOF_RETURN_SAMPLES   3
+// Lag of the driver's LASER_LPS 0.1 IIR at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s. The laser
+// reading is advanced by VelocityZ times this for the baro offset and the return shift ( the
+// object test advances the estimate instead ), so speed is not baked into either.
+  #define ALT_TOF_IIR_LAG_S        0.3f
+// Object under the craft ( task 6 ). A raw laser sample this far from the estimate is a change of
+// surface ( hand, box, table edge ), not motion: the estimate holds on the baro for the hold-off,
+// then re-bases to the new surface once the laser is steady, and the setpoint flies back to the
+// old clearance on the goal profile. Nearer than half the step for 3 samples cancels it.
+  #define ALT_TOF_STEP_CM          30.0f
+  #define ALT_TOF_STEP_HOLD_MS     2500
+  #define ALT_TOF_STEADY_CM        10.0f    // raw samples within this of each other count as steady
+  #define ALT_TOF_STEADY_SAMPLES   15       // 0.5 s at 33 ms
+// Window test ( task 14 ). The wide VL53L0X cone turns an edge into a ramp of ~0.5-0.8 s, which
+// the estimate absorbs sample by sample ( a slowly slid box, or any edge crossed while moving ).
+// So compare the raw laser's change over the last 0.5 s with the change of _position_base_z,
+// the accelerometer-integrated position. The laser's position ( k1 ) correction does not move it;
+// its velocity ( k2 ) correction still reaches it, weakly, so the window reads a little less than
+// the true surface change.
+// A mismatch above ALT_TOF_STEP_CM is a change of surface; above ALT_TOF_SUSPECT_CM the
+// baro-offset average pauses so an edge cannot leak into it.
+  #define ALT_TOF_WINDOW_MS        500
+  #define ALT_TOF_WINDOW_MIN_MS    400     // shortest span the test uses after a reset
+  #define ALT_TOF_SUSPECT_CM       15.0f
+  #define ALT_TOF_RING_LEN         24      // > 0.66 s of samples at 33 ms
+// Once the window passes ALT_TOF_SUSPECT_CM the reference is frozen at the start of the edge, the
+// laser correction pauses ( coast on the accelerometer ) and the mismatch keeps adding up, so an
+// edge spread over more than the window still reaches ALT_TOF_STEP_CM. If it has not after this
+// long, it is a slope: the laser correction resumes and the craft follows it.
+  #define ALT_TOF_SUSPECT_MAX_MS   1000
+// At that timeout a mismatch above this is an edge ( hold-off, or the baro above the band );
+// at or below it, a slope that is followed. Keeps margin under the 30 cm per-sample residual.
+  #define ALT_TOF_SUSPECT_ESCALATE_CM 20.0f
+// No window-based suspicion for this long after becoming airborne: lift-off reads up to ~22 cm.
+  #define ALT_TOF_AIRBORNE_GRACE_MS 1000
+// Time constant of the baro-minus-laser offset average kept while on the laser, s.
+  #define ALT_BARO_OFFSET_TAU_S    2.0f
+float _time_constant_z = ALT_EST_TAU_S;
 #else
 float _time_constant_z = 2.0f;
 #endif
@@ -272,6 +327,7 @@ static float altTarget         = 0.0f;     // AltHold with the fraction kept, cm
 static float altGoal           = 0.0f;     // commanded altitude the target is travelling to, cm
 static bool altGoalActive      = false;
 static bool altHoldGroundIdle  = false;    // armed on the throttle stick, motors held at idle
+static int32_t altPreFlipAltHold = 0;      // AltHold when a flip was sent, flown back to after it, cm
 
 // Drop all setpoint shaping state and pin the target to the current estimate.
 static void resetAltSetpoint ( void ) {
@@ -499,7 +555,6 @@ int32_t calculateAltHoldThrottleAdjustment ( int32_t velocity_z, float accZ_tmp,
   // still handed back.
   static bool altFlipWasActive       = false;
   static int32_t altPreFlipVelocityI = 0;
-  static int32_t altPreFlipAltHold   = 0;
   static bool altPreFlipReturn       = false;
   static uint32_t altFlipExitAtMs    = 0;
   const bool flipping                = flipActive ( );
@@ -840,33 +895,313 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
 }
 
   #ifdef LASER_ALT
+static bool altSourceLaser = true;    // estimator corrected by the laser ( true ) or the baro
+static bool altStepPending = false;   // object step seen, holding on the baro ( task 6 )
+
+uint8_t altHoldSource ( void ) {
+  return altStepPending ? 2 : ( altSourceLaser ? 1 : 0 );
+}
+
+    #ifdef LASER_TOF
+// Recent raw laser samples with the inertial position at the same instant ( task 14 ).
+static float tofRingRawCm [ ALT_TOF_RING_LEN ];
+static float tofRingBaseCm [ ALT_TOF_RING_LEN ];
+static uint32_t tofRingMs [ ALT_TOF_RING_LEN ];
+static uint8_t tofRingHead  = 0;    // next slot to write
+static uint8_t tofRingCount = 0;
+
+static void tofWindowReset ( void ) {
+  tofRingCount = 0;
+}
+
+static void tofWindowPush ( uint32_t nowMs, float rawCm, float baseCm ) {
+  tofRingRawCm [ tofRingHead ]  = rawCm;
+  tofRingBaseCm [ tofRingHead ] = baseCm;
+  tofRingMs [ tofRingHead ]     = nowMs;
+  tofRingHead                   = ( uint8_t ) ( ( tofRingHead + 1 ) % ALT_TOF_RING_LEN );
+  if ( tofRingCount < ALT_TOF_RING_LEN ) {
+    tofRingCount++;
+  }
+}
+
+// Laser change minus inertial change since the newest stored sample at least ALT_TOF_WINDOW_MS old
+// ( or the oldest one, if it is at least ALT_TOF_WINDOW_MIN_MS old ). False when the ring is too short.
+static bool tofWindowMismatch ( uint32_t nowMs, float rawCm, float baseCm, float *mismatchCm, float *refRawCm, float *refBaseCm ) {
+  bool found = false;
+  uint8_t pick = 0;
+  for ( uint8_t k = 0; k < tofRingCount; k++ ) {    // oldest to newest
+    const uint8_t idx = ( uint8_t ) ( ( tofRingHead + ALT_TOF_RING_LEN - tofRingCount + k ) % ALT_TOF_RING_LEN );
+    const uint32_t ageMs = nowMs - tofRingMs [ idx ];
+    if ( ageMs >= ALT_TOF_WINDOW_MS || ( k == 0 && ageMs >= ALT_TOF_WINDOW_MIN_MS ) ) {
+      pick  = idx;
+      found = true;
+    }
+  }
+  if ( found ) {
+    *mismatchCm = ( rawCm - tofRingRawCm [ pick ] ) - ( baseCm - tofRingBaseCm [ pick ] );
+    *refRawCm   = tofRingRawCm [ pick ];
+    *refBaseCm  = tofRingBaseCm [ pick ];
+  }
+  return found;
+}
+
+// Move the whole altitude frame by deltaCm: filter state, its delayed history, the smoother and
+// the setpoint. Every controller error is a difference of these, so none of them changes and a
+// reference change ( baro -> laser ) does not move the aircraft ( task 5 ).
+static void altShiftFrame ( float deltaCm ) {
+  const bool holdTracksTarget = ( AltHold == lrintf ( altTarget ) );
+  _position_base_z += deltaCm;
+  _position_z      += deltaCm;
+  for ( int i = 0; i < QUEUE_MAX_LENGTH; i++ ) {
+    buff [ i ] += deltaCm;
+  }
+  altHoldFilter.X += deltaCm;
+  EstAlt           = lrintf ( altHoldFilter.X );
+  altTarget       += deltaCm;
+  altGoal         += deltaCm;
+  if ( holdTracksTarget ) {
+    AltHold = lrintf ( altTarget );    // keep them equal, or shaping reads a new goal
+  } else {
+    AltHold += lrintf ( deltaCm );
+  }
+  altPreFlipAltHold += lrintf ( deltaCm );    // a post-flip return goal stays in the same frame
+  tofWindowReset ( );                         // stored inertial positions are in the old frame
+}
+    #endif
+
 void checkReading ( ) {
   uint32_t baro_update_time;
-  float dt = 0.0f;
-  float tilt                 = 0;
-  static int32_t baro_offset = 0;
+  float baroDt = 0.0f;              // s since the previous baro sample, 0 when none is new
+  float tilt   = 0;                 // rad
+  static float baro_offset = 0.0f;  // cm, filtered baro altitude minus laser height, updated on the laser
+    #ifdef LASER_TOF
+  static bool tofTiltOk    = true;  // last laser sample taken within ALT_TOF_MAX_TILT_DECIDEG
+    #endif
 
   baro_update_time = getBaroLastUpdate ( );
   if ( baro_update_time != baro_last_update ) {
-    dt               = ( float ) ( baro_update_time - baro_last_update ) * 0.001f;
+    baroDt           = ( float ) ( baro_update_time - baro_last_update ) * 0.001f;
     Baro_Height      = baroCalculateAltitude ( );
     filtered         = ( 0.75f * filtered ) + ( ( 1 - 0.75f ) * Baro_Height );
     baro_last_update = baro_update_time;
   }
     #ifdef LASER_TOF
+  const uint32_t nowMs = millis ( );
+  static uint32_t lastGoodTofMs  = 0;       // time of the last usable laser sample
+  static uint8_t returnCount     = 0;       // consecutive usable samples below the lower edge
+  static bool offsetSeeded       = false;
+  static uint32_t lastOffsetMs   = 0;
+  static bool leftOnDropout      = false;   // last handover was a dropout / tilt, not a climb
+  static uint32_t stepStartMs    = 0;
+  static float steadyRefCm       = 0.0f;
+  static uint8_t steadyCount     = 0;
+  static uint8_t cancelCount     = 0;
+  static bool tofSuspect         = false;   // laser and inertial disagree: coast, keep the edge out
+  static bool windowReady        = false;   // the window has enough history ( false after a reset )
+  static uint32_t suspectStartMs = 0;
+  static float suspectRefRawCm   = 0.0f;
+  static float suspectRefBaseCm  = 0.0f;
+  static float suspectMismatchCm = 0.0f;
+  static bool suspectEscalate    = false;   // timed out as an edge: start the hold-off next sample
+  static float lastRawCm         = 0.0f;
+  static bool wasAirborne        = false;
+  static uint32_t airborneSinceMs = 0;
+  bool newGoodSample             = false;
+  float rawCm                    = 0.0f;    // this sample before the driver IIR, tilt-corrected
+
   if ( isTofDataNew ( ) && ( ! isOutofRange ( ) ) ) {
-    ToF_Height       = ( float ) NewSensorRange / 10.0f;
     isTofDataNewflag = false;
-    tilt             = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
-    if ( tilt < 25 )
-      ToF_Height *= cos_approx ( tilt );
+    // The old gate compared radians with 25, so it never rejected a tilted sample.
+    const int16_t tiltDeciDeg = calculateTiltAngle ( &inclination );
+    tofTiltOk                 = tiltDeciDeg < ALT_TOF_MAX_TILT_DECIDEG;
+    if ( ! tofTiltOk ) {
+      tofRequestReseed ( );    // keep slant-range samples out of the driver's IIR history
+      tofWindowReset ( );
+    } else {
+      tilt       = degreesToRadians ( ( int16_t ) ( tiltDeciDeg / 10 ) );
+      ToF_Height = ( float ) NewSensorRange / 10.0f * cos_approx ( tilt );
+      rawCm      = ( float ) RangingMeasurementData.RangeMilliMeter / 10.0f * cos_approx ( tilt );
+      if ( ToF_Height > 0.0f ) {
+        newGoodSample = true;
+      }
+    }
+  }
+  const bool tofUsable = tofTiltOk && ( ! isOutofRange ( ) ) && ToF_Height > 0.0f;
+  // Laser height advanced past the driver IIR's lag, for pairing with the baro or the estimate.
+  const float tofNowCm = ToF_Height + ( float ) VelocityZ * ALT_TOF_IIR_LAG_S;
+
+  // Object under the craft ( task 6 ): compare each raw sample with the estimate. Off while
+  // disarmed, idling on the ground or landing ( touchdown must stay on the laser ), and outside
+  // the laser band ( the handover owns that ).
+  const bool airborne = ARMING_FLAG ( ARMED ) && ( ! altHoldGroundIdle ) && ( ! isLanding );
+  if ( airborne && ( ! wasAirborne ) ) {
+    airborneSinceMs = nowMs;
+  }
+  wasAirborne          = airborne;
+  const bool windowArmed = airborne && ( nowMs - airborneSinceMs ) >= ALT_TOF_AIRBORNE_GRACE_MS;
+  float windowMismatchCm = 0.0f;
+  bool haveWindow        = false;
+  if ( newGoodSample ) {
+    float refRawCm  = 0.0f;
+    float refBaseCm = 0.0f;
+    haveWindow      = tofWindowMismatch ( nowMs, rawCm, _position_base_z, &windowMismatchCm, &refRawCm, &refBaseCm );
+    tofWindowPush ( nowMs, rawCm, _position_base_z );
+    windowReady = haveWindow;
+    lastRawCm   = rawCm;
+    if ( ! windowArmed ) {
+      haveWindow = false;    // lift-off: the window may not start a suspicion or a hold-off yet
+    }
+    if ( tofSuspect ) {
+      // Keep adding up against the reference frozen when the edge began.
+      suspectMismatchCm = ( rawCm - suspectRefRawCm ) - ( _position_base_z - suspectRefBaseCm );
+    } else if ( haveWindow && fabsf ( windowMismatchCm ) > ALT_TOF_SUSPECT_CM && altSourceLaser && airborne && ( ! altStepPending ) ) {
+      tofSuspect        = true;
+      suspectStartMs    = nowMs;
+      suspectRefRawCm   = refRawCm;
+      suspectRefBaseCm  = refBaseCm;
+      suspectMismatchCm = windowMismatchCm;
+    }
+  }
+  if ( tofSuspect ) {
+    if ( ( ! altSourceLaser ) || ( ! airborne ) || altStepPending ) {
+      tofSuspect      = false;
+      suspectEscalate = false;
+    } else if ( ( ! suspectEscalate ) && fabsf ( suspectMismatchCm ) < 0.5f * ALT_TOF_SUSPECT_CM ) {
+      tofSuspect = false;    // laser and inertial agree again
+    } else if ( ( ! suspectEscalate ) && ( nowMs - suspectStartMs ) > ALT_TOF_SUSPECT_MAX_MS ) {
+      if ( fabsf ( suspectMismatchCm ) <= ALT_TOF_SUSPECT_ESCALATE_CM ) {
+        tofSuspect = false;    // a slope, not an edge: follow it
+      } else if ( lastRawCm >= ALT_TOF_HANDOVER_UP_CM ) {
+        tofSuspect     = false;    // an edge that ends above the band: straight to the baro
+        altSourceLaser = false;
+        leftOnDropout  = true;
+      } else {
+        suspectEscalate = true;    // an edge: the next sample starts the hold-off
+      }
+    } else if ( suspectEscalate && ( nowMs - suspectStartMs ) > ALT_TOF_SUSPECT_MAX_MS + ALT_TOF_DROPOUT_MS ) {
+      tofSuspect      = false;    // no usable sample came to start it: hand to the baro
+      suspectEscalate = false;
+      altSourceLaser  = false;
+      leftOnDropout   = true;
+    }
+  }
+  if ( ( ! altSourceLaser ) || ( ! airborne ) ) {
+    if ( altStepPending && altSourceLaser && isLanding && tofUsable ) {
+      // Landing began during a hold-off: take the new surface now ( frame shift, the craft does
+      // not move ) rather than hand the whole step to correctedWithTof ( ), which would slow the
+      // descent and delay touchdown.
+      const float landDeltaCm = tofNowCm - _position_z;
+      altShiftFrame ( landDeltaCm );
+      baro_offset -= landDeltaCm;
+    }
+    altStepPending = false;
+  } else if ( newGoodSample && rawCm < ALT_TOF_HANDOVER_UP_CM ) {
+    // The estimate follows the IIR-lagged laser, so it trails the raw reading by VelocityZ times
+    // the lag in steady motion ( up to ~30 cm in a landing or flip climb ); compare against the
+    // estimate advanced by that lag, so only a change of surface counts.
+    const float expectedCm = _position_z + ( float ) VelocityZ * ALT_TOF_IIR_LAG_S;
+    const float residCm    = rawCm - expectedCm;
+    if ( ! altStepPending ) {
+      if ( fabsf ( residCm ) > ALT_TOF_STEP_CM || ( haveWindow && fabsf ( windowMismatchCm ) > ALT_TOF_STEP_CM )
+           || ( tofSuspect && ( fabsf ( suspectMismatchCm ) > ALT_TOF_STEP_CM || suspectEscalate ) ) ) {
+        altStepPending  = true;
+        tofSuspect      = false;
+        suspectEscalate = false;
+        stepStartMs    = nowMs;
+        steadyRefCm    = rawCm;
+        steadyCount    = 0;
+        cancelCount    = 0;
+        tofRequestReseed ( );    // the driver IIR follows the new surface at once
+        tofWindowReset ( );
+      }
+    } else {
+      if ( fabsf ( residCm ) < 0.5f * ALT_TOF_STEP_CM ) {
+        cancelCount++;
+      } else {
+        cancelCount = 0;
+      }
+      if ( fabsf ( rawCm - steadyRefCm ) <= ALT_TOF_STEADY_CM ) {
+        if ( steadyCount < 255 ) {
+          steadyCount++;
+        }
+      } else {
+        steadyRefCm = rawCm;
+        steadyCount = 0;
+      }
+      if ( cancelCount >= ALT_TOF_RETURN_SAMPLES ) {
+        altStepPending = false;    // the surface came back: nothing to do
+        tofRequestReseed ( );
+        tofWindowReset ( );
+      } else if ( ( nowMs - stepStartMs ) >= ALT_TOF_STEP_HOLD_MS && steadyCount >= ALT_TOF_STEADY_SAMPLES ) {
+        // Still there and steady: re-base the estimate to the new surface without moving the
+        // aircraft, then give the old setpoint back as a goal so it climbs over the object ( or
+        // descends after it is gone ) on the goal profile.
+        const int32_t holdBefore = AltHold;
+        const float deltaCm      = rawCm - expectedCm;
+        altShiftFrame ( deltaCm );
+        baro_offset -= deltaCm;    // the offset moves with the frame ( baro minus the new surface )
+        // An active goal ( take-off, flip return, MSP ) keeps its end point over the old surface.
+        AltHold        = altGoalActive ? lrintf ( altGoal - deltaCm ) : holdBefore;
+        altPreFlipAltHold -= lrintf ( deltaCm );    // a flip return also keeps its clearance
+        ToF_Height     = rawCm;
+        altStepPending = false;
+        tofRequestReseed ( );
+      }
+    }
   }
 
-  if ( ( ToF_Height > 0 && ToF_Height < 200 ) && ( ! isOutofRange ( ) ) ) {
-    baro_offset = filtered - ToF_Height;
-    correctedWithTof ( ToF_Height );
+  if ( altSourceLaser ) {
+    if ( newGoodSample ) {
+      lastGoodTofMs = nowMs;
+    }
+    if ( newGoodSample && ( ! altStepPending ) && ( ! tofSuspect ) && windowReady ) {
+      // Slow average of baro minus laser, so the offset frozen at a handover is not one
+      // noisy baro sample ( 13 cm sd sample to sample on this board ).
+      const float sampleOffset = Baro_Height - tofNowCm;
+      if ( ! offsetSeeded ) {
+        baro_offset  = sampleOffset;
+        offsetSeeded = true;
+      } else {
+        // At most one sample period, so the first sample after a pause gets a normal weight.
+        const float dtS = fminf ( ( float ) ( nowMs - lastOffsetMs ) * 0.001f, 0.05f );
+        baro_offset += ( sampleOffset - baro_offset ) * ( dtS / ( ALT_BARO_OFFSET_TAU_S + dtS ) );
+      }
+      lastOffsetMs = nowMs;
+    }
+
+    if ( tofUsable && ToF_Height >= ALT_TOF_HANDOVER_UP_CM ) {
+      altSourceLaser = false;    // above the band: hand over, offset frozen
+      leftOnDropout  = false;
+    } else if ( ( nowMs - lastGoodTofMs ) > ALT_TOF_DROPOUT_MS ) {
+      altSourceLaser = false;    // no usable sample for too long: hand over, offset frozen
+      leftOnDropout  = true;
+    }
+  } else if ( newGoodSample && ToF_Height < ( leftOnDropout ? ALT_TOF_HANDOVER_UP_CM : ALT_TOF_HANDOVER_DOWN_CM ) ) {
+    if ( ++returnCount >= ALT_TOF_RETURN_SAMPLES ) {
+      // Back on the laser: move the whole altitude frame by the baro drift so the numbers
+      // change and the aircraft does not ( pilot's choice, task 5 ).
+      const float returnDeltaCm = tofNowCm - _position_z;
+      altShiftFrame ( returnDeltaCm );
+      baro_offset -= returnDeltaCm;    // what the baro drifted by is now in the offset
+      altSourceLaser = true;
+      lastGoodTofMs  = nowMs;
+      lastOffsetMs   = nowMs;    // the offset average carries on from its frozen value
+    }
+  } else if ( newGoodSample || ( ! tofUsable ) ) {
+    returnCount = 0;
+  }
+  if ( altSourceLaser ) {
+    returnCount = 0;
+  }
+
+  if ( altSourceLaser && ( ! altStepPending ) ) {
+    if ( tofUsable && ( ! tofSuspect ) ) {
+      correctedWithTof ( ToF_Height );
+    } else {
+      _position_error_z = 0.0f;    // short gap or suspected edge: coast on the accelerometer
+    }
   } else {
-    correctedWithBaro ( Baro_Height - baro_offset, dt );
+    correctedWithBaro ( Baro_Height - baro_offset, baroDt );
   }
     #endif
 
@@ -894,7 +1229,7 @@ void checkReading ( ) {
    correctedWithBaro( fused, dt);
    } */
   else {
-    correctedWithBaro ( Baro_Height - baro_offset, dt );
+    correctedWithBaro ( Baro_Height - baro_offset, baroDt );
   }
 
     #endif
@@ -925,6 +1260,14 @@ void correctedWithBaro ( float baroAlt, float dt ) {
   }
   _position_error_z = baroAlt - ( hist_position_base_z + _position_correction_z );
 
+  #ifdef LASER_ALT
+  // One time constant for both sources: switching 1.5 s <-> 2 s at every laser/baro change
+  // disturbed the estimate. Tilted laser samples are already rejected in checkReading ( ).
+  if ( _time_constant_z != ALT_EST_TAU_S ) {
+    _time_constant_z = ALT_EST_TAU_S;
+    updateGains ( );
+  }
+  #else
   // Deci-degrees: 300 = 30 deg ( the old 30 meant 3 deg, so the slow ~15 s filter
   // ran all the time and the estimate lagged high in descents ). 30 deg is above
   // the 20 deg max_angle_inclination, so this only trips in aggressive flight.
@@ -935,17 +1278,20 @@ void correctedWithBaro ( float baroAlt, float dt ) {
     _time_constant_z = 2;
     updateGains ( );
   }
+  #endif
 }
 
   #ifdef LASER_ALT
-void correctedWithTof ( float ToF_Height ) {
+void correctedWithTof ( float tofHeightCm ) {
   if ( first_reads == 0 ) {
-    setAltitude ( ToF_Height );
+    setAltitude ( tofHeightCm );
     first_reads++;
   }
-  _position_error_z = ToF_Height - EstAlt;
-  if ( _time_constant_z != 1.5f ) {
-    _time_constant_z = 1.5;
+  // Error against the filter's own position, not the Kalman-smoothed, integer EstAlt,
+  // so no smoothed output is fed back into the filter.
+  _position_error_z = tofHeightCm - _position_z;
+  if ( _time_constant_z != ALT_EST_TAU_S ) {
+    _time_constant_z = ALT_EST_TAU_S;
     updateGains ( );
   }
 }

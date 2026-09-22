@@ -37,7 +37,7 @@
 #include "ranging_vl53l0x.h"
 #include "API/Scheduler-Timer.h"
 
-#define LASER_LPS 0.1
+#define LASER_LPS 0.1f
 
 
 VL53L0X_Dev_t MyDevice;
@@ -54,6 +54,12 @@ bool isTofDataNewflag = false;
 bool out_of_range = false;
 bool startRanging = false;
 bool useRangingSensor=false;
+static bool tofReseedPending = true;    // seed the IIR from the next valid sample ( boot, gap, rejection )
+
+void tofRequestReseed(void)
+{
+    tofReseedPending = true;
+}
 
 Interval rangePoll;
 
@@ -158,7 +164,6 @@ void ranging_init(void)
 void getRange()
 {
     VL53L0X_Error Status = Global_Status;
-    static uint8_t dataFlag = 0, SysRangeStatus = 0;
     static bool startNow = true;
 
 
@@ -201,16 +206,28 @@ void getRange()
 
               //  NewSensorRange = RangingMeasurementData.RangeMilliMeter;
 
-                NewSensorRange = NewSensorRange*(1-LASER_LPS)+RangingMeasurementData.RangeMilliMeter*LASER_LPS;
+                // IIR kept in float: truncating it to uint16_t every update made it stick
+                // until the raw range was >= 10 mm above it ( a hidden 1 cm deadband ).
+                static float filteredRangeMm = 0.0f;
+                if (tofReseedPending) {
+                    tofReseedPending = false;
+                    filteredRangeMm = (float) RangingMeasurementData.RangeMilliMeter;
+                } else {
+                    filteredRangeMm = filteredRangeMm * (1.0f - LASER_LPS) + (float) RangingMeasurementData.RangeMilliMeter * LASER_LPS;
+                }
+                NewSensorRange = (uint16_t) (filteredRangeMm + 0.5f);
 
                 out_of_range = false;
 
             	} else {
                     out_of_range = true;
+                    tofReseedPending = true;
 				}
 
-            } else
+            } else {
             out_of_range = true;
+            tofReseedPending = true;
+            }
 //        }
     }
 

@@ -1,6 +1,6 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1789982644.6582634,
+    "mtime": 1790077240.7949078,
     "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
@@ -1128,12 +1128,12 @@
     "hash": "0399670188642aabef232c88eeb2c994"
   },
   "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "d6953df69c3a52eb8d64f82223a439ec"
+    "mtime": 1790077551.8837564,
+    "hash": "2e1273ed89541663d08297042965f105"
   },
   "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.h": {
-    "mtime": 1780643709.0,
-    "hash": "693c9c39ebd96b546d14b612769ee4d0"
+    "mtime": 1789990336.7912426,
+    "hash": "ae8dbcd9344e9f1c95ccec97655d8767"
   },
   "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l1x.cpp": {
     "mtime": 1777868741.0,
@@ -1248,12 +1248,12 @@
     "hash": "5ad5fab4c6288f5d324d83f90d6eb6e1"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
-    "mtime": 1789982644.6816685,
-    "hash": "3726b4efdaabd45160ef1b8115bf926a"
+    "mtime": 1790077551.8847568,
+    "hash": "a03c18c1249f523352263c9900539bac"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
-    "mtime": 1788998638.0,
-    "hash": "f3e281ffd14fc00decfeaa3670423269"
+    "mtime": 1790077551.8847568,
+    "hash": "51991010dbe1a98630a882f62f1d45f3"
   },
   "F:\\MagisV2\\src\\main\\flight\\failsafe.cpp": {
     "mtime": 1788998628.0,
@@ -1288,8 +1288,8 @@
     "hash": "dccc20d7ba71c13e97bf0860724ba165"
   },
   "F:\\MagisV2\\src\\main\\flight\\imu.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "dca4ba24888e7d4e50464c5cc39acb98"
+    "mtime": 1789990336.7912426,
+    "hash": "ff17e64488c93c82a97a3b8dd75ea9c5"
   },
   "F:\\MagisV2\\src\\main\\flight\\imu.h": {
     "mtime": 1777868741.0,
@@ -1716,12 +1716,12 @@
     "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
   },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1789724776.1749432,
-    "hash": "109ae341eb8568f89ae5d1706ce02c9a"
+    "mtime": 1790077816.1832247,
+    "hash": "c7e209f61fb6ee1624e0a85f6c5d7c4e"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1789982210.085148,
-    "hash": "65ae5cddbfef0f15572cd768ca4a9b1b"
+    "mtime": 1790077816.1812248,
+    "hash": "be848a7f324edc0885d31b7464b092fc"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,

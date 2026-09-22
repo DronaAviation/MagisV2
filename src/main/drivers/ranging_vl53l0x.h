@@ -46,6 +46,8 @@ void ranging_init ( void );
 void getRange ( void );
 bool isTofDataNew ( void );
 bool isOutofRange ( void );
+// Seed the range IIR from the next valid sample instead of blending it into old history.
+void tofRequestReseed ( void );
 
 extern VL53L0X_Error Global_Status;
 extern VL53L0X_RangingMeasurementData_t RangingMeasurementData;

@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 20th Apr 2025                                          #
+ #  Last Modified: Mon, 21st Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -47,6 +47,12 @@
 #include "io/rc_controls.h"
 
 #include "flight/mixer.h"
+
+#ifdef LASER_ALT
+  // Z deadband for the altitude estimator's accSum[Z], in accelerometer counts
+  // ( acc_1G 4096 -> ~0.24 cm/s^2 per count ). Replaces the profile's accDeadband.z.
+  #define ALT_EST_ACC_Z_DEADBAND  0
+#endif
 #include "flight/pid.h"
 #include "flight/imu.h"
 
@@ -252,7 +258,17 @@ void imuCalculateAcceleration ( uint32_t deltaT ) {
   accSum [ X ] += applyDeadband ( lrintf ( accel_ned.V.X ), accDeadband->xy );
   accSum [ Y ] += applyDeadband ( lrintf ( accel_ned.V.Y ), accDeadband->xy );
   // accSum[Z] += applyDeadband(lrintf(accz_smooth), accDeadband->z);
+#ifdef LASER_ALT
+  // accSum[Z] feeds the altitude estimator ( and, through accZ_tmp, the velocity loop's D term,
+  // which truncates to 0 below 512 counts at the default d_vel 1 ). The profile's 40-count Z
+  // deadband ( ~9.6 cm/s^2 ) removed most of a hover's vertical acceleration, so the
+  // estimated vertical speed was 0.3-0.4x the real one and altitude hold bobbed
+  // ( tof-althold-fusion, log-2 ). The complementary filter's bias term and the laser
+  // correction remove slow drift, so no deadband is needed here.
+  accSum [ Z ] += applyDeadband ( lrintf ( accel_ned.V.Z ), ALT_EST_ACC_Z_DEADBAND );
+#else
   accSum [ Z ] += applyDeadband ( lrintf ( accel_ned.V.Z ), accDeadband->z );
+#endif
 
   tempVector = dcmBodyToEarth3D ( accel_hbf );
 

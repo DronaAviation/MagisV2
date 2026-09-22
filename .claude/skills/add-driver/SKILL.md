@@ -77,7 +77,7 @@ runs **after** firmware init, so user peripheral setup can reconfigure yours ).
 - Expose a **status code**, not just a valid flag, so a failed init tells you
   which step failed (e.g. log `-3` = bus claimed, `-4` = calibration timeout).
   Two flights were lost to a driver that only reported "-1".
-- Log through `PlutoPilot.cpp` within the ~250-byte budget (see the
+- Log through `PlutoPilot.cpp` within the ~130-byte budget (see the
   `flight-test` skill).
 
 ## 6. Before it counts as done

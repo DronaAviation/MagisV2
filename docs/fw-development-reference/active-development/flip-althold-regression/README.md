@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( FW 3.8.1, 21 Sep 2026 ). Pipeline doc, CHANGELOG and CLAUDE.md promoted |
+| **Status** | **Closed** in `c569c0f` ( FW 3.8.1, 21 Sep 2026 ). Pipeline doc, CHANGELOG and CLAUDE.md promoted |
 | **Branch** | `BugFix-June26`, base `b91e6a7` |
 | **Target** | `PRIMUS_X2_v1` |
 | **Last updated** | 21 Sep 2026 |

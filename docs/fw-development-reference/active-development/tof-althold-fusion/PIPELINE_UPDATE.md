@@ -1,3 +1,73 @@
+# PIPELINE_UPDATE: tof-althold-fusion
+
+Staged for commit. Apply in `commit-magisv2`; do not edit `fw-architecture-pipeline/` before then.
+
+## 1. `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`
+
+Replaced by the full text in section 4. What changed against the current doc:
+
+- Source files: the laser driver's IIR and the accelerometer sum in `imu.cpp`.
+- Primary functions: `checkReading()` as a source selector, `correctedWithTof()` ( error against
+  `_position_z`, one tau ), `altShiftFrame()`, `altHoldSource()`.
+- New section **Laser fusion**: the Z deadband, the filter, the handover table, the object hold-off
+  with the window test, the limits, and a flowchart of `checkReading()`.
+- The ToF vs Baro note ( no more hard 200 cm switch for the VL53L0X ) and the first step of the
+  estimator flowchart.
+
+Every new diagram edge was checked against the source ( 22 Sep 2026 ):
+
+- `mw.cpp:772` `apmCalculateEstimatedAltitude()`; `mw.cpp:804-808` `UPDATE_LASER_TOF_TASK` → `getRange()`.
+- `altitudehold.cpp:849` `checkReading()` under `LASER_ALT`, `:847` `checkBaro()` otherwise.
+- `imu.cpp:268` `accSum[Z]` with `ALT_EST_ACC_Z_DEADBAND` ( `:270` the profile value without
+  `LASER_ALT` ) → `altitudehold.cpp:853` `accel_ef_z`.
+- `altitudehold.cpp:1018` tilt reject → `tofRequestReseed()`; `ranging_vl53l0x.cpp:212-218` reseed and
+  `NewSensorRange`.
+- `altitudehold.cpp:1047` call of `tofWindowMismatch()` ( defined at `:929` ); `:1114` / `:1133` / `:1148` reseed at detection,
+  cancel, re-base; `:1141` `altShiftFrame()` and `:1144` `AltHold` back as a goal ( read as a goal at
+  `:639` ).
+- `altitudehold.cpp:1173` / `:1176` laser → baro; `:1184` return shift; `:1199` `correctedWithTof()`,
+  `:1204` `correctedWithBaro()`.
+
+## 2. Other pipeline docs
+
+- `Firmware_Pipeline.md`: no change. No new task or loop stage ( the laser task and the altitude
+  task already exist ).
+- `IMU_Sensor_Fusion_Pipeline.md`, `Hardware_Bus_Pipeline.md`, `User_Space_API.md`: no change ( they
+  do not describe `accSum` or the laser path ).
+- No DMA / timer / pin change, no public API change: no map or `docs/API/` update.
+
+## 3. `CLAUDE.md` and skill text
+
+- `CLAUDE.md`, replace the `Monitor_Print` paragraph with:
+
+  > **Keep `Monitor_Print` under ~130 bytes per tick with the app connected.** It writes into the
+  > MSP UART's 256-byte TX ring buffer ( 115200 baud, ~22 ms to drain ) and `uartWrite()` does not
+  > check for full, so an overrun overwrites unsent bytes: the start of the log line, or, as seen in
+  > `tof-althold-fusion`, apparently the app's own MSP replies, and the app disconnects ( ~180 B/tick
+  > did; 115-135 B/tick ran clean; the exact limit is not measured ). Also: the double overload prints
+  > 0 for every digit after the first decimal.
+
+- `CLAUDE.md`, add after the altitude-hold paragraphs:
+
+  > **With `LASER_ALT` ( VL53L0X ) the laser corrects the altitude estimator below 160 cm and hands
+  > over to the baro above it ( back below 140 cm ), with the whole altitude frame shifted on the
+  > return so the craft does not move.** A sudden change of surface under the craft ( the laser
+  > disagreeing with the accelerometer by more than 30 cm within 0.5 s, or more than 20 cm building
+  > up within ~1 s ) holds the estimate on the baro for 2.5 s, then re-bases to the new surface and
+  > flies back to the old clearance as a goal; smaller or slower changes are followed as terrain.
+  > The accelerometer Z deadband is 0 for the estimator in `LASER_ALT` builds ( `ALT_EST_ACC_Z_DEADBAND`; the
+  > 40-count profile value made hover velocity 0.3-0.4 × real ). Details: `Altitude_Hold_Estimator.md`
+  > ( Laser fusion ) and `active-development/tof-althold-fusion/`.
+
+- Change "~250 bytes" to "~130 bytes with the app connected" and add the disconnect symptom in:
+  `.claude/skills/magisv2-rules/SKILL.md` lines 93 and 153, `.claude/skills/magisv2-rules/references/invariants.md`
+  line 86, `.claude/skills/flight-test/SKILL.md` lines 22 and 74, `.claude/skills/add-driver/SKILL.md`
+  line 80.
+
+## 4. New text of `Altitude_Hold_Estimator.md`
+
+---
+
 # Altitude Hold & Estimator (`altitudehold.cpp`)
 
 ## Overview

@@ -80,12 +80,30 @@ that removes all legacy STM32F10x support.
   ( all-target build, version bump, doc promotion ), `flight-test` and
   `add-driver`. Trail of Bits analysis plugins enabled in `.claude/settings.json`.
 
+- **AltitudeHold ( laser )**: With `LASER_ALT` and the VL53L0X ( `LASER_TOF` ), the
+  laser hands over to the barometer above 160 cm and takes back below 140 cm; a
+  dropout of 120 ms or a tilt above 25° also hands over, shorter gaps coast on the
+  accelerometer. The barometer offset is a 2 s average of baro minus laser, frozen
+  on the baro, and on the return the whole altitude frame shifts by the baro drift
+  so the craft does not move.
+- **AltitudeHold ( laser )**: Object under the craft. A change of surface ( the laser
+  disagreeing with the accelerometer by more than 30 cm within 0.5 s, or more than
+  20 cm building up within ~1 s ) holds the estimate on the baro for at least
+  2.5 s; if the new surface is still there and steady, the estimate re-bases to it
+  and the craft flies back to its old clearance at up to 60 cm/s up / 30 cm/s down
+  ( the stick cancels ). A surface that comes back cancels it; slower changes are
+  followed as terrain. On PRIMUS_X2_v1 every box put under or pulled out, slow
+  slides and edges flown over included, started a hold-off with the height held
+  within 6-13 cm ( once 16 cm ). There is no climb cap: an object held up under the craft lifts
+  it each time.
+
 ### Changed
 
-- **Firmware version** bumped to 3.8.1 (API 1.3.2) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.9.0 (API 1.3.2) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
-  shaping, 3.8.1 for the flip fix under setpoint shaping. The API patch bumps reflect behaviour changes only: 1.3.1 for
+  shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
+  ( VL53L0X ) altitude-hold fusion. The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
   descent rate. No public signature changed, so existing projects compile and
@@ -194,6 +212,21 @@ that removes all legacy STM32F10x support.
   16-bit.
 - **RX**: Set `rc_connected` for serial RX.
 
+- **AltitudeHold ( laser )**: Laser altitude hold bobbed ~30 cm at ~4 s. The
+  estimator's vertical velocity read 0.3-0.4 × the real speed in a hover because
+  the 40-count accelerometer Z deadband ( ~9.6 cm/s² ) removed most of a hover's
+  vertical acceleration, leaving the velocity loop with a third of its damping.
+  With `LASER_ALT` the estimator now uses no Z deadband ( a compile-time constant,
+  so saved profiles are unaffected ), one 1.5 s time constant for both sources,
+  and a tilt gate that works ( it compared radians with 25 and never rejected ).
+  On PRIMUS_X2_v1 a 30 s hover holds within ±3 cm by the estimate, ±5 cm by the
+  laser ( was 30 cm peak-to-peak ).
+  Baro-only builds are unchanged.
+- **Laser driver**: the VL53L0X IIR truncated to whole millimetres every update,
+  so it stuck until the raw range was ≥ 10 mm above it; it now keeps float state
+  and reseeds from the raw sample after a gap, a rejected tilted sample or a
+  change of surface.
+
 ### Removed
 
 - **Drivers/Platform**: Removed all legacy STM32F10x support (driver files,
@@ -223,6 +256,11 @@ that removes all legacy STM32F10x support.
   and the Z estimate lives in `altitudehold.cpp`, not `posEstimate.cpp` ).
 - `CLAUDE.md`: barometer compensation, `Monitor_Print` 250-byte budget, build-target
   policy ( working target in development, all targets at commit ), graphify usage.
+- `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`: new **Laser
+  fusion** section ( handover, object hold-off, window test ) with its flowchart.
+- `CLAUDE.md` and the `magisv2-rules`, `flight-test`, `add-driver` skills: keep
+  `Monitor_Print` under ~130 bytes per tick with the app connected ( ~180 B
+  disconnected the app ); laser altitude-hold summary.
 
 ## [v3.0.0] - 2026-02-10
 

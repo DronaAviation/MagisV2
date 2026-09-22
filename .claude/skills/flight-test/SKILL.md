@@ -19,7 +19,8 @@ python tools/flightlog.py table   <log> --step 10   # block-averaged table of ev
 ```
 
 - **Run `summary` first.** Fields missing from a share of records mean the log
-  line overran the ~250-byte `Monitor_Print` budget (see section 3). Records
+  line overran the `Monitor_Print` budget (see section 3); an app that keeps
+  disconnecting while logging is the same overrun. Records
   split on a repeated field name, so field order does not matter.
 - **Field names** default to the altitude-hold log (`degC`, `BaroAlt`, `ToF`,
   `PaI`, `Arm`); override with `--temp --alt --tof --pressure --arm`.
@@ -71,9 +72,10 @@ and to note anything the log cannot record (visible sink, bumps, wind).
 The diagnostic log lives in `plutoLoop ( )` in `PlutoPilot.cpp` and runs only in
 Developer Mode with a live RC link.
 
-- **Budget ~250 bytes per tick.** `Monitor_Print` writes into the MSP UART's
-  256-byte TX ring buffer and `uartWrite ( )` does not check for full, so an
-  overrun silently overwrites the start of the line. Each field costs ~5 bytes of
+- **Budget ~130 bytes per tick with the app connected.** `Monitor_Print` writes
+  into the MSP UART's 256-byte TX ring buffer and `uartWrite ( )` does not check
+  for full, so an overrun overwrites the start of the line or the app's MSP
+  replies, and the app disconnects ( ~180 B/tick did, 115-135 B/tick ran clean ). Each field costs ~5 bytes of
   framing plus tag and value. Comment out fields rather than deleting them.
 - **End the line with `Monitor_Println`** on the last field.
 - **Use unrounded values:** `Monitor_Print ( " degC:", ( double ) x, 1 )`. Whole-degree

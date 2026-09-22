@@ -53,9 +53,13 @@ void AltRst(void);
 
 
 
-void correctedWithTof(float ToF_Height);
+void correctedWithTof(float tofHeightCm);
 void correctedWithBaro(float baroAlt, float dt);
 void checkReading();
+#ifdef LASER_ALT
+// Altitude estimator source: 1 laser, 0 baro, 2 holding on the baro after an object step.
+uint8_t altHoldSource(void);
+#endif
 void checkBaro();
 
 void updateGains();
