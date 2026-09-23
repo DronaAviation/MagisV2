@@ -1,5 +1,5 @@
 ---
-name: commit-magisv2
+name: pluto-commit
 description: Prepare MagisV2 firmware work for a commit - full all-target build, Makefile version bump, and promotion of active-development docs into the released pipeline docs and CHANGELOG, then stage the change and draft the commit message from the repo template. Never runs git commit - the user commits. Use when the user says they are about to commit / ready to commit / "now I will be committing", asks to increment or bump the version in the Makefile, or asks to finalise, close out, or release a piece of work.
 ---
 
@@ -18,6 +18,10 @@ failing build to finish the docs.
 ## 1. Work out what is being committed
 
 - `git status --short` and `git diff --stat HEAD`.
+- **Pending hashes first:** any topic marked **Closed - pending commit** in
+  `active-development/README.md` whose change is now in `git log`: fill in the
+  hash ( `git log --oneline -10 -- <topic files>` ) in that README row and the
+  topic's README before anything else.
 - Read `active-development/README.md` and find the **Active** topic(s) whose
   changes are in this diff. If none match, say so and skip steps 4-5.
 - If the topic has a `TASKS.md`, list any task not `done` / `dropped` ( other
@@ -33,7 +37,7 @@ Commit is the one time all targets are built, whatever target the session has
 been using:
 
 ```bash
-.claude/skills/run-magisv2/driver.sh          # clean build PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5
+.claude/skills/pluto-build/driver.sh          # clean build PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5
 ```
 
 Require `ALL BUILDS PASSED`, exit 0, and no new `warning:` lines in files this
@@ -81,9 +85,12 @@ For each matching topic:
 3. **Status:** in the topic `README.md` and in the `active-development/README.md`
    topic table, set status to **Closed - pending commit** and date it. The user
    makes the commit, so the hash is not known yet. The next time this skill or
-   `grill-magisv2` runs and finds a `pending commit` topic, look up the hash with
+   `pluto-grill` runs and finds a `pending commit` topic, look up the hash with
    `git log --oneline -5` and fill it in (as `d2e900c` "record closing commit
-   hash" did).
+   hash" did). Set the TASKS.md **Resume** block to `Closed - pending commit`
+   with the date, and mark the final task done.
+   A `check` or `docs` topic with no `src/` or Makefile change skips step 2
+   ( no firmware build ) and the version bump.
 4. **CLAUDE.md:** if the topic introduced something future sessions must know
    (a rule, a gotcha, a subsystem), make sure it is there and points to the topic
    folder.
@@ -101,7 +108,8 @@ skill ends with the change staged and a message ready.
 
 1. **Stage by path.** `git add <path> ...` for the files that belong to this
    change: the code, the Makefile, and the docs promoted in step 4. Never use
-   `git add -A` / `git add .`. Never stage `Build/`, `logs*.txt`, `plutoide.ini`,
+   `git add -A` / `git add .`. Stage the topic folder itself ( README, TASKS, SCOUT, DESIGN, INVESTIGATION,
+   CHANGES, TESTING, PIPELINE_UPDATE ) but never its `logs/`. Never stage `Build/`, `logs*.txt`, `log-*.txt`, `plutoide.ini`,
    `.claude/settings.local.json`, or scratch and diagnostic files. If the user
    already staged files, keep them. List any related file left unstaged and ask
    whether it belongs.
@@ -111,9 +119,11 @@ skill ends with the change staged and a message ready.
    and read the model commits it names (`git log -1 --format=%B <hash>`).
    Describe only what is staged (`git diff --cached`), and take numbers and the
    version line from steps 2-3 and the topic's `TESTING.md`.
-4. **Hand it over:** print the message in a code block, and also write it to
-   `.git/MAGISV2_COMMIT_MSG.txt` so the user can run
-   `git commit -F .git/MAGISV2_COMMIT_MSG.txt` or paste it.
+4. **Hand it over:** write it to `.git/MAGISV2_COMMIT_MSG.txt`, open it with
+   `code .git/MAGISV2_COMMIT_MSG.txt`, and **paste the full message verbatim in
+   a code block in the reply** — never only a summary. The user reads it through
+   before running `git commit -F .git/MAGISV2_COMMIT_MSG.txt`. Re-paste it after
+   any edit to the draft.
 
 **No AI attribution, ever.** Commit messages, changelog entries and docs must not
 name an AI tool or model or credit one as author or co-author: no

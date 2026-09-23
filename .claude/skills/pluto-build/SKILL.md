@@ -1,6 +1,11 @@
 ---
-name: run-magisv2
-description: Build, compile-verify, and check the flash/RAM budget of MagisV2 Pluto drone firmware. Use when asked to run, build, compile, smoke-test, or verify MagisV2 / Pluto firmware, or to confirm a firmware change still builds and fits. During development builds only the session's working target (PRIMUS_V5 or PRIMUS_X2_v1, asked once per session); all targets (PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5) are built at commit time via commit-magisv2.
+name: pluto-build
+description: Build, compile-verify, and check the flash/RAM budget of MagisV2 Pluto drone firmware. Use when asked to run, build, compile, smoke-test, or verify MagisV2 / Pluto firmware, or to confirm a firmware change still builds and fits. During development builds only the session's working target (PRIMUS_V5 or PRIMUS_X2_v1, asked once per session); all targets (PRIMUS_X2_v1, PRIMUSX2, PRIMUS_V5) are built at commit time via pluto-commit.
+allowed-tools:
+  - Bash(.claude/skills/pluto-build/driver.sh *)
+  - Bash(make TARGET=* memory)
+  - Bash(python tools/warnings.py check *)
+  - Bash(python tools/warnings.py summary *)
 ---
 
 # Run / build MagisV2 firmware
@@ -28,7 +33,7 @@ edit-build-flash loop is where the time goes.
   unless the user names a different one.
 - **All targets** (`driver.sh` with no target) only when:
   - the user says they are committing, or asks for a version bump → use the
-    `commit-magisv2` skill, which does the full build;
+    `pluto-commit` skill, which does the full build;
   - the user explicitly asks for all targets;
   - a change touches something target-specific in a way the working target
     would not exercise (another target's `target.h`, a `#ifdef` for a define
@@ -39,9 +44,9 @@ edit-build-flash loop is where the time goes.
 ## Run (agent path) — the driver
 
 ```bash
-.claude/skills/run-magisv2/driver.sh PRIMUS_V5    # development: the session's target
-.claude/skills/run-magisv2/driver.sh --no-clean PRIMUS_V5   # incremental, fastest
-.claude/skills/run-magisv2/driver.sh              # commit: clean-build ALL targets
+.claude/skills/pluto-build/driver.sh PRIMUS_V5    # development: the session's target
+.claude/skills/pluto-build/driver.sh --no-clean PRIMUS_V5   # incremental, fastest
+.claude/skills/pluto-build/driver.sh              # commit: clean-build ALL targets
 ```
 
 The driver puts the PlutoIDE ARM toolchain on `PATH`, builds each
@@ -117,7 +122,7 @@ produce scale and sign bugs in this tree.
 over it. Run it before flying a build:
 
 ```bash
-.claude/skills/run-magisv2/driver.sh --gate PRIMUS_X2_v1
+.claude/skills/pluto-build/driver.sh --gate PRIMUS_X2_v1
 ```
 
 The driver keeps each build's full output at `Build/<TARGET>/build.log`, runs
@@ -125,8 +130,8 @@ the check, and fails the run if anything new appeared under `src/`. By hand:
 
 ```bash
 make TARGET=PRIMUS_X2_v1 clean && make TARGET=PRIMUS_X2_v1 2>&1 | tee build.log
-python3 tools/warnings.py check   build.log    # exit 1 = new warnings in src/
-python3 tools/warnings.py summary build.log    # counts by flag and file
+python tools/warnings.py check   build.log    # exit 1 = new warnings in src/
+python tools/warnings.py summary build.log    # counts by flag and file
 ```
 
 Rules for the gate:
@@ -204,4 +209,3 @@ compile-verify only.
 - `Target '' is not valid, must be one of ...` → you omitted `TARGET=`.
 - `No rule to make target '../main/common/maths.c'` → you ran the stale
   unit-test suite; see Gotchas. Use the firmware build instead.
-</content>

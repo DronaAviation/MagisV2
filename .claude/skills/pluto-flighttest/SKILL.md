@@ -1,5 +1,5 @@
 ---
-name: flight-test
+name: pluto-flighttest
 description: Plan, instrument and analyse MagisV2 / Pluto flight tests from PlutoMonitor logs. Use when the user shares a flight or bench log (logs*.txt from PlutoMonitor), asks what a flight showed, asks to add or change fields in the PlutoPilot.cpp diagnostic log, or needs a test procedure to validate a firmware change on hardware (altitude hold, barometer, sensor drift, any tuning constant).
 ---
 
@@ -34,7 +34,7 @@ python tools/flightlog.py table   <log> --step 10   # block-averaged table of ev
   - the correction the firmware applied, backed out from `BaroAlt` vs raw
     pressure: its slope identifies which coefficient a build carried, and
     "correction used" is compared with `--limit` (`BARO_COMP_LIMIT_PA`, default 25).
-- Large logs (15k+ lines): delegate to the `flightlog-analyst` agent so the raw
+- Large logs (15k+ lines): delegate to the `pluto-log-analyst` agent so the raw
   data stays out of the main conversation.
 
 ### Reading the results
@@ -88,4 +88,4 @@ Developer Mode with a live RC link.
   VL53L0X as `ToF` without affecting control. `LASER_ALT` puts the laser *in* the
   loop and must stay off when testing the barometer path.
 - **All of this is temporary.** Note in the topic README that it must be removed
-  before release; `commit-magisv2` checks for it.
+  before release; `pluto-commit` checks for it.

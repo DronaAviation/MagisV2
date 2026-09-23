@@ -36,5 +36,9 @@ the VL53L1X with `LASER_ALT` above ~2.5 m.**
    log of its reach on the flying floor; sample period from its timing budget.
 3. Build gate on both sensors, bench log ( switch points ), flight ( hover, handover, box test ).
 4. Pipeline doc: extend the Laser fusion section of `Altitude_Hold_Estimator.md`.
+5. CLAUDE.md: once the VL53L1X branch has parity, move the flip and `LASER_ALT` paragraphs from
+   the root `CLAUDE.md` "Flight invariants" section into
+   `dev-guide/FLIGHT_INVARIANTS.md`, leaving a one-line rule for each in `CLAUDE.md`
+   ( deferred from the 23 Sep 2026 CLAUDE.md restructure ).
 
-Run `/grill-magisv2` on this topic when a VL53L1X board is available.
+Run `/pluto-grill` on this topic when a VL53L1X board is available.

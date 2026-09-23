@@ -1,5 +1,5 @@
 ---
-name: add-driver
+name: pluto-driver
 description: Checklist for adding or changing a sensor, peripheral driver or hardware feature in MagisV2 firmware - Makefile groups, target defines, init order, periodic task hooks, I2C/SPI bus sharing, DMA/ADC/timer ownership, and the reference maps to update. Use when adding a new driver (.c/.cpp under src/main/drivers or sensors), wiring a new I2C/SPI/ADC/UART device, enabling a hardware feature in target.h, or touching DMA, timer or ADC configuration.
 ---
 
@@ -47,7 +47,26 @@ runs **after** firmware init, so user peripheral setup can reconfigure yours ).
   existing one and rate-limiting inside your update.
 - **Keep updates non-blocking:** start a conversion in one call, collect it in a
   later one. The control loop is hard real-time.
+- **Measure the update's cost** with `micros ( )` before and after it while
+  bringing the driver up, and log the worst case. It has to fit in the loop
+  alongside everything else ( `looptime` µs ).
 - **No dynamic allocation.** 40 KB RAM; check with the build's memory bars.
+  Sample and frame buffers are `static`, not locals: the stack has no guard and
+  an overflow silently corrupts globals ( `pluto-rules` invariants §11 ).
+- **If the driver uses an interrupt** ( EXTI data-ready, UART RX, DMA complete ):
+  the handler copies data and sets a flag, nothing else; no bus transaction or
+  wait inside it. Mark shared variables `volatile`, read multi-byte or struct
+  data in `loop()` inside `ATOMIC_BLOCK ( NVIC_PRIO_<yours> )`
+  ( `common/atomic.h`; a priority of 0 masks nothing, so use `NVIC_PRIO_MAX` ),
+  and add the priority as a `NVIC_PRIO_*` in `drivers/nvic.h`. Clear flags the
+  F3 way: the F3 USART has `ISR`/`RDR`/`ICR`, not the F1/F4 `SR`/`DR`. `RXNE`
+  clears on reading `RDR`, but error flags ( `ORE`, `FE`, `NE` ) clear only by
+  writing `ICR`; an uncleared `ORE` re-fires the interrupt forever. Generic
+  STM32F4 examples do not apply as written.
+- **I2C is polled:** each `i2cRead`/`i2cWrite` blocks the loop until it
+  finishes or times out. Keep transfers short and measure them.
+- **Conversion maths in `float` with `sqrtf`/`powf`**, never `sqrt`/`pow`: the
+  FPU is single precision and `double` runs in software.
 
 ## 4. Buses and shared hardware
 
@@ -78,11 +97,11 @@ runs **after** firmware init, so user peripheral setup can reconfigure yours ).
   which step failed (e.g. log `-3` = bus claimed, `-4` = calibration timeout).
   Two flights were lost to a driver that only reported "-1".
 - Log through `PlutoPilot.cpp` within the ~130-byte budget (see the
-  `flight-test` skill).
+  `pluto-flighttest` skill).
 
 ## 6. Before it counts as done
 
-- Build the working target with no new warnings (`run-magisv2`).
+- Build the working target with no new warnings (`pluto-build`).
 - Update `PIN_MAP.md` / `DMA_MAP.md` / `TIMER_MAP.md` if any pin, DMA channel,
   timer or ADC assignment changed (links use `../../src/main/...`).
 - If user code can reach it: public header in `src/main/API/`, implementation in

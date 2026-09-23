@@ -124,4 +124,85 @@ has a **negative** slope.
   and `rgbSystemTick()` (`API-Src/RGB-LED.cpp`, called from `mw.cpp` every loop).
 - The Cleanflight `LED_STRIP` feature **stays off** — enabling it corrupts
   config and BARO.
-- Per-pin conflict matrix: `docs/WS2812_RGB.md`.
+- Per-pin conflict matrix: `docs/fw-development-reference/WS2812_RGB.md`.
+
+## 11. Interrupts, FPU and stack
+
+There is no RTOS. Concurrency is interrupt handlers pre-empting `loop()`.
+
+### Critical sections
+
+- **Idiom:** `ATOMIC_BLOCK ( NVIC_PRIO_x ) { … }` — `src/main/common/atomic.h:73`.
+  It raises BASEPRI (`BASEPRI_MAX`) to the given priority for the block and
+  restores it on every exit path. In use: `drivers/timer.cpp:347`, `736`.
+  - BASEPRI masks by **group (pre-emption) priority** only: with
+    `NVIC_PriorityGroup_2`, `ATOMIC_BLOCK ( NVIC_PRIO_TIMER )` (1,1) also holds
+    off UART2/3 TX DMA and USB wake-up (1,0).
+  - **Priority 0 masks nothing.** `NVIC_PRIO_I2C_*` are `(0,0)` = 0; use
+    `NVIC_PRIO_MAX` (`nvic.h:28`, "can't use 0") when you need everything held off.
+  - The block is a `for` statement: `break` inside it leaves the block, not an
+    enclosing loop.
+- **Priorities:** all in `src/main/drivers/nvic.h` (`NVIC_PriorityGroup_2`).
+  Timers and UART1 at `1,1`, USB `2,0`. `NVIC_PRIO_I2C_EV/ER` (`0,0`) are
+  defined but unused: I2C is polled (see ISRs below).
+- `__disable_irq ( )` appears only in `io/serial_1wire.cpp` (ESC passthrough,
+  motors not flying). In flight code it would also hold off the RX capture timer
+  (PPM/PWM input), UART/DMA, EXTI data-ready and USB ISRs. Motor PWM itself runs
+  in timer hardware with no ISR.
+
+`volatile` stops the compiler caching a value; it does not make a 64-bit value,
+a struct or `x |= flag` atomic. A 32-bit aligned load or store is atomic on the
+M4; anything more needs the block.
+
+### ISRs
+
+Copy data, set a flag, return. Bus transactions, `Monitor_Print`, float-heavy
+maths and waits belong in `loop()` or `executePeriodicTasks()`.
+
+**I2C is polled, not interrupt-driven** (`drivers/bus_i2c_stm32f30x.c` spins on
+`I2C_GetFlagStatus`; there is no I2C IRQ handler). Every transaction blocks the
+loop for its full duration, so budget it with `micros ( )` like any other work.
+
+### FPU
+
+- `-mfpu=fpv4-sp-d16 -mfloat-abi=hard`: single precision in hardware, **double
+  in software** (tens of cycles per operation, more for `sqrt`/trig).
+- The build passes `-fsingle-precision-constant` (Makefile `ARCH_FLAGS`), so a
+  bare `0.5` is already single precision. Write `0.5f` anyway for clarity; it is
+  style, not a correctness finding.
+- The real double sources: the C maths calls `sqrt`/`fabs`/`sin`/`atan2`/`pow`
+  from `<math.h>` (use `sqrtf`, `fabsf`, `sinf`, `atan2f`, `powf`), `double`
+  variables and casts, and passing a float to a variadic function (`printf`
+  family). `-Wdouble-promotion` reports most, not all, of these.
+- The `Monitor_Print` double overload exists for printing only.
+- **Float helpers already exist** in `src/main/common/maths.h` / `maths.cpp`:
+  `sin_approx` / `cos_approx` (order-9 polynomial while `FAST_TRIGONOMETRY` is
+  defined, else `sinf` / `cosf`), `constrainf`, `safe_asin` (clamps to ±π/2,
+  returns 0 for NaN), `degreesToRadians ( int16_t )`, `radians` / `degrees`,
+  `M_PIf`, `quickMedianFilter3..9`. Use them rather than a new local version.
+- **Use `M_PIf`, not `M_PI`.** `flight/pid.h:89` redefines `M_PI` as a float
+  literal, overriding `<math.h>`'s double one, so `M_PI` means different things
+  depending on include order. Existing uses (`filter.cpp:43`, `lowpass.cpp:34`)
+  cast to `float` and are safe; new code should not rely on that.
+
+### Stack
+
+- `src/main/target/stm32_flash.ld`: `_Min_Heap_Size = 0`, `_Min_Stack_Size = 0x400`.
+  The stack grows down from `_estack` (top of the 40 KB RAM) into whatever
+  `.data` + `.bss` leave free. The 1 KB figure only makes the link fail if less
+  than that remains.
+- There is no MPU guard: an overflow silently overwrites the top of `.bss`, which
+  shows up as unrelated globals changing value.
+- Keep large buffers `static` (they then show in the RAM figure). Local arrays
+  over ~128 B in the control path or deep call chains are a finding.
+
+### No watchdog
+
+No IWDG is configured anywhere in `src/main`. That is a choice: a watchdog reset
+in flight restarts the board with the motors stopped. Adding one needs a plan
+for the armed case, not just a kick in `loop()`.
+
+### Timing
+
+`micros ( )` (`drivers/system.c:104`, also exposed in `API/Scheduler-Timer.h`)
+is the timebase. Bracket new work with it to measure cost against `looptime`.

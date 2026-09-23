@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( FW 3.9.0, 22 Sep 2026 ). Pipeline doc, CHANGELOG, CLAUDE.md and skills promoted |
+| **Status** | **Closed** in `484226c` ( FW 3.9.0, 22 Sep 2026 ). Pipeline doc, CHANGELOG, CLAUDE.md and skills promoted |
 | **Branch** | `BugFix-June26`, base `f326096` |
 | **Target** | `PRIMUS_X2_v1` with `LASER_TOF` + `LASER_ALT` ( VL53L0X ) for the flights; committed with the defines off in `target.h` ( pilot's choice ) |
 | **Last updated** | 22 Sep 2026 |

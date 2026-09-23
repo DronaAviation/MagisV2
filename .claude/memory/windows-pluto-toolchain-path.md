@@ -17,7 +17,7 @@ that session only, runs build/clean inside it, and the PATH is gone once the
 terminal closes. So a fresh Git Bash / WSL shell will NOT have
 `arm-none-eabi-g++` on PATH by default.
 
-The `~/.pluto-ide/tools/...` location that the `run-magisv2` driver probes does
+The `~/.pluto-ide/tools/...` location that the `pluto-build` driver probes does
 NOT exist on this Windows machine — that path is Linux/macOS-only. The
 maintainer added `C:\PlutoIDE\...\bin` to the system PATH manually, but that is
 NOT the intended/default design — do not assume it is present.
@@ -25,4 +25,4 @@ NOT the intended/default design — do not assume it is present.
 To build from a fresh shell on Windows, put the bin on PATH first:
 `export PATH="/c/PlutoIDE/tools/ARM GNU ToolChain/bin:$PATH"`
 
-Documented in `.claude/skills/run-magisv2/SKILL.md` (Prerequisites + Troubleshooting).
+Documented in `.claude/skills/pluto-build/SKILL.md` (Prerequisites + Troubleshooting).
