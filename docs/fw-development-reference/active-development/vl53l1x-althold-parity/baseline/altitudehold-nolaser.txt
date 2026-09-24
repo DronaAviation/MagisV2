@@ -1,0 +1,7 @@
+config: NOLASER   target: PRIMUS_X2_v1   HEAD: b1f070b   other src changes: 0
+dis sha256: a8775323a374f3469e5aa742c4979a3c4aea8f9670e0d15a30c34e2dff57e3a0
+hex: Build/PRIMUS_X2_v1/DEFAULT_PRIMUS_X2_v1_3.9.0.hex
+hex sha256 ( not reproducible: the Makefile bakes __BUILD_DATE__ / __BUILD_TIME__ into the image ): 14990504b2ca9df696f306162a70f938bd6bdae9f9eafb077736cee392ae1d80
+
+Flash [###########                   ] 38%  (98.9 KB / 256 KB)
+RAM   [###########                   ] 37%  (14.8 KB / 40 KB)

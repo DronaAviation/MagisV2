@@ -55,6 +55,12 @@ Notes:
 - `(… no API)` in Serial = the pin's hardware alternate function exists but no user API drives it.
 - The I2C API (`I2C_Read`/`I2C_Write`) targets **I2C1 on PB8/PB9** (`I2C_DEVICE = I2CDEV_1`),
   *not* PB6/PB7. PB6/PB7 are free for PWM/other use.
+- **Down-laser on I2C1.** One downward laser at **0x29** on I2C1 ( PB8/PB9 ): the VL53L0X
+  ( `LASER_TOF` ) or the VL53L1X ( `LASER_TOF_L1x` ), both on the same connector. They are mutually
+  exclusive: both at 0x29, and [`altitudehold.cpp`](../../src/main/flight/altitudehold.cpp) stops the
+  build with an `#error` if both are defined. A user I2C device must not use 0x29 while a laser is
+  fitted. The VL53L1X polls data-ready every 10 ms and, per sample, reads 17 bytes and writes 1
+  ( interrupt clear ): about 0.8 ms of blocking I2C per 51 ms.
 - The SPI API (`SPI_Init`/`SPI_Read`/`SPI_Write`) targets **SPI2 on PB12–PB15**.
 
 ---
@@ -69,7 +75,7 @@ Notes:
 | PB11 | Motor **M4** | TIM2_CH4 |
 | PA9  | USART1_TX (ESP receiver) | DMA1_Ch4 (TX DMA) |
 | PA10 | USART1_RX (ESP receiver) | — |
-| PB8 / PB9 | I2C1 (also the onboard sensor bus) | — |
+| PB8 / PB9 | I2C1 (also the onboard sensor bus, and the down-laser at 0x29: VL53L0X or VL53L1X, never both) | — |
 | PC13 / PC14 / PC15 | Status LEDs (R/G/B) | — |
 | — | System timebase | **SysTick** (millis/micros) |
 

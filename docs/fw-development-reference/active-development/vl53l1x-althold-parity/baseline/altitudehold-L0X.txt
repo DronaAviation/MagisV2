@@ -1,0 +1,7 @@
+config: L0X   target: PRIMUS_X2_v1   HEAD: b1f070b   other src changes: 0
+dis sha256: 35812d924f102c567a871484eeeb5e59419a0b75d729ba6f4fc8ee9586aac04f
+hex: Build/PRIMUS_X2_v1/DEFAULT_PRIMUS_X2_v1_3.9.0.hex
+hex sha256 ( not reproducible: the Makefile bakes __BUILD_DATE__ / __BUILD_TIME__ into the image ): 6847e3a1ad1de61a9d1586c1df711c68b0ae4f49fa79703b0b195ce4b5f9bde4
+
+Flash [###########                   ] 39%  (101.7 KB / 256 KB)
+RAM   [###########                   ] 38%  (15.5 KB / 40 KB)

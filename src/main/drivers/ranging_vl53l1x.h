@@ -11,14 +11,25 @@
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 5th May 2026                                           #
+ #  Last Modified: Thu, 24th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  24-09-2026	AJ	L1X_STALE_MS moved here from the .cpp.                       #
+ #  24-09-2026	AJ	L1X_SAMPLE_PERIOD_MS overridable by the target.              #
+ #  23-09-2026	AJ	L1X_SAMPLE_PERIOD_MS, sample counter externs, -Wreorder fix.  #
 *******************************************************************************/
 #pragma once
+
+// VL53L1X ( LASER_TOF_L1x ) TIMED-mode measurement period: one new sample per period.
+#include "platform.h"    // target.h first, so a target override of L1X_SAMPLE_PERIOD_MS is always seen
+
+#ifndef L1X_SAMPLE_PERIOD_MS    // the target may override it ( with L1X_TIMING_BUDGET_US, ST: period >= budget + 4 ms )
+#define L1X_SAMPLE_PERIOD_MS 50    // ms
+#endif
+#define L1X_STALE_MS ( 3 * L1X_SAMPLE_PERIOD_MS + 10 )    // ms, no new result for this long counts as out of range
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +47,7 @@ class LaserSensor_L1 {
   int16_t _range;
 
  public:
-  LaserSensor_L1 ( ) : _Global_Status_L1x ( VL53L1_ERROR_NONE ), Range_Status_L1x ( 0 ), _range ( 0 ) {}
+  LaserSensor_L1 ( ) : _range ( 0 ), _Global_Status_L1x ( VL53L1_ERROR_NONE ), Range_Status_L1x ( 0 ) {}
 
   /**
    * @brief Initializes the LaserSensor_L1 device by setting up communication parameters,
@@ -94,6 +105,8 @@ extern uint16_t debug_range_L1;
 extern bool startRanging_L1;
 extern bool isTofDataNewflag_L1;
 extern bool useRangingSensor_L1;
+extern uint32_t sampleCount_L1;     // genuine new results ( valid or not ) since boot
+extern uint32_t lastSampleMs_L1;    // ms, millis ( ) at the last genuine new result
 
 #ifdef __cplusplus
 }

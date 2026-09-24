@@ -11,12 +11,14 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 21st Sep 2026                                          #
+ #  Last Modified: Thu, 24th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  24-09-2026	AJ	VL53L1X runs the shared laser fusion; guarded return.        #
+ #  24-09-2026	AJ	Laser fusion reads the sensor via per-sensor accessors.      #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -101,38 +103,37 @@ static float buff [ 15 ];
 static int16_t head      = 0;
 static int16_t rear      = -1;
 static int16_t itemCount = 0;
+// The VL53L0X and the VL53L1X both sit on I2C1 at 0x29, so only one can be fitted; with both
+// defined both laser paths would also write the same estimator state.
+#if defined( LASER_TOF ) && defined( LASER_TOF_L1x )
+  #error "LASER_TOF ( VL53L0X ) and LASER_TOF_L1x ( VL53L1X ) are both defined: define only the laser that is fitted"
+#endif
 #ifdef LASER_ALT
 // Complementary-filter time constant, s. One value for the laser and the baro path, so a
 // source change does not also change the filter gains ( tof-althold-fusion task 3 ).
   #define ALT_EST_TAU_S 1.5f
 // Laser samples taken above this tilt are rejected ( slant range, e.g. during a flip ).
   #define ALT_TOF_MAX_TILT_DECIDEG 250
-// Laser <-> baro handover ( tof-althold-fusion task 5 ). The VL53L0X dropped out at ~172 cm
-// on the test floor, so the laser hands over to the baro above the upper edge and takes back
-// below the lower edge; the 20 cm band stops it chattering.
-  #define ALT_TOF_HANDOVER_UP_CM   160.0f
-  #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
-// No good laser sample for this long ( dropout, tilt, sensor silent ) hands over to the baro.
-// Shorter out-of-range or tilt gaps coast on the accelerometer; a silent sensor keeps its last
-// reading, which keeps correcting until the timeout. 120 ms is 3 missed samples at 33 ms plus the
-// 10 ms estimator tick ( 100 ms tripped on 2 ).
-  #define ALT_TOF_DROPOUT_MS       120
-// Consecutive good samples before the laser takes back over: below the lower edge after a
-// climb above the band, below the upper edge after a dropout or tilt handover ( a hover
-// between the edges must not stay on the baro for good ).
-  #define ALT_TOF_RETURN_SAMPLES   3
-// Lag of the driver's LASER_LPS 0.1 IIR at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s. The laser
-// reading is advanced by VelocityZ times this for the baro offset and the return shift ( the
-// object test advances the estimate instead ), so speed is not baked into either.
-  #define ALT_TOF_IIR_LAG_S        0.3f
+// Laser <-> baro handover ( tof-althold-fusion task 5 ): the laser hands over to the baro above
+// ALT_TOF_HANDOVER_UP_CM and takes back below ALT_TOF_HANDOVER_DOWN_CM; the band stops it
+// chattering. The edges follow the sensor's reach: per-sensor block below.
+// No good laser sample for ALT_TOF_DROPOUT_MS ( dropout, tilt, sensor silent ) hands over to the
+// baro. Shorter out-of-range or tilt gaps coast on the accelerometer; a silent sensor keeps its last
+// reading, which keeps correcting until the timeout. Set from the sample period: per-sensor block.
+// ALT_TOF_RETURN_SAMPLES consecutive good samples before the laser takes back over: below the lower
+// edge after a climb above the band, below the upper edge after a dropout or tilt handover ( a hover
+// between the edges must not stay on the baro for good ). A sample count: per-sensor block.
+// The laser reading is advanced by VelocityZ times ALT_TOF_IIR_LAG_S ( the lag of the driver's range
+// filter ) for the baro offset and the return shift ( the object test advances the estimate
+// instead ), so speed is not baked into either. Per-sensor block.
 // Object under the craft ( task 6 ). A raw laser sample this far from the estimate is a change of
 // surface ( hand, box, table edge ), not motion: the estimate holds on the baro for the hold-off,
-// then re-bases to the new surface once the laser is steady, and the setpoint flies back to the
-// old clearance on the goal profile. Nearer than half the step for 3 samples cancels it.
+// then re-bases to the new surface once the laser is steady ( ALT_TOF_STEADY_SAMPLES, per sensor ),
+// and the setpoint flies back to the old clearance on the goal profile. Nearer than half the step
+// for 3 samples cancels it.
   #define ALT_TOF_STEP_CM          30.0f
   #define ALT_TOF_STEP_HOLD_MS     2500
   #define ALT_TOF_STEADY_CM        10.0f    // raw samples within this of each other count as steady
-  #define ALT_TOF_STEADY_SAMPLES   15       // 0.5 s at 33 ms
 // Window test ( task 14 ). The wide VL53L0X cone turns an edge into a ramp of ~0.5-0.8 s, which
 // the estimate absorbs sample by sample ( a slowly slid box, or any edge crossed while moving ).
 // So compare the raw laser's change over the last 0.5 s with the change of _position_base_z,
@@ -140,11 +141,11 @@ static int16_t itemCount = 0;
 // its velocity ( k2 ) correction still reaches it, weakly, so the window reads a little less than
 // the true surface change.
 // A mismatch above ALT_TOF_STEP_CM is a change of surface; above ALT_TOF_SUSPECT_CM the
-// baro-offset average pauses so an edge cannot leak into it.
+// baro-offset average pauses so an edge cannot leak into it. The sample ring holds
+// ALT_TOF_RING_LEN samples ( per sensor ).
   #define ALT_TOF_WINDOW_MS        500
   #define ALT_TOF_WINDOW_MIN_MS    400     // shortest span the test uses after a reset
   #define ALT_TOF_SUSPECT_CM       15.0f
-  #define ALT_TOF_RING_LEN         24      // > 0.66 s of samples at 33 ms
 // Once the window passes ALT_TOF_SUSPECT_CM the reference is frozen at the start of the edge, the
 // laser correction pauses ( coast on the accelerometer ) and the mismatch keeps adding up, so an
 // edge spread over more than the window still reaches ALT_TOF_STEP_CM. If it has not after this
@@ -157,6 +158,77 @@ static int16_t itemCount = 0;
   #define ALT_TOF_AIRBORNE_GRACE_MS 1000
 // Time constant of the baro-minus-laser offset average kept while on the laser, s.
   #define ALT_BARO_OFFSET_TAU_S    2.0f
+
+// Per-sensor constants and driver accessors ( vl53l1x-althold-parity task 5 ). The laser fusion in
+// checkReading ( ) reads the sensor only through these, so one body can serve either laser:
+//   tofNew ( )         a new result is waiting              tofClearNew ( )  mark it consumed
+//   tofOutOfRange ( )  no valid reading ( driver's test )   tofReseed ( )    restart the range filter
+//   tofFiltCm ( )      filtered range, cm, before tilt      tofRawCm ( )     unfiltered range, cm
+// Constants that are sample counts, or follow the sample period or the driver filter, live here.
+  #if defined( LASER_TOF )
+// VL53L0X: a sample every ~33 ms. NewSensorRange is the driver's LASER_LPS 0.1 IIR of the range,
+// RangingMeasurementData.RangeMilliMeter the unfiltered sample.
+    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // it dropped out at ~172 cm on the test floor
+    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
+    #define ALT_TOF_DROPOUT_MS       120       // 3 missed samples at 33 ms + the 10 ms estimator tick ( 100 tripped on 2 )
+    #define ALT_TOF_RETURN_SAMPLES   3
+    #define ALT_TOF_IIR_LAG_S        0.3f      // LASER_LPS 0.1 at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s
+    #define ALT_TOF_STEADY_SAMPLES   15        // 0.5 s at 33 ms
+    #define ALT_TOF_RING_LEN         24        // > 0.66 s of samples at 33 ms
+    #define ALT_TOF_OFFSET_DT_MAX_S  0.05f     // longest step one baro-offset update weights, s
+    #define tofNew()        isTofDataNew ( )
+    #define tofClearNew()   ( isTofDataNewflag = false )
+    #define tofOutOfRange() isOutofRange ( )
+    #define tofReseed()     tofRequestReseed ( )
+    #define tofFiltCm()     ( ( float ) NewSensorRange / 10.0f )
+    #define tofRawCm()      ( ( float ) RangingMeasurementData.RangeMilliMeter / 10.0f )
+  #elif defined( LASER_TOF_L1x )
+// VL53L1X: a result every L1X_SAMPLE_PERIOD_MS ( 50 ms ) and no driver filter, so NewSensorRange_L1
+// ( last valid range, mm ) is both the filtered and the raw value, the lag is 0 and reseed does
+// nothing. isOutofRange_L1 ( ) is also true on a latched error, a result older than 3 periods
+// + 10 ms, or a range under the driver's L1X_MIN_VALID_MM ( a covered window reads 0-10 mm as
+// valid ). Comments in the shared body that mention the driver IIR apply to the L0X only.
+    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // Medium mode on the flying floor: 100 % valid to 180 cm ( log-5 )
+    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
+    // 2 missed samples at the measured 51-53 ms period, plus ~14 ms poll quantisation and the 10 ms estimator
+    // tick ( the L0X 120 ms is 3 x 33 + 21 )
+    #define ALT_TOF_DROPOUT_MS       ( 3 * L1X_SAMPLE_PERIOD_MS + 35 )                              // 185 ms
+    #define ALT_TOF_RETURN_SAMPLES   3
+    #define ALT_TOF_IIR_LAG_S        0.0f
+    #define ALT_TOF_STEADY_SAMPLES   ( 500 / L1X_SAMPLE_PERIOD_MS )                                 // 10, 0.5 s
+    #define ALT_TOF_RING_LEN         ( ( 660 + L1X_SAMPLE_PERIOD_MS - 1 ) / L1X_SAMPLE_PERIOD_MS )  // 14, >= 0.66 s
+    #define ALT_TOF_OFFSET_DT_MAX_S  ( 1.5f * ( float ) L1X_SAMPLE_PERIOD_MS * 0.001f )              // 1.5 periods, s ( L0X 0.05 s ~ 1.5 x 33 ms )
+// Baro -> laser return guard ( L1x only ). The object tests all need the laser as the source, so on
+// the baro nothing checks what the laser sees: ceiling-fan blades read a valid 56 cm for 4 samples
+// with the craft at 250 cm ( log-5 ). While armed and not in the pre-take-off ground idle ( in flight
+// and landing ), a return sample counts only if the laser is within ALT_TOF_RETURN_AGREE_CM of the
+// baro-path estimate _position_z. That estimate
+// already follows Baro_Height - baro_offset ( the frozen offset carries the constant +15..22 cm baro
+// vs laser offset ), so the difference is the return frame shift itself: the baro drift since the
+// handover plus any surface change. Allowance over the 30 cm object step: the baro drift during a
+// baro leg and the estimate's residual baro noise ( raw sample sd 13 cm, smoothed by the filter ).
+// Way out: when the disagreement ( laser minus estimate ) stays within ALT_TOF_RETURN_STEADY_CM for
+// ALT_TOF_STEP_HOLD_MS, it is a new floor ( take-off from a table, baro drift over the bound ), and the
+// return is taken with the normal frame shift; any gap restarts that timer.
+    #define ALT_TOF_RETURN_BARO_CM   20.0f
+    #define ALT_TOF_RETURN_AGREE_CM  ( ALT_TOF_STEP_CM + ALT_TOF_RETURN_BARO_CM )    // 50 cm
+    // Steady band of the guard's exit: the baro-path estimate swings 20-40 cm while the craft climbs or
+    // descends ( log-12 ), so the 10 cm object band restarted the 2.5 s timer for ~10 s. Fan blades and passing
+    // objects still cannot pass: they are intermittent, and every gap restarts the run.
+    #define ALT_TOF_RETURN_STEADY_CM 25.0f
+    #define tofNew()        isTofDataNew_L1 ( )
+    #define tofClearNew()   ( isTofDataNewflag_L1 = false )
+    #define tofOutOfRange() isOutofRange_L1 ( )
+    #define tofReseed()     ( ( void ) 0 )
+    #define tofFiltCm()     ( ( float ) NewSensorRange_L1 / 10.0f )
+    #define tofRawCm()      ( ( float ) NewSensorRange_L1 / 10.0f )
+static_assert ( ALT_TOF_STEADY_SAMPLES >= 1 && ALT_TOF_STEADY_SAMPLES <= 255, "steadyCount is a saturating uint8_t" );
+static_assert ( ALT_TOF_RING_LEN * L1X_SAMPLE_PERIOD_MS > ALT_TOF_WINDOW_MS, "the ring must span the step window" );
+static_assert ( ALT_TOF_DROPOUT_MS >= L1X_STALE_MS, "dropout must not be shorter than the driver's stale time" );
+  #else
+    #error "LASER_ALT needs a laser: define LASER_TOF ( VL53L0X ) or LASER_TOF_L1x ( VL53L1X )"
+  #endif
+static_assert ( ALT_TOF_RING_LEN > 0 && ALT_TOF_RING_LEN <= 255, "the window ring is indexed with uint8_t" );
 float _time_constant_z = ALT_EST_TAU_S;
 #else
 float _time_constant_z = 2.0f;
@@ -902,8 +974,8 @@ uint8_t altHoldSource ( void ) {
   return altStepPending ? 2 : ( altSourceLaser ? 1 : 0 );
 }
 
-    #ifdef LASER_TOF
 // Recent raw laser samples with the inertial position at the same instant ( task 14 ).
+// The helpers below serve either laser ( the shared fusion body in checkReading ( ) ).
 static float tofRingRawCm [ ALT_TOF_RING_LEN ];
 static float tofRingBaseCm [ ALT_TOF_RING_LEN ];
 static uint32_t tofRingMs [ ALT_TOF_RING_LEN ];
@@ -967,14 +1039,13 @@ static void altShiftFrame ( float deltaCm ) {
   altPreFlipAltHold += lrintf ( deltaCm );    // a post-flip return goal stays in the same frame
   tofWindowReset ( );                         // stored inertial positions are in the old frame
 }
-    #endif
 
 void checkReading ( ) {
   uint32_t baro_update_time;
   float baroDt = 0.0f;              // s since the previous baro sample, 0 when none is new
   float tilt   = 0;                 // rad
   static float baro_offset = 0.0f;  // cm, filtered baro altitude minus laser height, updated on the laser
-    #ifdef LASER_TOF
+    #if defined( LASER_TOF ) || defined( LASER_TOF_L1x )
   static bool tofTiltOk    = true;  // last laser sample taken within ALT_TOF_MAX_TILT_DECIDEG
     #endif
 
@@ -985,7 +1056,7 @@ void checkReading ( ) {
     filtered         = ( 0.75f * filtered ) + ( ( 1 - 0.75f ) * Baro_Height );
     baro_last_update = baro_update_time;
   }
-    #ifdef LASER_TOF
+    #if defined( LASER_TOF ) || defined( LASER_TOF_L1x )    // the shared fusion body, for either laser
   const uint32_t nowMs = millis ( );
   static uint32_t lastGoodTofMs  = 0;       // time of the last usable laser sample
   static uint8_t returnCount     = 0;       // consecutive usable samples below the lower edge
@@ -1009,30 +1080,30 @@ void checkReading ( ) {
   bool newGoodSample             = false;
   float rawCm                    = 0.0f;    // this sample before the driver IIR, tilt-corrected
 
-  if ( isTofDataNew ( ) && ( ! isOutofRange ( ) ) ) {
-    isTofDataNewflag = false;
+  if ( tofNew ( ) && ( ! tofOutOfRange ( ) ) ) {
+    tofClearNew ( );
     // The old gate compared radians with 25, so it never rejected a tilted sample.
     const int16_t tiltDeciDeg = calculateTiltAngle ( &inclination );
     tofTiltOk                 = tiltDeciDeg < ALT_TOF_MAX_TILT_DECIDEG;
     if ( ! tofTiltOk ) {
-      tofRequestReseed ( );    // keep slant-range samples out of the driver's IIR history
+      tofReseed ( );    // keep slant-range samples out of the driver's IIR history
       tofWindowReset ( );
     } else {
       tilt       = degreesToRadians ( ( int16_t ) ( tiltDeciDeg / 10 ) );
-      ToF_Height = ( float ) NewSensorRange / 10.0f * cos_approx ( tilt );
-      rawCm      = ( float ) RangingMeasurementData.RangeMilliMeter / 10.0f * cos_approx ( tilt );
+      ToF_Height = tofFiltCm ( ) * cos_approx ( tilt );
+      rawCm      = tofRawCm ( ) * cos_approx ( tilt );
       if ( ToF_Height > 0.0f ) {
         newGoodSample = true;
       }
     }
   }
-  const bool tofUsable = tofTiltOk && ( ! isOutofRange ( ) ) && ToF_Height > 0.0f;
+  const bool tofUsable = tofTiltOk && ( ! tofOutOfRange ( ) ) && ToF_Height > 0.0f;
   // Laser height advanced past the driver IIR's lag, for pairing with the baro or the estimate.
   const float tofNowCm = ToF_Height + ( float ) VelocityZ * ALT_TOF_IIR_LAG_S;
 
   // Object under the craft ( task 6 ): compare each raw sample with the estimate. Off while
-  // disarmed, idling on the ground or landing ( touchdown must stay on the laser ), and outside
-  // the laser band ( the handover owns that ).
+  // disarmed, in the pre-take-off ground idle or landing ( a landing on the laser keeps following
+  // it to touchdown ), and outside the laser band ( the handover owns that ).
   const bool airborne = ARMING_FLAG ( ARMED ) && ( ! altHoldGroundIdle ) && ( ! isLanding );
   if ( airborne && ( ! wasAirborne ) ) {
     airborneSinceMs = nowMs;
@@ -1111,7 +1182,7 @@ void checkReading ( ) {
         steadyRefCm    = rawCm;
         steadyCount    = 0;
         cancelCount    = 0;
-        tofRequestReseed ( );    // the driver IIR follows the new surface at once
+        tofReseed ( );    // the driver IIR follows the new surface at once
         tofWindowReset ( );
       }
     } else {
@@ -1130,7 +1201,7 @@ void checkReading ( ) {
       }
       if ( cancelCount >= ALT_TOF_RETURN_SAMPLES ) {
         altStepPending = false;    // the surface came back: nothing to do
-        tofRequestReseed ( );
+        tofReseed ( );
         tofWindowReset ( );
       } else if ( ( nowMs - stepStartMs ) >= ALT_TOF_STEP_HOLD_MS && steadyCount >= ALT_TOF_STEADY_SAMPLES ) {
         // Still there and steady: re-base the estimate to the new surface without moving the
@@ -1145,10 +1216,40 @@ void checkReading ( ) {
         altPreFlipAltHold -= lrintf ( deltaCm );    // a flip return also keeps its clearance
         ToF_Height     = rawCm;
         altStepPending = false;
-        tofRequestReseed ( );
+        tofReseed ( );
       }
     }
   }
+
+    #ifdef LASER_TOF_L1x
+  // Baro -> laser return guard ( see ALT_TOF_RETURN_AGREE_CM ). A return candidate far from the
+  // baro-path estimate is held off, unless the disagreement ( laser minus estimate ) stays within
+  // ALT_TOF_RETURN_STEADY_CM for ALT_TOF_STEP_HOLD_MS: then it is a new floor ( take-off from a table, a long
+  // baro drift ), not fan blades or a passing object, and the return is taken with the normal shift.
+  // The disagreement, not the raw reading, is tested, so the craft may climb, descend or land meanwhile.
+  static bool retSteadyActive      = false;
+  static float retSteadyRefCm      = 0.0f;    // cm, disagreement of the first candidate of the steady run
+  static uint32_t retSteadyStartMs = 0;
+  bool returnHeld                  = false;   // disagreeing return candidate, not yet steady long enough
+  const float returnDisagreeCm     = tofNowCm - _position_z;    // cm, laser minus baro-path estimate
+  if ( ( ! altSourceLaser ) && newGoodSample && ToF_Height < ( leftOnDropout ? ALT_TOF_HANDOVER_UP_CM : ALT_TOF_HANDOVER_DOWN_CM )
+       && ARMING_FLAG ( ARMED ) && ( ! altHoldGroundIdle ) && fabsf ( returnDisagreeCm ) > ALT_TOF_RETURN_AGREE_CM ) {
+    if ( retSteadyActive && fabsf ( returnDisagreeCm - retSteadyRefCm ) <= ALT_TOF_RETURN_STEADY_CM ) {
+      returnHeld = ( nowMs - retSteadyStartMs ) < ALT_TOF_STEP_HOLD_MS;
+    } else {
+      retSteadyActive  = true;    // first candidate, or not steady: restart the run
+      retSteadyRefCm   = returnDisagreeCm;
+      retSteadyStartMs = nowMs;
+      returnHeld       = true;
+    }
+    if ( ! returnHeld ) {
+      returnCount      = ALT_TOF_RETURN_SAMPLES - 1;    // steady long enough: return on this sample
+      retSteadyActive  = false;
+    }
+  } else if ( newGoodSample || ( ! tofUsable ) || altSourceLaser ) {
+    retSteadyActive = false;    // a gap, an agreeing or out-of-band sample, or on the laser: restart
+  }
+    #endif
 
   if ( altSourceLaser ) {
     if ( newGoodSample ) {
@@ -1163,7 +1264,7 @@ void checkReading ( ) {
         offsetSeeded = true;
       } else {
         // At most one sample period, so the first sample after a pause gets a normal weight.
-        const float dtS = fminf ( ( float ) ( nowMs - lastOffsetMs ) * 0.001f, 0.05f );
+        const float dtS = fminf ( ( float ) ( nowMs - lastOffsetMs ) * 0.001f, ALT_TOF_OFFSET_DT_MAX_S );
         baro_offset += ( sampleOffset - baro_offset ) * ( dtS / ( ALT_BARO_OFFSET_TAU_S + dtS ) );
       }
       lastOffsetMs = nowMs;
@@ -1176,6 +1277,10 @@ void checkReading ( ) {
       altSourceLaser = false;    // no usable sample for too long: hand over, offset frozen
       leftOnDropout  = true;
     }
+      #ifdef LASER_TOF_L1x
+  } else if ( returnHeld ) {
+    returnCount = 0;    // disagrees with the estimate and not yet steady: not the floor ( yet )
+      #endif
   } else if ( newGoodSample && ToF_Height < ( leftOnDropout ? ALT_TOF_HANDOVER_UP_CM : ALT_TOF_HANDOVER_DOWN_CM ) ) {
     if ( ++returnCount >= ALT_TOF_RETURN_SAMPLES ) {
       // Back on the laser: move the whole altitude frame by the baro drift so the numbers
@@ -1203,35 +1308,6 @@ void checkReading ( ) {
   } else {
     correctedWithBaro ( Baro_Height - baro_offset, baroDt );
   }
-    #endif
-
-    #ifdef LASER_TOF_L1x
-  if ( isTofDataNew_L1 ( ) && ( ! isOutofRange_L1 ( ) ) ) {
-
-    ToF_Height       = ( float ) NewSensorRange_L1 / 10.0f;
-    isTofDataNewflag_L1 = false;
-
-    tilt = degreesToRadians ( calculateTiltAngle ( &inclination ) / 10 );
-    if ( tilt < 25 )
-      ToF_Height *= cos_approx ( tilt );
-  }
-  // Fusion
-  if ( ToF_Height > 0 && ToF_Height < 350 ) {
-    baro_offset = filtered - EstAlt;
-    correctedWithTof ( ToF_Height );
-  } /* else
-   //{ Baro_Height -= baro_offset;
-   if (ToF_Height >= 120  && ToF_Height <= 200) {
-   //tofTransition = (200 - ToF_Height) / 100.0f;
-   tofTransition = 0.5f;
-   fused = ToF_Height * tofTransition + Baro_Height * (1.0f - tofTransition);
-
-   correctedWithBaro( fused, dt);
-   } */
-  else {
-    correctedWithBaro ( Baro_Height - baro_offset, baroDt );
-  }
-
     #endif
 }
   #endif

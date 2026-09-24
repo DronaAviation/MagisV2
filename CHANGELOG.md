@@ -96,18 +96,36 @@ that removes all legacy STM32F10x support.
   slides and edges flown over included, started a hold-off with the height held
   within 6-13 cm ( once 16 cm ). There is no climb cap: an object held up under the craft lifts
   it each time.
+- **AltitudeHold ( laser, VL53L1X )**: Return guard on the baro → laser return. In flight, a laser
+  reading more than 50 cm from the current estimate is not taken as the floor unless the disagreement
+  stays steady within 25 cm for 2.5 s ( a real new floor, such as a take-off from a table ). A VL53L1X
+  looking down past a ceiling fan read the blades as a valid 56 cm for four samples at 2.5 m, which would
+  have shifted the altitude frame by about −2 m.
 
 ### Changed
 
-- **Firmware version** bumped to 3.9.0 (API 1.3.2) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.10.0 (API 1.3.2) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
-  ( VL53L0X ) altitude-hold fusion. The API patch bumps reflect behaviour changes only: 1.3.1 for
+  ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
+  altitude-hold fusion. The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
   descent rate. No public signature changed, so existing projects compile and
   link untouched.
+- **Laser driver ( VL53L1X )**: 45 ms timing budget and 50 ms period in Medium mode ( was the ST
+  default 41 ms / 100 ms ). The mode, budget and period can be overridden per target
+  ( `L1X_DISTANCE_MODE`, `L1X_TIMING_BUDGET_US`, `L1X_SAMPLE_PERIOD_MS` ), with a compile-time check that
+  the period is at least the budget + 5 ms. Each sample is fetched with one 17-byte result read and a
+  1-byte interrupt clear, decoded with the ST API's own status mapping: 0.79 ms of blocking I2C per
+  sample instead of 5.44 ms, which had stretched one 3.5 ms loop in about 15. Flash −2.1 KB.
+- **AltitudeHold ( laser )**: One laser-fusion code path for both sensors. It reads the sensor through
+  per-sensor accessors and constants; the VL53L0X object code is byte-identical to before. The build
+  stops with an `#error` if both `LASER_TOF` and `LASER_TOF_L1x` are defined ( both are at I2C 0x29 ),
+  or if `LASER_ALT` is defined without a laser.
+  The shipped `target.h` keeps the laser defines off, so the default build is unchanged
+  ( 98.9 KB / 14.8 KB ); a VL53L1X + `LASER_ALT` build is about 110 KB / 16.1 KB.
 - **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
   style ) instead of switching the controller to raw velocity control. The
   climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at
@@ -226,6 +244,22 @@ that removes all legacy STM32F10x support.
   so it stuck until the raw range was ≥ 10 mm above it; it now keeps float state
   and reseeds from the raw sample after a gap, a rejected tilted sample or a
   change of surface.
+- **AltitudeHold ( laser, VL53L1X )**: With the VL53L1X ( `LASER_TOF_L1x` ) and `LASER_ALT`, the
+  estimator kept correcting towards the last valid laser reading once the craft climbed past the
+  sensor's reach ( ~1.9 m ): its branch used the laser while the height was between 0 and 350 cm and
+  never checked for out of range, so the craft was pulled towards a stale height. Its tilt test also
+  compared radians with 25 and never rejected, and its baro offset was a single sample. The VL53L1X now
+  runs the same fusion as the VL53L0X: handover to the baro above 160 cm and back below 140 cm with a
+  frozen offset and a frame shift on the return, a 185 ms dropout, tilt rejection above 25°, and the
+  object hold-off with re-base. On PRIMUS_X2_v1, over four flights: a hands-off hover within ±3 cm 92 %
+  of the time ( 8 cm peak to peak ), handovers with no height step, nine box hold-offs with re-base,
+  baro hold within ±5 cm up to 3.1 m past the reach, and normal touchdowns.
+- **Laser driver ( VL53L1X )**: The data-ready interrupt was never cleared, so every 10 ms poll re-read
+  the same result and flagged it as new ( about 100 Hz of duplicates ). The driver now takes exactly one
+  sample per measurement. A covered window reads 0-10 mm as a valid range; ranges under 15 mm now
+  count as out of range ( the landed 25-28 mm stays valid, so landing is unchanged ). Out of range also
+  covers a latched sensor error and a stall of more than 160 ms. A small negative range no longer wraps
+  to about 65 m.
 
 ### Removed
 
@@ -261,6 +295,13 @@ that removes all legacy STM32F10x support.
 - `CLAUDE.md` and the `magisv2-rules`, `flight-test`, `add-driver` skills: keep
   `Monitor_Print` under ~130 bytes per tick with the app connected ( ~180 B
   disconnected the app ); laser altitude-hold summary.
+- `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`: **Laser fusion** covers both lasers,
+  with the sensor accessors, a per-sensor constants table, the VL53L1X return guard, the VL53L1X driver
+  and its known limits.
+- `CLAUDE.md`: the flip and `LASER_ALT` paragraphs moved into `dev-guide/FLIGHT_INVARIANTS.md`, with one
+  line each left in *Flight invariants*.
+- `PIN_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: one down-laser at 0x29 on I2C1; VL53L0X and VL53L1X
+  are mutually exclusive.
 
 ## [v3.0.0] - 2026-02-10
 

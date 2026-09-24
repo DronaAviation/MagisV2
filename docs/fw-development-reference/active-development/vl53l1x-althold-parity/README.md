@@ -1,11 +1,29 @@
 # VL53L1X Altitude Hold Parity
 
+[README](README.md) · [TASKS](TASKS.md) · [SCOUT](SCOUT.md) · [INVESTIGATION](INVESTIGATION.md) · [CHANGES](CHANGES.md) · [TESTING](TESTING.md) · [PIPELINE_UPDATE](PIPELINE_UPDATE.md)
+
 | | |
 |---|---|
-| **Status** | **Planned** ( noted 22 Sep 2026; waiting for a VL53L1X board ) |
-| **Branch** | not started |
-| **Target** | `PRIMUS_X2_v1` with `LASER_TOF_L1x` + `LASER_ALT` |
+| **Status** | **Closed - pending commit** ( 24 Sep 2026, FW 3.10.0 ). Pipeline doc, CHANGELOG, CLAUDE.md, FLIGHT_INVARIANTS, PIN_MAP and HARDWARE_RESOURCES promoted |
+| **Branch** | `BugFix-June26`, base `b1f070b` |
+| **Target** | `PRIMUS_X2_v1` with `LASER_TOF_L1x` + `LASER_ALT` ( VL53L1X drop-in on the L0X connector, I2C1 0x29 ) |
 | **Origin** | [tof-althold-fusion](../tof-althold-fusion/README.md), which made the VL53L0X ( `LASER_TOF` ) path flight-ready |
+| **Last updated** | 24 Sep 2026 |
+
+**Plan ( 23 Sep 2026 ).** 13 tasks in [TASKS.md](TASKS.md), 19 after additions ( poll cost, reach flight, Long-mode tests ). First an L0X object-code baseline, then
+VL53L1X bring-up on the bench and a check for a suspected driver freeze ( a missing
+`ClearInterruptAndStartMeasurement` ). Then a driver fix at 45 ms / 50 ms ( budget raised from 33 ms after review ), a bench reach log, and the
+shared fusion path ( scout option C, with the L0X `altitudehold.o` kept byte-identical ). Then the L1x
+constants, bench and flight validation, and docs. Evidence and Q&A: [INVESTIGATION.md](INVESTIGATION.md).
+
+## Open items
+
+- **Next topics ( planned, not started ):** [vl53l1x-extended-reach](../vl53l1x-extended-reach/README.md) ( 270 / 240 cm band ) and [vl53l1x-error-latch-recovery](../vl53l1x-error-latch-recovery/README.md).
+- Follow-ups: band extension ( see above ). Long mode alone does not reach further ( log-8, tasks 16-19 ); the likely lever is the preset's 1.5 MCPS minimum signal rate, a separate topic; `opticflow.cpp` still uses the L0X range.
+- `target.h` ships with the laser defines off ( user, task 10 ); enable `LASER_TOF_L1x` + `LASER_ALT` for a VL53L1X.
+- Temporary diagnostics: **removed in task 10** ( `PlutoPilot.cpp` and `target.h` at HEAD, laser defines off; poll timer removed ).
+
+## Background ( written when the topic was noted, 22 Sep 2026 )
 
 **Problem.** The `tof-althold-fusion` topic put its laser logic in the VL53L0X block of
 `checkReading()` ( `flight/altitudehold.cpp`, `#ifdef LASER_TOF` ) only. A `LASER_TOF_L1x` +

@@ -1,124 +1,63 @@
-# Altitude Hold & Estimator (`altitudehold.cpp`)
+# PIPELINE_UPDATE: vl53l1x-althold-parity
 
-## Overview
-Fuses barometric pressure (and, when `LASER_ALT` is defined, laser Time-of-Flight) with the accelerometer's Z-axis to estimate altitude and vertical velocity. When `ALT_HOLD` mode is active, it takes over the throttle channel to hold or smoothly change height.
+[README](README.md) · [TASKS](TASKS.md) · [INVESTIGATION](INVESTIGATION.md) · [CHANGES](CHANGES.md) · [TESTING](TESTING.md)
 
-## Source Files
-- **Altitude estimator and controller**: `src/main/flight/altitudehold.cpp`, `src/main/flight/altitudehold.h`
-- **Barometer chain**: `src/main/sensors/barometer.cpp` (conversion, zero, compensation), `src/main/drivers/barometer_icp10111.cpp` (ICP-10111 driver)
-- **Laser** ( one down-laser, only used by the estimator with `LASER_ALT` ): `src/main/drivers/ranging_vl53l0x.cpp` ( VL53L0X, `LASER_TOF`: 33 ms single ranging, `LASER_LPS` 0.1 IIR ) or `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( VL53L1X, `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter ). Both sit on I2C1 at 0x29, so only one can be defined: `altitudehold.cpp` stops the build with an `#error` if both are, and if `LASER_ALT` is defined without either.
-- **Accelerometer sum**: `src/main/flight/imu.cpp` `imuCalculateAcceleration()` (builds `accSum[Z]`, the estimator's vertical acceleration)
-- **Flip** (drives the throttle during a flip): `src/main/flight/acrobats.cpp`, `acrobats.h`
-- **XY position** (not altitude): `src/main/flight/posEstimate.cpp`, `src/main/flight/posControl.cpp`
+Staged for commit. Applied by `pluto-commit`; do not edit `fw-architecture-pipeline/` before then.
 
-## Key Data Structures
-- `EstAlt`: estimated altitude in cm. What the controller and `limitAltitude()` use.
-- `VelocityZ`: estimated vertical velocity in cm/s.
-- `BaroAlt`: compensated barometric altitude in cm, the measurement the estimator is corrected towards. Noisier than `EstAlt` by design.
-- `AltHold`: the altitude setpoint. Moved by the setpoint shaping below; a write from outside becomes a goal ( `altGoal` ) rather than a step. `altTarget` is its float copy.
-- `altRate`: the ramped rate moving `AltHold` ( stick rate or goal profile ), fed forward to the velocity loop.
-- `initialThrottleHold`: the hover-throttle baseline. `errorVelocityI` (the only alt-hold integrator) carries the residual trim.
-- `flipState` (`flight/acrobats.cpp`): non-zero while an app / `Command_Flip()` flip runs. `flipActive()` wraps it, and is always false without `ENABLE_ACROBAT`.
+## 1. What this replaces
 
-## Primary Functions
-- `apmCalculateEstimatedAltitude()`: runs the third-order complementary filter each altitude task, integrating accel-Z and correcting towards the height measurement.
-- `checkBaro()` → `correctedWithBaro()`: barometer path (no `LASER_ALT`). Time constant `_time_constant_z` is 2 s, or 5 s above 30° of tilt.
-- `checkReading()` (with `LASER_ALT`): chooses the correction source each estimator step: `correctedWithTof()` on the laser, `correctedWithBaro()` with a frozen offset on the baro or during an object hold-off, or no correction ( coast ) during a short gap or a suspected edge. One body serves either laser; it reads the sensor only through accessor macros and per-sensor constants. See **Laser fusion** below.
-- `correctedWithTof()`: position error against the filter's own `_position_z`; one time constant `ALT_EST_TAU_S` 1.5 s for both sources under `LASER_ALT`.
-- `altShiftFrame()`: moves the whole altitude frame ( estimate, its history, the smoother, the setpoint, the goal and the flip's return height ) by one amount, so a change of reference does not move the craft.
-- `altHoldSource()`: 1 laser, 0 baro, 2 object hold-off ( diagnostics ).
-- `applyAltHold()` → `applyMultirotorAltHold()` (main loop): turns the throttle stick into `setVelocity` (landing descent while `isLanding`, 0 for `ALT_FLIP_EXIT_IGNORE_MS` after a flip, the raw flip rate while a flip runs), sets `altHoldGroundIdle`, and writes `rcCommand[THROTTLE] = initialThrottleHold + altHoldThrottleAdjustment`.
-- `calculateAltHoldThrottleAdjustment()` (100 Hz): flip edge handling, then the velocity setpoint from `shapedVelocitySetpoint()` (setpoint shaping: fed-forward rate plus the outer position loop, `P8[PIDALT]`, 128 = unity) or, during a flip, `flipVelocitySetpoint()`, feeding the inner velocity loop.
-- `offloadHoverTrim()`: while settled, moves hover trim from `errorVelocityI` into `initialThrottleHold` one count per 20 ms, keeping the integrator's range free.
-- `limitAltitude()`: altitude ceiling at `max_altitude - ALT_CEILING_MARGIN_CM` (25 cm).
+Target: [`fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`](../../fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md).
+Each part in section 2 is the full replacement text for one place in that doc; paste it verbatim
+over the text named in its heading. Everything else in the doc stays as it is.
 
-## Barometer chain (`sensors/barometer.cpp`)
-
-The ICP-10111 does not report the true static pressure of the air: rotor inflow and the board's heating both shift it. The chain from raw reading to `BaroAlt`:
-
-1. **Driver** (`barometer_icp10111.cpp`): `NORMAL` measurement mode (~7 ms conversion). Die temperature is low-pass filtered (`TEMP_LPF_ALPHA`) and feeds the sensor's own compensation polynomial.
-2. **Compensation** (`baroCompensationPa()`): adds back pressure lost to throttle and temperature, relative to the values latched at the arm instant, so it is zero on the first armed sample:
-   - `BARO_COMP_THROTTLE_PA_PER_COUNT` = 0.0086 Pa per `rcCommand[THROTTLE]` count
-   - `BARO_COMP_TEMP_PA_PER_DEGC` = 2.1 Pa per °C of die temperature (measured −2.17 to −2.42 on PRIMUS_V5)
-   - total clamped to ±`BARO_COMP_LIMIT_PA` (25 Pa, ~2 m)
-3. **Conversion** (`pressureToAltitude()`): ISA standard atmosphere at a fixed 288.15 K. Deliberately temperature-free, so the scale does not depend on how warm the board is. About 8.3 cm per Pa near sea level.
-4. **Zero** (`baroUpdateZero()`): while disarmed, an IIR tracks the reading so warm-up before takeoff is absorbed; frozen on arm. Applied as an offset (`getBaroZeroOffset()`).
-
-`BaroAlt = altitude(pressure + compensation) − ground altitude − zero offset`.
-
-Rules that keep this working:
-- **Never re-zero in flight.** `baroResetGroundLevel()` is only allowed before the throttle has been raised since arming (`throttleRaisedSinceArm` in `mw.cpp`).
-- **Keep estimator lag low.** A slow estimate lags high during a descent and commands more descent; adding filtering to `BaroAlt` trades noise for exactly this.
-- **Coefficients are per airframe.** The throttle term depends on where the FC sits relative to the rotors. Re-measure on a new frame from a log of `degC`, `PaI` and laser height over a 3+ minute hover.
-
-## Data Flow & Boundaries
-- **Stick deadband**: in `ALT_HOLD`, `alt_hold_deadband` (40 counts, stick 1460-1540) is applied to the throttle stick. Inside it the drone holds altitude; beyond it, the stick sets a climb/descent rate. There is no deadband on the position error.
-
-## Setpoint shaping (`calculateAltHoldThrottleAdjustment()`)
-
-ArduPilot / DJI style: the throttle stick never takes the position loop out of the chain. It moves the setpoint, and the loop tracks the moving setpoint with the rate fed forward.
-
-Why it is built this way:
-- **One controller, no mode switch.** Earlier firmware switched to a raw velocity command outside the deadband and snapped `AltHold` to `EstAlt` on return. That gave a speed step at the deadband edge and an overshoot on centring.
-- **Feed-forward instead of a gap.** A P = 1 position loop needs a 60 cm error to demand 60 cm/s, so a stepped target is approached ever more slowly. Feeding the planned rate forward leaves the position term as a small correction.
-- **Height stays controlled while the stick is in use**, and stick, commands and landing are all bounded by the same ramp and clamp.
-
-The legacy flow, the full comparison and the reasoning are in [althold-setpoint-shaping/CHANGES.md](../../active-development/althold-setpoint-shaping/CHANGES.md#before--after).
-
-| Source of `altRate` | Rate | Limits |
+| # | Place in `Altitude_Hold_Estimator.md` | Why |
 |---|---|---|
-| **Stick** outside the deadband | Linear from 0 at the deadband edge to full stick | `ALT_MAX_CLIMB_CMS` 40 / `ALT_MAX_DESCENT_CMS` 30 cm/s |
-| **Goal**: `AltHold` written from outside (take-off, `DesiredPosition_set*` / `setAltitude()`, MSP) | Trapezoid: `min(sqrt(2·a·remaining), cruise)`, stops on the goal | Cruise `ALT_CMD_MAX_CLIMB_CMS` 60 / `ALT_CMD_MAX_DESCENT_CMS` 30 cm/s, brake `ALT_GOAL_DECEL_CMSS` 80 cm/s² |
-| **Landing** (`isLanding`) | `(landThrottle − 1500) / 4`: land() ramps 1300 → 1150, i.e. about −50 → −87 cm/s | Descent clamp `ALT_LAND_MAX_DESCENT_CMS` 100 |
-| **Flip** (`flipActive()`) | Not shaped. `(rcData[THROTTLE] − 1500) / 4` fed straight to the velocity loop, see *Flip interaction* | `ALT_FLIP_MAX_CLIMB_CMS` 120 / `ALT_FLIP_MAX_DESCENT_CMS` 100, no ramp, slew or leash |
+| 2.1 | **Source Files**, the `**Laser**:` bullet | The VL53L1X driver now feeds the estimator too |
+| 2.2 | **Primary Functions**, the `checkReading()` bullet | One body for either laser |
+| 2.3 | The whole section ``## Laser fusion (`LASER_ALT`, VL53L0X)``, from its heading up to ( not including ) `## Flip interaction` | It said the fusion was VL53L0X-only and that the VL53L1X kept a hard 350 cm switch; both are obsolete. New: sensor interface, per-sensor constants, return guard, VL53L1X driver, known limits, updated flowchart |
+| 2.4 | The ``- **ToF vs Baro**:`` bullet ( just above the last flowchart ) | Same obsolete 350 cm statement |
 
-Each 10 ms tick:
-1. `altRate` ramps toward the source rate at `ALT_STICK_ACCEL_CMSS` (100 cm/s²). Moving the stick cancels a goal.
-2. `AltHold += altRate · dt`. It stops advancing when it is `ALT_TARGET_LEASH_CM` (50) ahead of `EstAlt` in the direction of travel, e.g. while still on the ground.
-3. Velocity demand = `altRate + P_ALT · (AltHold − EstAlt)`. It is clamped to the limits of the active source and slewed at `ALT_VEL_ACCEL_CMSS` (150 cm/s²), then goes to the velocity PID.
+No other pipeline doc changes:
 
-Behaviour that follows: centring the stick lets the target coast to a stop, with no snap to `EstAlt` and no overshoot. A 120 cm take-off takes about 2.7 s with no slow final approach.
+- `Firmware_Pipeline.md`: no new task or loop stage. `UPDATE_LASER_TOF_TASK` already calls
+  `getRange_L1 ( )` under `LASER_TOF_L1x` ( `mw.cpp` `executePeriodicTasks ( )` ).
+- `Hardware_Bus_Pipeline.md`, `IMU_Sensor_Fusion_Pipeline.md`, `User_Space_API.md`: they do not describe the
+  laser path. No public API change, so no `docs/API/` update.
+- No DMA / timer / pin change. The down-laser note in `PIN_MAP.md` and `dev-guide/HARDWARE_RESOURCES.md`
+  is edited directly with this topic ( those files are not in the pipeline folder ).
 
-Flow of `calculateAltHoldThrottleAdjustment()`:
+**Flowchart edges.** Every edge in the new laser-fusion flowchart ( 2.3 ) is a call or a data path in
+the source. The call edges between functions were confirmed with `graphify path` on 24 Sep 2026:
+`apmCalculateEstimatedAltitude() → checkReading()` ( EXTRACTED ), `checkReading() → altShiftFrame()`,
+`→ correctedWithTof()`, `→ correctedWithBaro()`, `→ tofWindowMismatch()` ( EXTRACTED ),
+`executePeriodicTasks() → getRange_L1()` ( INFERRED; the source line is `mw.cpp:813` ). The graph also
+reports an inferred `getRange_L1() → executePeriodicTasks()` edge in the wrong direction; the source
+shows only the call above. The decision edges inside `checkReading ( )` are not graph edges; each is
+cited to a source line in the comment under the diagram.
 
-```mermaid
-flowchart TD
-    A([100 Hz alt task]) --> E[Estimator: EstAlt, VelocityZ]
-    E --> FE{flipActive edge?}
-    FE -- flip starts --> SAVE[Save errorVelocityI and AltHold<br/>return armed only if BARO on,<br/>not idle-held, AltHold ≥ 20 cm]
-    FE -- flip ends --> BACK[resetAltSetpoint, restore errorVelocityI<br/>AltHold = saved target → goal<br/>start 500 ms integrator hold]
-    FE -- no edge --> T
-    SAVE --> T
-    BACK --> T
-    T{Tilt > 80°?} -- Yes --> R80([Adjustment 0])
-    T -- No --> G{Disarmed or<br/>idle-held on ground?}
-    G -- Yes --> R0[Reset: AltHold = EstAlt<br/>altRate = 0, goal cleared<br/>errorVelocityI = 0]
+## 2. Replacement text
 
-    G -- No --> FA{flipActive?}
-    FA -- Yes --> FV[flipVelocitySetpoint<br/>setVelocity raw, AltHold = EstAlt<br/>or P-only hold in deadband<br/>shaping state follows]
-    FA -- No --> SRC{Who sets the rate?}
-    SRC -- isLanding --> L[Landing rate<br/>landThrottle−1500 / 4<br/>−50 … −87 cm/s]
-    SRC -- stick outside deadband --> ST[Stick rate<br/>0 → 40 up / 30 down<br/><i>cancels any goal</i>]
-    SRC -- goal active --> GP[Goal profile<br/>min √2·80·remaining , cruise 60 / 30]
-    SRC -- none --> Z[Rate 0]
+### 2.1 Source Files, `**Laser**:` bullet
 
-    CMD([Take-off / setAltitude / MSP]) -- AltHold written --> GOAL[Becomes goal<br/>target not jumped] --> SRC
+Replace the one `- **Laser**: ...` bullet with this one:
 
-    L --> RAMP
-    ST --> RAMP
-    GP --> RAMP
-    Z --> RAMP[altRate ramps toward it<br/>≤ 100 cm/s²]
+---
 
-    RAMP --> MOVE[<b>AltHold += altRate × dt</b><br/>stop if 50 cm ahead of EstAlt]
-    MOVE --> ARR{Goal reached?}
-    ARR -- Yes --> CLR[Snap on goal, clear it] --> PL
-    ARR -- No --> PL[<b>Position loop always on</b><br/>setVel = altRate + P × AltHold − EstAlt]
+- **Laser** ( one down-laser, only used by the estimator with `LASER_ALT` ): `src/main/drivers/ranging_vl53l0x.cpp` ( VL53L0X, `LASER_TOF`: 33 ms single ranging, `LASER_LPS` 0.1 IIR ) or `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( VL53L1X, `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter ). Both sit on I2C1 at 0x29, so only one can be defined: `altitudehold.cpp` stops the build with an `#error` if both are, and if `LASER_ALT` is defined without either.
 
-    PL --> CL[Clamp per source<br/>stick 40/30 · goal 60/30 · land 100<br/>slew 150 cm/s²]
-    CL --> VEL[Velocity PID<br/>P + I errorVelocityI + D<br/>I held 500 ms after a flip]
-    FV --> VEL
-    VEL --> OUT[throttle = initialThrottleHold + adjustment]
-```
+---
+
+### 2.2 Primary Functions, `checkReading()` bullet
+
+---
+
+- `checkReading()` (with `LASER_ALT`): chooses the correction source each estimator step: `correctedWithTof()` on the laser, `correctedWithBaro()` with a frozen offset on the baro or during an object hold-off, or no correction ( coast ) during a short gap or a suspected edge. One body serves either laser; it reads the sensor only through accessor macros and per-sensor constants. See **Laser fusion** below.
+
+---
+
+### 2.3 Section `## Laser fusion`
+
+---
 
 ## Laser fusion (`LASER_ALT`, VL53L0X or VL53L1X)
 
@@ -364,111 +303,74 @@ Band -> BaroP: :1273-1279 ( handover ), :1309 correctedWithBaro ( ).  BaroP -> G
 Guard -> BaroP: :1281-1282 ( returnHeld resets the count ).  Guard -> Ret ( steady exit ): :1237-1247.
 Guard -> Cnt -> Ret: :1284-1289.  Ret -> Laser: :1291. -->
 
-## Flip interaction (`flight/acrobats.cpp`)
+---
 
-An app back-flip (MSP `MSP_SET_COMMAND` 3, or `Command_Flip()` from user code) runs the
-`flip()` state machine in `loop()` (`mw.cpp`, `flip ( true )` before `annexCode()` and
-`applyAltHold()`). It needs `MAG_MODE` to start, and back flip is the only direction.
+### 2.4 ``- **ToF vs Baro**:`` bullet
 
-- **ALT_HOLD stays on during the flip.** `flip()` calls `DEACTIVATE_RC_MODE(BOXBARO)`, but
-  that is an XOR on `rcModeActivationMask`, and `updateActivatedModes()` rebuilds the mask
-  from the AUX channels on every RX frame. While the app holds AUX3 (BOXBARO), BARO_MODE
-  never drops, so altitude hold flies the whole flip.
-- **The flip drives `rcData[THROTTLE]` itself:** 2000 in ASCEND (state 1, until
-  `VelocityZ ≥ 100 cm/s`, time-out 2.2 s) and in HOLD / HOLDPOS (states 4 / 7, a fixed
-  1.5 s recovery), with no write in PITCHING / SLOWDOWN. Altitude hold reads `rcData`
-  here on purpose: `flip()` writes it earlier in the same `loop()` pass. The raw branch
-  is gated on `flipActive()`, so outside a flip the same `rcData` read goes through
-  shaping, and a pilot's 2000 is still limited to 40 cm/s.
-- **While `flipActive()`, setpoint shaping is bypassed.** `flipVelocitySetpoint()` flies
-  the pre-shaping controller: outside the deadband `setVelocity = (rcData − 1500) / 4`
-  (−100…+120 cm/s) goes straight to the velocity loop with `AltHold` pinned to `EstAlt`.
-  Inside it, a P-only position hold runs. Through shaping, full stick is 40 cm/s and
-  ASCEND never reached 100 cm/s, so the flip timed out without rotating. The shaping
-  state (`altTarget`, `altRate`, goal) follows during the flip.
-- **Hand-back on the flip's falling edge** (checked ahead of the tilt test):
-  - `resetAltSetpoint()`: the setpoint restarts at 0. The flip's last 120 cm/s was
-    otherwise slewed down slowly, and together with HOLD's integrator wind-up it drove a
-    flyaway.
-  - `errorVelocityI` is restored to the value saved when the flip started (0 if BARO was
-    off then), which drops HOLD's wind-up.
-  - `AltHold` is set to the target saved when the flip started, and becomes a goal flown
-    on the goal profile (HOLD ends the flip 40-120 cm high). This is only done if BARO
-    was on, the craft was not idle-held, and the target was ≥ `ALT_FLIP_RETURN_MIN_CM`
-    (20 cm). Otherwise the craft holds where the flip ended. Stick input cancels it, as
-    for take-off.
-  - For `ALT_FLIP_EXIT_I_HOLD_MS` (500 ms) the velocity integrator is held while P brakes
-    the ~120 cm/s exit climb, so no negative trim is banked. The disarm reset clears the
-    window.
-- **The stale exit throttle is ignored.** On its last tick the flip writes 2000 and clears
-  `flipState` in the same call. For `ALT_FLIP_EXIT_IGNORE_MS` (100 ms, more than the
-  ≤ 20 ms RX refresh) `applyMultirotorAltHold()` forces `setVelocity = 0`, so that sample
-  cannot cancel the return goal. Landing keeps priority.
+---
 
-```mermaid
-flowchart TD
-    MSP([App flip: MSP_SET_COMMAND 3]) --> CMD[command.cpp: flipState = 1<br/>needs MAG_MODE]
-    CMD --> LOOP[loop: flip true<br/>writes rcData THROTTLE]
-    LOOP --> AA[applyMultirotorAltHold]
-    AA --> P1{isLanding?}
-    P1 -- Yes --> LD[Landing rate]
-    P1 -- No --> P2{≤ 100 ms after flip?}
-    P2 -- Yes --> Z0[setVelocity = 0]
-    P2 -- No --> P3{flipActive?}
-    P3 -- Yes --> RAW[setVelocity = rcData−1500 / 4<br/>−100 … +120]
-    P3 -- No --> SH[Shaped stick rate]
-    RAW --> CA[calculateAltHoldThrottleAdjustment<br/>100 Hz]
-    Z0 --> CA
-    LD --> CA
-    SH --> CA
-    CA --> FV[flipVelocitySetpoint<br/>or shapedVelocitySetpoint]
-    FV --> VL[Velocity PID]
-```
-
-Known limits: with `alt_hold_fast_change = 1` (default 0) there is no return. A flip sent
-during a take-off or `setAltitude()` goal returns to where the moving target was, not to
-the goal. A second flip started within 100 ms of the previous one ending gets
-`setVelocity = 0` for the rest of the exit window (ASCEND starts up to 100 ms late, well
-inside its 2.2 s time-out). After the rotation the altitude estimate re-converges (a 16-42 cm transient in
-`EstAlt`, and `VelocityZ` biased about −13 cm/s for a few seconds). This is not addressed.
-
-**Ground reset:** while disarmed, or armed on the throttle stick with the motors held at 1000 (`isThrottleStickArmed` → `altHoldGroundIdle`), the setpoint, goal, rate and `errorVelocityI` are held in reset. Waiting armed on the ground therefore cannot wind the integrator down.
-
-**Landing must keep its own descent rate.** Near the floor the barometer drifts low in the craft's own downwash. At the stick's 10-20 cm/s that drift alone met the descent demand: the craft hovered a few cm up with `EstAlt` still falling, and `land()`'s touchdown test (descent stopped) never fired.
-
-**Not covered:** there is no general landed detector. A touchdown and re-take-off without disarming can still wind the integrator down. `limitAltitude()` only clamps the stick, and the target coasts about 8 cm past the clamp, which is inside the 25 cm margin.
 - **ToF vs Baro**: with `LASER_ALT` and either down-laser ( VL53L0X `LASER_TOF` or VL53L1X `LASER_TOF_L1x` ), the laser corrects the estimator below the handover band and the barometer above it ( **Laser fusion** above ). Without `LASER_ALT` the estimator is barometer and accel-Z only. `LASER_TOF` or `LASER_TOF_L1x` alone reads the laser for logging and does not affect altitude.
 
-```mermaid
-flowchart TD
-    Start([Altitude task]) --> Src{LASER_ALT?}
-    Src -- Yes --> LF[checkReading<br/>see Laser fusion]
-    LF -- laser --> ToF[correctedWithTof]
-    LF -- baro / hold-off:<br/>BaroAlt minus frozen offset --> Baro
-    LF -- gap or suspected edge:<br/>no correction --> CF
-    Src -- No --> Baro[ICP-10111 pressure + temp]
-    Baro --> Comp[Throttle + temperature compensation<br/>relative to arm, clamped]
-    Comp --> Conv[ISA pressure to altitude]
-    Conv --> Zero[Subtract ground + zero offset = BaroAlt]
-    Zero --> CorrB[correctedWithBaro]
+---
 
-    ToF --> CF[Complementary filter with accel-Z]
-    CorrB --> CF
-    CF --> EstAlt[EstAlt & VelocityZ]
-    EstAlt --> CheckMode{Is AltHold active?}
+## 3. CHANGELOG entry ( applied at commit )
 
-    CheckMode -- No --> Reset[Reset alt controller]
-    CheckMode -- Yes --> Ground{Disarmed or idle-held?}
-    Ground -- Yes --> GReset[Hold setpoint + integrator in reset]
-    Ground -- No --> Flip{flipActive?}
-    Flip -- Yes --> FlipV[Raw flip rate<br/>no shaping] --> VelLoop
-    Flip -- No --> Target[Rate: stick / goal profile / landing<br/>ramped, moves AltHold, leash]
-    Target --> PosLoop[Rate feed-forward + position loop P8 PIDALT<br/>clamped + slewed]
-    PosLoop --> VelLoop[Velocity loop + errorVelocityI]
-    GReset --> End
-    VelLoop --> Offload[offloadHoverTrim into baseline]
-    Offload --> Mix[initialThrottleHold + adjustment]
+Into the open release section of `CHANGELOG.md` ( `## [vX.Y.Z]`, the topmost heading; `pluto-commit`
+sets the version ). Merge with the existing laser bullets rather than duplicating them: the `Added`
+bullet that starts "With `LASER_ALT` and the VL53L0X ( `LASER_TOF` )" can stay as it is, since the
+`Fixed` bullet below extends it to the VL53L1X.
 
-    Reset --> End([End])
-    Mix --> End
-```
+### Fixed
+
+- **AltitudeHold ( laser, VL53L1X )**: With the VL53L1X ( `LASER_TOF_L1x` ) and `LASER_ALT`, the
+  estimator kept correcting towards the last valid laser reading once the craft climbed past the
+  sensor's reach ( ~1.9 m ): its branch used the laser while the height was between 0 and 350 cm and
+  never checked for out of range, so the craft was pulled towards a stale height. Its tilt test also
+  compared radians with 25 and never rejected, and its baro offset was a single sample. The VL53L1X now
+  runs the same fusion as the VL53L0X: handover to the baro above 160 cm and back below 140 cm with a
+  frozen offset and a frame shift on the return, a 185 ms dropout, tilt rejection above 25°, and the
+  object hold-off with re-base. On PRIMUS_X2_v1, over four flights: a hands-off hover within ±3 cm 92 %
+  of the time ( 8 cm peak to peak ), handovers with no height step, nine box hold-offs with re-base,
+  baro hold within ±5 cm up to 3.1 m past the reach, and normal touchdowns.
+- **Laser driver ( VL53L1X )**: The data-ready interrupt was never cleared, so every 10 ms poll re-read
+  the same result and flagged it as new ( about 100 Hz of duplicates ). The driver now takes exactly one
+  sample per measurement. A covered window reads 0-10 mm as a valid range; ranges under 15 mm now
+  count as out of range ( the landed 25-28 mm stays valid, so landing is unchanged ). Out of range also
+  covers a latched sensor error and a stall of more than 160 ms. A small negative range no longer wraps
+  to about 65 m.
+
+### Changed
+
+- **Laser driver ( VL53L1X )**: 45 ms timing budget and 50 ms period in Medium mode ( was the ST
+  default 41 ms / 100 ms ). The mode, budget and period can be overridden per target
+  ( `L1X_DISTANCE_MODE`, `L1X_TIMING_BUDGET_US`, `L1X_SAMPLE_PERIOD_MS` ), with a compile-time check that
+  the period is at least the budget + 5 ms. Each sample is fetched with one 17-byte result read and a
+  1-byte interrupt clear, decoded with the ST API's own status mapping: 0.79 ms of blocking I2C per
+  sample instead of 5.44 ms, which had stretched one 3.5 ms loop in about 15. Flash −2.1 KB.
+- **AltitudeHold ( laser )**: One laser-fusion code path for both sensors. It reads the sensor through
+  per-sensor accessors and constants; the VL53L0X object code is byte-identical to before. The build
+  stops with an `#error` if both `LASER_TOF` and `LASER_TOF_L1x` are defined ( both are at I2C 0x29 ),
+  or if `LASER_ALT` is defined without a laser.
+- **Firmware version**: add ", X.Y.Z for the VL53L1X ( `LASER_TOF_L1x` ) altitude-hold fusion" to the
+  existing version bullet ( FW minor bump, API unchanged at 1.3.2; `pluto-commit` sets the number ).
+  The shipped `target.h` keeps the laser defines off, so the default build is unchanged ( 98.9 KB /
+  14.8 KB ); a VL53L1X + `LASER_ALT` build is about 110 KB / 16.1 KB ( 110.1 KB after the task 10 clean-up; the
+  flown image with its temporary log was 111.0 KB ).
+
+### Added
+
+- **AltitudeHold ( laser, VL53L1X )**: Return guard on the baro → laser return. In flight, a laser
+  reading more than 50 cm from the current estimate is not taken as the floor unless the disagreement
+  stays steady within 25 cm for 2.5 s ( a real new floor, such as a take-off from a table ). A VL53L1X
+  looking down past a ceiling fan read the blades as a valid 56 cm for four samples at 2.5 m, which would
+  have shifted the altitude frame by about −2 m.
+
+### Documentation
+
+- `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`: **Laser fusion** covers both lasers,
+  with the sensor accessors, a per-sensor constants table, the VL53L1X return guard, the VL53L1X driver
+  and its known limits.
+- `CLAUDE.md`: the flip and `LASER_ALT` paragraphs moved into `dev-guide/FLIGHT_INVARIANTS.md`, with one
+  line each left in *Flight invariants*.
+- `PIN_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: one down-laser at 0x29 on I2C1; VL53L0X and VL53L1X
+  are mutually exclusive.

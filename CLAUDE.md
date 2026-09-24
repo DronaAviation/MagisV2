@@ -127,10 +127,13 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **Keep `Monitor_Print` under ~130 bytes per tick with the app connected** — `uartWrite()` does not
   check the 256-byte TX ring for full; an overrun corrupts the app's MSP replies and it disconnects.
   The double overload prints 0 for every digit after the first decimal.
-
-**During a flip, altitude hold is bypassed, not switched off.** `flip()`'s `DEACTIVATE_RC_MODE(BOXBARO)` is an XOR that `updateActivatedModes()` undoes on the next RX frame, so BARO_MODE stays on while the app holds AUX3. The flip drives `rcData[THROTTLE]` (2000 in ASCEND/HOLD), and `calculateAltHoldThrottleAdjustment()` flies the raw rate for it (`flipVelocitySetpoint()`): ASCEND needs 100 cm/s, and the shaped 40 cm/s never gets there. On flip exit the setpoint is reset, the pre-flip integrator is restored and held for 500 ms, and the pre-flip `AltHold` becomes a goal. Details: `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md` (Flip interaction) and `active-development/flip-althold-regression/`.
-
-**With `LASER_ALT` ( VL53L0X, `LASER_TOF` ) the laser corrects the altitude estimator below 160 cm and hands over to the baro above it ( back below 140 cm ), with the whole altitude frame shifted on the return so the craft does not move.** A sudden change of surface under the craft ( the laser disagreeing with the accelerometer by more than 30 cm within 0.5 s, or more than 20 cm building up within ~1 s ) holds the estimate on the baro for 2.5 s, then re-bases to the new surface and flies back to the old clearance as a goal; smaller or slower changes are followed as terrain. The accelerometer Z deadband is 0 for the estimator in `LASER_ALT` builds ( `ALT_EST_ACC_Z_DEADBAND`; the 40-count profile value made hover velocity 0.3-0.4 × real and the craft bobbed ). The VL53L1X ( `LASER_TOF_L1x` ) branch has none of this and never checks out-of-range: `active-development/vl53l1x-althold-parity/`. Details: `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md` ( Laser fusion ) and `active-development/tof-althold-fusion/`.
+- **During a flip, altitude hold is bypassed, not switched off** — BARO_MODE stays on and altitude hold
+  flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
+  (`FLIGHT_INVARIANTS.md`).
+- **With `LASER_ALT`, one down-laser (VL53L0X `LASER_TOF` or VL53L1X `LASER_TOF_L1x`, never both) corrects
+  the estimator below 160 cm and the baro above it (back below 140 cm)** — the return to the laser and a
+  re-base shift the whole altitude frame so the craft does not move, and a sudden surface change is held
+  on the baro for 2.5 s before re-basing (`FLIGHT_INVARIANTS.md`).
 
 ## Conventions
 

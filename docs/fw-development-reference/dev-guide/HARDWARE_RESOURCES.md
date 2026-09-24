@@ -18,6 +18,20 @@ sync with the code.
 - `datasheets/` — `rm0316-stm32f303xbcde.pdf` (RM0316: DMA request Tables 76/78) and
   `stm32f303vc.pdf` (DS9118: alternate-function Tables 14/15). Extract text with `pdftotext -layout`.
 
+## I2C1 and the down-laser
+
+I2C1 ( PB8 SCL / PB9 SDA, `I2C_DEVICE = I2CDEV_1` in `target.h` ) is the onboard sensor bus and the user
+I2C API bus. It also carries **one** downward laser at **0x29**: the VL53L0X ( `LASER_TOF`,
+`drivers/ranging_vl53l0x.cpp` ) or the VL53L1X ( `LASER_TOF_L1x`, `drivers/ranging_vl53l1x.cpp` ), fitted
+on the same connector. They are mutually exclusive: `flight/altitudehold.cpp` stops the build with an
+`#error` if both are defined ( and if `LASER_ALT` is defined without either ). No DMA is involved; the
+drivers poll from `UPDATE_LASER_TOF_TASK` in `mw.cpp`.
+
+Bus cost of the VL53L1X: a data-ready poll every 10 ms, and per sample ( every 51-53 ms ) one 17-byte
+result read plus a 1-byte interrupt-clear write, about 0.8 ms of blocking I2C at 400 kHz. The full ST
+API path it replaced took 5.4 ms and stretched a 3.5 ms loop. Budget any new I2C1 traffic against this.
+Details: `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md` ( Laser fusion, VL53L1X driver ).
+
 ## Pipeline and in-progress docs
 
 - `fw-architecture-pipeline/` — firmware architecture and per-subsystem pipeline docs. **Describes

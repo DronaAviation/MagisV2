@@ -1,0 +1,3154 @@
+
+Contents of section .text._ZL16resetAltSetpointv:
+ 0000 094a0023 1360094a 1360094b 00221a70  .J.#.`.J.`.K.".p
+ 0010 084b094a 1b681360 07ee903a 074bf8ee  .K.J.h.`...:.K..
+ 0020 e77ac3ed 007a7047 00000000 00000000  .z...zpG........
+ 0030 00000000 00000000 00000000 00000000  ................
+Contents of section .ARM.exidx.text._ZL16resetAltSetpointv:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._ZL13altShiftFramef:
+ 0000 f8b52c4f 2c4e2ded 028bd7ed 008ab0ee  ..,O,N-.........
+ 0010 408ab0ee 680afff7 feff284b 3468d3ed  @...h.....(K4h..
+ 0020 007a274a 77ee887a 0546c3ed 007a254b  .z'Jw..z.F...z%K
+ 0030 d3ed007a 77ee887a c3ed007a 224b1968  ...zw..z...z"K.h
+ 0040 00239942 28dc214b 93ed020a 38ee000a  .#.B(.!K....8...
+ 0050 83ed020a fff7feff 1d4b1860 1d4bd3ed  .........K.`.K..
+ 0060 007a38ee 880a77ee 887aa542 87ed000a  .z8...w..z.B....
+ 0070 c3ed007a 18d1fff7 feffb0ee 480a3060  ...z........H.0`
+ 0080 fff7feff 144a1368 03441360 134b0022  .....J.h.D.`.K."
+ 0090 1a70bdec 028bf8bd d2ed007a 77ee887a  .p.........zw..z
+ 00a0 0133e2ec 017acce7 b0ee480a fff7feff  .3...z....H.....
+ 00b0 2044e2e7 00000000 00000000 00000000   D..............
+ 00c0 00000000 00000000 00000000 00000000  ................
+ 00d0 00000000 00000000 00000000 00000000  ................
+Contents of section .ARM.exidx.text._ZL13altShiftFramef:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z16kalmanFilterInitP12KalmanFilterfff:
+ 0000 4ff07e53 c3600023 80ed000a c0ed010a  O.~S.`.#........
+ 0010 80ed021a 03617047                    .....apG        
+Contents of section .ARM.exidx.text._Z16kalmanFilterInitP12KalmanFilterfff:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z18kalmanFilterUpdateP12KalmanFilterf:
+ 0000 90ed037a d0ed007a 37ee277a d0ed017a  ...z...z7.'z...z
+ 0010 77ee277a c7ee276a d0ed027a c0ed046a  w.'z..'j...z...j
+ 0020 30ee676a e6ee867a b0ee670a c0ed027a  0.gj...z..g....z
+ 0030 f7ee007a 77eee67a 67ee877a c0ed037a  ...zw..zg..z...z
+ 0040 7047                                 pG              
+Contents of section .ARM.exidx.text._Z18kalmanFilterUpdateP12KalmanFilterf:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.configureAltitudeHold:
+ 0000 10b50f4c 20600f48 01600f48 02600f4a  ...L `.H.`.H.`.J
+ 0010 0f481160 0f4a1360 0f4b104a 1a604ff0  .H.`.J.`.K.J.`O.
+ 0020 7c525a60 4ff07e51 00229a60 d9601a61  |RZ`O.~Q.".`.`.a
+ 0030 0b4b1860 59609a60 d9601a61 10bd00bf  .K.`Y`.`.`.a....
+ 0040 00000000 00000000 00000000 00000000  ................
+ 0050 cdcccc3d 00000000 00000000 0ad7233c  ...=..........#<
+ 0060 00000000                             ....            
+Contents of section .ARM.exidx.text.configureAltitudeHold:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.applyAltHold:
+ 0000 2de9f84f 934b944d 1978944e 11f01001  -..O.K.M.x.N....
+ 0010 09d090f9 00206b88 b6f90010 01fb0233  ..... k........3
+ 0020 6b80bde8 f88f8e4b 8e4a1b68 b2f90640  k......K.J.h...@
+ 0030 93f802b0 db788c4f dff88082 002b51d0  .....x.O.....+Q.
+ 0040 b7f90000 231a83ea e374a4eb e3745c45  ....#....t...t\E
+ 0050 864c35dd 012288f8 00206ff0 31015022  .L5.."... o.1.P"
+ 0060 062093fb f0f0fff7 feff2388 184400b2  . ........#..D..
+ 0070 e8802080 7e4a1378 002b00f0 e7807949  .. .~J.x.+....yI
+ 0080 b1f90600 40f2dc51 884200f3 df804ff4  ....@..Q.B....O.
+ 0090 7a72ea80 774a1370 774b1a68 774b1a60  zr..wJ.pwK.hwK.`
+ 00a0 774b3268 1a60774b b7f90020 1a60764b  wK2h.`wK... .`vK
+ 00b0 98f80020 1a60754b b5f90620 1a60b0e7  ... .`uK... .`..
+ 00c0 98f80030 2bb1724b 6b4a1b68 136088f8  ...0+.rKkJ.h.`..
+ 00d0 0010704b 19683368 4a880988 1844fff7  ..pK.h3hJ....D..
+ 00e0 feffc4e7 6c4bdff8 d8a11968 6b4ba4f2  ....lK.....hkK..
+ 00f0 dc5401b3 01211970 daf80010 41b1fff7  .T...!.p....A...
+ 0100 feffdaf8 0010411a 63298cbf 00210121  ......A.c)...!.!
+ 0110 634bdff8 80a11878 dff8a891 a0b1201e  cK.....x...... .
+ 0120 b8bf0330 00226ff0 63018010 fff7feff  ...0."o.c.......
+ 0130 c9f80000 1fe01878 0028ddd0 1970fff7  .......x.(...p..
+ 0140 feffcaf8 0000d7e7 0029f1d1 524b1b68  .........)..RK.h
+ 0150 84eae470 a0ebe470 cbb15845 09dd201e  ...p...p..XE.. .
+ 0160 b8bf0330 6ff06301 78228010 fff7feff  ...0o.c.x"......
+ 0170 0146c9f8 0010daf8 0030b7f9 00403068  .F.......0...@0h
+ 0180 5a881988 2044fff7 feffe880 72e75845  Z... D......r.XE
+ 0190 14dd002c d4bf4ff0 1e0e4ff0 280ea0eb  ...,..O...O.(...
+ 01a0 0b000efb 00f0cbf5 fa7c7246 b0fbfcf0  .........|rF....
+ 01b0 fff7feff 002cd8bf 4042b9e7 394bc9f8  .....,..@B..9K..
+ 01c0 00101b78 5b07d6d5 2a4b1b78 002bd2d1  ...x[...*K.x.+..
+ 01d0 354bd3ed 007af5ee 407af1ee 10facad1  5K...z..@z......
+ 01e0 324b1b78 002bc6d1 314b1b68 002bb8bf  2K.x.+..1K.h.+..
+ 01f0 5b420a2b bfdcfff7 feff2e4a 1368c31a  [B.+.......J.h..
+ 0200 132bb8d9 2c4c1060 236803f5 ff521f32  .+..,L.`#h...R.2
+ 0210 43f6fe71 8a42aed9 daf80010 b7f90020  C..q.B......... 
+ 0220 b1f800c0 b3f5005f b4bf4ff0 ff300120  ......._..O..0. 
+ 0230 02446245 9fdb4988 8a429cdc 31683a80  .DbE..I..B..1h:.
+ 0240 a3eb4033 091a2360 316094e7 00231370  ..@3..#`1`...#.p
+ 0250 20e700bf 00000000 00000000 00000000   ...............
+ 0260 00000000 00000000 00000000 00000000  ................
+ 0270 00000000 00000000 00000000 00000000  ................
+ 0280 00000000 00000000 00000000 00000000  ................
+ 0290 00000000 00000000 00000000 00000000  ................
+ 02a0 00000000 00000000 00000000 00000000  ................
+ 02b0 00000000 00000000 00000000 00000000  ................
+ 02c0 00000000 00000000                    ........        
+Contents of section .ARM.exidx.text.applyAltHold:
+ 0000 00000000 af08b180                    ........        
+Contents of section .text.updateAltHoldState:
+ 0000 38b5134b 1c6814f0 080407d1 0820fff7  8..K.h....... ..
+ 0010 feff104b 1c60104b 1c7038bd 0f4b104d  ...K.`.K.p8..K.M
+ 0020 1c8814f0 08040bd1 0820fff7 fefffff7  ......... ......
+ 0030 feff40f2 dc532b80 0a4b1c60 0a4b1c60  ..@..S+..K.`.K.`
+ 0040 0a4b2a88 1a800a4b da880a4b 1a80e4e7  .K*....K...K....
+ 0050 00000000 00000000 00000000 00000000  ................
+ 0060 00000000 00000000 00000000 00000000  ................
+ 0070 00000000 00000000                    ........        
+Contents of section .ARM.exidx.text.updateAltHoldState:
+ 0000 00000000 a908b180                    ........        
+Contents of section .text._Z23isThrustFacingDownwardsP25rollAndPitchInclination_t:
+ 0000 b0f90030 002bb8bf 5b429bb2 b3f5487f  ...0.+..[B....H.
+ 0010 0bd2b0f9 02000028 b8bf4042 80b2b0f5  .......(..@B....
+ 0020 487f2cbf 00200120 70470020 7047      H.,.. . pG. pG  
+Contents of section .ARM.exidx.text._Z23isThrustFacingDownwardsP25rollAndPitchInclination_t:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z18calculateTiltAngleP25rollAndPitchInclination_t:
+ 0000 b0f90230 b0f90020 002bb8bf 5b42002a  ...0... .+..[B.*
+ 0010 b8bf5242 98b293b2 984238bf 184600b2  ..RB.....B8..F..
+ 0020 7047                                 pG              
+Contents of section .ARM.exidx.text._Z18calculateTiltAngleP25rollAndPitchInclination_t:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z34calculateAltHoldThrottleAdjustmentlfff:
+ 0000 2de9f04f a34ca44d 23682ded 068b85b0  -..O.L.M#h-.....
+ 0010 002b0290 2b78b0ee 409af0ee 609ab0ee  .+..+x..@...`...
+ 0020 418a14bf 01260026 36d0bbb9 9b499c4a  A....&.&6....I.J
+ 0030 09881268 11f0080f 9a492bd0 9a4b1b68  ...h.....I+..K.h
+ 0040 0b609a4b 1b7883f0 0103132a d4bf0023  .`.K.x.....*...#
+ 0050 03f00103 96490b70 964b1a60 96482e70  .....I.p.K.`.H.p
+ 0060 fff7feff 78b1954b 8f4e1b78 13f0040f  ....x..K.N.x....
+ 0070 03d08e4b 1b780193 13b3fff7 feff904a  ...K.x.........J
+ 0080 00233360 13600027 384605b0 bdec068b  .#3`.`.'8F......
+ 0090 bde8f08f 0b60dde7 002bdfd0 fff7feff  .....`...+......
+ 00a0 804b1a68 804b1a60 fff7feff 844b1860  .K.h.K.`.....K.`
+ 00b0 7f4b1b78 002bd1d0 7e4b1a68 784bcce7  .K.x.+..~K.hxK..
+ 00c0 9fed801a dfed800a dff8d481 dff834b2  ..............4.
+ 00d0 7e4ddff8 34927e4f dff830a2 b0ee480a  ~M..4.~O..0...H.
+ 00e0 fff7feff 7b4b2268 1b687b4c f0ee408a  ....{K"h.h{L..@.
+ 00f0 002a00f0 a080dbf8 0000002b 00f08280  .*.........+....
+ 0100 c8f80000 d8ed007a f8eee77a 0022c9ed  .......z...z."..
+ 0110 007a07ee 903af8ee e77a3a60 00222270  .z...:...z:`.""p
+ 0120 caed007a 029a6d49 dff8e481 9c1a6c4b  ...z..mI......lK
+ 0130 1c602b68 987a6043 48bf1f30 4ff49672  .`+h.z`CH..0O..r
+ 0140 4011fff7 feff5e4b c8f80000 1b680746  @.....^K.....h.F
+ 0150 53b1fff7 feff5a4b 1b68c01a b0f5fa7f  S.....ZK.h......
+ 0160 2cbf0023 01230193 544b1b78 13f00403  ,..#.#..TK.x....
+ 0170 06d0019b 2bb92b68 5a7d3368 04fb0233  ....+.+hZ}3h...3
+ 0180 33605849 30689fed 588a4ff4 1612fff7  3`XI0h..X.O.....
+ 0190 feff3060 0028bcbf 00f5ff50 1f304313  ..0`.(.....P.0C.
+ 01a0 c8f80430 2b6893f8 203007ee 903a39ee  ...0+h.. 0...:9.
+ 01b0 299af8ee e77a07eb 603767ee 897a9622  )....z..`7g..z."
+ 01c0 67ee887a 6ff09501 fdeee77a 17ee900a  g..zo......z....
+ 01d0 fff7feff 2b6893f8 203000ee 903af8ee  ....+h.. 0...:..
+ 01e0 e00a3f1a 60ee890a 962260ee 880a6ff0  ..?.`...."`...o.
+ 01f0 9501fdee e07a17ee 900afff7 feffc8f8  .....z..........
+ 0200 080041e7 d8f80030 38494ff4 fa72181a  ..A....08IO..r..
+ 0210 fff7feff 364b3149 1860364b 18602b68  ....6K1I.`6K.`+h
+ 0220 1b795843 48bf7f30 4ff49672 c011fff7  .yXCH..0O..r....
+ 0230 feff0346 66e799ed 00aa0393 b0ee4a0a  ...Ff.........J.
+ 0240 fff7feff d8f80020 039b9042 64d007ee  ....... ...Bd...
+ 0250 902a294a f8eee77a c2ed007a 01222270  .*)J...z...z.""p
+ 0260 002b5ad1 244bdfed 257a93ed 008a38ee  .+Z.$K..%z....8.
+ 0270 4a8ab0ee c80a20ee 270afff7 feffb5ee  J..... .'.......
+ 0280 c08af1ee 10fa40f3 8380dfed 1d0afff7  ......@.........
+ 0290 feff48e0 00000000 00000000 00000000  ..H.............
+ 02a0 00000000 00000000 00000000 00000000  ................
+ 02b0 00000000 00000000 00000000 00000000  ................
+ 02c0 00000000 cdcc4c3d 00000000 00000000  ......L=........
+ 02d0 00000000 00000000 00000000 d4feffff  ................
+ 02e0 00000000 0080daff 0000003b 0cfeffff  ...........;....
+ 02f0 00000000 00000000 00000000 00002043  .............. C
+ 0300 00007042 00000000 00000000 00000000  ..pB............
+ 0310 00000000 0000c842 b3b30022 227007ee  .......B...""p..
+ 0320 903ab8ee e70a1fed 058ad7ed 007a28ee  .:...........z(.
+ 0330 888a30ee 670ab0ee 481af1ee 480afff7  ..0.g...H...H...
+ 0340 feffd7ed 007adbf8 00b070ee 277a99ed  .....z....p.'z..
+ 0350 000ac7ed 007af5ee c07ab0ee 407af1ee  .....z...z..@z..
+ 0360 10faa8ee a77a1add 0bf13203 06ee903a  .....z....2....:
+ 0370 f8eee66a b4eee67a f1ee10fa 1bdc89ed  ...j...z........
+ 0380 007ab0ee 470a16e0 2278002a c7d069e7  .z..G..."x.*..i.
+ 0390 f3ee0e0a fff7feff b1ee400a c3e7eed5  ..........@.....
+ 03a0 abf13203 06ee903a f8eee66a b4eee67a  ..2....:...j...z
+ 03b0 f1ee10fa e3d52378 f3b1364b 93ed007a  ......#x..6K...z
+ 03c0 77ee406a b7ee006a f0eee66a f4eec66a  w.@j...j...j...j
+ 03d0 f1ee10fa 10d538ee 088af0ee e77af4ee  ......8......z..
+ 03e0 c87af1ee 10fa07d8 00233b60 002389ed  .z.......#;`.#..
+ 03f0 007a2370 b0ee470a fff7feff 2649c8f8  .z#p..G.....&I..
+ 0400 00004ff4 fa72a0eb 0b00fff7 feff234b  ..O..r........#K
+ 0410 dfed237a 1860234b 9fed231a 18602378  ..#z.`#K..#..`#x
+ 0420 97ed000a 002b214b 1b7818bf b0ee671a  .....+!K.x....g.
+ 0430 002b2b68 dfed1e7a 1b79f3ee 0e0a18bf  .++h...z.y......
+ 0440 f0ee670a 07ee100a 07ee903a b8eec77a  ..g........:...z
+ 0450 f8ee677a f1ee600a 67ee877a 9fed157a  ..gz..`.g..z...z
+ 0460 a7ee870a fff7feff dfed137a 28eea71a  ...........z(...
+ 0470 daed007a f1ee410a 30ee670a fff7feff  ...z..A.0.g.....
+ 0480 daed007a 30ee270a 8aed000a fff7feff  ...z0.'.........
+ 0490 034647e6 00000000 0cfeffff 00000000  .FG.............
+ 04a0 00007042 00000000 00002042 00000000  ..pB...... B....
+ 04b0 0000c842 0000003c 00001643           ...B...<...C    
+Contents of section .ARM.extab.text._Z34calculateAltHoldThrottleAdjustmentlfff:
+ 0000 c9040181 b0b0af82 00000000           ............    
+Contents of section .ARM.exidx.text._Z34calculateAltHoldThrottleAdjustmentlfff:
+ 0000 00000000 00000000                    ........        
+Contents of section .text.calculateEstimatedAltitude:
+ 0000 2de9f843 774b1c68 46f2a712 041b9442  -..CwK.hF......B
+ 0010 2ded068b 40f2de80 1860fff7 feff724d  -...@....`....rM
+ 0020 724e20b9 fff7feff 00232b60 3360704b  rN ......#+`3`pK
+ 0030 dfed709a d3ed007a 6f4bf8ee 677a1b68  ..p....zoK..gz.h
+ 0040 27eea96a 002b00f0 c9806c4a 07ee103a  '..j.+....lJ...:
+ 0050 d2ed026a b8eec77a f8eee66a 86ee879a  ...j...z...j....
+ 0060 674bdff8 dc81dff8 dc9193ed 008ad5ed  gK..............
+ 0070 00aa9fed 640a29ee 088a6aee 868a28ee  ....d.)...j...(.
+ 0080 278af6ee 007a68ee 277ab7ee 00aae7ee  '....zh.'z......
+ 0090 868ad6ed 007a78ee a78a28ee 800afff7  .....zx...(.....
+ 00a0 feff594b d9ed006a 1880d8f8 003093ed  ..YK...j.....0..
+ 00b0 037a7aee 477a7aee 88aa67ee a67a0120  .zz.Gzz...g..z. 
+ 00c0 e8ee877a c5ed00aa c6ed007a fff7feff  ...z.......z....
+ 00d0 fff7feff 00287dd0 d6ed007a 4b4f4c4b  .....(}....zKOLK
+ 00e0 99ed007a dfed4b6a 4b494c4e fdeee77a  ...z..KjKILN...z
+ 00f0 40f2dc52 c7ed007a 07ee904a f8ee678a  @..R...z...J..g.
+ 0100 d3ed007a f8eee77a 77ee677a bdeec77a  ...z...zw.gz...z
+ 0110 67eea67a 83ed007a c7eea86a fdeee67a  g..z...z...j...z
+ 0120 17ee900a fff7feff 0a21fff7 feffd8f8  .........!......
+ 0130 003000ee 100ad3ed 027ab8ee c00a3aee  .0.......z....:.
+ 0140 677a20ee 070a95ed 007aa7ee 870a85ed  gz ......z......
+ 0150 000afff7 feff0521 0446fff7 feff304b  .......!.F....0K
+ 0160 07ee904a 1860b8ee e70a2e48 fff7feff  ...J.`.....H....
+ 0170 d7ed007a 2c48f0ee 40aab8ee e70afff7  ...z,H..@.......
+ 0180 feff28ee a91ab0ee 408ad6ed 000ab0ee  ..(.....@.......
+ 0190 490a2046 fff7feff 244bdfed 256a1860  I. F....$K..%j.`
+ 01a0 244b86ed 009a1b68 c5ed00aa db7b07ee  $K.....h.....{..
+ 01b0 903af8ee 677a204b 87eea67a c3ed007a  .:..gz K...z...z
+ 01c0 bdeec88a d8f80030 87ed008a 7aee477a  .......0....z.Gz
+ 01d0 c3ed037a bdec068b bde8f883 9fed179a  ...z............
+ 01e0 3ee700bf 00000000 00000000 00000000  >...............
+ 01f0 00000000 bd378635 00000000 00000000  .....7.5........
+ 0200 00000000 0000c842 00000000 00000000  .......B........
+ 0210 00000000 00247449 24faffff 00000000  .....$tI$.......
+ 0220 00000000 00000000 00000000 00000000  ................
+ 0230 00007a44 00000000 00000000 00000000  ..zD............
+ 0240 00000000 00000000                    ........        
+Contents of section .ARM.extab.text.calculateEstimatedAltitude:
+ 0000 82c90181 b0ad08b1 00000000           ............    
+Contents of section .ARM.exidx.text.calculateEstimatedAltitude:
+ 0000 00000000 00000000                    ........        
+Contents of section .text._Z23addHistPositionBaseEstZf:
+ 0000 70b5174b 174d1848 1c682b88 b0f90020  p..K.M.H.h+.... 
+ 0010 16490133 1bb2a242 1e460bda 9c42dcbf  .I.3...B.F...B..
+ 0020 00231e46 01eb8601 2b8081ed 000a0132  .#.F....+......2
+ 0030 028070bd 0e482b80 02889c42 02f10102  ..p..H+....B....
+ 0040 12b204d1 00232b80 81ed000a f0e701eb  .....#+.........
+ 0050 83019442 81ed000a ead10023 0380e8e7  ...B.......#....
+ 0060 00000000 00000000 00000000 00000000  ................
+ 0070 00000000                             ....            
+Contents of section .ARM.exidx.text._Z23addHistPositionBaseEstZf:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z28getFrontHistPositionBaseEstZv:
+ 0000 0a4a0b49 b2f90030 01eb8301 91ed000a  .J.I...0........
+ 0010 08490133 09681bb2 8b421380 04bf0023  .I.3.h...B.....#
+ 0020 1380054a 1388013b 13807047 00000000  ...J...;..pG....
+ 0030 00000000 00000000 00000000           ............    
+Contents of section .ARM.exidx.text._Z28getFrontHistPositionBaseEstZv:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z25isPositionBaseQueueIsFullv:
+ 0000 044bb3f9 0000044b 1b68c31a 58425841  .K.....K.h..XBXA
+ 0010 704700bf 00000000 00000000           pG..........    
+Contents of section .ARM.exidx.text._Z25isPositionBaseQueueIsFullv:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.altHoldSource:
+ 0000 034b1b78 13b9034b 18787047 02207047  .K.x...K.xpG. pG
+ 0010 00000000 00000000                    ........        
+Contents of section .ARM.exidx.text.altHoldSource:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.updateGains:
+ 0000 124b134a d3ed007a 12491348 f5ee407a  .K.J...z.I.H..@z
+ 0010 f1ee10fa 4ff00003 03d11360 0b600360  ....O......`.`.`
+ 0020 7047f0ee 086a86ee a77a80ed 007a27ee  pG...j...z...z'.
+ 0030 a77a67ee 877a86ee 876af7ee 006a86ee  .zg..z...j...j..
+ 0040 a77a81ed 006a82ed 007a7047 00000000  .z...j...zpG....
+ 0050 00000000 00000000 00000000           ............    
+Contents of section .ARM.exidx.text.updateGains:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.correctedWithBaro:
+ 0000 08b5bdee c07a184b 83ed007a b6ee007a  .....z.K...z...z
+ 0010 f4eec70a f1ee10fa f0ee407a 22dcfff7  ..........@z"...
+ 0020 feffd8b1 fff7feff 104b93ed 007a104b  .........K...z.K
+ 0030 30ee070a 77eec07a c3ed007a 0d4b93ed  0...w..z...z.K..
+ 0040 007af7ee 087ab4ee 677af1ee 10fa09d0  .z...z..gz......
+ 0050 c3ed007a bde80840 fff7febf 064b93ed  ...z...@.....K..
+ 0060 000ae1e7 08bd00bf 00000000 00000000  ................
+ 0070 00000000 00000000 00000000           ............    
+Contents of section .ARM.exidx.text.correctedWithBaro:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.checkBaro:
+ 0000 38b50e4d 2ded028b fff7feff 2b688342  8..M-.......+h.B
+ 0010 04460fd0 c31a08ee 103adfed 097ab8ee  .F.......:...z..
+ 0020 488a28ee 278afff7 fefff0ee 480afff7  H.(.'.......H...
+ 0030 feff2c60 bdec028b 38bd00bf 00000000  ..,`....8.......
+ 0040 6f12833a                             o..:            
+Contents of section .ARM.extab.text.checkBaro:
+ 0000 80c90181 b0a908b1 00000000           ............    
+Contents of section .ARM.exidx.text.checkBaro:
+ 0000 00000000 00000000                    ........        
+Contents of section .text.updateGains1:
+ 0000 124b134a d3ed007a 12491348 f5ee407a  .K.J...z.I.H..@z
+ 0010 f1ee10fa 4ff00003 03d11360 0b600360  ....O......`.`.`
+ 0020 7047f0ee 086a86ee a77a80ed 007a27ee  pG...j...z...z'.
+ 0030 a77a67ee 877a86ee 876af7ee 006a86ee  .zg..z...j...j..
+ 0040 a77a81ed 006a82ed 007a7047 00000000  .z...j...zpG....
+ 0050 00000000 00000000 00000000           ............    
+Contents of section .ARM.exidx.text.updateGains1:
+ 0000 00000000 01000000                    ........        
+Contents of section .text._Z11setAltitudef:
+ 0000 054b83ed 000a054b 00221a60 044b0120  .K.....K.".`.K. 
+ 0010 83ed000a fff7febf 00000000 00000000  ................
+ 0020 00000000                             ....            
+Contents of section .ARM.exidx.text._Z11setAltitudef:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.correctedWithTof:
+ 0000 10b5154c b4f90030 2ded028b b0ee408a  ...L...0-.....@.
+ 0010 23b9fff7 feff2388 01332380 0f4bd3ed  #.....#..3#..K..
+ 0020 007a0f4b 38ee678a f7ee087a 83ed008a  .z.K8.g....z....
+ 0030 0c4b93ed 007ab4ee 677af1ee 10fa07d0  .K...z..gz......
+ 0040 bdec028b bde81040 c3ed007a fff7febf  .......@...z....
+ 0050 bdec028b 10bd00bf 00000000 00000000  ................
+ 0060 00000000 00000000                    ........        
+Contents of section .ARM.exidx.text.correctedWithTof:
+ 0000 00000000 a880c980                    ........        
+Contents of section .text.checkReading:
+ 0000 2de9f04f 2ded048b ae4d83b0 fff7feff  -..O-....M......
+ 0010 2b688342 044600f0 de80c31a 09ee103a  +h.B.F.........:
+ 0020 dfeda97a b8ee499a 29ee279a fff7feff  ...z..I.).'.....
+ 0030 a64b2c60 83ed000a a54bf5ee 007a20ee  .K,`.....K...z .
+ 0040 270a93ed 007af6ee 087aa7ee 270a83ed  '....z...z..'...
+ 0050 000afff7 feff0446 fff7feff 9d4f9e4e  .......F.....O.N
+ 0060 98b1fff7 feff0546 78b99c4b 18709c48  .......Fx..K.p.H
+ 0070 fff7feff f928d4bf 01230023 3b7040f3  .....(...#.#;p@.
+ 0080 ad80fff7 feff974b 1d70dfed 978a0025  .......K.p.....%
+ 0090 3b78002b 40f0d280 0027944b dfed947a  ;x.+@....'.K...z
+ 00a0 93ed008a 934bd6ed 009a1b78 924ab8ee  .....K.....x.J..
+ 00b0 c88a13f0 040f28ee 278a78ee 299a07d0  ......(.'.x.)...
+ 00c0 8e4b1b78 23b98e4b 1b78002b 00f0c580  .K.x#..K.x.+....
+ 00d0 00231370 0093002d 00f05e81 894adff8  .#.p...-..^..J..
+ 00e0 64a2d2ed 006a7f4a 92f80080 864a1178  d....j.J.....J.x
+ 00f0 01f11802 a2eb0802 4ff0000e 0192f146  ........O......F
+ 0100 72464ff0 180b5ffa 8ef08045 00f2b480  rFO..._....E....
+ 0110 7e48002a 00f0cf80 00eb890c 9ced006a  ~H.*...........j
+ 0120 dff8ecc1 0ceb890c 9ced007a 78eec67a  ...........zx..z
+ 0130 76eec75a 77eee57a 00eb8100 c0ed008a  v..Zw..z........
+ 0140 73484af8 214000eb 8100c0ed 006a0131  sHJ.!@.......j.1
+ 0150 1820b1fb f0fc00fb 1c116b48 b8f1170f  . ........kH....
+ 0160 01709ebf 5f4908f1 010881f8 00806949  .p.._I........iI
+ 0170 0a706949 c1ed008a 00991140 0a466749  .piI.......@.FgI
+ 0180 08780028 00f0e080 654991ed 007a6549  .x.(....eI...zeI
+ 0190 91ed006a 644938ee c77a76ee c66a37ee  ...jdI8..zv..j7.
+ 01a0 667a81ed 007adff8 7481dff8 949198f8  fz...z..t.......
+ 01b0 00100029 00f00981 99f80010 5b4829b1  ...)........[H).
+ 01c0 23b15b49 09780029 00f0ea80 002188f8  #.[I.x.).....!..
+ 01d0 00100170 f9e09fed 449a3ae7 0a2390fb  ...p....D.:..#..
+ 01e0 f3f000b2 fff7feff 524b1b88 07ee903a  ........RK.....:
+ 01f0 f8ee677a f2ee049a c7eea98a b0ee408a  ..gz..........@.
+ 0200 fff7feff 4c4b1b89 07ee903a 68ee808a  ....LK.....:h...
+ 0210 f8ee677a c6ed008a c7eea98a b0ee480a  ..gz..........H.
+ 0220 fff7feff d6ed007a f5eec07a f1ee10fa  .......z...z....
+ 0230 68ee808a ccbf0125 002529e7 fff7feff  h......%.%).....
+ 0240 00287ff4 29afd6ed 007af5ee c07af1ee  .(..)....z...z..
+ 0250 10faccbf 01270027 1fe71378 374903b9  .....'.'...x7I..
+ 0260 0c600123 13700a68 a21ab2f5 7a7f34bf  .`.#.p.h....z.4.
+ 0270 00220122 00922ee7 019800eb 0e0c9cfb  ."."............
+ 0280 fbf00bfb 10cc5ffa 8cfc5af8 2c00201a  ......_...Z.,. .
+ 0290 b0f5fa7f 0bd2bef1 000f0ad1 b0f5c87f  ................
+ 02a0 34bfcc46 2a460ef1 010ee146 2be72a46  4..F*F.....F+.*F
+ 02b0 f9e7cc46 f7e79fed 0c7ab0ee 476af0ee  ...F.....z..Gj..
+ 02c0 477a39e7 00000000 6f12833a 00000000  Gz9.....o..:....
+ 02d0 00000000 00000000 00000000 00000000  ................
+ 02e0 00000000 00000000 00000000 00000000  ................
+ 02f0 9a99993e 00000000 00000000 00000000  ...>............
+ 0300 00000000 00000000 00000000 00000000  ................
+ 0310 00000000 00000000 00000000 00000000  ................
+ 0320 00000000 00000000 00000000 00000000  ................
+ 0330 00000000 00000000 00000000 00000000  ................
+ 0340 00000000 00000000 002a3ff4 2caff0ee  .........*?.,...
+ 0350 e76af2ee 0e5af4ee e56af1ee 10fa7ff7  .j...Z...j......
+ 0360 22afb648 00780028 3ff41daf 002b3ff4  "..H.x.(?....+?.
+ 0370 1aafb348 00780028 7ff415af 01200870  ...H.x.(..... .p
+ 0380 b0490c60 b04981ed 006ab049 81ed007a  .I.`.I...j.I...z
+ 0390 af49c1ed 007a06e7 dfedae7a 2a4602e7  .I...z.....z*F..
+ 03a0 90f800c0 bcf1000f 40f09c80 a84991ed  ........@....I..
+ 03b0 007af1ee 0e6ab0ee c77ab4ee e67af1ee  .z...j...z...z..
+ 03c0 10fa6fd5 002188f8 001099f8 001011b1  ..o..!..........
+ 03d0 002b40f0 9a80dff8 68a29af8 0030a3b1  .+@.....h....0..
+ 03e0 99b19d4b 1b7883b1 7fb19c4b 93ed008a  ...K.x.....K....
+ 03f0 39eec88a b0ee480a fff7feff 984bd3ed  9.....H......K..
+ 0400 007a77ee c87ac3ed 007a0023 8af80030  .zw..z...z.#...0
+ 0410 99f80030 002b00f0 9881002d 76d0914b  ...0.+.....-v..K
+ 0420 1c60874b 1b78002b 70d198f8 0030002b  .`.K.x.+p....0.+
+ 0430 6cd18d4b 1b78002b 68d08c4b 884d93ed  l..K.x.+h..K.M..
+ 0440 008a8b4b dff850a2 1a7838ee 698a002a  ...K..P..x8.i..*
+ 0450 40f05d81 012285ed 008a1a70 caf80040  @.]..".....p...@
+ 0460 002f00f0 a48196ed 007adfed 827ab4ee  ./.......z...z..
+ 0470 e77af1ee 10fa4bdb 7f4a0023 89f80030  .z....K..J.#...0
+ 0480 13707a4b 93ed000a 754bd3ed 007a30ee  .pzK....uK...z0.
+ 0490 670af0ee 490a03b0 bdec048b bde8f04f  g...I..........O
+ 04a0 fff7febf 67490968 611ab1f5 7a7f8cd9  ....gI.ha...z...
+ 04b0 f3ee046a b4eee67a f1ee10fa 82d96f49  ...j...z......oI
+ 04c0 9fed6c7a d1ed006a f4eec76a f1ee10fa  ..lz...j...j....
+ 04d0 a4bf6948 88f800c0 4ff00101 a8bf89f8  ..iH....O.......
+ 04e0 00c076e6 dff85cc1 dcf800c0 a4eb0c0c  ..v...\.........
+ 04f0 bcf58c6f 7ff669af 017088f8 001089f8  ...o..i..p......
+ 0500 00105d49 01200870 5fe775b9 002faad1  ..]I. .p_.u../..
+ 0510 544b1b68 e31a782b 40f24981 002389f8  TK.h..x+@.I..#..
+ 0520 0030554b 01221a70 abe79fed 527af4ee  .0UK.".p....Rz..
+ 0530 c78af1ee 10fa7ff5 72af484b dff800a1  ........r.HK....
+ 0540 93ed007a 9af80030 38ee078a 38eec88a  ...z...08...8...
+ 0550 f0eec86a 002b3dd1 b3ee0e7a f4eec76a  ...j.+=....z...j
+ 0560 f1ee10fa 1bdc32b1 f0eee77a f4eec77a  ......2....z...z
+ 0570 f1ee10fa 13dc98f8 0030002b 3ff44faf  .........0.+?.O.
+ 0580 334bd3ed 007af0ee e77af4ee c77af1ee  3K...z...z...z..
+ 0590 10fa04dc 3a4b1b78 002b3ff4 40af0123  ....:K.x.+?.@..#
+ 05a0 8af80030 364b4ff0 000a83f8 00a0354b  ...06KO.......5K
+ 05b0 88f800a0 1c60344b c3ed008a 334b83f8  .....`4K....3K..
+ 05c0 00a0334b 83f800a0 fff7feff 314b83f8  ..3K........1K..
+ 05d0 00a01de7 2c492e4a f2ee0e7a f4eee76a  ....,I.J...z...j
+ 05e0 d1ed007a f1ee10fa 78eee77a 48bf1378  ...z....x..zH..x
+ 05f0 f0eee77a b2ee047a 48bf0133 f4eec77a  ...z...zH..3...z
+ 0600 4cbfdbb2 0023f1ee 10fa1370 1f4a10d8  L....#.....p.J..
+ 0610 1178ff29 01d00131 1170022b 3ed94ff0  .x.)...1.p.+>.O.
+ 0620 000b8af8 00b0fff7 feff1a4b 83f800b0  ...........K....
+ 0630 eee6c1ed 008a0021 eee700bf 00000000  .......!........
+ 0640 00000000 00000000 00000000 00000000  ................
+ 0650 00000000 00000000 00000000 00000000  ................
+ 0660 00000000 00000000 00000000 00000000  ................
+ 0670 00000000 00002043 00000000 00000000  ...... C........
+ 0680 00000000 00000000 00000000 00000000  ................
+ 0690 00000000 00000000 00000000 564b1b68  ............VK.h
+ 06a0 40f6c311 e31a8b42 7ff6b9ae 13780e2b  @......B.....x.+
+ 06b0 7ff6b5ae dff884b1 b0ee480a dbf80000  ..........H.....
+ 06c0 0090fff7 feff4d4b 0098d3ed 007a77ee  ......MK.....zw.
+ 06d0 c87ac3ed 007a4a4b 1b7833b1 494b93ed  .z...zJK.x3.IK..
+ 06e0 000a30ee 480afff7 feffb0ee 480acbf8  ..0.H.......H...
+ 06f0 0000fff7 feff444a c6ed008a 13681b1a  ......DJ.....h..
+ 0700 13600023 8af80030 fff7feff 80e6daf8  .`.#...0........
+ 0710 0030dfed 3e7adfed 3e0ae31a 00ee103a  .0..>z..>......:
+ 0720 b8ee400a 20ee270a fff7feff b0ee007a  ..@. .'........z
+ 0730 30ee077a d5ed007a c0ee076a 38ee678a  0..z...z...j8.g.
+ 0740 e8ee267a c5ed007a 88e6002d 45d0314b  ..&z...z...-E.1K
+ 0750 9fed317a 1b78dfed 317a002b 18bff0ee  ..1z.x..1z.+....
+ 0760 477a96ed 007ab4ee e77af1ee 10fa37d5  Gz...z...z....7.
+ 0770 2b4a224d 1378d5ed 008a0133 dbb2022b  +J"M.x.....3...+
+ 0780 13707ff6 7eae274b 93ed008a 39eec88a  .p..~.'K....9...
+ 0790 b0ee480a fff7feff 012389f8 0030224b  ..H......#...0"K
+ 07a0 78eec88a 1c60214b c5ed008a 1c601c4b  x....`!K.....`.K
+ 07b0 00221a70 1e4b1b78 002b7ff4 62ae97b1  .".p.K.x.+..b...
+ 07c0 98f80030 7bb91b4b 93ed000a 03b0bdec  ...0{..K........
+ 07d0 048bbde8 f04ffff7 febf002f 7ff451ae  .....O...../..Q.
+ 07e0 0f4b0022 9fe6144b 00221a60 03b0bdec  .K."...K.".`....
+ 07f0 048bbde8 f08f00bf 00000000 00000000  ................
+ 0800 00000000 00000000 00000000 6f12833a  ............o..:
+ 0810 cdcc4c3d 00000000 00002043 00000c43  ..L=...... C...C
+ 0820 00000000 00000000 00000000 00000000  ................
+ 0830 00000000 00000000 00000000 00000000  ................
+Contents of section .ARM.extab.text.checkReading:
+ 0000 c9020181 b0b0af81 00000000           ............    
+Contents of section .ARM.exidx.text.checkReading:
+ 0000 00000000 00000000                    ........        
+Contents of section .text.altitudeHoldGetEstimatedAltitude:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.altitudeHoldGetEstimatedAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getSetVelocity:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getSetVelocity:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getSetAltitude:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getSetAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.AltRst:
+ 0000 104b10b5 01200024 1c60fff7 feff0e4a  .K... .$.`.....J
+ 0010 00231370 0d4a40f2 dc511180 0c4a0d49  .#.p.J@..Q...J.I
+ 0020 13600d4a 13600d4b 4ff07e52 1a605960  .`.J.`.KO.~R.`Y`
+ 0030 9c60da60 1c610a4b 1a605960 9c60da60  .`.`.a.K.`Y`.`.`
+ 0040 1c6110bd 00000000 00000000 00000000  .a..............
+ 0050 00000000 cdcccc3d 00000000 00000000  .......=........
+ 0060 00000000                             ....            
+Contents of section .ARM.exidx.text.AltRst:
+ 0000 00000000 b0b0a880                    ........        
+Contents of section .text.apmCalculateEstimatedAltitude:
+ 0000 714b2de9 f0411c68 42f20f72 041b9442  qK-..A.hB..r...B
+ 0010 2ded048b 42d91860 44f62063 9c4202d9  -...B..`D. c.B..
+ 0020 0120fff7 feff694d 2b782bb1 684b1b78  . ....iM+x+.hK.x
+ 0030 5b0701d4 fff7feff fff7feff 654b664e  [...........eKfN
+ 0040 1b68664f 9fed661a dfed660a 002bc9bf  .hfO..f...f..+..
+ 0050 654adfed 667ad2ed 026a07ee 903ac4bf  eJ..fz...j...:..
+ 0060 f8eee66a b8eee77a 614bc8bf c6ee877a  ...j...zaK.....z
+ 0070 93ed000a c6ed007a 27ee800a c7ed007a  .......z'......z
+ 0080 fff7feff 012086ed 000afff7 feff594a  ..... ........YJ
+ 0090 b2f90030 052b05dc 01331380 bdec048b  ...0.+...3......
+ 00a0 bde8f081 07ee904a 9fed537a 534b544a  .......J..SzSKTJ
+ 00b0 dff88481 f8ee677a c7ee878a 93ed007a  ......gz.......z
+ 00c0 504bd3ed 006a504b 67ee266a d3ed007a  PK...jPKg.&j...z
+ 00d0 e6eea87a c3ed007a 4c4bd3ed 006a4c4b  ...z...zLK...jLK
+ 00e0 67ee266a 93ed000a a6eea80a d2ed006a  g.&j...........j
+ 00f0 484a27ee 267a92ed 008aa7ee 288a96ed  HJ'.&z......(...
+ 0100 007a82ed 008a77ee 877af6ee 006a67ee  .z....w..z...jg.
+ 0110 a87ab0ee 407aa7ee a67a3f4a 3f4e92ed  .z..@z...z?J?N..
+ 0120 009aa7ee 289a30ee 270a38ee 098a82ed  ....(.0.'.8.....
+ 0130 009a3b4a 83ed000a 82ed008a fff7feff  ..;J............
+ 0140 b0ee480a 09ee900a fff7feff b0ee490a  ..H...........I.
+ 0150 05ee100a fff7feff 3248b8ee e90afff7  ........2H......
+ 0160 feff3148 f0ee405a b8eec50a fff7feff  ..1H..@Z........
+ 0170 b0ee408a b0ee650a fff7feff b0ee480a  ..@...e.......H.
+ 0180 04463060 fff7feff 284bd8ed 000a1860  .F0`....(K.....`
+ 0190 97ed000a b0ee681a 2046fff7 feff244b  ......h. F....$K
+ 01a0 05211860 3b683068 c8f80030 fff7feff  .!.`;h0h...0....
+ 01b0 204b1860 3368002b b8bf5b42 c82bc4bf   K.`3h.+..[B.+..
+ 01c0 01232b70 6ae700bf 00000000 00000000  .#+pj...........
+ 01d0 00000000 00000000 00000000 00000000  ................
+ 01e0 00004844 000048c4 00000000 00000000  ..HD..H.........
+ 01f0 00000000 00000000 00247449 00000000  .........$tI....
+ 0200 00000000 00000000 00000000 00000000  ................
+ 0210 00000000 00000000 00000000 00000000  ................
+ 0220 00000000 00000000 00000000 00000000  ................
+ 0230 00000000 00000000 00000000           ............    
+Contents of section .ARM.exidx.text.apmCalculateEstimatedAltitude:
+ 0000 00000000 ac81c980                    ........        
+Contents of section .text.getTimeConstant:
+ 0000 014b93ed 000a7047 00000000           .K....pG....    
+Contents of section .ARM.exidx.text.getTimeConstant:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.setAltitude:
+ 0000 014b1860 704700bf 00000000           .K.`pG......    
+Contents of section .ARM.exidx.text.setAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.setRelativeAltitude:
+ 0000 024b034a 1b680344 13607047 00000000  .K.J.h.D.`pG....
+ 0010 00000000                             ....            
+Contents of section .ARM.exidx.text.setRelativeAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getEstAltitude:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getEstAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getEstVelocity:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getEstVelocity:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getEstAltitude1:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getEstAltitude1:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.getEstVelocity1:
+ 0000 014b1868 704700bf 00000000           .K.hpG......    
+Contents of section .ARM.exidx.text.getEstVelocity1:
+ 0000 00000000 01000000                    ........        
+Contents of section .text.limitAltitude:
+ 0000 094bb3f9 00305a1c 0cd0084a 106810f0  .K...0Z....J.h..
+ 0010 080008d0 064a1068 193b8342 ccbf0020  .....J.h.;.B... 
+ 0020 01207047 00207047 00000000 00000000  . pG. pG........
+ 0030 00000000                             ....            
+Contents of section .ARM.exidx.text.limitAltitude:
+ 0000 00000000 01000000                    ........        
+Contents of section .data._ZZ12checkReadingE9tofTiltOk:
+ 0000 01                                   .               
+Contents of section .data._ZL14altSourceLaser:
+ 0000 01                                   .               
+Contents of section .data._time_constant_z1:
+ 0000 00000040                             ...@            
+Contents of section .data._time_constant_z:
+ 0000 0000c03f                             ...?            
+Contents of section .data._ZL4rear:
+ 0000 ffff                                 ..              
+Contents of section .data.QUEUE_MAX_LENGTH:
+ 0000 0f000000                             ....            
+Contents of section .data.AltRstRequired:
+ 0000 01                                   .               
+Contents of section .data.calculatedError:
+ 0000 0a000000                             ....            
+Contents of section .data.max_altitude:
+ 0000 ffff                                 ..              
+Contents of section .ARM.attributes:
+ 0000 41330000 00616561 62690001 29000000  A3...aeabi..)...
+ 0010 0537452d 4d00060d 074d0902 0a061204  .7E-M....M......
+ 0020 14011501 17031801 19011a01 1b011c01  ................
+ 0030 1e042201                             ..".            
+
+Disassembly of section .text._ZL16resetAltSetpointv:
+
+00000000 <_ZL16resetAltSetpointv>:
+   0:	4a09      	ldr	r2, [pc, #36]	@ (28 <_ZL16resetAltSetpointv+0x28>)
+   2:	2300      	movs	r3, #0
+   4:	6013      	str	r3, [r2, #0]
+   6:	4a09      	ldr	r2, [pc, #36]	@ (2c <_ZL16resetAltSetpointv+0x2c>)
+   8:	6013      	str	r3, [r2, #0]
+   a:	4b09      	ldr	r3, [pc, #36]	@ (30 <_ZL16resetAltSetpointv+0x30>)
+   c:	2200      	movs	r2, #0
+   e:	701a      	strb	r2, [r3, #0]
+  10:	4b08      	ldr	r3, [pc, #32]	@ (34 <_ZL16resetAltSetpointv+0x34>)
+  12:	4a09      	ldr	r2, [pc, #36]	@ (38 <_ZL16resetAltSetpointv+0x38>)
+  14:	681b      	ldr	r3, [r3, #0]
+  16:	6013      	str	r3, [r2, #0]
+  18:	ee07 3a90 	vmov	s15, r3
+  1c:	4b07      	ldr	r3, [pc, #28]	@ (3c <_ZL16resetAltSetpointv+0x3c>)
+  1e:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+  22:	edc3 7a00 	vstr	s15, [r3]
+  26:	4770      	bx	lr
+	...
+			28: R_ARM_ABS32	.bss._ZL7altRate
+			2c: R_ARM_ABS32	.bss._ZL12altVelTarget
+			30: R_ARM_ABS32	.bss._ZL13altGoalActive
+			34: R_ARM_ABS32	.bss._ZL6EstAlt
+			38: R_ARM_ABS32	AltHold
+			3c: R_ARM_ABS32	.bss._ZL9altTarget
+
+Disassembly of section .text._ZL13altShiftFramef:
+
+00000000 <_ZL13altShiftFramef>:
+   0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+   2:	4f2c      	ldr	r7, [pc, #176]	@ (b4 <_ZL13altShiftFramef+0xb4>)
+   4:	4e2c      	ldr	r6, [pc, #176]	@ (b8 <_ZL13altShiftFramef+0xb8>)
+   6:	ed2d 8b02 	vpush	{d8}
+   a:	edd7 8a00 	vldr	s17, [r7]
+   e:	eeb0 8a40 	vmov.f32	s16, s0
+  12:	eeb0 0a68 	vmov.f32	s0, s17
+  16:	f7ff fffe 	bl	0 <lrintf>
+			16: R_ARM_THM_CALL	lrintf
+  1a:	4b28      	ldr	r3, [pc, #160]	@ (bc <_ZL13altShiftFramef+0xbc>)
+  1c:	6834      	ldr	r4, [r6, #0]
+  1e:	edd3 7a00 	vldr	s15, [r3]
+  22:	4a27      	ldr	r2, [pc, #156]	@ (c0 <_ZL13altShiftFramef+0xc0>)
+  24:	ee77 7a88 	vadd.f32	s15, s15, s16
+  28:	4605      	mov	r5, r0
+  2a:	edc3 7a00 	vstr	s15, [r3]
+  2e:	4b25      	ldr	r3, [pc, #148]	@ (c4 <_ZL13altShiftFramef+0xc4>)
+  30:	edd3 7a00 	vldr	s15, [r3]
+  34:	ee77 7a88 	vadd.f32	s15, s15, s16
+  38:	edc3 7a00 	vstr	s15, [r3]
+  3c:	4b22      	ldr	r3, [pc, #136]	@ (c8 <_ZL13altShiftFramef+0xc8>)
+  3e:	6819      	ldr	r1, [r3, #0]
+  40:	2300      	movs	r3, #0
+  42:	4299      	cmp	r1, r3
+  44:	dc28      	bgt.n	98 <_ZL13altShiftFramef+0x98>
+  46:	4b21      	ldr	r3, [pc, #132]	@ (cc <_ZL13altShiftFramef+0xcc>)
+  48:	ed93 0a02 	vldr	s0, [r3, #8]
+  4c:	ee38 0a00 	vadd.f32	s0, s16, s0
+  50:	ed83 0a02 	vstr	s0, [r3, #8]
+  54:	f7ff fffe 	bl	0 <lrintf>
+			54: R_ARM_THM_CALL	lrintf
+  58:	4b1d      	ldr	r3, [pc, #116]	@ (d0 <_ZL13altShiftFramef+0xd0>)
+  5a:	6018      	str	r0, [r3, #0]
+  5c:	4b1d      	ldr	r3, [pc, #116]	@ (d4 <_ZL13altShiftFramef+0xd4>)
+  5e:	edd3 7a00 	vldr	s15, [r3]
+  62:	ee38 0a88 	vadd.f32	s0, s17, s16
+  66:	ee77 7a88 	vadd.f32	s15, s15, s16
+  6a:	42a5      	cmp	r5, r4
+  6c:	ed87 0a00 	vstr	s0, [r7]
+  70:	edc3 7a00 	vstr	s15, [r3]
+  74:	d118      	bne.n	a8 <_ZL13altShiftFramef+0xa8>
+  76:	f7ff fffe 	bl	0 <lrintf>
+			76: R_ARM_THM_CALL	lrintf
+  7a:	eeb0 0a48 	vmov.f32	s0, s16
+  7e:	6030      	str	r0, [r6, #0]
+  80:	f7ff fffe 	bl	0 <lrintf>
+			80: R_ARM_THM_CALL	lrintf
+  84:	4a14      	ldr	r2, [pc, #80]	@ (d8 <_ZL13altShiftFramef+0xd8>)
+  86:	6813      	ldr	r3, [r2, #0]
+  88:	4403      	add	r3, r0
+  8a:	6013      	str	r3, [r2, #0]
+  8c:	4b13      	ldr	r3, [pc, #76]	@ (dc <_ZL13altShiftFramef+0xdc>)
+  8e:	2200      	movs	r2, #0
+  90:	701a      	strb	r2, [r3, #0]
+  92:	ecbd 8b02 	vpop	{d8}
+  96:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+  98:	edd2 7a00 	vldr	s15, [r2]
+  9c:	ee77 7a88 	vadd.f32	s15, s15, s16
+  a0:	3301      	adds	r3, #1
+  a2:	ece2 7a01 	vstmia	r2!, {s15}
+  a6:	e7cc      	b.n	42 <_ZL13altShiftFramef+0x42>
+  a8:	eeb0 0a48 	vmov.f32	s0, s16
+  ac:	f7ff fffe 	bl	0 <lrintf>
+			ac: R_ARM_THM_CALL	lrintf
+  b0:	4420      	add	r0, r4
+  b2:	e7e2      	b.n	7a <_ZL13altShiftFramef+0x7a>
+	...
+			b4: R_ARM_ABS32	.bss._ZL9altTarget
+			b8: R_ARM_ABS32	AltHold
+			bc: R_ARM_ABS32	_position_base_z
+			c0: R_ARM_ABS32	.bss._ZL4buff
+			c4: R_ARM_ABS32	_position_z
+			c8: R_ARM_ABS32	QUEUE_MAX_LENGTH
+			cc: R_ARM_ABS32	.bss._ZL13altHoldFilter
+			d0: R_ARM_ABS32	.bss._ZL6EstAlt
+			d4: R_ARM_ABS32	.bss._ZL7altGoal
+			d8: R_ARM_ABS32	.bss._ZL17altPreFlipAltHold
+			dc: R_ARM_ABS32	.bss._ZL12tofRingCount
+
+Disassembly of section .text._Z16kalmanFilterInitP12KalmanFilterfff:
+
+00000000 <_Z16kalmanFilterInitP12KalmanFilterfff>:
+   0:	f04f 537e 	mov.w	r3, #1065353216	@ 0x3f800000
+   4:	60c3      	str	r3, [r0, #12]
+   6:	2300      	movs	r3, #0
+   8:	ed80 0a00 	vstr	s0, [r0]
+   c:	edc0 0a01 	vstr	s1, [r0, #4]
+  10:	ed80 1a02 	vstr	s2, [r0, #8]
+  14:	6103      	str	r3, [r0, #16]
+  16:	4770      	bx	lr
+
+Disassembly of section .text._Z18kalmanFilterUpdateP12KalmanFilterf:
+
+00000000 <_Z18kalmanFilterUpdateP12KalmanFilterf>:
+   0:	ed90 7a03 	vldr	s14, [r0, #12]
+   4:	edd0 7a00 	vldr	s15, [r0]
+   8:	ee37 7a27 	vadd.f32	s14, s14, s15
+   c:	edd0 7a01 	vldr	s15, [r0, #4]
+  10:	ee77 7a27 	vadd.f32	s15, s14, s15
+  14:	eec7 6a27 	vdiv.f32	s13, s14, s15
+  18:	edd0 7a02 	vldr	s15, [r0, #8]
+  1c:	edc0 6a04 	vstr	s13, [r0, #16]
+  20:	ee30 6a67 	vsub.f32	s12, s0, s15
+  24:	eee6 7a86 	vfma.f32	s15, s13, s12
+  28:	eeb0 0a67 	vmov.f32	s0, s15
+  2c:	edc0 7a02 	vstr	s15, [r0, #8]
+  30:	eef7 7a00 	vmov.f32	s15, #112	@ 0x3f800000  1.0
+  34:	ee77 7ae6 	vsub.f32	s15, s15, s13
+  38:	ee67 7a87 	vmul.f32	s15, s15, s14
+  3c:	edc0 7a03 	vstr	s15, [r0, #12]
+  40:	4770      	bx	lr
+
+Disassembly of section .text.configureAltitudeHold:
+
+00000000 <configureAltitudeHold>:
+   0:	b510      	push	{r4, lr}
+   2:	4c0f      	ldr	r4, [pc, #60]	@ (40 <configureAltitudeHold+0x40>)
+   4:	6020      	str	r0, [r4, #0]
+   6:	480f      	ldr	r0, [pc, #60]	@ (44 <configureAltitudeHold+0x44>)
+   8:	6001      	str	r1, [r0, #0]
+   a:	480f      	ldr	r0, [pc, #60]	@ (48 <configureAltitudeHold+0x48>)
+   c:	6002      	str	r2, [r0, #0]
+   e:	4a0f      	ldr	r2, [pc, #60]	@ (4c <configureAltitudeHold+0x4c>)
+  10:	480f      	ldr	r0, [pc, #60]	@ (50 <configureAltitudeHold+0x50>)
+  12:	6011      	str	r1, [r2, #0]
+  14:	4a0f      	ldr	r2, [pc, #60]	@ (54 <configureAltitudeHold+0x54>)
+  16:	6013      	str	r3, [r2, #0]
+  18:	4b0f      	ldr	r3, [pc, #60]	@ (58 <configureAltitudeHold+0x58>)
+  1a:	4a10      	ldr	r2, [pc, #64]	@ (5c <configureAltitudeHold+0x5c>)
+  1c:	601a      	str	r2, [r3, #0]
+  1e:	f04f 527c 	mov.w	r2, #1056964608	@ 0x3f000000
+  22:	605a      	str	r2, [r3, #4]
+  24:	f04f 517e 	mov.w	r1, #1065353216	@ 0x3f800000
+  28:	2200      	movs	r2, #0
+  2a:	609a      	str	r2, [r3, #8]
+  2c:	60d9      	str	r1, [r3, #12]
+  2e:	611a      	str	r2, [r3, #16]
+  30:	4b0b      	ldr	r3, [pc, #44]	@ (60 <configureAltitudeHold+0x60>)
+  32:	6018      	str	r0, [r3, #0]
+  34:	6059      	str	r1, [r3, #4]
+  36:	609a      	str	r2, [r3, #8]
+  38:	60d9      	str	r1, [r3, #12]
+  3a:	611a      	str	r2, [r3, #16]
+  3c:	bd10      	pop	{r4, pc}
+  3e:	bf00      	nop
+	...
+			40: R_ARM_ABS32	.bss._ZL10pidProfile
+			44: R_ARM_ABS32	.bss._ZL15barometerConfig
+			48: R_ARM_ABS32	.bss._ZL16rcControlsConfig
+			4c: R_ARM_ABS32	barometerConfig_tmp
+  50:	3dcccccd 	.word	0x3dcccccd
+	...
+			54: R_ARM_ABS32	.bss._ZL17escAndServoConfig
+			58: R_ARM_ABS32	.bss._ZL13altHoldFilter
+  5c:	3c23d70a 	.word	0x3c23d70a
+  60:	00000000 	.word	0x00000000
+			60: R_ARM_ABS32	.bss._ZL13velHoldFilter
+
+Disassembly of section .text.applyAltHold:
+
+00000000 <applyAltHold>:
+   0:	e92d 4ff8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+   4:	4b93      	ldr	r3, [pc, #588]	@ (254 <applyAltHold+0x254>)
+   6:	4d94      	ldr	r5, [pc, #592]	@ (258 <applyAltHold+0x258>)
+   8:	7819      	ldrb	r1, [r3, #0]
+   a:	4e94      	ldr	r6, [pc, #592]	@ (25c <applyAltHold+0x25c>)
+   c:	f011 0110 	ands.w	r1, r1, #16
+  10:	d009      	beq.n	26 <applyAltHold+0x26>
+  12:	f990 2000 	ldrsb.w	r2, [r0]
+  16:	886b      	ldrh	r3, [r5, #2]
+  18:	f9b6 1000 	ldrsh.w	r1, [r6]
+  1c:	fb01 3302 	mla	r3, r1, r2, r3
+  20:	806b      	strh	r3, [r5, #2]
+  22:	e8bd 8ff8 	ldmia.w	sp!, {r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  26:	4b8e      	ldr	r3, [pc, #568]	@ (260 <applyAltHold+0x260>)
+  28:	4a8e      	ldr	r2, [pc, #568]	@ (264 <applyAltHold+0x264>)
+  2a:	681b      	ldr	r3, [r3, #0]
+  2c:	f9b2 4006 	ldrsh.w	r4, [r2, #6]
+  30:	f893 b002 	ldrb.w	fp, [r3, #2]
+  34:	78db      	ldrb	r3, [r3, #3]
+  36:	4f8c      	ldr	r7, [pc, #560]	@ (268 <applyAltHold+0x268>)
+  38:	f8df 8280 	ldr.w	r8, [pc, #640]	@ 2bc <applyAltHold+0x2bc>
+  3c:	2b00      	cmp	r3, #0
+  3e:	d051      	beq.n	e4 <applyAltHold+0xe4>
+  40:	f9b7 0000 	ldrsh.w	r0, [r7]
+  44:	1a23      	subs	r3, r4, r0
+  46:	ea83 74e3 	eor.w	r4, r3, r3, asr #31
+  4a:	eba4 74e3 	sub.w	r4, r4, r3, asr #31
+  4e:	455c      	cmp	r4, fp
+  50:	4c86      	ldr	r4, [pc, #536]	@ (26c <applyAltHold+0x26c>)
+  52:	dd35      	ble.n	c0 <applyAltHold+0xc0>
+  54:	2201      	movs	r2, #1
+  56:	f888 2000 	strb.w	r2, [r8]
+  5a:	f06f 0131 	mvn.w	r1, #49	@ 0x31
+  5e:	2250      	movs	r2, #80	@ 0x50
+  60:	2006      	movs	r0, #6
+  62:	fb93 f0f0 	sdiv	r0, r3, r0
+  66:	f7ff fffe 	bl	0 <constrain>
+			66: R_ARM_THM_CALL	constrain
+  6a:	8823      	ldrh	r3, [r4, #0]
+  6c:	4418      	add	r0, r3
+  6e:	b200      	sxth	r0, r0
+  70:	80e8      	strh	r0, [r5, #6]
+  72:	8020      	strh	r0, [r4, #0]
+  74:	4a7e      	ldr	r2, [pc, #504]	@ (270 <applyAltHold+0x270>)
+  76:	7813      	ldrb	r3, [r2, #0]
+  78:	2b00      	cmp	r3, #0
+  7a:	f000 80e7 	beq.w	24c <applyAltHold+0x24c>
+  7e:	4979      	ldr	r1, [pc, #484]	@ (264 <applyAltHold+0x264>)
+  80:	f9b1 0006 	ldrsh.w	r0, [r1, #6]
+  84:	f240 51dc 	movw	r1, #1500	@ 0x5dc
+  88:	4288      	cmp	r0, r1
+  8a:	f300 80df 	bgt.w	24c <applyAltHold+0x24c>
+  8e:	f44f 727a 	mov.w	r2, #1000	@ 0x3e8
+  92:	80ea      	strh	r2, [r5, #6]
+  94:	4a77      	ldr	r2, [pc, #476]	@ (274 <applyAltHold+0x274>)
+  96:	7013      	strb	r3, [r2, #0]
+  98:	4b77      	ldr	r3, [pc, #476]	@ (278 <applyAltHold+0x278>)
+  9a:	681a      	ldr	r2, [r3, #0]
+  9c:	4b77      	ldr	r3, [pc, #476]	@ (27c <applyAltHold+0x27c>)
+  9e:	601a      	str	r2, [r3, #0]
+  a0:	4b77      	ldr	r3, [pc, #476]	@ (280 <applyAltHold+0x280>)
+  a2:	6832      	ldr	r2, [r6, #0]
+  a4:	601a      	str	r2, [r3, #0]
+  a6:	4b77      	ldr	r3, [pc, #476]	@ (284 <applyAltHold+0x284>)
+  a8:	f9b7 2000 	ldrsh.w	r2, [r7]
+  ac:	601a      	str	r2, [r3, #0]
+  ae:	4b76      	ldr	r3, [pc, #472]	@ (288 <applyAltHold+0x288>)
+  b0:	f898 2000 	ldrb.w	r2, [r8]
+  b4:	601a      	str	r2, [r3, #0]
+  b6:	4b75      	ldr	r3, [pc, #468]	@ (28c <applyAltHold+0x28c>)
+  b8:	f9b5 2006 	ldrsh.w	r2, [r5, #6]
+  bc:	601a      	str	r2, [r3, #0]
+  be:	e7b0      	b.n	22 <applyAltHold+0x22>
+  c0:	f898 3000 	ldrb.w	r3, [r8]
+  c4:	b12b      	cbz	r3, d2 <applyAltHold+0xd2>
+  c6:	4b72      	ldr	r3, [pc, #456]	@ (290 <applyAltHold+0x290>)
+  c8:	4a6b      	ldr	r2, [pc, #428]	@ (278 <applyAltHold+0x278>)
+  ca:	681b      	ldr	r3, [r3, #0]
+  cc:	6013      	str	r3, [r2, #0]
+  ce:	f888 1000 	strb.w	r1, [r8]
+  d2:	4b70      	ldr	r3, [pc, #448]	@ (294 <applyAltHold+0x294>)
+  d4:	6819      	ldr	r1, [r3, #0]
+  d6:	6833      	ldr	r3, [r6, #0]
+  d8:	884a      	ldrh	r2, [r1, #2]
+  da:	8809      	ldrh	r1, [r1, #0]
+  dc:	4418      	add	r0, r3
+  de:	f7ff fffe 	bl	0 <constrain>
+			de: R_ARM_THM_CALL	constrain
+  e2:	e7c4      	b.n	6e <applyAltHold+0x6e>
+  e4:	4b6c      	ldr	r3, [pc, #432]	@ (298 <applyAltHold+0x298>)
+  e6:	f8df a1d8 	ldr.w	sl, [pc, #472]	@ 2c0 <applyAltHold+0x2c0>
+  ea:	6819      	ldr	r1, [r3, #0]
+  ec:	4b6b      	ldr	r3, [pc, #428]	@ (29c <applyAltHold+0x29c>)
+  ee:	f2a4 54dc 	subw	r4, r4, #1500	@ 0x5dc
+  f2:	b301      	cbz	r1, 136 <applyAltHold+0x136>
+  f4:	2101      	movs	r1, #1
+  f6:	7019      	strb	r1, [r3, #0]
+  f8:	f8da 1000 	ldr.w	r1, [sl]
+  fc:	b141      	cbz	r1, 110 <applyAltHold+0x110>
+  fe:	f7ff fffe 	bl	0 <millis>
+			fe: R_ARM_THM_CALL	millis
+ 102:	f8da 1000 	ldr.w	r1, [sl]
+ 106:	1a41      	subs	r1, r0, r1
+ 108:	2963      	cmp	r1, #99	@ 0x63
+ 10a:	bf8c      	ite	hi
+ 10c:	2100      	movhi	r1, #0
+ 10e:	2101      	movls	r1, #1
+ 110:	4b63      	ldr	r3, [pc, #396]	@ (2a0 <applyAltHold+0x2a0>)
+ 112:	f8df a180 	ldr.w	sl, [pc, #384]	@ 294 <applyAltHold+0x294>
+ 116:	7818      	ldrb	r0, [r3, #0]
+ 118:	f8df 91a8 	ldr.w	r9, [pc, #424]	@ 2c4 <applyAltHold+0x2c4>
+ 11c:	b1a0      	cbz	r0, 148 <applyAltHold+0x148>
+ 11e:	1e20      	subs	r0, r4, #0
+ 120:	bfb8      	it	lt
+ 122:	3003      	addlt	r0, #3
+ 124:	2200      	movs	r2, #0
+ 126:	f06f 0163 	mvn.w	r1, #99	@ 0x63
+ 12a:	1080      	asrs	r0, r0, #2
+ 12c:	f7ff fffe 	bl	0 <constrain>
+			12c: R_ARM_THM_CALL	constrain
+ 130:	f8c9 0000 	str.w	r0, [r9]
+ 134:	e01f      	b.n	176 <applyAltHold+0x176>
+ 136:	7818      	ldrb	r0, [r3, #0]
+ 138:	2800      	cmp	r0, #0
+ 13a:	d0dd      	beq.n	f8 <applyAltHold+0xf8>
+ 13c:	7019      	strb	r1, [r3, #0]
+ 13e:	f7ff fffe 	bl	0 <millis>
+			13e: R_ARM_THM_CALL	millis
+ 142:	f8ca 0000 	str.w	r0, [sl]
+ 146:	e7d7      	b.n	f8 <applyAltHold+0xf8>
+ 148:	2900      	cmp	r1, #0
+ 14a:	d1f1      	bne.n	130 <applyAltHold+0x130>
+ 14c:	4b52      	ldr	r3, [pc, #328]	@ (298 <applyAltHold+0x298>)
+ 14e:	681b      	ldr	r3, [r3, #0]
+ 150:	ea84 70e4 	eor.w	r0, r4, r4, asr #31
+ 154:	eba0 70e4 	sub.w	r0, r0, r4, asr #31
+ 158:	b1cb      	cbz	r3, 18e <applyAltHold+0x18e>
+ 15a:	4558      	cmp	r0, fp
+ 15c:	dd09      	ble.n	172 <applyAltHold+0x172>
+ 15e:	1e20      	subs	r0, r4, #0
+ 160:	bfb8      	it	lt
+ 162:	3003      	addlt	r0, #3
+ 164:	f06f 0163 	mvn.w	r1, #99	@ 0x63
+ 168:	2278      	movs	r2, #120	@ 0x78
+ 16a:	1080      	asrs	r0, r0, #2
+ 16c:	f7ff fffe 	bl	0 <constrain>
+			16c: R_ARM_THM_CALL	constrain
+ 170:	4601      	mov	r1, r0
+ 172:	f8c9 1000 	str.w	r1, [r9]
+ 176:	f8da 3000 	ldr.w	r3, [sl]
+ 17a:	f9b7 4000 	ldrsh.w	r4, [r7]
+ 17e:	6830      	ldr	r0, [r6, #0]
+ 180:	885a      	ldrh	r2, [r3, #2]
+ 182:	8819      	ldrh	r1, [r3, #0]
+ 184:	4420      	add	r0, r4
+ 186:	f7ff fffe 	bl	0 <constrain>
+			186: R_ARM_THM_CALL	constrain
+ 18a:	80e8      	strh	r0, [r5, #6]
+ 18c:	e772      	b.n	74 <applyAltHold+0x74>
+ 18e:	4558      	cmp	r0, fp
+ 190:	dd14      	ble.n	1bc <applyAltHold+0x1bc>
+ 192:	2c00      	cmp	r4, #0
+ 194:	bfd4      	ite	le
+ 196:	f04f 0e1e 	movle.w	lr, #30
+ 19a:	f04f 0e28 	movgt.w	lr, #40	@ 0x28
+ 19e:	eba0 000b 	sub.w	r0, r0, fp
+ 1a2:	fb0e f000 	mul.w	r0, lr, r0
+ 1a6:	f5cb 7cfa 	rsb	ip, fp, #500	@ 0x1f4
+ 1aa:	4672      	mov	r2, lr
+ 1ac:	fbb0 f0fc 	udiv	r0, r0, ip
+ 1b0:	f7ff fffe 	bl	0 <constrain>
+			1b0: R_ARM_THM_CALL	constrain
+ 1b4:	2c00      	cmp	r4, #0
+ 1b6:	bfd8      	it	le
+ 1b8:	4240      	negle	r0, r0
+ 1ba:	e7b9      	b.n	130 <applyAltHold+0x130>
+ 1bc:	4b39      	ldr	r3, [pc, #228]	@ (2a4 <applyAltHold+0x2a4>)
+ 1be:	f8c9 1000 	str.w	r1, [r9]
+ 1c2:	781b      	ldrb	r3, [r3, #0]
+ 1c4:	075b      	lsls	r3, r3, #29
+ 1c6:	d5d6      	bpl.n	176 <applyAltHold+0x176>
+ 1c8:	4b2a      	ldr	r3, [pc, #168]	@ (274 <applyAltHold+0x274>)
+ 1ca:	781b      	ldrb	r3, [r3, #0]
+ 1cc:	2b00      	cmp	r3, #0
+ 1ce:	d1d2      	bne.n	176 <applyAltHold+0x176>
+ 1d0:	4b35      	ldr	r3, [pc, #212]	@ (2a8 <applyAltHold+0x2a8>)
+ 1d2:	edd3 7a00 	vldr	s15, [r3]
+ 1d6:	eef5 7a40 	vcmp.f32	s15, #0.0
+ 1da:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 1de:	d1ca      	bne.n	176 <applyAltHold+0x176>
+ 1e0:	4b32      	ldr	r3, [pc, #200]	@ (2ac <applyAltHold+0x2ac>)
+ 1e2:	781b      	ldrb	r3, [r3, #0]
+ 1e4:	2b00      	cmp	r3, #0
+ 1e6:	d1c6      	bne.n	176 <applyAltHold+0x176>
+ 1e8:	4b31      	ldr	r3, [pc, #196]	@ (2b0 <applyAltHold+0x2b0>)
+ 1ea:	681b      	ldr	r3, [r3, #0]
+ 1ec:	2b00      	cmp	r3, #0
+ 1ee:	bfb8      	it	lt
+ 1f0:	425b      	neglt	r3, r3
+ 1f2:	2b0a      	cmp	r3, #10
+ 1f4:	dcbf      	bgt.n	176 <applyAltHold+0x176>
+ 1f6:	f7ff fffe 	bl	0 <millis>
+			1f6: R_ARM_THM_CALL	millis
+ 1fa:	4a2e      	ldr	r2, [pc, #184]	@ (2b4 <applyAltHold+0x2b4>)
+ 1fc:	6813      	ldr	r3, [r2, #0]
+ 1fe:	1ac3      	subs	r3, r0, r3
+ 200:	2b13      	cmp	r3, #19
+ 202:	d9b8      	bls.n	176 <applyAltHold+0x176>
+ 204:	4c2c      	ldr	r4, [pc, #176]	@ (2b8 <applyAltHold+0x2b8>)
+ 206:	6010      	str	r0, [r2, #0]
+ 208:	6823      	ldr	r3, [r4, #0]
+ 20a:	f503 52ff 	add.w	r2, r3, #8160	@ 0x1fe0
+ 20e:	321f      	adds	r2, #31
+ 210:	f643 71fe 	movw	r1, #16382	@ 0x3ffe
+ 214:	428a      	cmp	r2, r1
+ 216:	d9ae      	bls.n	176 <applyAltHold+0x176>
+ 218:	f8da 1000 	ldr.w	r1, [sl]
+ 21c:	f9b7 2000 	ldrsh.w	r2, [r7]
+ 220:	f8b1 c000 	ldrh.w	ip, [r1]
+ 224:	f5b3 5f00 	cmp.w	r3, #8192	@ 0x2000
+ 228:	bfb4      	ite	lt
+ 22a:	f04f 30ff 	movlt.w	r0, #4294967295
+ 22e:	2001      	movge	r0, #1
+ 230:	4402      	add	r2, r0
+ 232:	4562      	cmp	r2, ip
+ 234:	db9f      	blt.n	176 <applyAltHold+0x176>
+ 236:	8849      	ldrh	r1, [r1, #2]
+ 238:	428a      	cmp	r2, r1
+ 23a:	dc9c      	bgt.n	176 <applyAltHold+0x176>
+ 23c:	6831      	ldr	r1, [r6, #0]
+ 23e:	803a      	strh	r2, [r7, #0]
+ 240:	eba3 3340 	sub.w	r3, r3, r0, lsl #13
+ 244:	1a09      	subs	r1, r1, r0
+ 246:	6023      	str	r3, [r4, #0]
+ 248:	6031      	str	r1, [r6, #0]
+ 24a:	e794      	b.n	176 <applyAltHold+0x176>
+ 24c:	2300      	movs	r3, #0
+ 24e:	7013      	strb	r3, [r2, #0]
+ 250:	e720      	b.n	94 <applyAltHold+0x94>
+ 252:	bf00      	nop
+	...
+			254: R_ARM_ABS32	stateFlags
+			258: R_ARM_ABS32	rcCommand
+			25c: R_ARM_ABS32	altHoldThrottleAdjustment
+			260: R_ARM_ABS32	.bss._ZL16rcControlsConfig
+			264: R_ARM_ABS32	rcData
+			268: R_ARM_ABS32	.bss._ZL19initialThrottleHold
+			26c: R_ARM_ABS32	.bss._ZZL22applyMultirotorAltHoldvE16throttle_history
+			270: R_ARM_ABS32	isThrottleStickArmed
+			274: R_ARM_ABS32	.bss._ZL17altHoldGroundIdle
+			278: R_ARM_ABS32	AltHold
+			27c: R_ARM_ABS32	altholdDebug
+			280: R_ARM_ABS32	altholdDebug1
+			284: R_ARM_ABS32	altholdDebug2
+			288: R_ARM_ABS32	altholdDebug3
+			28c: R_ARM_ABS32	altholdDebug4
+			290: R_ARM_ABS32	.bss._ZL6EstAlt
+			294: R_ARM_ABS32	.bss._ZL17escAndServoConfig
+			298: R_ARM_ABS32	flipState
+			29c: R_ARM_ABS32	.bss._ZZL22applyMultirotorAltHoldvE8flipSeen
+			2a0: R_ARM_ABS32	isLanding
+			2a4: R_ARM_ABS32	armingFlags
+			2a8: R_ARM_ABS32	.bss._ZL7altRate
+			2ac: R_ARM_ABS32	.bss._ZL13altGoalActive
+			2b0: R_ARM_ABS32	VelocityZ
+			2b4: R_ARM_ABS32	.bss._ZZL16offloadHoverTrimvE11lastOffload
+			2b8: R_ARM_ABS32	errorVelocityI
+			2bc: R_ARM_ABS32	.bss._ZZL22applyMultirotorAltHoldvE16isAltHoldChanged
+			2c0: R_ARM_ABS32	.bss._ZZL22applyMultirotorAltHoldvE13flipEndedAtMs
+			2c4: R_ARM_ABS32	setVelocity
+
+Disassembly of section .text.updateAltHoldState:
+
+00000000 <updateAltHoldState>:
+   0:	b538      	push	{r3, r4, r5, lr}
+   2:	4b13      	ldr	r3, [pc, #76]	@ (50 <updateAltHoldState+0x50>)
+   4:	681c      	ldr	r4, [r3, #0]
+   6:	f014 0408 	ands.w	r4, r4, #8
+   a:	d107      	bne.n	1c <updateAltHoldState+0x1c>
+   c:	2008      	movs	r0, #8
+   e:	f7ff fffe 	bl	0 <disableFlightMode>
+			e: R_ARM_THM_CALL	disableFlightMode
+  12:	4b10      	ldr	r3, [pc, #64]	@ (54 <updateAltHoldState+0x54>)
+  14:	601c      	str	r4, [r3, #0]
+  16:	4b10      	ldr	r3, [pc, #64]	@ (58 <updateAltHoldState+0x58>)
+  18:	701c      	strb	r4, [r3, #0]
+  1a:	bd38      	pop	{r3, r4, r5, pc}
+  1c:	4b0f      	ldr	r3, [pc, #60]	@ (5c <updateAltHoldState+0x5c>)
+  1e:	4d10      	ldr	r5, [pc, #64]	@ (60 <updateAltHoldState+0x60>)
+  20:	881c      	ldrh	r4, [r3, #0]
+  22:	f014 0408 	ands.w	r4, r4, #8
+  26:	d10b      	bne.n	40 <updateAltHoldState+0x40>
+  28:	2008      	movs	r0, #8
+  2a:	f7ff fffe 	bl	0 <enableFlightMode>
+			2a: R_ARM_THM_CALL	enableFlightMode
+  2e:	f7ff fffe 	bl	0 <updateAltHoldState>
+			2e: R_ARM_THM_CALL	_ZL16resetAltSetpointv
+  32:	f240 53dc 	movw	r3, #1500	@ 0x5dc
+  36:	802b      	strh	r3, [r5, #0]
+  38:	4b0a      	ldr	r3, [pc, #40]	@ (64 <updateAltHoldState+0x64>)
+  3a:	601c      	str	r4, [r3, #0]
+  3c:	4b0a      	ldr	r3, [pc, #40]	@ (68 <updateAltHoldState+0x68>)
+  3e:	601c      	str	r4, [r3, #0]
+  40:	4b0a      	ldr	r3, [pc, #40]	@ (6c <updateAltHoldState+0x6c>)
+  42:	882a      	ldrh	r2, [r5, #0]
+  44:	801a      	strh	r2, [r3, #0]
+  46:	4b0a      	ldr	r3, [pc, #40]	@ (70 <updateAltHoldState+0x70>)
+  48:	88da      	ldrh	r2, [r3, #6]
+  4a:	4b0a      	ldr	r3, [pc, #40]	@ (74 <updateAltHoldState+0x74>)
+  4c:	801a      	strh	r2, [r3, #0]
+  4e:	e7e4      	b.n	1a <updateAltHoldState+0x1a>
+	...
+			50: R_ARM_ABS32	rcModeActivationMask
+			54: R_ARM_ABS32	setVelocity
+			58: R_ARM_ABS32	.bss._ZL17altHoldGroundIdle
+			5c: R_ARM_ABS32	flightModeFlags
+			60: R_ARM_ABS32	.bss._ZL19initialThrottleHold
+			64: R_ARM_ABS32	errorVelocityI
+			68: R_ARM_ABS32	altHoldThrottleAdjustment
+			6c: R_ARM_ABS32	initialThrottleHold_test
+			70: R_ARM_ABS32	rcCommand
+			74: R_ARM_ABS32	debug_e1
+
+Disassembly of section .text._Z23isThrustFacingDownwardsP25rollAndPitchInclination_t:
+
+00000000 <_Z23isThrustFacingDownwardsP25rollAndPitchInclination_t>:
+   0:	f9b0 3000 	ldrsh.w	r3, [r0]
+   4:	2b00      	cmp	r3, #0
+   6:	bfb8      	it	lt
+   8:	425b      	neglt	r3, r3
+   a:	b29b      	uxth	r3, r3
+   c:	f5b3 7f48 	cmp.w	r3, #800	@ 0x320
+  10:	d20b      	bcs.n	2a <_Z23isThrustFacingDownwardsP25rollAndPitchInclination_t+0x2a>
+  12:	f9b0 0002 	ldrsh.w	r0, [r0, #2]
+  16:	2800      	cmp	r0, #0
+  18:	bfb8      	it	lt
+  1a:	4240      	neglt	r0, r0
+  1c:	b280      	uxth	r0, r0
+  1e:	f5b0 7f48 	cmp.w	r0, #800	@ 0x320
+  22:	bf2c      	ite	cs
+  24:	2000      	movcs	r0, #0
+  26:	2001      	movcc	r0, #1
+  28:	4770      	bx	lr
+  2a:	2000      	movs	r0, #0
+  2c:	4770      	bx	lr
+
+Disassembly of section .text._Z18calculateTiltAngleP25rollAndPitchInclination_t:
+
+00000000 <_Z18calculateTiltAngleP25rollAndPitchInclination_t>:
+   0:	f9b0 3002 	ldrsh.w	r3, [r0, #2]
+   4:	f9b0 2000 	ldrsh.w	r2, [r0]
+   8:	2b00      	cmp	r3, #0
+   a:	bfb8      	it	lt
+   c:	425b      	neglt	r3, r3
+   e:	2a00      	cmp	r2, #0
+  10:	bfb8      	it	lt
+  12:	4252      	neglt	r2, r2
+  14:	b298      	uxth	r0, r3
+  16:	b293      	uxth	r3, r2
+  18:	4298      	cmp	r0, r3
+  1a:	bf38      	it	cc
+  1c:	4618      	movcc	r0, r3
+  1e:	b200      	sxth	r0, r0
+  20:	4770      	bx	lr
+
+Disassembly of section .text._Z34calculateAltHoldThrottleAdjustmentlfff:
+
+00000000 <_Z34calculateAltHoldThrottleAdjustmentlfff>:
+   0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+   4:	4ca3      	ldr	r4, [pc, #652]	@ (294 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x294>)
+   6:	4da4      	ldr	r5, [pc, #656]	@ (298 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x298>)
+   8:	6823      	ldr	r3, [r4, #0]
+   a:	ed2d 8b06 	vpush	{d8-d10}
+   e:	b085      	sub	sp, #20
+  10:	2b00      	cmp	r3, #0
+  12:	9002      	str	r0, [sp, #8]
+  14:	782b      	ldrb	r3, [r5, #0]
+  16:	eeb0 9a40 	vmov.f32	s18, s0
+  1a:	eef0 9a60 	vmov.f32	s19, s1
+  1e:	eeb0 8a41 	vmov.f32	s16, s2
+  22:	bf14      	ite	ne
+  24:	2601      	movne	r6, #1
+  26:	2600      	moveq	r6, #0
+  28:	d036      	beq.n	98 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x98>
+  2a:	b9bb      	cbnz	r3, 5c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x5c>
+  2c:	499b      	ldr	r1, [pc, #620]	@ (29c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x29c>)
+  2e:	4a9c      	ldr	r2, [pc, #624]	@ (2a0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a0>)
+  30:	8809      	ldrh	r1, [r1, #0]
+  32:	6812      	ldr	r2, [r2, #0]
+  34:	f011 0f08 	tst.w	r1, #8
+  38:	499a      	ldr	r1, [pc, #616]	@ (2a4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a4>)
+  3a:	d02b      	beq.n	94 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x94>
+  3c:	4b9a      	ldr	r3, [pc, #616]	@ (2a8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a8>)
+  3e:	681b      	ldr	r3, [r3, #0]
+  40:	600b      	str	r3, [r1, #0]
+  42:	4b9a      	ldr	r3, [pc, #616]	@ (2ac <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2ac>)
+  44:	781b      	ldrb	r3, [r3, #0]
+  46:	f083 0301 	eor.w	r3, r3, #1
+  4a:	2a13      	cmp	r2, #19
+  4c:	bfd4      	ite	le
+  4e:	2300      	movle	r3, #0
+  50:	f003 0301 	andgt.w	r3, r3, #1
+  54:	4996      	ldr	r1, [pc, #600]	@ (2b0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2b0>)
+  56:	700b      	strb	r3, [r1, #0]
+  58:	4b96      	ldr	r3, [pc, #600]	@ (2b4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2b4>)
+  5a:	601a      	str	r2, [r3, #0]
+  5c:	4896      	ldr	r0, [pc, #600]	@ (2b8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2b8>)
+  5e:	702e      	strb	r6, [r5, #0]
+  60:	f7ff fffe 	bl	0 <_Z34calculateAltHoldThrottleAdjustmentlfff>
+			60: R_ARM_THM_CALL	_Z23isThrustFacingDownwardsP25rollAndPitchInclination_t
+  64:	b178      	cbz	r0, 86 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x86>
+  66:	4b95      	ldr	r3, [pc, #596]	@ (2bc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2bc>)
+  68:	4e8f      	ldr	r6, [pc, #572]	@ (2a8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a8>)
+  6a:	781b      	ldrb	r3, [r3, #0]
+  6c:	f013 0f04 	tst.w	r3, #4
+  70:	d003      	beq.n	7a <_Z34calculateAltHoldThrottleAdjustmentlfff+0x7a>
+  72:	4b8e      	ldr	r3, [pc, #568]	@ (2ac <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2ac>)
+  74:	781b      	ldrb	r3, [r3, #0]
+  76:	9301      	str	r3, [sp, #4]
+  78:	b313      	cbz	r3, c0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0xc0>
+  7a:	f7ff fffe 	bl	0 <_Z34calculateAltHoldThrottleAdjustmentlfff>
+			7a: R_ARM_THM_CALL	_ZL16resetAltSetpointv
+  7e:	4a90      	ldr	r2, [pc, #576]	@ (2c0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c0>)
+  80:	2300      	movs	r3, #0
+  82:	6033      	str	r3, [r6, #0]
+  84:	6013      	str	r3, [r2, #0]
+  86:	2700      	movs	r7, #0
+  88:	4638      	mov	r0, r7
+  8a:	b005      	add	sp, #20
+  8c:	ecbd 8b06 	vpop	{d8-d10}
+  90:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  94:	600b      	str	r3, [r1, #0]
+  96:	e7dd      	b.n	54 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x54>
+  98:	2b00      	cmp	r3, #0
+  9a:	d0df      	beq.n	5c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x5c>
+  9c:	f7ff fffe 	bl	0 <_Z34calculateAltHoldThrottleAdjustmentlfff>
+			9c: R_ARM_THM_CALL	_ZL16resetAltSetpointv
+  a0:	4b80      	ldr	r3, [pc, #512]	@ (2a4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a4>)
+  a2:	681a      	ldr	r2, [r3, #0]
+  a4:	4b80      	ldr	r3, [pc, #512]	@ (2a8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a8>)
+  a6:	601a      	str	r2, [r3, #0]
+  a8:	f7ff fffe 	bl	0 <millis>
+			a8: R_ARM_THM_CALL	millis
+  ac:	4b84      	ldr	r3, [pc, #528]	@ (2c0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c0>)
+  ae:	6018      	str	r0, [r3, #0]
+  b0:	4b7f      	ldr	r3, [pc, #508]	@ (2b0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2b0>)
+  b2:	781b      	ldrb	r3, [r3, #0]
+  b4:	2b00      	cmp	r3, #0
+  b6:	d0d1      	beq.n	5c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x5c>
+  b8:	4b7e      	ldr	r3, [pc, #504]	@ (2b4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2b4>)
+  ba:	681a      	ldr	r2, [r3, #0]
+  bc:	4b78      	ldr	r3, [pc, #480]	@ (2a0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a0>)
+  be:	e7cc      	b.n	5a <_Z34calculateAltHoldThrottleAdjustmentlfff+0x5a>
+  c0:	ed9f 1a80 	vldr	s2, [pc, #512]	@ 2c4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c4>
+  c4:	eddf 0a80 	vldr	s1, [pc, #512]	@ 2c8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c8>
+  c8:	f8df 81d4 	ldr.w	r8, [pc, #468]	@ 2a0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2a0>
+  cc:	f8df b234 	ldr.w	fp, [pc, #564]	@ 304 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x304>
+  d0:	4d7e      	ldr	r5, [pc, #504]	@ (2cc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2cc>)
+  d2:	f8df 9234 	ldr.w	r9, [pc, #564]	@ 308 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x308>
+  d6:	4f7e      	ldr	r7, [pc, #504]	@ (2d0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2d0>)
+  d8:	f8df a230 	ldr.w	sl, [pc, #560]	@ 30c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x30c>
+  dc:	eeb0 0a48 	vmov.f32	s0, s16
+  e0:	f7ff fffe 	bl	0 <constrainf>
+			e0: R_ARM_THM_CALL	constrainf
+  e4:	4b7b      	ldr	r3, [pc, #492]	@ (2d4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2d4>)
+  e6:	6822      	ldr	r2, [r4, #0]
+  e8:	681b      	ldr	r3, [r3, #0]
+  ea:	4c7b      	ldr	r4, [pc, #492]	@ (2d8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2d8>)
+  ec:	eef0 8a40 	vmov.f32	s17, s0
+  f0:	2a00      	cmp	r2, #0
+  f2:	f000 80a0 	beq.w	236 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x236>
+  f6:	f8db 0000 	ldr.w	r0, [fp]
+  fa:	2b00      	cmp	r3, #0
+  fc:	f000 8082 	beq.w	204 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x204>
+ 100:	f8c8 0000 	str.w	r0, [r8]
+ 104:	edd8 7a00 	vldr	s15, [r8]
+ 108:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 10c:	2200      	movs	r2, #0
+ 10e:	edc9 7a00 	vstr	s15, [r9]
+ 112:	ee07 3a90 	vmov	s15, r3
+ 116:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 11a:	603a      	str	r2, [r7, #0]
+ 11c:	2200      	movs	r2, #0
+ 11e:	7022      	strb	r2, [r4, #0]
+ 120:	edca 7a00 	vstr	s15, [sl]
+ 124:	9a02      	ldr	r2, [sp, #8]
+ 126:	496d      	ldr	r1, [pc, #436]	@ (2dc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2dc>)
+ 128:	f8df 81e4 	ldr.w	r8, [pc, #484]	@ 310 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x310>
+ 12c:	1a9c      	subs	r4, r3, r2
+ 12e:	4b6c      	ldr	r3, [pc, #432]	@ (2e0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2e0>)
+ 130:	601c      	str	r4, [r3, #0]
+ 132:	682b      	ldr	r3, [r5, #0]
+ 134:	7a98      	ldrb	r0, [r3, #10]
+ 136:	4360      	muls	r0, r4
+ 138:	bf48      	it	mi
+ 13a:	301f      	addmi	r0, #31
+ 13c:	f44f 7296 	mov.w	r2, #300	@ 0x12c
+ 140:	1140      	asrs	r0, r0, #5
+ 142:	f7ff fffe 	bl	0 <constrain>
+			142: R_ARM_THM_CALL	constrain
+ 146:	4b5e      	ldr	r3, [pc, #376]	@ (2c0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c0>)
+ 148:	f8c8 0000 	str.w	r0, [r8]
+ 14c:	681b      	ldr	r3, [r3, #0]
+ 14e:	4607      	mov	r7, r0
+ 150:	b153      	cbz	r3, 168 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x168>
+ 152:	f7ff fffe 	bl	0 <millis>
+			152: R_ARM_THM_CALL	millis
+ 156:	4b5a      	ldr	r3, [pc, #360]	@ (2c0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2c0>)
+ 158:	681b      	ldr	r3, [r3, #0]
+ 15a:	1ac0      	subs	r0, r0, r3
+ 15c:	f5b0 7ffa 	cmp.w	r0, #500	@ 0x1f4
+ 160:	bf2c      	ite	cs
+ 162:	2300      	movcs	r3, #0
+ 164:	2301      	movcc	r3, #1
+ 166:	9301      	str	r3, [sp, #4]
+ 168:	4b54      	ldr	r3, [pc, #336]	@ (2bc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2bc>)
+ 16a:	781b      	ldrb	r3, [r3, #0]
+ 16c:	f013 0304 	ands.w	r3, r3, #4
+ 170:	d006      	beq.n	180 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x180>
+ 172:	9b01      	ldr	r3, [sp, #4]
+ 174:	b92b      	cbnz	r3, 182 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x182>
+ 176:	682b      	ldr	r3, [r5, #0]
+ 178:	7d5a      	ldrb	r2, [r3, #21]
+ 17a:	6833      	ldr	r3, [r6, #0]
+ 17c:	fb04 3302 	mla	r3, r4, r2, r3
+ 180:	6033      	str	r3, [r6, #0]
+ 182:	4958      	ldr	r1, [pc, #352]	@ (2e4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2e4>)
+ 184:	6830      	ldr	r0, [r6, #0]
+ 186:	ed9f 8a58 	vldr	s16, [pc, #352]	@ 2e8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2e8>
+ 18a:	f44f 1216 	mov.w	r2, #2457600	@ 0x258000
+ 18e:	f7ff fffe 	bl	0 <constrain>
+			18e: R_ARM_THM_CALL	constrain
+ 192:	6030      	str	r0, [r6, #0]
+ 194:	2800      	cmp	r0, #0
+ 196:	bfbc      	itt	lt
+ 198:	f500 50ff 	addlt.w	r0, r0, #8160	@ 0x1fe0
+ 19c:	301f      	addlt	r0, #31
+ 19e:	1343      	asrs	r3, r0, #13
+ 1a0:	f8c8 3004 	str.w	r3, [r8, #4]
+ 1a4:	682b      	ldr	r3, [r5, #0]
+ 1a6:	f893 3020 	ldrb.w	r3, [r3, #32]
+ 1aa:	ee07 3a90 	vmov	s15, r3
+ 1ae:	ee39 9a29 	vadd.f32	s18, s18, s19
+ 1b2:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 1b6:	eb07 3760 	add.w	r7, r7, r0, asr #13
+ 1ba:	ee67 7a89 	vmul.f32	s15, s15, s18
+ 1be:	2296      	movs	r2, #150	@ 0x96
+ 1c0:	ee67 7a88 	vmul.f32	s15, s15, s16
+ 1c4:	f06f 0195 	mvn.w	r1, #149	@ 0x95
+ 1c8:	eefd 7ae7 	vcvt.s32.f32	s15, s15
+ 1cc:	ee17 0a90 	vmov	r0, s15
+ 1d0:	f7ff fffe 	bl	0 <constrain>
+			1d0: R_ARM_THM_CALL	constrain
+ 1d4:	682b      	ldr	r3, [r5, #0]
+ 1d6:	f893 3020 	ldrb.w	r3, [r3, #32]
+ 1da:	ee00 3a90 	vmov	s1, r3
+ 1de:	eef8 0ae0 	vcvt.f32.s32	s1, s1
+ 1e2:	1a3f      	subs	r7, r7, r0
+ 1e4:	ee60 0a89 	vmul.f32	s1, s1, s18
+ 1e8:	2296      	movs	r2, #150	@ 0x96
+ 1ea:	ee60 0a88 	vmul.f32	s1, s1, s16
+ 1ee:	f06f 0195 	mvn.w	r1, #149	@ 0x95
+ 1f2:	eefd 7ae0 	vcvt.s32.f32	s15, s1
+ 1f6:	ee17 0a90 	vmov	r0, s15
+ 1fa:	f7ff fffe 	bl	0 <constrain>
+			1fa: R_ARM_THM_CALL	constrain
+ 1fe:	f8c8 0008 	str.w	r0, [r8, #8]
+ 202:	e741      	b.n	88 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x88>
+ 204:	f8d8 3000 	ldr.w	r3, [r8]
+ 208:	4938      	ldr	r1, [pc, #224]	@ (2ec <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2ec>)
+ 20a:	f44f 72fa 	mov.w	r2, #500	@ 0x1f4
+ 20e:	1a18      	subs	r0, r3, r0
+ 210:	f7ff fffe 	bl	0 <constrain>
+			210: R_ARM_THM_CALL	constrain
+ 214:	4b36      	ldr	r3, [pc, #216]	@ (2f0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2f0>)
+ 216:	4931      	ldr	r1, [pc, #196]	@ (2dc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2dc>)
+ 218:	6018      	str	r0, [r3, #0]
+ 21a:	4b36      	ldr	r3, [pc, #216]	@ (2f4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2f4>)
+ 21c:	6018      	str	r0, [r3, #0]
+ 21e:	682b      	ldr	r3, [r5, #0]
+ 220:	791b      	ldrb	r3, [r3, #4]
+ 222:	4358      	muls	r0, r3
+ 224:	bf48      	it	mi
+ 226:	307f      	addmi	r0, #127	@ 0x7f
+ 228:	f44f 7296 	mov.w	r2, #300	@ 0x12c
+ 22c:	11c0      	asrs	r0, r0, #7
+ 22e:	f7ff fffe 	bl	0 <constrain>
+			22e: R_ARM_THM_CALL	constrain
+ 232:	4603      	mov	r3, r0
+ 234:	e766      	b.n	104 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x104>
+ 236:	ed99 aa00 	vldr	s20, [r9]
+ 23a:	9303      	str	r3, [sp, #12]
+ 23c:	eeb0 0a4a 	vmov.f32	s0, s20
+ 240:	f7ff fffe 	bl	0 <lrintf>
+			240: R_ARM_THM_CALL	lrintf
+ 244:	f8d8 2000 	ldr.w	r2, [r8]
+ 248:	9b03      	ldr	r3, [sp, #12]
+ 24a:	4290      	cmp	r0, r2
+ 24c:	d064      	beq.n	318 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x318>
+ 24e:	ee07 2a90 	vmov	s15, r2
+ 252:	4a29      	ldr	r2, [pc, #164]	@ (2f8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2f8>)
+ 254:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 258:	edc2 7a00 	vstr	s15, [r2]
+ 25c:	2201      	movs	r2, #1
+ 25e:	7022      	strb	r2, [r4, #0]
+ 260:	2b00      	cmp	r3, #0
+ 262:	d15a      	bne.n	31a <_Z34calculateAltHoldThrottleAdjustmentlfff+0x31a>
+ 264:	4b24      	ldr	r3, [pc, #144]	@ (2f8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2f8>)
+ 266:	eddf 7a25 	vldr	s15, [pc, #148]	@ 2fc <_Z34calculateAltHoldThrottleAdjustmentlfff+0x2fc>
+ 26a:	ed93 8a00 	vldr	s16, [r3]
+ 26e:	ee38 8a4a 	vsub.f32	s16, s16, s20
+ 272:	eeb0 0ac8 	vabs.f32	s0, s16
+ 276:	ee20 0a27 	vmul.f32	s0, s0, s15
+ 27a:	f7ff fffe 	bl	0 <sqrtf>
+			27a: R_ARM_THM_CALL	sqrtf
+ 27e:	eeb5 8ac0 	vcmpe.f32	s16, #0.0
+ 282:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 286:	f340 8083 	ble.w	390 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x390>
+ 28a:	eddf 0a1d 	vldr	s1, [pc, #116]	@ 300 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x300>
+ 28e:	f7ff fffe 	bl	0 <fminf>
+			28e: R_ARM_THM_CALL	fminf
+ 292:	e048      	b.n	326 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x326>
+	...
+			294: R_ARM_ABS32	flipState
+			298: R_ARM_ABS32	.bss._ZZ34calculateAltHoldThrottleAdjustmentlfffE16altFlipWasActive
+			29c: R_ARM_ABS32	flightModeFlags
+			2a0: R_ARM_ABS32	AltHold
+			2a4: R_ARM_ABS32	.bss._ZZ34calculateAltHoldThrottleAdjustmentlfffE19altPreFlipVelocityI
+			2a8: R_ARM_ABS32	errorVelocityI
+			2ac: R_ARM_ABS32	.bss._ZL17altHoldGroundIdle
+			2b0: R_ARM_ABS32	.bss._ZZ34calculateAltHoldThrottleAdjustmentlfffE16altPreFlipReturn
+			2b4: R_ARM_ABS32	.bss._ZL17altPreFlipAltHold
+			2b8: R_ARM_ABS32	inclination
+			2bc: R_ARM_ABS32	armingFlags
+			2c0: R_ARM_ABS32	.bss._ZZ34calculateAltHoldThrottleAdjustmentlfffE15altFlipExitAtMs
+ 2c4:	3d4ccccd 	.word	0x3d4ccccd
+	...
+			2cc: R_ARM_ABS32	.bss._ZL10pidProfile
+			2d0: R_ARM_ABS32	.bss._ZL7altRate
+			2d4: R_ARM_ABS32	setVelocity
+			2d8: R_ARM_ABS32	.bss._ZL13altGoalActive
+ 2dc:	fffffed4 	.word	0xfffffed4
+ 2e0:	00000000 	.word	0x00000000
+			2e0: R_ARM_ABS32	altholdDebug9
+ 2e4:	ffda8000 	.word	0xffda8000
+ 2e8:	3b000000 	.word	0x3b000000
+ 2ec:	fffffe0c 	.word	0xfffffe0c
+	...
+			2f0: R_ARM_ABS32	calculatedError
+			2f4: R_ARM_ABS32	altholdDebug8
+			2f8: R_ARM_ABS32	.bss._ZL7altGoal
+ 2fc:	43200000 	.word	0x43200000
+ 300:	42700000 	.word	0x42700000
+	...
+			304: R_ARM_ABS32	.bss._ZL6EstAlt
+			308: R_ARM_ABS32	.bss._ZL9altTarget
+			30c: R_ARM_ABS32	.bss._ZL12altVelTarget
+			310: R_ARM_ABS32	velControlDebug
+ 314:	42c80000 	.word	0x42c80000
+ 318:	b3b3      	cbz	r3, 388 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x388>
+ 31a:	2200      	movs	r2, #0
+ 31c:	7022      	strb	r2, [r4, #0]
+ 31e:	ee07 3a90 	vmov	s15, r3
+ 322:	eeb8 0ae7 	vcvt.f32.s32	s0, s15
+ 326:	ed1f 8a05 	vldr	s16, [pc, #-20]	@ 314 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x314>
+ 32a:	edd7 7a00 	vldr	s15, [r7]
+ 32e:	ee28 8a88 	vmul.f32	s16, s17, s16
+ 332:	ee30 0a67 	vsub.f32	s0, s0, s15
+ 336:	eeb0 1a48 	vmov.f32	s2, s16
+ 33a:	eef1 0a48 	vneg.f32	s1, s16
+ 33e:	f7ff fffe 	bl	0 <constrainf>
+			33e: R_ARM_THM_CALL	constrainf
+ 342:	edd7 7a00 	vldr	s15, [r7]
+ 346:	f8db b000 	ldr.w	fp, [fp]
+ 34a:	ee70 7a27 	vadd.f32	s15, s0, s15
+ 34e:	ed99 0a00 	vldr	s0, [r9]
+ 352:	edc7 7a00 	vstr	s15, [r7]
+ 356:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 35a:	eeb0 7a40 	vmov.f32	s14, s0
+ 35e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 362:	eea8 7aa7 	vfma.f32	s14, s17, s15
+ 366:	dd1a      	ble.n	39e <_Z34calculateAltHoldThrottleAdjustmentlfff+0x39e>
+ 368:	f10b 0332 	add.w	r3, fp, #50	@ 0x32
+ 36c:	ee06 3a90 	vmov	s13, r3
+ 370:	eef8 6ae6 	vcvt.f32.s32	s13, s13
+ 374:	eeb4 7ae6 	vcmpe.f32	s14, s13
+ 378:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 37c:	dc1b      	bgt.n	3b6 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x3b6>
+ 37e:	ed89 7a00 	vstr	s14, [r9]
+ 382:	eeb0 0a47 	vmov.f32	s0, s14
+ 386:	e016      	b.n	3b6 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x3b6>
+ 388:	7822      	ldrb	r2, [r4, #0]
+ 38a:	2a00      	cmp	r2, #0
+ 38c:	d0c7      	beq.n	31e <_Z34calculateAltHoldThrottleAdjustmentlfff+0x31e>
+ 38e:	e769      	b.n	264 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x264>
+ 390:	eef3 0a0e 	vmov.f32	s1, #62	@ 0x41f00000  30.0
+ 394:	f7ff fffe 	bl	0 <fminf>
+			394: R_ARM_THM_CALL	fminf
+ 398:	eeb1 0a40 	vneg.f32	s0, s0
+ 39c:	e7c3      	b.n	326 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x326>
+ 39e:	d5ee      	bpl.n	37e <_Z34calculateAltHoldThrottleAdjustmentlfff+0x37e>
+ 3a0:	f1ab 0332 	sub.w	r3, fp, #50	@ 0x32
+ 3a4:	ee06 3a90 	vmov	s13, r3
+ 3a8:	eef8 6ae6 	vcvt.f32.s32	s13, s13
+ 3ac:	eeb4 7ae6 	vcmpe.f32	s14, s13
+ 3b0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 3b4:	d5e3      	bpl.n	37e <_Z34calculateAltHoldThrottleAdjustmentlfff+0x37e>
+ 3b6:	7823      	ldrb	r3, [r4, #0]
+ 3b8:	b1f3      	cbz	r3, 3f8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x3f8>
+ 3ba:	4b36      	ldr	r3, [pc, #216]	@ (494 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x494>)
+ 3bc:	ed93 7a00 	vldr	s14, [r3]
+ 3c0:	ee77 6a40 	vsub.f32	s13, s14, s0
+ 3c4:	eeb7 6a00 	vmov.f32	s12, #112	@ 0x3f800000  1.0
+ 3c8:	eef0 6ae6 	vabs.f32	s13, s13
+ 3cc:	eef4 6ac6 	vcmpe.f32	s13, s12
+ 3d0:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 3d4:	d510      	bpl.n	3f8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x3f8>
+ 3d6:	ee38 8a08 	vadd.f32	s16, s16, s16
+ 3da:	eef0 7ae7 	vabs.f32	s15, s15
+ 3de:	eef4 7ac8 	vcmpe.f32	s15, s16
+ 3e2:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 3e6:	d807      	bhi.n	3f8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x3f8>
+ 3e8:	2300      	movs	r3, #0
+ 3ea:	603b      	str	r3, [r7, #0]
+ 3ec:	2300      	movs	r3, #0
+ 3ee:	ed89 7a00 	vstr	s14, [r9]
+ 3f2:	7023      	strb	r3, [r4, #0]
+ 3f4:	eeb0 0a47 	vmov.f32	s0, s14
+ 3f8:	f7ff fffe 	bl	0 <lrintf>
+			3f8: R_ARM_THM_CALL	lrintf
+ 3fc:	4926      	ldr	r1, [pc, #152]	@ (498 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x498>)
+ 3fe:	f8c8 0000 	str.w	r0, [r8]
+ 402:	f44f 72fa 	mov.w	r2, #500	@ 0x1f4
+ 406:	eba0 000b 	sub.w	r0, r0, fp
+ 40a:	f7ff fffe 	bl	0 <constrain>
+			40a: R_ARM_THM_CALL	constrain
+ 40e:	4b23      	ldr	r3, [pc, #140]	@ (49c <_Z34calculateAltHoldThrottleAdjustmentlfff+0x49c>)
+ 410:	eddf 7a23 	vldr	s15, [pc, #140]	@ 4a0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4a0>
+ 414:	6018      	str	r0, [r3, #0]
+ 416:	4b23      	ldr	r3, [pc, #140]	@ (4a4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4a4>)
+ 418:	ed9f 1a23 	vldr	s2, [pc, #140]	@ 4a8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4a8>
+ 41c:	6018      	str	r0, [r3, #0]
+ 41e:	7823      	ldrb	r3, [r4, #0]
+ 420:	ed97 0a00 	vldr	s0, [r7]
+ 424:	2b00      	cmp	r3, #0
+ 426:	4b21      	ldr	r3, [pc, #132]	@ (4ac <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4ac>)
+ 428:	781b      	ldrb	r3, [r3, #0]
+ 42a:	bf18      	it	ne
+ 42c:	eeb0 1a67 	vmovne.f32	s2, s15
+ 430:	2b00      	cmp	r3, #0
+ 432:	682b      	ldr	r3, [r5, #0]
+ 434:	eddf 7a1e 	vldr	s15, [pc, #120]	@ 4b0 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4b0>
+ 438:	791b      	ldrb	r3, [r3, #4]
+ 43a:	eef3 0a0e 	vmov.f32	s1, #62	@ 0x41f00000  30.0
+ 43e:	bf18      	it	ne
+ 440:	eef0 0a67 	vmovne.f32	s1, s15
+ 444:	ee07 0a10 	vmov	s14, r0
+ 448:	ee07 3a90 	vmov	s15, r3
+ 44c:	eeb8 7ac7 	vcvt.f32.s32	s14, s14
+ 450:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 454:	eef1 0a60 	vneg.f32	s1, s1
+ 458:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 45c:	ed9f 7a15 	vldr	s14, [pc, #84]	@ 4b4 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4b4>
+ 460:	eea7 0a87 	vfma.f32	s0, s15, s14
+ 464:	f7ff fffe 	bl	0 <constrainf>
+			464: R_ARM_THM_CALL	constrainf
+ 468:	eddf 7a13 	vldr	s15, [pc, #76]	@ 4b8 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x4b8>
+ 46c:	ee28 1aa7 	vmul.f32	s2, s17, s15
+ 470:	edda 7a00 	vldr	s15, [sl]
+ 474:	eef1 0a41 	vneg.f32	s1, s2
+ 478:	ee30 0a67 	vsub.f32	s0, s0, s15
+ 47c:	f7ff fffe 	bl	0 <constrainf>
+			47c: R_ARM_THM_CALL	constrainf
+ 480:	edda 7a00 	vldr	s15, [sl]
+ 484:	ee30 0a27 	vadd.f32	s0, s0, s15
+ 488:	ed8a 0a00 	vstr	s0, [sl]
+ 48c:	f7ff fffe 	bl	0 <lrintf>
+			48c: R_ARM_THM_CALL	lrintf
+ 490:	4603      	mov	r3, r0
+ 492:	e647      	b.n	124 <_Z34calculateAltHoldThrottleAdjustmentlfff+0x124>
+ 494:	00000000 	.word	0x00000000
+			494: R_ARM_ABS32	.bss._ZL7altGoal
+ 498:	fffffe0c 	.word	0xfffffe0c
+ 49c:	00000000 	.word	0x00000000
+			49c: R_ARM_ABS32	calculatedError
+ 4a0:	42700000 	.word	0x42700000
+ 4a4:	00000000 	.word	0x00000000
+			4a4: R_ARM_ABS32	altholdDebug8
+ 4a8:	42200000 	.word	0x42200000
+ 4ac:	00000000 	.word	0x00000000
+			4ac: R_ARM_ABS32	isLanding
+ 4b0:	42c80000 	.word	0x42c80000
+ 4b4:	3c000000 	.word	0x3c000000
+ 4b8:	43160000 	.word	0x43160000
+
+Disassembly of section .text.calculateEstimatedAltitude:
+
+00000000 <calculateEstimatedAltitude>:
+   0:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
+   4:	4b77      	ldr	r3, [pc, #476]	@ (1e4 <calculateEstimatedAltitude+0x1e4>)
+   6:	681c      	ldr	r4, [r3, #0]
+   8:	f246 12a7 	movw	r2, #24999	@ 0x61a7
+   c:	1b04      	subs	r4, r0, r4
+   e:	4294      	cmp	r4, r2
+  10:	ed2d 8b06 	vpush	{d8-d10}
+  14:	f240 80de 	bls.w	1d4 <calculateEstimatedAltitude+0x1d4>
+  18:	6018      	str	r0, [r3, #0]
+  1a:	f7ff fffe 	bl	0 <isBaroCalibrationComplete>
+			1a: R_ARM_THM_CALL	isBaroCalibrationComplete
+  1e:	4d72      	ldr	r5, [pc, #456]	@ (1e8 <calculateEstimatedAltitude+0x1e8>)
+  20:	4e72      	ldr	r6, [pc, #456]	@ (1ec <calculateEstimatedAltitude+0x1ec>)
+  22:	b920      	cbnz	r0, 2e <calculateEstimatedAltitude+0x2e>
+  24:	f7ff fffe 	bl	0 <performBaroCalibrationCycle>
+			24: R_ARM_THM_CALL	performBaroCalibrationCycle
+  28:	2300      	movs	r3, #0
+  2a:	602b      	str	r3, [r5, #0]
+  2c:	6033      	str	r3, [r6, #0]
+  2e:	4b70      	ldr	r3, [pc, #448]	@ (1f0 <calculateEstimatedAltitude+0x1f0>)
+  30:	eddf 9a70 	vldr	s19, [pc, #448]	@ 1f4 <calculateEstimatedAltitude+0x1f4>
+  34:	edd3 7a00 	vldr	s15, [r3]
+  38:	4b6f      	ldr	r3, [pc, #444]	@ (1f8 <calculateEstimatedAltitude+0x1f8>)
+  3a:	eef8 7a67 	vcvt.f32.u32	s15, s15
+  3e:	681b      	ldr	r3, [r3, #0]
+  40:	ee27 6aa9 	vmul.f32	s12, s15, s19
+  44:	2b00      	cmp	r3, #0
+  46:	f000 80c9 	beq.w	1dc <calculateEstimatedAltitude+0x1dc>
+  4a:	4a6c      	ldr	r2, [pc, #432]	@ (1fc <calculateEstimatedAltitude+0x1fc>)
+  4c:	ee07 3a10 	vmov	s14, r3
+  50:	edd2 6a02 	vldr	s13, [r2, #8]
+  54:	eeb8 7ac7 	vcvt.f32.s32	s14, s14
+  58:	eef8 6ae6 	vcvt.f32.s32	s13, s13
+  5c:	ee86 9a87 	vdiv.f32	s18, s13, s14
+  60:	4b67      	ldr	r3, [pc, #412]	@ (200 <calculateEstimatedAltitude+0x200>)
+  62:	f8df 81dc 	ldr.w	r8, [pc, #476]	@ 240 <calculateEstimatedAltitude+0x240>
+  66:	f8df 91dc 	ldr.w	r9, [pc, #476]	@ 244 <calculateEstimatedAltitude+0x244>
+  6a:	ed93 8a00 	vldr	s16, [r3]
+  6e:	edd5 aa00 	vldr	s21, [r5]
+  72:	ed9f 0a64 	vldr	s0, [pc, #400]	@ 204 <calculateEstimatedAltitude+0x204>
+  76:	ee29 8a08 	vmul.f32	s16, s18, s16
+  7a:	ee6a 8a86 	vmul.f32	s17, s21, s12
+  7e:	ee28 8a27 	vmul.f32	s16, s16, s15
+  82:	eef6 7a00 	vmov.f32	s15, #96	@ 0x3f000000  0.5
+  86:	ee68 7a27 	vmul.f32	s15, s16, s15
+  8a:	eeb7 aa00 	vmov.f32	s20, #112	@ 0x3f800000  1.0
+  8e:	eee7 8a86 	vfma.f32	s17, s15, s12
+  92:	edd6 7a00 	vldr	s15, [r6]
+  96:	ee78 8aa7 	vadd.f32	s17, s17, s15
+  9a:	ee28 0a80 	vmul.f32	s0, s17, s0
+  9e:	f7ff fffe 	bl	0 <lrintf>
+			9e: R_ARM_THM_CALL	lrintf
+  a2:	4b59      	ldr	r3, [pc, #356]	@ (208 <calculateEstimatedAltitude+0x208>)
+  a4:	edd9 6a00 	vldr	s13, [r9]
+  a8:	8018      	strh	r0, [r3, #0]
+  aa:	f8d8 3000 	ldr.w	r3, [r8]
+  ae:	ed93 7a03 	vldr	s14, [r3, #12]
+  b2:	ee7a 7a47 	vsub.f32	s15, s20, s14
+  b6:	ee7a aa88 	vadd.f32	s21, s21, s16
+  ba:	ee67 7aa6 	vmul.f32	s15, s15, s13
+  be:	2001      	movs	r0, #1
+  c0:	eee8 7a87 	vfma.f32	s15, s17, s14
+  c4:	edc5 aa00 	vstr	s21, [r5]
+  c8:	edc6 7a00 	vstr	s15, [r6]
+  cc:	f7ff fffe 	bl	0 <imuResetAccelerationSum>
+			cc: R_ARM_THM_CALL	imuResetAccelerationSum
+  d0:	f7ff fffe 	bl	0 <isBaroCalibrationComplete>
+			d0: R_ARM_THM_CALL	isBaroCalibrationComplete
+  d4:	2800      	cmp	r0, #0
+  d6:	d07d      	beq.n	1d4 <calculateEstimatedAltitude+0x1d4>
+  d8:	edd6 7a00 	vldr	s15, [r6]
+  dc:	4f4b      	ldr	r7, [pc, #300]	@ (20c <calculateEstimatedAltitude+0x20c>)
+  de:	4b4c      	ldr	r3, [pc, #304]	@ (210 <calculateEstimatedAltitude+0x210>)
+  e0:	ed99 7a00 	vldr	s14, [r9]
+  e4:	eddf 6a4b 	vldr	s13, [pc, #300]	@ 214 <calculateEstimatedAltitude+0x214>
+  e8:	494b      	ldr	r1, [pc, #300]	@ (218 <calculateEstimatedAltitude+0x218>)
+  ea:	4e4c      	ldr	r6, [pc, #304]	@ (21c <calculateEstimatedAltitude+0x21c>)
+  ec:	eefd 7ae7 	vcvt.s32.f32	s15, s15
+  f0:	f240 52dc 	movw	r2, #1500	@ 0x5dc
+  f4:	edc7 7a00 	vstr	s15, [r7]
+  f8:	ee07 4a90 	vmov	s15, r4
+  fc:	eef8 8a67 	vcvt.f32.u32	s17, s15
+ 100:	edd3 7a00 	vldr	s15, [r3]
+ 104:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 108:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 10c:	eebd 7ac7 	vcvt.s32.f32	s14, s14
+ 110:	ee67 7aa6 	vmul.f32	s15, s15, s13
+ 114:	ed83 7a00 	vstr	s14, [r3]
+ 118:	eec7 6aa8 	vdiv.f32	s13, s15, s17
+ 11c:	eefd 7ae6 	vcvt.s32.f32	s15, s13
+ 120:	ee17 0a90 	vmov	r0, s15
+ 124:	f7ff fffe 	bl	0 <constrain>
+			124: R_ARM_THM_CALL	constrain
+ 128:	210a      	movs	r1, #10
+ 12a:	f7ff fffe 	bl	0 <applyDeadband>
+			12a: R_ARM_THM_CALL	applyDeadband
+ 12e:	f8d8 3000 	ldr.w	r3, [r8]
+ 132:	ee00 0a10 	vmov	s0, r0
+ 136:	edd3 7a02 	vldr	s15, [r3, #8]
+ 13a:	eeb8 0ac0 	vcvt.f32.s32	s0, s0
+ 13e:	ee3a 7a67 	vsub.f32	s14, s20, s15
+ 142:	ee20 0a07 	vmul.f32	s0, s0, s14
+ 146:	ed95 7a00 	vldr	s14, [r5]
+ 14a:	eea7 0a87 	vfma.f32	s0, s15, s14
+ 14e:	ed85 0a00 	vstr	s0, [r5]
+ 152:	f7ff fffe 	bl	0 <lrintf>
+			152: R_ARM_THM_CALL	lrintf
+ 156:	2105      	movs	r1, #5
+ 158:	4604      	mov	r4, r0
+ 15a:	f7ff fffe 	bl	0 <applyDeadband>
+			15a: R_ARM_THM_CALL	applyDeadband
+ 15e:	4b30      	ldr	r3, [pc, #192]	@ (220 <calculateEstimatedAltitude+0x220>)
+ 160:	ee07 4a90 	vmov	s15, r4
+ 164:	6018      	str	r0, [r3, #0]
+ 166:	eeb8 0ae7 	vcvt.f32.s32	s0, s15
+ 16a:	482e      	ldr	r0, [pc, #184]	@ (224 <calculateEstimatedAltitude+0x224>)
+ 16c:	f7ff fffe 	bl	0 <calculateEstimatedAltitude>
+			16c: R_ARM_THM_CALL	_Z18kalmanFilterUpdateP12KalmanFilterf
+ 170:	edd7 7a00 	vldr	s15, [r7]
+ 174:	482c      	ldr	r0, [pc, #176]	@ (228 <calculateEstimatedAltitude+0x228>)
+ 176:	eef0 aa40 	vmov.f32	s21, s0
+ 17a:	eeb8 0ae7 	vcvt.f32.s32	s0, s15
+ 17e:	f7ff fffe 	bl	0 <calculateEstimatedAltitude>
+			17e: R_ARM_THM_CALL	_Z18kalmanFilterUpdateP12KalmanFilterf
+ 182:	ee28 1aa9 	vmul.f32	s2, s17, s19
+ 186:	eeb0 8a40 	vmov.f32	s16, s0
+ 18a:	edd6 0a00 	vldr	s1, [r6]
+ 18e:	eeb0 0a49 	vmov.f32	s0, s18
+ 192:	4620      	mov	r0, r4
+ 194:	f7ff fffe 	bl	0 <calculateEstimatedAltitude>
+			194: R_ARM_THM_CALL	_Z34calculateAltHoldThrottleAdjustmentlfff
+ 198:	4b24      	ldr	r3, [pc, #144]	@ (22c <calculateEstimatedAltitude+0x22c>)
+ 19a:	eddf 6a25 	vldr	s13, [pc, #148]	@ 230 <calculateEstimatedAltitude+0x230>
+ 19e:	6018      	str	r0, [r3, #0]
+ 1a0:	4b24      	ldr	r3, [pc, #144]	@ (234 <calculateEstimatedAltitude+0x234>)
+ 1a2:	ed86 9a00 	vstr	s18, [r6]
+ 1a6:	681b      	ldr	r3, [r3, #0]
+ 1a8:	edc5 aa00 	vstr	s21, [r5]
+ 1ac:	7bdb      	ldrb	r3, [r3, #15]
+ 1ae:	ee07 3a90 	vmov	s15, r3
+ 1b2:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 1b6:	4b20      	ldr	r3, [pc, #128]	@ (238 <calculateEstimatedAltitude+0x238>)
+ 1b8:	ee87 7aa6 	vdiv.f32	s14, s15, s13
+ 1bc:	edc3 7a00 	vstr	s15, [r3]
+ 1c0:	eebd 8ac8 	vcvt.s32.f32	s16, s16
+ 1c4:	f8d8 3000 	ldr.w	r3, [r8]
+ 1c8:	ed87 8a00 	vstr	s16, [r7]
+ 1cc:	ee7a 7a47 	vsub.f32	s15, s20, s14
+ 1d0:	edc3 7a03 	vstr	s15, [r3, #12]
+ 1d4:	ecbd 8b06 	vpop	{d8-d10}
+ 1d8:	e8bd 83f8 	ldmia.w	sp!, {r3, r4, r5, r6, r7, r8, r9, pc}
+ 1dc:	ed9f 9a17 	vldr	s18, [pc, #92]	@ 23c <calculateEstimatedAltitude+0x23c>
+ 1e0:	e73e      	b.n	60 <calculateEstimatedAltitude+0x60>
+ 1e2:	bf00      	nop
+	...
+			1e4: R_ARM_ABS32	.bss._ZZ26calculateEstimatedAltitudeE12previousTime
+			1e8: R_ARM_ABS32	.bss._ZZ26calculateEstimatedAltitudeE3vel
+			1ec: R_ARM_ABS32	.bss._ZZ26calculateEstimatedAltitudeE6accAlt
+			1f0: R_ARM_ABS32	accTimeSum
+ 1f4:	358637bd 	.word	0x358637bd
+	...
+			1f8: R_ARM_ABS32	accSumCount
+			1fc: R_ARM_ABS32	accSum
+			200: R_ARM_ABS32	accVelScale
+ 204:	42c80000 	.word	0x42c80000
+	...
+			208: R_ARM_ABS32	accalttemp
+			20c: R_ARM_ABS32	.bss._ZL6EstAlt
+			210: R_ARM_ABS32	.bss._ZZ26calculateEstimatedAltitudeE11lastBaroAlt
+ 214:	49742400 	.word	0x49742400
+ 218:	fffffa24 	.word	0xfffffa24
+	...
+			21c: R_ARM_ABS32	.bss._ZZ26calculateEstimatedAltitudeE8accZ_old
+			220: R_ARM_ABS32	vario
+			224: R_ARM_ABS32	.bss._ZL13velHoldFilter
+			228: R_ARM_ABS32	.bss._ZL13altHoldFilter
+			22c: R_ARM_ABS32	altHoldThrottleAdjustment
+ 230:	447a0000 	.word	0x447a0000
+	...
+			234: R_ARM_ABS32	.bss._ZL10pidProfile
+			238: R_ARM_ABS32	Temp
+			240: R_ARM_ABS32	.bss._ZL15barometerConfig
+			244: R_ARM_ABS32	BaroAlt
+
+Disassembly of section .text._Z23addHistPositionBaseEstZf:
+
+00000000 <_Z23addHistPositionBaseEstZf>:
+   0:	b570      	push	{r4, r5, r6, lr}
+   2:	4b17      	ldr	r3, [pc, #92]	@ (60 <_Z23addHistPositionBaseEstZf+0x60>)
+   4:	4d17      	ldr	r5, [pc, #92]	@ (64 <_Z23addHistPositionBaseEstZf+0x64>)
+   6:	4818      	ldr	r0, [pc, #96]	@ (68 <_Z23addHistPositionBaseEstZf+0x68>)
+   8:	681c      	ldr	r4, [r3, #0]
+   a:	882b      	ldrh	r3, [r5, #0]
+   c:	f9b0 2000 	ldrsh.w	r2, [r0]
+  10:	4916      	ldr	r1, [pc, #88]	@ (6c <_Z23addHistPositionBaseEstZf+0x6c>)
+  12:	3301      	adds	r3, #1
+  14:	b21b      	sxth	r3, r3
+  16:	42a2      	cmp	r2, r4
+  18:	461e      	mov	r6, r3
+  1a:	da0b      	bge.n	34 <_Z23addHistPositionBaseEstZf+0x34>
+  1c:	429c      	cmp	r4, r3
+  1e:	bfdc      	itt	le
+  20:	2300      	movle	r3, #0
+  22:	461e      	movle	r6, r3
+  24:	eb01 0186 	add.w	r1, r1, r6, lsl #2
+  28:	802b      	strh	r3, [r5, #0]
+  2a:	ed81 0a00 	vstr	s0, [r1]
+  2e:	3201      	adds	r2, #1
+  30:	8002      	strh	r2, [r0, #0]
+  32:	bd70      	pop	{r4, r5, r6, pc}
+  34:	480e      	ldr	r0, [pc, #56]	@ (70 <_Z23addHistPositionBaseEstZf+0x70>)
+  36:	802b      	strh	r3, [r5, #0]
+  38:	8802      	ldrh	r2, [r0, #0]
+  3a:	429c      	cmp	r4, r3
+  3c:	f102 0201 	add.w	r2, r2, #1
+  40:	b212      	sxth	r2, r2
+  42:	d104      	bne.n	4e <_Z23addHistPositionBaseEstZf+0x4e>
+  44:	2300      	movs	r3, #0
+  46:	802b      	strh	r3, [r5, #0]
+  48:	ed81 0a00 	vstr	s0, [r1]
+  4c:	e7f0      	b.n	30 <_Z23addHistPositionBaseEstZf+0x30>
+  4e:	eb01 0183 	add.w	r1, r1, r3, lsl #2
+  52:	4294      	cmp	r4, r2
+  54:	ed81 0a00 	vstr	s0, [r1]
+  58:	d1ea      	bne.n	30 <_Z23addHistPositionBaseEstZf+0x30>
+  5a:	2300      	movs	r3, #0
+  5c:	8003      	strh	r3, [r0, #0]
+  5e:	e7e8      	b.n	32 <_Z23addHistPositionBaseEstZf+0x32>
+	...
+			60: R_ARM_ABS32	QUEUE_MAX_LENGTH
+			64: R_ARM_ABS32	.data._ZL4rear
+			68: R_ARM_ABS32	.bss._ZL9itemCount
+			6c: R_ARM_ABS32	.bss._ZL4buff
+			70: R_ARM_ABS32	.bss._ZL4head
+
+Disassembly of section .text._Z28getFrontHistPositionBaseEstZv:
+
+00000000 <_Z28getFrontHistPositionBaseEstZv>:
+   0:	4a0a      	ldr	r2, [pc, #40]	@ (2c <_Z28getFrontHistPositionBaseEstZv+0x2c>)
+   2:	490b      	ldr	r1, [pc, #44]	@ (30 <_Z28getFrontHistPositionBaseEstZv+0x30>)
+   4:	f9b2 3000 	ldrsh.w	r3, [r2]
+   8:	eb01 0183 	add.w	r1, r1, r3, lsl #2
+   c:	ed91 0a00 	vldr	s0, [r1]
+  10:	4908      	ldr	r1, [pc, #32]	@ (34 <_Z28getFrontHistPositionBaseEstZv+0x34>)
+  12:	3301      	adds	r3, #1
+  14:	6809      	ldr	r1, [r1, #0]
+  16:	b21b      	sxth	r3, r3
+  18:	428b      	cmp	r3, r1
+  1a:	8013      	strh	r3, [r2, #0]
+  1c:	bf04      	itt	eq
+  1e:	2300      	moveq	r3, #0
+  20:	8013      	strheq	r3, [r2, #0]
+  22:	4a05      	ldr	r2, [pc, #20]	@ (38 <_Z28getFrontHistPositionBaseEstZv+0x38>)
+  24:	8813      	ldrh	r3, [r2, #0]
+  26:	3b01      	subs	r3, #1
+  28:	8013      	strh	r3, [r2, #0]
+  2a:	4770      	bx	lr
+	...
+			2c: R_ARM_ABS32	.bss._ZL4head
+			30: R_ARM_ABS32	.bss._ZL4buff
+			34: R_ARM_ABS32	QUEUE_MAX_LENGTH
+			38: R_ARM_ABS32	.bss._ZL9itemCount
+
+Disassembly of section .text._Z25isPositionBaseQueueIsFullv:
+
+00000000 <_Z25isPositionBaseQueueIsFullv>:
+   0:	4b04      	ldr	r3, [pc, #16]	@ (14 <_Z25isPositionBaseQueueIsFullv+0x14>)
+   2:	f9b3 0000 	ldrsh.w	r0, [r3]
+   6:	4b04      	ldr	r3, [pc, #16]	@ (18 <_Z25isPositionBaseQueueIsFullv+0x18>)
+   8:	681b      	ldr	r3, [r3, #0]
+   a:	1ac3      	subs	r3, r0, r3
+   c:	4258      	negs	r0, r3
+   e:	4158      	adcs	r0, r3
+  10:	4770      	bx	lr
+  12:	bf00      	nop
+	...
+			14: R_ARM_ABS32	.bss._ZL9itemCount
+			18: R_ARM_ABS32	QUEUE_MAX_LENGTH
+
+Disassembly of section .text.altHoldSource:
+
+00000000 <altHoldSource>:
+   0:	4b03      	ldr	r3, [pc, #12]	@ (10 <altHoldSource+0x10>)
+   2:	781b      	ldrb	r3, [r3, #0]
+   4:	b913      	cbnz	r3, c <altHoldSource+0xc>
+   6:	4b03      	ldr	r3, [pc, #12]	@ (14 <altHoldSource+0x14>)
+   8:	7818      	ldrb	r0, [r3, #0]
+   a:	4770      	bx	lr
+   c:	2002      	movs	r0, #2
+   e:	4770      	bx	lr
+	...
+			10: R_ARM_ABS32	.bss._ZL14altStepPending
+			14: R_ARM_ABS32	.data._ZL14altSourceLaser
+
+Disassembly of section .text.updateGains:
+
+00000000 <updateGains>:
+   0:	4b12      	ldr	r3, [pc, #72]	@ (4c <updateGains+0x4c>)
+   2:	4a13      	ldr	r2, [pc, #76]	@ (50 <updateGains+0x50>)
+   4:	edd3 7a00 	vldr	s15, [r3]
+   8:	4912      	ldr	r1, [pc, #72]	@ (54 <updateGains+0x54>)
+   a:	4813      	ldr	r0, [pc, #76]	@ (58 <updateGains+0x58>)
+   c:	eef5 7a40 	vcmp.f32	s15, #0.0
+  10:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+  14:	f04f 0300 	mov.w	r3, #0
+  18:	d103      	bne.n	22 <updateGains+0x22>
+  1a:	6013      	str	r3, [r2, #0]
+  1c:	600b      	str	r3, [r1, #0]
+  1e:	6003      	str	r3, [r0, #0]
+  20:	4770      	bx	lr
+  22:	eef0 6a08 	vmov.f32	s13, #8	@ 0x40400000  3.0
+  26:	ee86 7aa7 	vdiv.f32	s14, s13, s15
+  2a:	ed80 7a00 	vstr	s14, [r0]
+  2e:	ee27 7aa7 	vmul.f32	s14, s15, s15
+  32:	ee67 7a87 	vmul.f32	s15, s15, s14
+  36:	ee86 6a87 	vdiv.f32	s12, s13, s14
+  3a:	eef7 6a00 	vmov.f32	s13, #112	@ 0x3f800000  1.0
+  3e:	ee86 7aa7 	vdiv.f32	s14, s13, s15
+  42:	ed81 6a00 	vstr	s12, [r1]
+  46:	ed82 7a00 	vstr	s14, [r2]
+  4a:	4770      	bx	lr
+	...
+			4c: R_ARM_ABS32	_time_constant_z
+			50: R_ARM_ABS32	_k3_z
+			54: R_ARM_ABS32	_k2_z
+			58: R_ARM_ABS32	_k1_z
+
+Disassembly of section .text.correctedWithBaro:
+
+00000000 <correctedWithBaro>:
+   0:	b508      	push	{r3, lr}
+   2:	eebd 7ac0 	vcvt.s32.f32	s14, s0
+   6:	4b18      	ldr	r3, [pc, #96]	@ (68 <correctedWithBaro+0x68>)
+   8:	ed83 7a00 	vstr	s14, [r3]
+   c:	eeb6 7a00 	vmov.f32	s14, #96	@ 0x3f000000  0.5
+  10:	eef4 0ac7 	vcmpe.f32	s1, s14
+  14:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+  18:	eef0 7a40 	vmov.f32	s15, s0
+  1c:	dc22      	bgt.n	64 <correctedWithBaro+0x64>
+  1e:	f7ff fffe 	bl	0 <correctedWithBaro>
+			1e: R_ARM_THM_CALL	_Z25isPositionBaseQueueIsFullv
+  22:	b1d8      	cbz	r0, 5c <correctedWithBaro+0x5c>
+  24:	f7ff fffe 	bl	0 <correctedWithBaro>
+			24: R_ARM_THM_CALL	_Z28getFrontHistPositionBaseEstZv
+  28:	4b10      	ldr	r3, [pc, #64]	@ (6c <correctedWithBaro+0x6c>)
+  2a:	ed93 7a00 	vldr	s14, [r3]
+  2e:	4b10      	ldr	r3, [pc, #64]	@ (70 <correctedWithBaro+0x70>)
+  30:	ee30 0a07 	vadd.f32	s0, s0, s14
+  34:	ee77 7ac0 	vsub.f32	s15, s15, s0
+  38:	edc3 7a00 	vstr	s15, [r3]
+  3c:	4b0d      	ldr	r3, [pc, #52]	@ (74 <correctedWithBaro+0x74>)
+  3e:	ed93 7a00 	vldr	s14, [r3]
+  42:	eef7 7a08 	vmov.f32	s15, #120	@ 0x3fc00000  1.5
+  46:	eeb4 7a67 	vcmp.f32	s14, s15
+  4a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+  4e:	d009      	beq.n	64 <correctedWithBaro+0x64>
+  50:	edc3 7a00 	vstr	s15, [r3]
+  54:	e8bd 4008 	ldmia.w	sp!, {r3, lr}
+  58:	f7ff bffe 	b.w	0 <correctedWithBaro>
+			58: R_ARM_THM_JUMP24	updateGains
+  5c:	4b06      	ldr	r3, [pc, #24]	@ (78 <correctedWithBaro+0x78>)
+  5e:	ed93 0a00 	vldr	s0, [r3]
+  62:	e7e1      	b.n	28 <correctedWithBaro+0x28>
+  64:	bd08      	pop	{r3, pc}
+  66:	bf00      	nop
+	...
+			68: R_ARM_ABS32	altholdDebug5
+			6c: R_ARM_ABS32	_position_correction_z
+			70: R_ARM_ABS32	_position_error_z
+			74: R_ARM_ABS32	_time_constant_z
+			78: R_ARM_ABS32	_position_base_z
+
+Disassembly of section .text.checkBaro:
+
+00000000 <checkBaro>:
+   0:	b538      	push	{r3, r4, r5, lr}
+   2:	4d0e      	ldr	r5, [pc, #56]	@ (3c <checkBaro+0x3c>)
+   4:	ed2d 8b02 	vpush	{d8}
+   8:	f7ff fffe 	bl	0 <getBaroLastUpdate>
+			8: R_ARM_THM_CALL	getBaroLastUpdate
+   c:	682b      	ldr	r3, [r5, #0]
+   e:	4283      	cmp	r3, r0
+  10:	4604      	mov	r4, r0
+  12:	d00f      	beq.n	34 <checkBaro+0x34>
+  14:	1ac3      	subs	r3, r0, r3
+  16:	ee08 3a10 	vmov	s16, r3
+  1a:	eddf 7a09 	vldr	s15, [pc, #36]	@ 40 <checkBaro+0x40>
+  1e:	eeb8 8a48 	vcvt.f32.u32	s16, s16
+  22:	ee28 8a27 	vmul.f32	s16, s16, s15
+  26:	f7ff fffe 	bl	0 <baroCalculateAltitude>
+			26: R_ARM_THM_CALL	baroCalculateAltitude
+  2a:	eef0 0a48 	vmov.f32	s1, s16
+  2e:	f7ff fffe 	bl	0 <checkBaro>
+			2e: R_ARM_THM_CALL	correctedWithBaro
+  32:	602c      	str	r4, [r5, #0]
+  34:	ecbd 8b02 	vpop	{d8}
+  38:	bd38      	pop	{r3, r4, r5, pc}
+  3a:	bf00      	nop
+  3c:	00000000 	.word	0x00000000
+			3c: R_ARM_ABS32	baro_last_update
+  40:	3a83126f 	.word	0x3a83126f
+
+Disassembly of section .text.updateGains1:
+
+00000000 <updateGains1>:
+   0:	4b12      	ldr	r3, [pc, #72]	@ (4c <updateGains1+0x4c>)
+   2:	4a13      	ldr	r2, [pc, #76]	@ (50 <updateGains1+0x50>)
+   4:	edd3 7a00 	vldr	s15, [r3]
+   8:	4912      	ldr	r1, [pc, #72]	@ (54 <updateGains1+0x54>)
+   a:	4813      	ldr	r0, [pc, #76]	@ (58 <updateGains1+0x58>)
+   c:	eef5 7a40 	vcmp.f32	s15, #0.0
+  10:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+  14:	f04f 0300 	mov.w	r3, #0
+  18:	d103      	bne.n	22 <updateGains1+0x22>
+  1a:	6013      	str	r3, [r2, #0]
+  1c:	600b      	str	r3, [r1, #0]
+  1e:	6003      	str	r3, [r0, #0]
+  20:	4770      	bx	lr
+  22:	eef0 6a08 	vmov.f32	s13, #8	@ 0x40400000  3.0
+  26:	ee86 7aa7 	vdiv.f32	s14, s13, s15
+  2a:	ed80 7a00 	vstr	s14, [r0]
+  2e:	ee27 7aa7 	vmul.f32	s14, s15, s15
+  32:	ee67 7a87 	vmul.f32	s15, s15, s14
+  36:	ee86 6a87 	vdiv.f32	s12, s13, s14
+  3a:	eef7 6a00 	vmov.f32	s13, #112	@ 0x3f800000  1.0
+  3e:	ee86 7aa7 	vdiv.f32	s14, s13, s15
+  42:	ed81 6a00 	vstr	s12, [r1]
+  46:	ed82 7a00 	vstr	s14, [r2]
+  4a:	4770      	bx	lr
+	...
+			4c: R_ARM_ABS32	_time_constant_z1
+			50: R_ARM_ABS32	_k3_z1
+			54: R_ARM_ABS32	_k2_z1
+			58: R_ARM_ABS32	_k1_z1
+
+Disassembly of section .text._Z11setAltitudef:
+
+00000000 <_Z11setAltitudef>:
+   0:	4b05      	ldr	r3, [pc, #20]	@ (18 <_Z11setAltitudef+0x18>)
+   2:	ed83 0a00 	vstr	s0, [r3]
+   6:	4b05      	ldr	r3, [pc, #20]	@ (1c <_Z11setAltitudef+0x1c>)
+   8:	2200      	movs	r2, #0
+   a:	601a      	str	r2, [r3, #0]
+   c:	4b04      	ldr	r3, [pc, #16]	@ (20 <_Z11setAltitudef+0x20>)
+   e:	2001      	movs	r0, #1
+  10:	ed83 0a00 	vstr	s0, [r3]
+  14:	f7ff bffe 	b.w	0 <imuResetAccelerationSum>
+			14: R_ARM_THM_JUMP24	imuResetAccelerationSum
+	...
+			18: R_ARM_ABS32	_position_base_z
+			1c: R_ARM_ABS32	_position_correction_z
+			20: R_ARM_ABS32	_position_z
+
+Disassembly of section .text.correctedWithTof:
+
+00000000 <correctedWithTof>:
+   0:	b510      	push	{r4, lr}
+   2:	4c15      	ldr	r4, [pc, #84]	@ (58 <correctedWithTof+0x58>)
+   4:	f9b4 3000 	ldrsh.w	r3, [r4]
+   8:	ed2d 8b02 	vpush	{d8}
+   c:	eeb0 8a40 	vmov.f32	s16, s0
+  10:	b923      	cbnz	r3, 1c <correctedWithTof+0x1c>
+  12:	f7ff fffe 	bl	0 <correctedWithTof>
+			12: R_ARM_THM_CALL	_Z11setAltitudef
+  16:	8823      	ldrh	r3, [r4, #0]
+  18:	3301      	adds	r3, #1
+  1a:	8023      	strh	r3, [r4, #0]
+  1c:	4b0f      	ldr	r3, [pc, #60]	@ (5c <correctedWithTof+0x5c>)
+  1e:	edd3 7a00 	vldr	s15, [r3]
+  22:	4b0f      	ldr	r3, [pc, #60]	@ (60 <correctedWithTof+0x60>)
+  24:	ee38 8a67 	vsub.f32	s16, s16, s15
+  28:	eef7 7a08 	vmov.f32	s15, #120	@ 0x3fc00000  1.5
+  2c:	ed83 8a00 	vstr	s16, [r3]
+  30:	4b0c      	ldr	r3, [pc, #48]	@ (64 <correctedWithTof+0x64>)
+  32:	ed93 7a00 	vldr	s14, [r3]
+  36:	eeb4 7a67 	vcmp.f32	s14, s15
+  3a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+  3e:	d007      	beq.n	50 <correctedWithTof+0x50>
+  40:	ecbd 8b02 	vpop	{d8}
+  44:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
+  48:	edc3 7a00 	vstr	s15, [r3]
+  4c:	f7ff bffe 	b.w	0 <correctedWithTof>
+			4c: R_ARM_THM_JUMP24	updateGains
+  50:	ecbd 8b02 	vpop	{d8}
+  54:	bd10      	pop	{r4, pc}
+  56:	bf00      	nop
+	...
+			58: R_ARM_ABS32	first_reads
+			5c: R_ARM_ABS32	_position_z
+			60: R_ARM_ABS32	_position_error_z
+			64: R_ARM_ABS32	_time_constant_z
+
+Disassembly of section .text.checkReading:
+
+00000000 <checkReading>:
+   0:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+   4:	ed2d 8b04 	vpush	{d8-d9}
+   8:	4dae      	ldr	r5, [pc, #696]	@ (2c4 <checkReading+0x2c4>)
+   a:	b083      	sub	sp, #12
+   c:	f7ff fffe 	bl	0 <getBaroLastUpdate>
+			c: R_ARM_THM_CALL	getBaroLastUpdate
+  10:	682b      	ldr	r3, [r5, #0]
+  12:	4283      	cmp	r3, r0
+  14:	4604      	mov	r4, r0
+  16:	f000 80de 	beq.w	1d6 <checkReading+0x1d6>
+  1a:	1ac3      	subs	r3, r0, r3
+  1c:	ee09 3a10 	vmov	s18, r3
+  20:	eddf 7aa9 	vldr	s15, [pc, #676]	@ 2c8 <checkReading+0x2c8>
+  24:	eeb8 9a49 	vcvt.f32.u32	s18, s18
+  28:	ee29 9a27 	vmul.f32	s18, s18, s15
+  2c:	f7ff fffe 	bl	0 <baroCalculateAltitude>
+			2c: R_ARM_THM_CALL	baroCalculateAltitude
+  30:	4ba6      	ldr	r3, [pc, #664]	@ (2cc <checkReading+0x2cc>)
+  32:	602c      	str	r4, [r5, #0]
+  34:	ed83 0a00 	vstr	s0, [r3]
+  38:	4ba5      	ldr	r3, [pc, #660]	@ (2d0 <checkReading+0x2d0>)
+  3a:	eef5 7a00 	vmov.f32	s15, #80	@ 0x3e800000  0.250
+  3e:	ee20 0a27 	vmul.f32	s0, s0, s15
+  42:	ed93 7a00 	vldr	s14, [r3]
+  46:	eef6 7a08 	vmov.f32	s15, #104	@ 0x3f400000  0.750
+  4a:	eea7 0a27 	vfma.f32	s0, s14, s15
+  4e:	ed83 0a00 	vstr	s0, [r3]
+  52:	f7ff fffe 	bl	0 <millis>
+			52: R_ARM_THM_CALL	millis
+  56:	4604      	mov	r4, r0
+  58:	f7ff fffe 	bl	0 <isTofDataNew>
+			58: R_ARM_THM_CALL	isTofDataNew
+  5c:	4f9d      	ldr	r7, [pc, #628]	@ (2d4 <checkReading+0x2d4>)
+  5e:	4e9e      	ldr	r6, [pc, #632]	@ (2d8 <checkReading+0x2d8>)
+  60:	b198      	cbz	r0, 8a <checkReading+0x8a>
+  62:	f7ff fffe 	bl	0 <isOutofRange>
+			62: R_ARM_THM_CALL	isOutofRange
+  66:	4605      	mov	r5, r0
+  68:	b978      	cbnz	r0, 8a <checkReading+0x8a>
+  6a:	4b9c      	ldr	r3, [pc, #624]	@ (2dc <checkReading+0x2dc>)
+  6c:	7018      	strb	r0, [r3, #0]
+  6e:	489c      	ldr	r0, [pc, #624]	@ (2e0 <checkReading+0x2e0>)
+  70:	f7ff fffe 	bl	0 <checkReading>
+			70: R_ARM_THM_CALL	_Z18calculateTiltAngleP25rollAndPitchInclination_t
+  74:	28f9      	cmp	r0, #249	@ 0xf9
+  76:	bfd4      	ite	le
+  78:	2301      	movle	r3, #1
+  7a:	2300      	movgt	r3, #0
+  7c:	703b      	strb	r3, [r7, #0]
+  7e:	f340 80ad 	ble.w	1dc <checkReading+0x1dc>
+  82:	f7ff fffe 	bl	0 <tofRequestReseed>
+			82: R_ARM_THM_CALL	tofRequestReseed
+  86:	4b97      	ldr	r3, [pc, #604]	@ (2e4 <checkReading+0x2e4>)
+  88:	701d      	strb	r5, [r3, #0]
+  8a:	eddf 8a97 	vldr	s17, [pc, #604]	@ 2e8 <checkReading+0x2e8>
+  8e:	2500      	movs	r5, #0
+  90:	783b      	ldrb	r3, [r7, #0]
+  92:	2b00      	cmp	r3, #0
+  94:	f040 80d2 	bne.w	23c <checkReading+0x23c>
+  98:	2700      	movs	r7, #0
+  9a:	4b94      	ldr	r3, [pc, #592]	@ (2ec <checkReading+0x2ec>)
+  9c:	eddf 7a94 	vldr	s15, [pc, #592]	@ 2f0 <checkReading+0x2f0>
+  a0:	ed93 8a00 	vldr	s16, [r3]
+  a4:	4b93      	ldr	r3, [pc, #588]	@ (2f4 <checkReading+0x2f4>)
+  a6:	edd6 9a00 	vldr	s19, [r6]
+  aa:	781b      	ldrb	r3, [r3, #0]
+  ac:	4a92      	ldr	r2, [pc, #584]	@ (2f8 <checkReading+0x2f8>)
+  ae:	eeb8 8ac8 	vcvt.f32.s32	s16, s16
+  b2:	f013 0f04 	tst.w	r3, #4
+  b6:	ee28 8a27 	vmul.f32	s16, s16, s15
+  ba:	ee78 9a29 	vadd.f32	s19, s16, s19
+  be:	d007      	beq.n	d0 <checkReading+0xd0>
+  c0:	4b8e      	ldr	r3, [pc, #568]	@ (2fc <checkReading+0x2fc>)
+  c2:	781b      	ldrb	r3, [r3, #0]
+  c4:	b923      	cbnz	r3, d0 <checkReading+0xd0>
+  c6:	4b8e      	ldr	r3, [pc, #568]	@ (300 <checkReading+0x300>)
+  c8:	781b      	ldrb	r3, [r3, #0]
+  ca:	2b00      	cmp	r3, #0
+  cc:	f000 80c5 	beq.w	25a <checkReading+0x25a>
+  d0:	2300      	movs	r3, #0
+  d2:	7013      	strb	r3, [r2, #0]
+  d4:	9300      	str	r3, [sp, #0]
+  d6:	2d00      	cmp	r5, #0
+  d8:	f000 815e 	beq.w	398 <checkReading+0x398>
+  dc:	4a89      	ldr	r2, [pc, #548]	@ (304 <checkReading+0x304>)
+  de:	f8df a264 	ldr.w	sl, [pc, #612]	@ 344 <checkReading+0x344>
+  e2:	edd2 6a00 	vldr	s13, [r2]
+  e6:	4a7f      	ldr	r2, [pc, #508]	@ (2e4 <checkReading+0x2e4>)
+  e8:	f892 8000 	ldrb.w	r8, [r2]
+  ec:	4a86      	ldr	r2, [pc, #536]	@ (308 <checkReading+0x308>)
+  ee:	7811      	ldrb	r1, [r2, #0]
+  f0:	f101 0218 	add.w	r2, r1, #24
+  f4:	eba2 0208 	sub.w	r2, r2, r8
+  f8:	f04f 0e00 	mov.w	lr, #0
+  fc:	9201      	str	r2, [sp, #4]
+  fe:	46f1      	mov	r9, lr
+ 100:	4672      	mov	r2, lr
+ 102:	f04f 0b18 	mov.w	fp, #24
+ 106:	fa5f f08e 	uxtb.w	r0, lr
+ 10a:	4580      	cmp	r8, r0
+ 10c:	f200 80b4 	bhi.w	278 <checkReading+0x278>
+ 110:	487e      	ldr	r0, [pc, #504]	@ (30c <checkReading+0x30c>)
+ 112:	2a00      	cmp	r2, #0
+ 114:	f000 80cf 	beq.w	2b6 <checkReading+0x2b6>
+ 118:	eb00 0c89 	add.w	ip, r0, r9, lsl #2
+ 11c:	ed9c 6a00 	vldr	s12, [ip]
+ 120:	f8df c1ec 	ldr.w	ip, [pc, #492]	@ 310 <checkReading+0x310>
+ 124:	eb0c 0c89 	add.w	ip, ip, r9, lsl #2
+ 128:	ed9c 7a00 	vldr	s14, [ip]
+ 12c:	ee78 7ac6 	vsub.f32	s15, s17, s12
+ 130:	ee76 5ac7 	vsub.f32	s11, s13, s14
+ 134:	ee77 7ae5 	vsub.f32	s15, s15, s11
+ 138:	eb00 0081 	add.w	r0, r0, r1, lsl #2
+ 13c:	edc0 8a00 	vstr	s17, [r0]
+ 140:	4873      	ldr	r0, [pc, #460]	@ (310 <checkReading+0x310>)
+ 142:	f84a 4021 	str.w	r4, [sl, r1, lsl #2]
+ 146:	eb00 0081 	add.w	r0, r0, r1, lsl #2
+ 14a:	edc0 6a00 	vstr	s13, [r0]
+ 14e:	3101      	adds	r1, #1
+ 150:	2018      	movs	r0, #24
+ 152:	fbb1 fcf0 	udiv	ip, r1, r0
+ 156:	fb00 111c 	mls	r1, r0, ip, r1
+ 15a:	486b      	ldr	r0, [pc, #428]	@ (308 <checkReading+0x308>)
+ 15c:	f1b8 0f17 	cmp.w	r8, #23
+ 160:	7001      	strb	r1, [r0, #0]
+ 162:	bf9e      	ittt	ls
+ 164:	495f      	ldrls	r1, [pc, #380]	@ (2e4 <checkReading+0x2e4>)
+ 166:	f108 0801 	addls.w	r8, r8, #1
+ 16a:	f881 8000 	strbls.w	r8, [r1]
+ 16e:	4969      	ldr	r1, [pc, #420]	@ (314 <checkReading+0x314>)
+ 170:	700a      	strb	r2, [r1, #0]
+ 172:	4969      	ldr	r1, [pc, #420]	@ (318 <checkReading+0x318>)
+ 174:	edc1 8a00 	vstr	s17, [r1]
+ 178:	9900      	ldr	r1, [sp, #0]
+ 17a:	4011      	ands	r1, r2
+ 17c:	460a      	mov	r2, r1
+ 17e:	4967      	ldr	r1, [pc, #412]	@ (31c <checkReading+0x31c>)
+ 180:	7808      	ldrb	r0, [r1, #0]
+ 182:	2800      	cmp	r0, #0
+ 184:	f000 80e0 	beq.w	348 <checkReading+0x348>
+ 188:	4965      	ldr	r1, [pc, #404]	@ (320 <checkReading+0x320>)
+ 18a:	ed91 7a00 	vldr	s14, [r1]
+ 18e:	4965      	ldr	r1, [pc, #404]	@ (324 <checkReading+0x324>)
+ 190:	ed91 6a00 	vldr	s12, [r1]
+ 194:	4964      	ldr	r1, [pc, #400]	@ (328 <checkReading+0x328>)
+ 196:	ee38 7ac7 	vsub.f32	s14, s17, s14
+ 19a:	ee76 6ac6 	vsub.f32	s13, s13, s12
+ 19e:	ee37 7a66 	vsub.f32	s14, s14, s13
+ 1a2:	ed81 7a00 	vstr	s14, [r1]
+ 1a6:	f8df 8174 	ldr.w	r8, [pc, #372]	@ 31c <checkReading+0x31c>
+ 1aa:	f8df 9194 	ldr.w	r9, [pc, #404]	@ 340 <checkReading+0x340>
+ 1ae:	f898 1000 	ldrb.w	r1, [r8]
+ 1b2:	2900      	cmp	r1, #0
+ 1b4:	f000 8109 	beq.w	3ca <checkReading+0x3ca>
+ 1b8:	f899 1000 	ldrb.w	r1, [r9]
+ 1bc:	485b      	ldr	r0, [pc, #364]	@ (32c <checkReading+0x32c>)
+ 1be:	b129      	cbz	r1, 1cc <checkReading+0x1cc>
+ 1c0:	b123      	cbz	r3, 1cc <checkReading+0x1cc>
+ 1c2:	495b      	ldr	r1, [pc, #364]	@ (330 <checkReading+0x330>)
+ 1c4:	7809      	ldrb	r1, [r1, #0]
+ 1c6:	2900      	cmp	r1, #0
+ 1c8:	f000 80ea 	beq.w	3a0 <checkReading+0x3a0>
+ 1cc:	2100      	movs	r1, #0
+ 1ce:	f888 1000 	strb.w	r1, [r8]
+ 1d2:	7001      	strb	r1, [r0, #0]
+ 1d4:	e0f9      	b.n	3ca <checkReading+0x3ca>
+ 1d6:	ed9f 9a44 	vldr	s18, [pc, #272]	@ 2e8 <checkReading+0x2e8>
+ 1da:	e73a      	b.n	52 <checkReading+0x52>
+ 1dc:	230a      	movs	r3, #10
+ 1de:	fb90 f0f3 	sdiv	r0, r0, r3
+ 1e2:	b200      	sxth	r0, r0
+ 1e4:	f7ff fffe 	bl	0 <degreesToRadians>
+			1e4: R_ARM_THM_CALL	degreesToRadians
+ 1e8:	4b52      	ldr	r3, [pc, #328]	@ (334 <checkReading+0x334>)
+ 1ea:	881b      	ldrh	r3, [r3, #0]
+ 1ec:	ee07 3a90 	vmov	s15, r3
+ 1f0:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 1f4:	eef2 9a04 	vmov.f32	s19, #36	@ 0x41200000  10.0
+ 1f8:	eec7 8aa9 	vdiv.f32	s17, s15, s19
+ 1fc:	eeb0 8a40 	vmov.f32	s16, s0
+ 200:	f7ff fffe 	bl	0 <cos_approx>
+			200: R_ARM_THM_CALL	cos_approx
+ 204:	4b4c      	ldr	r3, [pc, #304]	@ (338 <checkReading+0x338>)
+ 206:	891b      	ldrh	r3, [r3, #8]
+ 208:	ee07 3a90 	vmov	s15, r3
+ 20c:	ee68 8a80 	vmul.f32	s17, s17, s0
+ 210:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 214:	edc6 8a00 	vstr	s17, [r6]
+ 218:	eec7 8aa9 	vdiv.f32	s17, s15, s19
+ 21c:	eeb0 0a48 	vmov.f32	s0, s16
+ 220:	f7ff fffe 	bl	0 <cos_approx>
+			220: R_ARM_THM_CALL	cos_approx
+ 224:	edd6 7a00 	vldr	s15, [r6]
+ 228:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 22c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 230:	ee68 8a80 	vmul.f32	s17, s17, s0
+ 234:	bfcc      	ite	gt
+ 236:	2501      	movgt	r5, #1
+ 238:	2500      	movle	r5, #0
+ 23a:	e729      	b.n	90 <checkReading+0x90>
+ 23c:	f7ff fffe 	bl	0 <isOutofRange>
+			23c: R_ARM_THM_CALL	isOutofRange
+ 240:	2800      	cmp	r0, #0
+ 242:	f47f af29 	bne.w	98 <checkReading+0x98>
+ 246:	edd6 7a00 	vldr	s15, [r6]
+ 24a:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 24e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 252:	bfcc      	ite	gt
+ 254:	2701      	movgt	r7, #1
+ 256:	2700      	movle	r7, #0
+ 258:	e71f      	b.n	9a <checkReading+0x9a>
+ 25a:	7813      	ldrb	r3, [r2, #0]
+ 25c:	4937      	ldr	r1, [pc, #220]	@ (33c <checkReading+0x33c>)
+ 25e:	b903      	cbnz	r3, 262 <checkReading+0x262>
+ 260:	600c      	str	r4, [r1, #0]
+ 262:	2301      	movs	r3, #1
+ 264:	7013      	strb	r3, [r2, #0]
+ 266:	680a      	ldr	r2, [r1, #0]
+ 268:	1aa2      	subs	r2, r4, r2
+ 26a:	f5b2 7f7a 	cmp.w	r2, #1000	@ 0x3e8
+ 26e:	bf34      	ite	cc
+ 270:	2200      	movcc	r2, #0
+ 272:	2201      	movcs	r2, #1
+ 274:	9200      	str	r2, [sp, #0]
+ 276:	e72e      	b.n	d6 <checkReading+0xd6>
+ 278:	9801      	ldr	r0, [sp, #4]
+ 27a:	eb00 0c0e 	add.w	ip, r0, lr
+ 27e:	fb9c f0fb 	sdiv	r0, ip, fp
+ 282:	fb0b cc10 	mls	ip, fp, r0, ip
+ 286:	fa5f fc8c 	uxtb.w	ip, ip
+ 28a:	f85a 002c 	ldr.w	r0, [sl, ip, lsl #2]
+ 28e:	1a20      	subs	r0, r4, r0
+ 290:	f5b0 7ffa 	cmp.w	r0, #500	@ 0x1f4
+ 294:	d20b      	bcs.n	2ae <checkReading+0x2ae>
+ 296:	f1be 0f00 	cmp.w	lr, #0
+ 29a:	d10a      	bne.n	2b2 <checkReading+0x2b2>
+ 29c:	f5b0 7fc8 	cmp.w	r0, #400	@ 0x190
+ 2a0:	bf34      	ite	cc
+ 2a2:	46cc      	movcc	ip, r9
+ 2a4:	462a      	movcs	r2, r5
+ 2a6:	f10e 0e01 	add.w	lr, lr, #1
+ 2aa:	46e1      	mov	r9, ip
+ 2ac:	e72b      	b.n	106 <checkReading+0x106>
+ 2ae:	462a      	mov	r2, r5
+ 2b0:	e7f9      	b.n	2a6 <checkReading+0x2a6>
+ 2b2:	46cc      	mov	ip, r9
+ 2b4:	e7f7      	b.n	2a6 <checkReading+0x2a6>
+ 2b6:	ed9f 7a0c 	vldr	s14, [pc, #48]	@ 2e8 <checkReading+0x2e8>
+ 2ba:	eeb0 6a47 	vmov.f32	s12, s14
+ 2be:	eef0 7a47 	vmov.f32	s15, s14
+ 2c2:	e739      	b.n	138 <checkReading+0x138>
+ 2c4:	00000000 	.word	0x00000000
+			2c4: R_ARM_ABS32	baro_last_update
+ 2c8:	3a83126f 	.word	0x3a83126f
+	...
+			2cc: R_ARM_ABS32	Baro_Height
+			2d0: R_ARM_ABS32	filtered
+			2d4: R_ARM_ABS32	.data._ZZ12checkReadingE9tofTiltOk
+			2d8: R_ARM_ABS32	ToF_Height
+			2dc: R_ARM_ABS32	isTofDataNewflag
+			2e0: R_ARM_ABS32	inclination
+			2e4: R_ARM_ABS32	.bss._ZL12tofRingCount
+			2ec: R_ARM_ABS32	VelocityZ
+ 2f0:	3e99999a 	.word	0x3e99999a
+	...
+			2f4: R_ARM_ABS32	armingFlags
+			2f8: R_ARM_ABS32	.bss._ZZ12checkReadingE11wasAirborne
+			2fc: R_ARM_ABS32	.bss._ZL17altHoldGroundIdle
+			300: R_ARM_ABS32	isLanding
+			304: R_ARM_ABS32	_position_base_z
+			308: R_ARM_ABS32	.bss._ZL11tofRingHead
+			30c: R_ARM_ABS32	.bss._ZL12tofRingRawCm
+			310: R_ARM_ABS32	.bss._ZL13tofRingBaseCm
+			314: R_ARM_ABS32	.bss._ZZ12checkReadingE11windowReady
+			318: R_ARM_ABS32	.bss._ZZ12checkReadingE9lastRawCm
+			31c: R_ARM_ABS32	.bss._ZZ12checkReadingE10tofSuspect
+			320: R_ARM_ABS32	.bss._ZZ12checkReadingE15suspectRefRawCm
+			324: R_ARM_ABS32	.bss._ZZ12checkReadingE16suspectRefBaseCm
+			328: R_ARM_ABS32	.bss._ZZ12checkReadingE17suspectMismatchCm
+			32c: R_ARM_ABS32	.bss._ZZ12checkReadingE15suspectEscalate
+			330: R_ARM_ABS32	.bss._ZL14altStepPending
+			334: R_ARM_ABS32	NewSensorRange
+			338: R_ARM_ABS32	RangingMeasurementData
+			33c: R_ARM_ABS32	.bss._ZZ12checkReadingE15airborneSinceMs
+			340: R_ARM_ABS32	.data._ZL14altSourceLaser
+			344: R_ARM_ABS32	.bss._ZL9tofRingMs
+ 348:	2a00      	cmp	r2, #0
+ 34a:	f43f af2c 	beq.w	1a6 <checkReading+0x1a6>
+ 34e:	eef0 6ae7 	vabs.f32	s13, s15
+ 352:	eef2 5a0e 	vmov.f32	s11, #46	@ 0x41700000  15.0
+ 356:	eef4 6ae5 	vcmpe.f32	s13, s11
+ 35a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 35e:	f77f af22 	ble.w	1a6 <checkReading+0x1a6>
+ 362:	48b6      	ldr	r0, [pc, #728]	@ (63c <checkReading+0x63c>)
+ 364:	7800      	ldrb	r0, [r0, #0]
+ 366:	2800      	cmp	r0, #0
+ 368:	f43f af1d 	beq.w	1a6 <checkReading+0x1a6>
+ 36c:	2b00      	cmp	r3, #0
+ 36e:	f43f af1a 	beq.w	1a6 <checkReading+0x1a6>
+ 372:	48b3      	ldr	r0, [pc, #716]	@ (640 <checkReading+0x640>)
+ 374:	7800      	ldrb	r0, [r0, #0]
+ 376:	2800      	cmp	r0, #0
+ 378:	f47f af15 	bne.w	1a6 <checkReading+0x1a6>
+ 37c:	2001      	movs	r0, #1
+ 37e:	7008      	strb	r0, [r1, #0]
+ 380:	49b0      	ldr	r1, [pc, #704]	@ (644 <checkReading+0x644>)
+ 382:	600c      	str	r4, [r1, #0]
+ 384:	49b0      	ldr	r1, [pc, #704]	@ (648 <checkReading+0x648>)
+ 386:	ed81 6a00 	vstr	s12, [r1]
+ 38a:	49b0      	ldr	r1, [pc, #704]	@ (64c <checkReading+0x64c>)
+ 38c:	ed81 7a00 	vstr	s14, [r1]
+ 390:	49af      	ldr	r1, [pc, #700]	@ (650 <checkReading+0x650>)
+ 392:	edc1 7a00 	vstr	s15, [r1]
+ 396:	e706      	b.n	1a6 <checkReading+0x1a6>
+ 398:	eddf 7aae 	vldr	s15, [pc, #696]	@ 654 <checkReading+0x654>
+ 39c:	462a      	mov	r2, r5
+ 39e:	e702      	b.n	1a6 <checkReading+0x1a6>
+ 3a0:	f890 c000 	ldrb.w	ip, [r0]
+ 3a4:	f1bc 0f00 	cmp.w	ip, #0
+ 3a8:	f040 809c 	bne.w	4e4 <checkReading+0x4e4>
+ 3ac:	49a8      	ldr	r1, [pc, #672]	@ (650 <checkReading+0x650>)
+ 3ae:	ed91 7a00 	vldr	s14, [r1]
+ 3b2:	eef1 6a0e 	vmov.f32	s13, #30	@ 0x40f00000  7.5
+ 3b6:	eeb0 7ac7 	vabs.f32	s14, s14
+ 3ba:	eeb4 7ae6 	vcmpe.f32	s14, s13
+ 3be:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 3c2:	d56f      	bpl.n	4a4 <checkReading+0x4a4>
+ 3c4:	2100      	movs	r1, #0
+ 3c6:	f888 1000 	strb.w	r1, [r8]
+ 3ca:	f899 1000 	ldrb.w	r1, [r9]
+ 3ce:	b111      	cbz	r1, 3d6 <checkReading+0x3d6>
+ 3d0:	2b00      	cmp	r3, #0
+ 3d2:	f040 809a 	bne.w	50a <checkReading+0x50a>
+ 3d6:	f8df a268 	ldr.w	sl, [pc, #616]	@ 640 <checkReading+0x640>
+ 3da:	f89a 3000 	ldrb.w	r3, [sl]
+ 3de:	b1a3      	cbz	r3, 40a <checkReading+0x40a>
+ 3e0:	b199      	cbz	r1, 40a <checkReading+0x40a>
+ 3e2:	4b9d      	ldr	r3, [pc, #628]	@ (658 <checkReading+0x658>)
+ 3e4:	781b      	ldrb	r3, [r3, #0]
+ 3e6:	b183      	cbz	r3, 40a <checkReading+0x40a>
+ 3e8:	b17f      	cbz	r7, 40a <checkReading+0x40a>
+ 3ea:	4b9c      	ldr	r3, [pc, #624]	@ (65c <checkReading+0x65c>)
+ 3ec:	ed93 8a00 	vldr	s16, [r3]
+ 3f0:	ee39 8ac8 	vsub.f32	s16, s19, s16
+ 3f4:	eeb0 0a48 	vmov.f32	s0, s16
+ 3f8:	f7ff fffe 	bl	0 <checkReading>
+			3f8: R_ARM_THM_CALL	_ZL13altShiftFramef
+ 3fc:	4b98      	ldr	r3, [pc, #608]	@ (660 <checkReading+0x660>)
+ 3fe:	edd3 7a00 	vldr	s15, [r3]
+ 402:	ee77 7ac8 	vsub.f32	s15, s15, s16
+ 406:	edc3 7a00 	vstr	s15, [r3]
+ 40a:	2300      	movs	r3, #0
+ 40c:	f88a 3000 	strb.w	r3, [sl]
+ 410:	f899 3000 	ldrb.w	r3, [r9]
+ 414:	2b00      	cmp	r3, #0
+ 416:	f000 8198 	beq.w	74a <checkReading+0x74a>
+ 41a:	2d00      	cmp	r5, #0
+ 41c:	d076      	beq.n	50c <checkReading+0x50c>
+ 41e:	4b91      	ldr	r3, [pc, #580]	@ (664 <checkReading+0x664>)
+ 420:	601c      	str	r4, [r3, #0]
+ 422:	4b87      	ldr	r3, [pc, #540]	@ (640 <checkReading+0x640>)
+ 424:	781b      	ldrb	r3, [r3, #0]
+ 426:	2b00      	cmp	r3, #0
+ 428:	d170      	bne.n	50c <checkReading+0x50c>
+ 42a:	f898 3000 	ldrb.w	r3, [r8]
+ 42e:	2b00      	cmp	r3, #0
+ 430:	d16c      	bne.n	50c <checkReading+0x50c>
+ 432:	4b8d      	ldr	r3, [pc, #564]	@ (668 <checkReading+0x668>)
+ 434:	781b      	ldrb	r3, [r3, #0]
+ 436:	2b00      	cmp	r3, #0
+ 438:	d068      	beq.n	50c <checkReading+0x50c>
+ 43a:	4b8c      	ldr	r3, [pc, #560]	@ (66c <checkReading+0x66c>)
+ 43c:	4d88      	ldr	r5, [pc, #544]	@ (660 <checkReading+0x660>)
+ 43e:	ed93 8a00 	vldr	s16, [r3]
+ 442:	4b8b      	ldr	r3, [pc, #556]	@ (670 <checkReading+0x670>)
+ 444:	f8df a250 	ldr.w	sl, [pc, #592]	@ 698 <checkReading+0x698>
+ 448:	781a      	ldrb	r2, [r3, #0]
+ 44a:	ee38 8a69 	vsub.f32	s16, s16, s19
+ 44e:	2a00      	cmp	r2, #0
+ 450:	f040 815d 	bne.w	70e <checkReading+0x70e>
+ 454:	2201      	movs	r2, #1
+ 456:	ed85 8a00 	vstr	s16, [r5]
+ 45a:	701a      	strb	r2, [r3, #0]
+ 45c:	f8ca 4000 	str.w	r4, [sl]
+ 460:	2f00      	cmp	r7, #0
+ 462:	f000 81a4 	beq.w	7ae <checkReading+0x7ae>
+ 466:	ed96 7a00 	vldr	s14, [r6]
+ 46a:	eddf 7a82 	vldr	s15, [pc, #520]	@ 674 <checkReading+0x674>
+ 46e:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 472:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 476:	db4b      	blt.n	510 <checkReading+0x510>
+ 478:	4a7f      	ldr	r2, [pc, #508]	@ (678 <checkReading+0x678>)
+ 47a:	2300      	movs	r3, #0
+ 47c:	f889 3000 	strb.w	r3, [r9]
+ 480:	7013      	strb	r3, [r2, #0]
+ 482:	4b7a      	ldr	r3, [pc, #488]	@ (66c <checkReading+0x66c>)
+ 484:	ed93 0a00 	vldr	s0, [r3]
+ 488:	4b75      	ldr	r3, [pc, #468]	@ (660 <checkReading+0x660>)
+ 48a:	edd3 7a00 	vldr	s15, [r3]
+ 48e:	ee30 0a67 	vsub.f32	s0, s0, s15
+ 492:	eef0 0a49 	vmov.f32	s1, s18
+ 496:	b003      	add	sp, #12
+ 498:	ecbd 8b04 	vpop	{d8-d9}
+ 49c:	e8bd 4ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 4a0:	f7ff bffe 	b.w	0 <checkReading>
+			4a0: R_ARM_THM_JUMP24	correctedWithBaro
+ 4a4:	4967      	ldr	r1, [pc, #412]	@ (644 <checkReading+0x644>)
+ 4a6:	6809      	ldr	r1, [r1, #0]
+ 4a8:	1a61      	subs	r1, r4, r1
+ 4aa:	f5b1 7f7a 	cmp.w	r1, #1000	@ 0x3e8
+ 4ae:	d98c      	bls.n	3ca <checkReading+0x3ca>
+ 4b0:	eef3 6a04 	vmov.f32	s13, #52	@ 0x41a00000  20.0
+ 4b4:	eeb4 7ae6 	vcmpe.f32	s14, s13
+ 4b8:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 4bc:	d982      	bls.n	3c4 <checkReading+0x3c4>
+ 4be:	496f      	ldr	r1, [pc, #444]	@ (67c <checkReading+0x67c>)
+ 4c0:	ed9f 7a6c 	vldr	s14, [pc, #432]	@ 674 <checkReading+0x674>
+ 4c4:	edd1 6a00 	vldr	s13, [r1]
+ 4c8:	eef4 6ac7 	vcmpe.f32	s13, s14
+ 4cc:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 4d0:	bfa4      	itt	ge
+ 4d2:	4869      	ldrge	r0, [pc, #420]	@ (678 <checkReading+0x678>)
+ 4d4:	f888 c000 	strbge.w	ip, [r8]
+ 4d8:	f04f 0101 	mov.w	r1, #1
+ 4dc:	bfa8      	it	ge
+ 4de:	f889 c000 	strbge.w	ip, [r9]
+ 4e2:	e676      	b.n	1d2 <checkReading+0x1d2>
+ 4e4:	f8df c15c 	ldr.w	ip, [pc, #348]	@ 644 <checkReading+0x644>
+ 4e8:	f8dc c000 	ldr.w	ip, [ip]
+ 4ec:	eba4 0c0c 	sub.w	ip, r4, ip
+ 4f0:	f5bc 6f8c 	cmp.w	ip, #1120	@ 0x460
+ 4f4:	f67f af69 	bls.w	3ca <checkReading+0x3ca>
+ 4f8:	7001      	strb	r1, [r0, #0]
+ 4fa:	f888 1000 	strb.w	r1, [r8]
+ 4fe:	f889 1000 	strb.w	r1, [r9]
+ 502:	495d      	ldr	r1, [pc, #372]	@ (678 <checkReading+0x678>)
+ 504:	2001      	movs	r0, #1
+ 506:	7008      	strb	r0, [r1, #0]
+ 508:	e75f      	b.n	3ca <checkReading+0x3ca>
+ 50a:	b975      	cbnz	r5, 52a <checkReading+0x52a>
+ 50c:	2f00      	cmp	r7, #0
+ 50e:	d1aa      	bne.n	466 <checkReading+0x466>
+ 510:	4b54      	ldr	r3, [pc, #336]	@ (664 <checkReading+0x664>)
+ 512:	681b      	ldr	r3, [r3, #0]
+ 514:	1ae3      	subs	r3, r4, r3
+ 516:	2b78      	cmp	r3, #120	@ 0x78
+ 518:	f240 8149 	bls.w	7ae <checkReading+0x7ae>
+ 51c:	2300      	movs	r3, #0
+ 51e:	f889 3000 	strb.w	r3, [r9]
+ 522:	4b55      	ldr	r3, [pc, #340]	@ (678 <checkReading+0x678>)
+ 524:	2201      	movs	r2, #1
+ 526:	701a      	strb	r2, [r3, #0]
+ 528:	e7ab      	b.n	482 <checkReading+0x482>
+ 52a:	ed9f 7a52 	vldr	s14, [pc, #328]	@ 674 <checkReading+0x674>
+ 52e:	eef4 8ac7 	vcmpe.f32	s17, s14
+ 532:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 536:	f57f af72 	bpl.w	41e <checkReading+0x41e>
+ 53a:	4b48      	ldr	r3, [pc, #288]	@ (65c <checkReading+0x65c>)
+ 53c:	f8df a100 	ldr.w	sl, [pc, #256]	@ 640 <checkReading+0x640>
+ 540:	ed93 7a00 	vldr	s14, [r3]
+ 544:	f89a 3000 	ldrb.w	r3, [sl]
+ 548:	ee38 8a07 	vadd.f32	s16, s16, s14
+ 54c:	ee38 8ac8 	vsub.f32	s16, s17, s16
+ 550:	eef0 6ac8 	vabs.f32	s13, s16
+ 554:	2b00      	cmp	r3, #0
+ 556:	d13d      	bne.n	5d4 <checkReading+0x5d4>
+ 558:	eeb3 7a0e 	vmov.f32	s14, #62	@ 0x41f00000  30.0
+ 55c:	eef4 6ac7 	vcmpe.f32	s13, s14
+ 560:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 564:	dc1b      	bgt.n	59e <checkReading+0x59e>
+ 566:	b132      	cbz	r2, 576 <checkReading+0x576>
+ 568:	eef0 7ae7 	vabs.f32	s15, s15
+ 56c:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 570:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 574:	dc13      	bgt.n	59e <checkReading+0x59e>
+ 576:	f898 3000 	ldrb.w	r3, [r8]
+ 57a:	2b00      	cmp	r3, #0
+ 57c:	f43f af4f 	beq.w	41e <checkReading+0x41e>
+ 580:	4b33      	ldr	r3, [pc, #204]	@ (650 <checkReading+0x650>)
+ 582:	edd3 7a00 	vldr	s15, [r3]
+ 586:	eef0 7ae7 	vabs.f32	s15, s15
+ 58a:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 58e:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 592:	dc04      	bgt.n	59e <checkReading+0x59e>
+ 594:	4b3a      	ldr	r3, [pc, #232]	@ (680 <checkReading+0x680>)
+ 596:	781b      	ldrb	r3, [r3, #0]
+ 598:	2b00      	cmp	r3, #0
+ 59a:	f43f af40 	beq.w	41e <checkReading+0x41e>
+ 59e:	2301      	movs	r3, #1
+ 5a0:	f88a 3000 	strb.w	r3, [sl]
+ 5a4:	4b36      	ldr	r3, [pc, #216]	@ (680 <checkReading+0x680>)
+ 5a6:	f04f 0a00 	mov.w	sl, #0
+ 5aa:	f883 a000 	strb.w	sl, [r3]
+ 5ae:	4b35      	ldr	r3, [pc, #212]	@ (684 <checkReading+0x684>)
+ 5b0:	f888 a000 	strb.w	sl, [r8]
+ 5b4:	601c      	str	r4, [r3, #0]
+ 5b6:	4b34      	ldr	r3, [pc, #208]	@ (688 <checkReading+0x688>)
+ 5b8:	edc3 8a00 	vstr	s17, [r3]
+ 5bc:	4b33      	ldr	r3, [pc, #204]	@ (68c <checkReading+0x68c>)
+ 5be:	f883 a000 	strb.w	sl, [r3]
+ 5c2:	4b33      	ldr	r3, [pc, #204]	@ (690 <checkReading+0x690>)
+ 5c4:	f883 a000 	strb.w	sl, [r3]
+ 5c8:	f7ff fffe 	bl	0 <tofRequestReseed>
+			5c8: R_ARM_THM_CALL	tofRequestReseed
+ 5cc:	4b31      	ldr	r3, [pc, #196]	@ (694 <checkReading+0x694>)
+ 5ce:	f883 a000 	strb.w	sl, [r3]
+ 5d2:	e71d      	b.n	410 <checkReading+0x410>
+ 5d4:	492c      	ldr	r1, [pc, #176]	@ (688 <checkReading+0x688>)
+ 5d6:	4a2e      	ldr	r2, [pc, #184]	@ (690 <checkReading+0x690>)
+ 5d8:	eef2 7a0e 	vmov.f32	s15, #46	@ 0x41700000  15.0
+ 5dc:	eef4 6ae7 	vcmpe.f32	s13, s15
+ 5e0:	edd1 7a00 	vldr	s15, [r1]
+ 5e4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 5e8:	ee78 7ae7 	vsub.f32	s15, s17, s15
+ 5ec:	bf48      	it	mi
+ 5ee:	7813      	ldrbmi	r3, [r2, #0]
+ 5f0:	eef0 7ae7 	vabs.f32	s15, s15
+ 5f4:	eeb2 7a04 	vmov.f32	s14, #36	@ 0x41200000  10.0
+ 5f8:	bf48      	it	mi
+ 5fa:	3301      	addmi	r3, #1
+ 5fc:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 600:	bf4c      	ite	mi
+ 602:	b2db      	uxtbmi	r3, r3
+ 604:	2300      	movpl	r3, #0
+ 606:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 60a:	7013      	strb	r3, [r2, #0]
+ 60c:	4a1f      	ldr	r2, [pc, #124]	@ (68c <checkReading+0x68c>)
+ 60e:	d810      	bhi.n	632 <checkReading+0x632>
+ 610:	7811      	ldrb	r1, [r2, #0]
+ 612:	29ff      	cmp	r1, #255	@ 0xff
+ 614:	d001      	beq.n	61a <checkReading+0x61a>
+ 616:	3101      	adds	r1, #1
+ 618:	7011      	strb	r1, [r2, #0]
+ 61a:	2b02      	cmp	r3, #2
+ 61c:	d93e      	bls.n	69c <checkReading+0x69c>
+ 61e:	f04f 0b00 	mov.w	fp, #0
+ 622:	f88a b000 	strb.w	fp, [sl]
+ 626:	f7ff fffe 	bl	0 <tofRequestReseed>
+			626: R_ARM_THM_CALL	tofRequestReseed
+ 62a:	4b1a      	ldr	r3, [pc, #104]	@ (694 <checkReading+0x694>)
+ 62c:	f883 b000 	strb.w	fp, [r3]
+ 630:	e6ee      	b.n	410 <checkReading+0x410>
+ 632:	edc1 8a00 	vstr	s17, [r1]
+ 636:	2100      	movs	r1, #0
+ 638:	e7ee      	b.n	618 <checkReading+0x618>
+ 63a:	bf00      	nop
+	...
+			63c: R_ARM_ABS32	.data._ZL14altSourceLaser
+			640: R_ARM_ABS32	.bss._ZL14altStepPending
+			644: R_ARM_ABS32	.bss._ZZ12checkReadingE14suspectStartMs
+			648: R_ARM_ABS32	.bss._ZZ12checkReadingE15suspectRefRawCm
+			64c: R_ARM_ABS32	.bss._ZZ12checkReadingE16suspectRefBaseCm
+			650: R_ARM_ABS32	.bss._ZZ12checkReadingE17suspectMismatchCm
+			658: R_ARM_ABS32	isLanding
+			65c: R_ARM_ABS32	_position_z
+			660: R_ARM_ABS32	.bss._ZZ12checkReadingE11baro_offset
+			664: R_ARM_ABS32	.bss._ZZ12checkReadingE13lastGoodTofMs
+			668: R_ARM_ABS32	.bss._ZZ12checkReadingE11windowReady
+			66c: R_ARM_ABS32	Baro_Height
+			670: R_ARM_ABS32	.bss._ZZ12checkReadingE12offsetSeeded
+ 674:	43200000 	.word	0x43200000
+	...
+			678: R_ARM_ABS32	.bss._ZZ12checkReadingE13leftOnDropout
+			67c: R_ARM_ABS32	.bss._ZZ12checkReadingE9lastRawCm
+			680: R_ARM_ABS32	.bss._ZZ12checkReadingE15suspectEscalate
+			684: R_ARM_ABS32	.bss._ZZ12checkReadingE11stepStartMs
+			688: R_ARM_ABS32	.bss._ZZ12checkReadingE11steadyRefCm
+			68c: R_ARM_ABS32	.bss._ZZ12checkReadingE11steadyCount
+			690: R_ARM_ABS32	.bss._ZZ12checkReadingE11cancelCount
+			694: R_ARM_ABS32	.bss._ZL12tofRingCount
+			698: R_ARM_ABS32	.bss._ZZ12checkReadingE12lastOffsetMs
+ 69c:	4b56      	ldr	r3, [pc, #344]	@ (7f8 <checkReading+0x7f8>)
+ 69e:	681b      	ldr	r3, [r3, #0]
+ 6a0:	f640 11c3 	movw	r1, #2499	@ 0x9c3
+ 6a4:	1ae3      	subs	r3, r4, r3
+ 6a6:	428b      	cmp	r3, r1
+ 6a8:	f67f aeb9 	bls.w	41e <checkReading+0x41e>
+ 6ac:	7813      	ldrb	r3, [r2, #0]
+ 6ae:	2b0e      	cmp	r3, #14
+ 6b0:	f67f aeb5 	bls.w	41e <checkReading+0x41e>
+ 6b4:	f8df b184 	ldr.w	fp, [pc, #388]	@ 83c <checkReading+0x83c>
+ 6b8:	eeb0 0a48 	vmov.f32	s0, s16
+ 6bc:	f8db 0000 	ldr.w	r0, [fp]
+ 6c0:	9000      	str	r0, [sp, #0]
+ 6c2:	f7ff fffe 	bl	0 <checkReading>
+			6c2: R_ARM_THM_CALL	_ZL13altShiftFramef
+ 6c6:	4b4d      	ldr	r3, [pc, #308]	@ (7fc <checkReading+0x7fc>)
+ 6c8:	9800      	ldr	r0, [sp, #0]
+ 6ca:	edd3 7a00 	vldr	s15, [r3]
+ 6ce:	ee77 7ac8 	vsub.f32	s15, s15, s16
+ 6d2:	edc3 7a00 	vstr	s15, [r3]
+ 6d6:	4b4a      	ldr	r3, [pc, #296]	@ (800 <checkReading+0x800>)
+ 6d8:	781b      	ldrb	r3, [r3, #0]
+ 6da:	b133      	cbz	r3, 6ea <checkReading+0x6ea>
+ 6dc:	4b49      	ldr	r3, [pc, #292]	@ (804 <checkReading+0x804>)
+ 6de:	ed93 0a00 	vldr	s0, [r3]
+ 6e2:	ee30 0a48 	vsub.f32	s0, s0, s16
+ 6e6:	f7ff fffe 	bl	0 <lrintf>
+			6e6: R_ARM_THM_CALL	lrintf
+ 6ea:	eeb0 0a48 	vmov.f32	s0, s16
+ 6ee:	f8cb 0000 	str.w	r0, [fp]
+ 6f2:	f7ff fffe 	bl	0 <lrintf>
+			6f2: R_ARM_THM_CALL	lrintf
+ 6f6:	4a44      	ldr	r2, [pc, #272]	@ (808 <checkReading+0x808>)
+ 6f8:	edc6 8a00 	vstr	s17, [r6]
+ 6fc:	6813      	ldr	r3, [r2, #0]
+ 6fe:	1a1b      	subs	r3, r3, r0
+ 700:	6013      	str	r3, [r2, #0]
+ 702:	2300      	movs	r3, #0
+ 704:	f88a 3000 	strb.w	r3, [sl]
+ 708:	f7ff fffe 	bl	0 <tofRequestReseed>
+			708: R_ARM_THM_CALL	tofRequestReseed
+ 70c:	e680      	b.n	410 <checkReading+0x410>
+ 70e:	f8da 3000 	ldr.w	r3, [sl]
+ 712:	eddf 7a3e 	vldr	s15, [pc, #248]	@ 80c <checkReading+0x80c>
+ 716:	eddf 0a3e 	vldr	s1, [pc, #248]	@ 810 <checkReading+0x810>
+ 71a:	1ae3      	subs	r3, r4, r3
+ 71c:	ee00 3a10 	vmov	s0, r3
+ 720:	eeb8 0a40 	vcvt.f32.u32	s0, s0
+ 724:	ee20 0a27 	vmul.f32	s0, s0, s15
+ 728:	f7ff fffe 	bl	0 <fminf>
+			728: R_ARM_THM_CALL	fminf
+ 72c:	eeb0 7a00 	vmov.f32	s14, #0	@ 0x40000000  2.0
+ 730:	ee30 7a07 	vadd.f32	s14, s0, s14
+ 734:	edd5 7a00 	vldr	s15, [r5]
+ 738:	eec0 6a07 	vdiv.f32	s13, s0, s14
+ 73c:	ee38 8a67 	vsub.f32	s16, s16, s15
+ 740:	eee8 7a26 	vfma.f32	s15, s16, s13
+ 744:	edc5 7a00 	vstr	s15, [r5]
+ 748:	e688      	b.n	45c <checkReading+0x45c>
+ 74a:	2d00      	cmp	r5, #0
+ 74c:	d045      	beq.n	7da <checkReading+0x7da>
+ 74e:	4b31      	ldr	r3, [pc, #196]	@ (814 <checkReading+0x814>)
+ 750:	ed9f 7a31 	vldr	s14, [pc, #196]	@ 818 <checkReading+0x818>
+ 754:	781b      	ldrb	r3, [r3, #0]
+ 756:	eddf 7a31 	vldr	s15, [pc, #196]	@ 81c <checkReading+0x81c>
+ 75a:	2b00      	cmp	r3, #0
+ 75c:	bf18      	it	ne
+ 75e:	eef0 7a47 	vmovne.f32	s15, s14
+ 762:	ed96 7a00 	vldr	s14, [r6]
+ 766:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 76a:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 76e:	d537      	bpl.n	7e0 <checkReading+0x7e0>
+ 770:	4a2b      	ldr	r2, [pc, #172]	@ (820 <checkReading+0x820>)
+ 772:	4d22      	ldr	r5, [pc, #136]	@ (7fc <checkReading+0x7fc>)
+ 774:	7813      	ldrb	r3, [r2, #0]
+ 776:	edd5 8a00 	vldr	s17, [r5]
+ 77a:	3301      	adds	r3, #1
+ 77c:	b2db      	uxtb	r3, r3
+ 77e:	2b02      	cmp	r3, #2
+ 780:	7013      	strb	r3, [r2, #0]
+ 782:	f67f ae7e 	bls.w	482 <checkReading+0x482>
+ 786:	4b27      	ldr	r3, [pc, #156]	@ (824 <checkReading+0x824>)
+ 788:	ed93 8a00 	vldr	s16, [r3]
+ 78c:	ee39 8ac8 	vsub.f32	s16, s19, s16
+ 790:	eeb0 0a48 	vmov.f32	s0, s16
+ 794:	f7ff fffe 	bl	0 <checkReading>
+			794: R_ARM_THM_CALL	_ZL13altShiftFramef
+ 798:	2301      	movs	r3, #1
+ 79a:	f889 3000 	strb.w	r3, [r9]
+ 79e:	4b22      	ldr	r3, [pc, #136]	@ (828 <checkReading+0x828>)
+ 7a0:	ee78 8ac8 	vsub.f32	s17, s17, s16
+ 7a4:	601c      	str	r4, [r3, #0]
+ 7a6:	4b21      	ldr	r3, [pc, #132]	@ (82c <checkReading+0x82c>)
+ 7a8:	edc5 8a00 	vstr	s17, [r5]
+ 7ac:	601c      	str	r4, [r3, #0]
+ 7ae:	4b1c      	ldr	r3, [pc, #112]	@ (820 <checkReading+0x820>)
+ 7b0:	2200      	movs	r2, #0
+ 7b2:	701a      	strb	r2, [r3, #0]
+ 7b4:	4b1e      	ldr	r3, [pc, #120]	@ (830 <checkReading+0x830>)
+ 7b6:	781b      	ldrb	r3, [r3, #0]
+ 7b8:	2b00      	cmp	r3, #0
+ 7ba:	f47f ae62 	bne.w	482 <checkReading+0x482>
+ 7be:	b197      	cbz	r7, 7e6 <checkReading+0x7e6>
+ 7c0:	f898 3000 	ldrb.w	r3, [r8]
+ 7c4:	b97b      	cbnz	r3, 7e6 <checkReading+0x7e6>
+ 7c6:	4b1b      	ldr	r3, [pc, #108]	@ (834 <checkReading+0x834>)
+ 7c8:	ed93 0a00 	vldr	s0, [r3]
+ 7cc:	b003      	add	sp, #12
+ 7ce:	ecbd 8b04 	vpop	{d8-d9}
+ 7d2:	e8bd 4ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 7d6:	f7ff bffe 	b.w	0 <checkReading>
+			7d6: R_ARM_THM_JUMP24	correctedWithTof
+ 7da:	2f00      	cmp	r7, #0
+ 7dc:	f47f ae51 	bne.w	482 <checkReading+0x482>
+ 7e0:	4b0f      	ldr	r3, [pc, #60]	@ (820 <checkReading+0x820>)
+ 7e2:	2200      	movs	r2, #0
+ 7e4:	e69f      	b.n	526 <checkReading+0x526>
+ 7e6:	4b14      	ldr	r3, [pc, #80]	@ (838 <checkReading+0x838>)
+ 7e8:	2200      	movs	r2, #0
+ 7ea:	601a      	str	r2, [r3, #0]
+ 7ec:	b003      	add	sp, #12
+ 7ee:	ecbd 8b04 	vpop	{d8-d9}
+ 7f2:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 7f6:	bf00      	nop
+	...
+			7f8: R_ARM_ABS32	.bss._ZZ12checkReadingE11stepStartMs
+			7fc: R_ARM_ABS32	.bss._ZZ12checkReadingE11baro_offset
+			800: R_ARM_ABS32	.bss._ZL13altGoalActive
+			804: R_ARM_ABS32	.bss._ZL7altGoal
+			808: R_ARM_ABS32	.bss._ZL17altPreFlipAltHold
+ 80c:	3a83126f 	.word	0x3a83126f
+ 810:	3d4ccccd 	.word	0x3d4ccccd
+ 814:	00000000 	.word	0x00000000
+			814: R_ARM_ABS32	.bss._ZZ12checkReadingE13leftOnDropout
+ 818:	43200000 	.word	0x43200000
+ 81c:	430c0000 	.word	0x430c0000
+	...
+			820: R_ARM_ABS32	.bss._ZZ12checkReadingE11returnCount
+			824: R_ARM_ABS32	_position_z
+			828: R_ARM_ABS32	.bss._ZZ12checkReadingE13lastGoodTofMs
+			82c: R_ARM_ABS32	.bss._ZZ12checkReadingE12lastOffsetMs
+			830: R_ARM_ABS32	.bss._ZL14altStepPending
+			834: R_ARM_ABS32	ToF_Height
+			838: R_ARM_ABS32	_position_error_z
+			83c: R_ARM_ABS32	AltHold
+
+Disassembly of section .text.altitudeHoldGetEstimatedAltitude:
+
+00000000 <altitudeHoldGetEstimatedAltitude>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <altitudeHoldGetEstimatedAltitude+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	.bss._ZL6EstAlt
+
+Disassembly of section .text.getSetVelocity:
+
+00000000 <getSetVelocity>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getSetVelocity+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	setVelocity
+
+Disassembly of section .text.getSetAltitude:
+
+00000000 <getSetAltitude>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getSetAltitude+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	AltHold
+
+Disassembly of section .text.AltRst:
+
+00000000 <AltRst>:
+   0:	4b10      	ldr	r3, [pc, #64]	@ (44 <AltRst+0x44>)
+   2:	b510      	push	{r4, lr}
+   4:	2001      	movs	r0, #1
+   6:	2400      	movs	r4, #0
+   8:	601c      	str	r4, [r3, #0]
+   a:	f7ff fffe 	bl	0 <imuResetAccelerationSum>
+			a: R_ARM_THM_CALL	imuResetAccelerationSum
+   e:	4a0e      	ldr	r2, [pc, #56]	@ (48 <AltRst+0x48>)
+  10:	2300      	movs	r3, #0
+  12:	7013      	strb	r3, [r2, #0]
+  14:	4a0d      	ldr	r2, [pc, #52]	@ (4c <AltRst+0x4c>)
+  16:	f240 51dc 	movw	r1, #1500	@ 0x5dc
+  1a:	8011      	strh	r1, [r2, #0]
+  1c:	4a0c      	ldr	r2, [pc, #48]	@ (50 <AltRst+0x50>)
+  1e:	490d      	ldr	r1, [pc, #52]	@ (54 <AltRst+0x54>)
+  20:	6013      	str	r3, [r2, #0]
+  22:	4a0d      	ldr	r2, [pc, #52]	@ (58 <AltRst+0x58>)
+  24:	6013      	str	r3, [r2, #0]
+  26:	4b0d      	ldr	r3, [pc, #52]	@ (5c <AltRst+0x5c>)
+  28:	f04f 527e 	mov.w	r2, #1065353216	@ 0x3f800000
+  2c:	601a      	str	r2, [r3, #0]
+  2e:	6059      	str	r1, [r3, #4]
+  30:	609c      	str	r4, [r3, #8]
+  32:	60da      	str	r2, [r3, #12]
+  34:	611c      	str	r4, [r3, #16]
+  36:	4b0a      	ldr	r3, [pc, #40]	@ (60 <AltRst+0x60>)
+  38:	601a      	str	r2, [r3, #0]
+  3a:	6059      	str	r1, [r3, #4]
+  3c:	609c      	str	r4, [r3, #8]
+  3e:	60da      	str	r2, [r3, #12]
+  40:	611c      	str	r4, [r3, #16]
+  42:	bd10      	pop	{r4, pc}
+	...
+			44: R_ARM_ABS32	_velocity_z
+			48: R_ARM_ABS32	AltRstRequired
+			4c: R_ARM_ABS32	.bss._ZL19initialThrottleHold
+			50: R_ARM_ABS32	errorVelocityI
+  54:	3dcccccd 	.word	0x3dcccccd
+	...
+			58: R_ARM_ABS32	altHoldThrottleAdjustment
+			5c: R_ARM_ABS32	.bss._ZL13altHoldFilter
+			60: R_ARM_ABS32	.bss._ZL13velHoldFilter
+
+Disassembly of section .text.apmCalculateEstimatedAltitude:
+
+00000000 <apmCalculateEstimatedAltitude>:
+   0:	4b71      	ldr	r3, [pc, #452]	@ (1c8 <apmCalculateEstimatedAltitude+0x1c8>)
+   2:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
+   6:	681c      	ldr	r4, [r3, #0]
+   8:	f242 720f 	movw	r2, #9999	@ 0x270f
+   c:	1b04      	subs	r4, r0, r4
+   e:	4294      	cmp	r4, r2
+  10:	ed2d 8b04 	vpush	{d8-d9}
+  14:	d942      	bls.n	9c <apmCalculateEstimatedAltitude+0x9c>
+  16:	6018      	str	r0, [r3, #0]
+  18:	f644 6320 	movw	r3, #20000	@ 0x4e20
+  1c:	429c      	cmp	r4, r3
+  1e:	d902      	bls.n	26 <apmCalculateEstimatedAltitude+0x26>
+  20:	2001      	movs	r0, #1
+  22:	f7ff fffe 	bl	0 <imuResetAccelerationSum>
+			22: R_ARM_THM_CALL	imuResetAccelerationSum
+  26:	4d69      	ldr	r5, [pc, #420]	@ (1cc <apmCalculateEstimatedAltitude+0x1cc>)
+  28:	782b      	ldrb	r3, [r5, #0]
+  2a:	b12b      	cbz	r3, 38 <apmCalculateEstimatedAltitude+0x38>
+  2c:	4b68      	ldr	r3, [pc, #416]	@ (1d0 <apmCalculateEstimatedAltitude+0x1d0>)
+  2e:	781b      	ldrb	r3, [r3, #0]
+  30:	075b      	lsls	r3, r3, #29
+  32:	d401      	bmi.n	38 <apmCalculateEstimatedAltitude+0x38>
+  34:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			34: R_ARM_THM_CALL	AltRst
+  38:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			38: R_ARM_THM_CALL	checkReading
+  3c:	4b65      	ldr	r3, [pc, #404]	@ (1d4 <apmCalculateEstimatedAltitude+0x1d4>)
+  3e:	4e66      	ldr	r6, [pc, #408]	@ (1d8 <apmCalculateEstimatedAltitude+0x1d8>)
+  40:	681b      	ldr	r3, [r3, #0]
+  42:	4f66      	ldr	r7, [pc, #408]	@ (1dc <apmCalculateEstimatedAltitude+0x1dc>)
+  44:	ed9f 1a66 	vldr	s2, [pc, #408]	@ 1e0 <apmCalculateEstimatedAltitude+0x1e0>
+  48:	eddf 0a66 	vldr	s1, [pc, #408]	@ 1e4 <apmCalculateEstimatedAltitude+0x1e4>
+  4c:	2b00      	cmp	r3, #0
+  4e:	bfc9      	itett	gt
+  50:	4a65      	ldrgt	r2, [pc, #404]	@ (1e8 <apmCalculateEstimatedAltitude+0x1e8>)
+  52:	eddf 7a66 	vldrle	s15, [pc, #408]	@ 1ec <apmCalculateEstimatedAltitude+0x1ec>
+  56:	edd2 6a02 	vldrgt	s13, [r2, #8]
+  5a:	ee07 3a90 	vmovgt	s15, r3
+  5e:	bfc4      	itt	gt
+  60:	eef8 6ae6 	vcvtgt.f32.s32	s13, s13
+  64:	eeb8 7ae7 	vcvtgt.f32.s32	s14, s15
+  68:	4b61      	ldr	r3, [pc, #388]	@ (1f0 <apmCalculateEstimatedAltitude+0x1f0>)
+  6a:	bfc8      	it	gt
+  6c:	eec6 7a87 	vdivgt.f32	s15, s13, s14
+  70:	ed93 0a00 	vldr	s0, [r3]
+  74:	edc6 7a00 	vstr	s15, [r6]
+  78:	ee27 0a80 	vmul.f32	s0, s15, s0
+  7c:	edc7 7a00 	vstr	s15, [r7]
+  80:	f7ff fffe 	bl	0 <constrainf>
+			80: R_ARM_THM_CALL	constrainf
+  84:	2001      	movs	r0, #1
+  86:	ed86 0a00 	vstr	s0, [r6]
+  8a:	f7ff fffe 	bl	0 <imuResetAccelerationSum>
+			8a: R_ARM_THM_CALL	imuResetAccelerationSum
+  8e:	4a59      	ldr	r2, [pc, #356]	@ (1f4 <apmCalculateEstimatedAltitude+0x1f4>)
+  90:	f9b2 3000 	ldrsh.w	r3, [r2]
+  94:	2b05      	cmp	r3, #5
+  96:	dc05      	bgt.n	a4 <apmCalculateEstimatedAltitude+0xa4>
+  98:	3301      	adds	r3, #1
+  9a:	8013      	strh	r3, [r2, #0]
+  9c:	ecbd 8b04 	vpop	{d8-d9}
+  a0:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
+  a4:	ee07 4a90 	vmov	s15, r4
+  a8:	ed9f 7a53 	vldr	s14, [pc, #332]	@ 1f8 <apmCalculateEstimatedAltitude+0x1f8>
+  ac:	4b53      	ldr	r3, [pc, #332]	@ (1fc <apmCalculateEstimatedAltitude+0x1fc>)
+  ae:	4a54      	ldr	r2, [pc, #336]	@ (200 <apmCalculateEstimatedAltitude+0x200>)
+  b0:	f8df 8184 	ldr.w	r8, [pc, #388]	@ 238 <apmCalculateEstimatedAltitude+0x238>
+  b4:	eef8 7a67 	vcvt.f32.u32	s15, s15
+  b8:	eec7 8a87 	vdiv.f32	s17, s15, s14
+  bc:	ed93 7a00 	vldr	s14, [r3]
+  c0:	4b50      	ldr	r3, [pc, #320]	@ (204 <apmCalculateEstimatedAltitude+0x204>)
+  c2:	edd3 6a00 	vldr	s13, [r3]
+  c6:	4b50      	ldr	r3, [pc, #320]	@ (208 <apmCalculateEstimatedAltitude+0x208>)
+  c8:	ee67 6a26 	vmul.f32	s13, s14, s13
+  cc:	edd3 7a00 	vldr	s15, [r3]
+  d0:	eee6 7aa8 	vfma.f32	s15, s13, s17
+  d4:	edc3 7a00 	vstr	s15, [r3]
+  d8:	4b4c      	ldr	r3, [pc, #304]	@ (20c <apmCalculateEstimatedAltitude+0x20c>)
+  da:	edd3 6a00 	vldr	s13, [r3]
+  de:	4b4c      	ldr	r3, [pc, #304]	@ (210 <apmCalculateEstimatedAltitude+0x210>)
+  e0:	ee67 6a26 	vmul.f32	s13, s14, s13
+  e4:	ed93 0a00 	vldr	s0, [r3]
+  e8:	eea6 0aa8 	vfma.f32	s0, s13, s17
+  ec:	edd2 6a00 	vldr	s13, [r2]
+  f0:	4a48      	ldr	r2, [pc, #288]	@ (214 <apmCalculateEstimatedAltitude+0x214>)
+  f2:	ee27 7a26 	vmul.f32	s14, s14, s13
+  f6:	ed92 8a00 	vldr	s16, [r2]
+  fa:	eea7 8a28 	vfma.f32	s16, s14, s17
+  fe:	ed96 7a00 	vldr	s14, [r6]
+ 102:	ed82 8a00 	vstr	s16, [r2]
+ 106:	ee77 7a87 	vadd.f32	s15, s15, s14
+ 10a:	eef6 6a00 	vmov.f32	s13, #96	@ 0x3f000000  0.5
+ 10e:	ee67 7aa8 	vmul.f32	s15, s15, s17
+ 112:	eeb0 7a40 	vmov.f32	s14, s0
+ 116:	eea7 7aa6 	vfma.f32	s14, s15, s13
+ 11a:	4a3f      	ldr	r2, [pc, #252]	@ (218 <apmCalculateEstimatedAltitude+0x218>)
+ 11c:	4e3f      	ldr	r6, [pc, #252]	@ (21c <apmCalculateEstimatedAltitude+0x21c>)
+ 11e:	ed92 9a00 	vldr	s18, [r2]
+ 122:	eea7 9a28 	vfma.f32	s18, s14, s17
+ 126:	ee30 0a27 	vadd.f32	s0, s0, s15
+ 12a:	ee38 8a09 	vadd.f32	s16, s16, s18
+ 12e:	ed82 9a00 	vstr	s18, [r2]
+ 132:	4a3b      	ldr	r2, [pc, #236]	@ (220 <apmCalculateEstimatedAltitude+0x220>)
+ 134:	ed83 0a00 	vstr	s0, [r3]
+ 138:	ed82 8a00 	vstr	s16, [r2]
+ 13c:	f7ff fffe 	bl	0 <lrintf>
+			13c: R_ARM_THM_CALL	lrintf
+ 140:	eeb0 0a48 	vmov.f32	s0, s16
+ 144:	ee09 0a90 	vmov	s19, r0
+ 148:	f7ff fffe 	bl	0 <lrintf>
+			148: R_ARM_THM_CALL	lrintf
+ 14c:	eeb0 0a49 	vmov.f32	s0, s18
+ 150:	ee05 0a10 	vmov	s10, r0
+ 154:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			154: R_ARM_THM_CALL	_Z23addHistPositionBaseEstZf
+ 158:	4832      	ldr	r0, [pc, #200]	@ (224 <apmCalculateEstimatedAltitude+0x224>)
+ 15a:	eeb8 0ae9 	vcvt.f32.s32	s0, s19
+ 15e:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			15e: R_ARM_THM_CALL	_Z18kalmanFilterUpdateP12KalmanFilterf
+ 162:	4831      	ldr	r0, [pc, #196]	@ (228 <apmCalculateEstimatedAltitude+0x228>)
+ 164:	eef0 5a40 	vmov.f32	s11, s0
+ 168:	eeb8 0ac5 	vcvt.f32.s32	s0, s10
+ 16c:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			16c: R_ARM_THM_CALL	_Z18kalmanFilterUpdateP12KalmanFilterf
+ 170:	eeb0 8a40 	vmov.f32	s16, s0
+ 174:	eeb0 0a65 	vmov.f32	s0, s11
+ 178:	f7ff fffe 	bl	0 <lrintf>
+			178: R_ARM_THM_CALL	lrintf
+ 17c:	eeb0 0a48 	vmov.f32	s0, s16
+ 180:	4604      	mov	r4, r0
+ 182:	6030      	str	r0, [r6, #0]
+ 184:	f7ff fffe 	bl	0 <lrintf>
+			184: R_ARM_THM_CALL	lrintf
+ 188:	4b28      	ldr	r3, [pc, #160]	@ (22c <apmCalculateEstimatedAltitude+0x22c>)
+ 18a:	edd8 0a00 	vldr	s1, [r8]
+ 18e:	6018      	str	r0, [r3, #0]
+ 190:	ed97 0a00 	vldr	s0, [r7]
+ 194:	eeb0 1a68 	vmov.f32	s2, s17
+ 198:	4620      	mov	r0, r4
+ 19a:	f7ff fffe 	bl	0 <apmCalculateEstimatedAltitude>
+			19a: R_ARM_THM_CALL	_Z34calculateAltHoldThrottleAdjustmentlfff
+ 19e:	4b24      	ldr	r3, [pc, #144]	@ (230 <apmCalculateEstimatedAltitude+0x230>)
+ 1a0:	2105      	movs	r1, #5
+ 1a2:	6018      	str	r0, [r3, #0]
+ 1a4:	683b      	ldr	r3, [r7, #0]
+ 1a6:	6830      	ldr	r0, [r6, #0]
+ 1a8:	f8c8 3000 	str.w	r3, [r8]
+ 1ac:	f7ff fffe 	bl	0 <applyDeadband>
+			1ac: R_ARM_THM_CALL	applyDeadband
+ 1b0:	4b20      	ldr	r3, [pc, #128]	@ (234 <apmCalculateEstimatedAltitude+0x234>)
+ 1b2:	6018      	str	r0, [r3, #0]
+ 1b4:	6833      	ldr	r3, [r6, #0]
+ 1b6:	2b00      	cmp	r3, #0
+ 1b8:	bfb8      	it	lt
+ 1ba:	425b      	neglt	r3, r3
+ 1bc:	2bc8      	cmp	r3, #200	@ 0xc8
+ 1be:	bfc4      	itt	gt
+ 1c0:	2301      	movgt	r3, #1
+ 1c2:	702b      	strbgt	r3, [r5, #0]
+ 1c4:	e76a      	b.n	9c <apmCalculateEstimatedAltitude+0x9c>
+ 1c6:	bf00      	nop
+	...
+			1c8: R_ARM_ABS32	.bss._ZZ29apmCalculateEstimatedAltitudeE12previousTime
+			1cc: R_ARM_ABS32	AltRstRequired
+			1d0: R_ARM_ABS32	armingFlags
+			1d4: R_ARM_ABS32	accSumCount
+			1d8: R_ARM_ABS32	accel_ef_z
+			1dc: R_ARM_ABS32	accZ_tmp
+ 1e0:	44480000 	.word	0x44480000
+ 1e4:	c4480000 	.word	0xc4480000
+	...
+			1e8: R_ARM_ABS32	accSum
+			1f0: R_ARM_ABS32	accVelScale
+			1f4: R_ARM_ABS32	first_velocity_reads
+ 1f8:	49742400 	.word	0x49742400
+	...
+			1fc: R_ARM_ABS32	_position_error_z
+			200: R_ARM_ABS32	_k1_z
+			204: R_ARM_ABS32	_k3_z
+			208: R_ARM_ABS32	_accel_correction_hbf_z
+			20c: R_ARM_ABS32	_k2_z
+			210: R_ARM_ABS32	_velocity_z
+			214: R_ARM_ABS32	_position_correction_z
+			218: R_ARM_ABS32	_position_base_z
+			21c: R_ARM_ABS32	VelocityZ
+			220: R_ARM_ABS32	_position_z
+			224: R_ARM_ABS32	.bss._ZL13velHoldFilter
+			228: R_ARM_ABS32	.bss._ZL13altHoldFilter
+			22c: R_ARM_ABS32	.bss._ZL6EstAlt
+			230: R_ARM_ABS32	altHoldThrottleAdjustment
+			234: R_ARM_ABS32	vario
+			238: R_ARM_ABS32	.bss._ZL8accZ_old
+
+Disassembly of section .text.getTimeConstant:
+
+00000000 <getTimeConstant>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getTimeConstant+0x8>)
+   2:	ed93 0a00 	vldr	s0, [r3]
+   6:	4770      	bx	lr
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	_time_constant_z
+
+Disassembly of section .text.setAltitude:
+
+00000000 <setAltitude>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <setAltitude+0x8>)
+   2:	6018      	str	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	AltHold
+
+Disassembly of section .text.setRelativeAltitude:
+
+00000000 <setRelativeAltitude>:
+   0:	4b02      	ldr	r3, [pc, #8]	@ (c <setRelativeAltitude+0xc>)
+   2:	4a03      	ldr	r2, [pc, #12]	@ (10 <setRelativeAltitude+0x10>)
+   4:	681b      	ldr	r3, [r3, #0]
+   6:	4403      	add	r3, r0
+   8:	6013      	str	r3, [r2, #0]
+   a:	4770      	bx	lr
+	...
+			c: R_ARM_ABS32	.bss._ZL6EstAlt
+			10: R_ARM_ABS32	AltHold
+
+Disassembly of section .text.getEstAltitude:
+
+00000000 <getEstAltitude>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getEstAltitude+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	.bss._ZL6EstAlt
+
+Disassembly of section .text.getEstVelocity:
+
+00000000 <getEstVelocity>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getEstVelocity+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	VelocityZ
+
+Disassembly of section .text.getEstAltitude1:
+
+00000000 <getEstAltitude1>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getEstAltitude1+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	EstAlt1
+
+Disassembly of section .text.getEstVelocity1:
+
+00000000 <getEstVelocity1>:
+   0:	4b01      	ldr	r3, [pc, #4]	@ (8 <getEstVelocity1+0x8>)
+   2:	6818      	ldr	r0, [r3, #0]
+   4:	4770      	bx	lr
+   6:	bf00      	nop
+   8:	00000000 	.word	0x00000000
+			8: R_ARM_ABS32	VelocityZ1
+
+Disassembly of section .text.limitAltitude:
+
+00000000 <limitAltitude>:
+   0:	4b09      	ldr	r3, [pc, #36]	@ (28 <limitAltitude+0x28>)
+   2:	f9b3 3000 	ldrsh.w	r3, [r3]
+   6:	1c5a      	adds	r2, r3, #1
+   8:	d00c      	beq.n	24 <limitAltitude+0x24>
+   a:	4a08      	ldr	r2, [pc, #32]	@ (2c <limitAltitude+0x2c>)
+   c:	6810      	ldr	r0, [r2, #0]
+   e:	f010 0008 	ands.w	r0, r0, #8
+  12:	d008      	beq.n	26 <limitAltitude+0x26>
+  14:	4a06      	ldr	r2, [pc, #24]	@ (30 <limitAltitude+0x30>)
+  16:	6810      	ldr	r0, [r2, #0]
+  18:	3b19      	subs	r3, #25
+  1a:	4283      	cmp	r3, r0
+  1c:	bfcc      	ite	gt
+  1e:	2000      	movgt	r0, #0
+  20:	2001      	movle	r0, #1
+  22:	4770      	bx	lr
+  24:	2000      	movs	r0, #0
+  26:	4770      	bx	lr
+	...
+			28: R_ARM_ABS32	max_altitude
+			2c: R_ARM_ABS32	rcModeActivationMask
+			30: R_ARM_ABS32	.bss._ZL6EstAlt
