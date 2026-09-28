@@ -52,6 +52,48 @@ python tools/flightlog.py table   <log> --step 10   # block-averaged table of ev
 - **Say what the log cannot show.** No throttle field means the throttle
   coefficient cannot be checked; a warm start cannot test a cold-start limit.
 
+### Developer Mode restarts: dropped RC frames on the link
+
+`plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true ( `userCode ( )`,
+`mw.cpp:1111-1170` ). With `Rx_ESP` that flag falls **200 ms after the last
+`MSP_SET_RAW_RC` frame** ( `DELAY_5_HZ`, `rx/rx.cpp:369` ); the serial and PPM
+links use 100 ms. On the drop the firmware runs `onLoopFinish ( )`, clears every
+user RC override ( `RC_ARRAY`, `userRCflag` ) and `isUserHeadingSet`, and re-runs
+`onLoopStart ( )` on the next frame ( `mw.cpp:1160-1169` ). The pilot's switch has
+not moved and failsafe does not react ( `failsafe_delay` 1 s ): the only trace is
+a restart of the user code.
+
+- **Make restarts visible:** print a marker on its own tick when `onLoopStart ( )`
+  runs ( set a flag there, print on the first `plutoLoop ( )` tick and return, so
+  the two lines never share a tick ), and log `t` = `millis ( )` so gaps in drone
+  time can be told from delivery jitter on the app side.
+- **Read the drone-time gap around each marker** ( last data tick before it to
+  first after ):
+  - ~2 ticks ( 200 ms at 10 Hz ): one RC frame was late by more than 200 ms and
+    user code was off for under one tick. This is the common case.
+  - longer: a real link outage of about that length.
+  - a gap with **no** marker is ambiguous: either the main loop stalled
+    ( blocking I2C, EEPROM write ) or the drone printed the record and it was
+    lost on the way to the app. `t` looks the same in both cases. Add a tick
+    counter to the line ( `n`, incremented every `plutoLoop ( )` call ): it steps
+    by 2 across a lost record and by 1 across a stall. log-2 ( user code kept
+    alive through the hiccups ) had one such gap every ~4 s on Wi-Fi, matching
+    the hiccup rate, so lost records are the usual cause there; in log-1 they
+    were hidden inside the restart gaps.
+- **Check the delivery direction** with the PlutoMonitor timestamps: wall-clock
+  step vs `t` step per record. Steady wall steps and a small, linear
+  wall-minus-`t` drift mean drone → app is fine and the drops are in the
+  app → drone RC frames.
+- **Reference ( log-1, battery-capacity-estimate, 25 Sep 2026, `Rx_ESP`,
+  114 B/tick at 10 Hz ):** 121 restarts in 375 s, median every 2.9 s, 113 of them
+  under one tick, six of 210-305 ms, one of 6.1 s while disarmed; wall-clock drift
+  +1.3 s over 375 s with 5 bunched packets in 3418. The debug output rate was not
+  the cause; the app's RC frames arrived late about once every 3 s. Whether the
+  rate matters at all is untested: an A/B with the line halved would show it.
+- **Consequence for user code:** anything initialised in `onLoopStart ( )`, any
+  `RcCommand_Set` override and the user heading are reset at each flicker. A
+  behaviour that "randomly resets" every few seconds on Wi-Fi is this.
+
 ## 2. Plan a test
 
 State in advance what result would confirm the change and what would refute it.
@@ -78,6 +120,12 @@ Developer Mode with a live RC link.
   replies, and the app disconnects ( ~180 B/tick did, 115-135 B/tick ran clean ). Each field costs ~5 bytes of
   framing plus tag and value. Comment out fields rather than deleting them.
 - **End the line with `Monitor_Println`** on the last field.
+- **Always log `t` ( `millis ( )` ) and a marker from `onLoopStart ( )`** on its own
+  tick, so Developer Mode restarts show up ( section 1 ). If loop stalls matter,
+  add a tick counter `n` too; `t` alone cannot tell a stall from a lost record.
+- **Integrating a logged rate** ( current into mAh, velocity into distance ): use
+  `t` for dt and interpolate across missing records; on Wi-Fi about one record
+  in 40 goes missing.
 - **Use unrounded values:** `Monitor_Print ( " degC:", ( double ) x, 1 )`. Whole-degree
   temperature once hid ~1 °C of warming and led to a wrong coefficient and a
   misattributed "unexplained drift".

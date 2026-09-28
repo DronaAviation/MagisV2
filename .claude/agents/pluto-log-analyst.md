@@ -19,7 +19,12 @@ what to do with your findings.
    python tools/flightlog.py table   <log> --step 10
    ```
    Pass `--temp/--alt/--tof/--pressure/--arm` if the log uses other field names
-   ( `summary` lists them ). Read `BARO_COMP_LIMIT_PA` and
+   ( `summary` lists them ). If it dies with `cannot import name 'warn' from
+   'warnings'`, `tools/warnings.py` is shadowing the standard library ( backlog
+   item 12 ): run it from the repo root as
+   `python -c "import runpy,sys; sys.argv=['flightlog.py','summary','<log>']; runpy.run_path('tools/flightlog.py', run_name='__main__')"`.
+   `summary` reads a `t` field as seconds; when `t` is `millis ( )`, ignore its
+   gap and segment times and use the PlutoMonitor timestamps or `t` yourself. Read `BARO_COMP_LIMIT_PA` and
    `BARO_COMP_TEMP_PA_PER_DEGC` from `src/main/sensors/barometer.cpp` if the
    caller did not give them.
 3. **Only if the script cannot answer the question**, write a short one-off
@@ -31,7 +36,17 @@ what to do with your findings.
      `Build/<TARGET>/*.hex` timestamps against the log's first timestamp;
    - robustness: a trend counts only if the window-start rows agree; a fit
      counts only if not flagged for small temperature span or poor fit;
-   - what the log cannot show ( fields not logged, warm vs cold start ).
+   - what the log cannot show ( fields not logged, warm vs cold start );
+   - link health: count the Developer Mode restart markers ( a line printed
+     from `onLoopStart ( )`, e.g. `E:` / `Start:` ) and classify the drone-time
+     gap around each: ~2 ticks = one RC frame late by > 200 ms, longer = an
+     outage. A gap with no marker is a lost record or a main-loop stall; only
+     a tick counter `n` in the line separates them ( +2 lost, +1 stall ), so
+     without one report it as ambiguous. When integrating a logged rate, use
+     `t` and interpolate across missing records. Compare wall-clock steps
+     with `t` steps for delivery jitter. Rules and reference numbers:
+     pluto-flighttest, "Developer Mode restarts". With no marker or no `t`,
+     say the check is not possible.
 
 ## Report
 
@@ -40,7 +55,7 @@ Return a short report, not the script output:
 - **Answer first**, in one or two sentences, to the question you were asked.
 - **Key numbers** in a small table: segments and durations, temperature span,
   coefficient(s) with `r`, true-height and `BaroAlt` trends ( with the window
-  spread ), correction used vs limit.
+  spread ), correction used vs limit; restarts per minute and their durations.
 - **Caveats:** data-quality problems, anything unreliable and why, what the log
   cannot tell.
 - **Suggested next test**, only if the result is inconclusive, from the test

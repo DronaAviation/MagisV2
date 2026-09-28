@@ -11,12 +11,13 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 20th Jan 2026                                          #
+ #  Last Modified: Tue, 29th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-29	AJ	Bms_Get: SoC, Warning_Level, Resistance                    #
 *******************************************************************************/
 
 #ifndef BMS_H
@@ -30,15 +31,19 @@
  *
  * This enumeration defines the different parameters that can be monitored or evaluated
  * within the battery management system. It includes options to track voltage, current,
- * consumed capacity, remaining capacity, total battery capacity, and estimated capacity.
+ * consumed capacity, remaining capacity, total battery capacity, the charge at plug-in, the state of
+ * charge, the low-battery level and the pack resistance. Units and validity: docs/API/BMS_API_WIKI.md.
  */
 typedef enum BMS_Option {
-  Voltage,              // The voltage of the battery.
-  Current,              // The current flowing through the battery.
+  Voltage,              // Battery voltage in mV ( averaged ).
+  Current,              // Battery current in mA ( averaged ).
   mAh_Consumed,         // The milliampere-hours consumed from the battery.
   mAh_Remain,           // The milliampere-hours remaining in the battery.
   Battery_Capicity,     // The total capacity of the battery in milliampere-hours.
-  Estimated_Capacity    // The estimated capacity of the battery in milliampere-hours.
+  Estimated_Capacity,   // Charge in the pack at plug-in in milliampere-hours, from its resting voltage.
+  SoC,                  // State of charge in percent ( 0 .. 100 ): remaining / capacity, rounded ( the app truncates ).
+  Warning_Level,        // Low-battery level: 0 = OK, 1 = low battery, 2 = critical ( latched until power-off ).
+  Resistance            // Resistance at the battery sensor ( pack, wiring, shunt ) in milliohms, 0 until measured.
 } BMS_Option_e;
 
 /**
@@ -49,12 +54,15 @@ typedef enum BMS_Option {
  *
  * `_bms_option` An enumerator of type BMS_Option_e indicating which BMS parameter to retrieve.
  *        Possible values are:
- *        @param Voltage: To get the current battery voltage.
- *        @param Current: To get the current mAmpRaw.
+ *        @param Voltage: To get the battery voltage in mV ( averaged ).
+ *        @param Current: To get the battery current in mA ( averaged ).
  *        @param mAh_Consumed: To get the milliamp hours consumed.
  *        @param mAh_Remain: To get the remaining milliamp hours.
  *        @param Battery_Capicity: To get the total battery capacity in milliamp hours.
- *        @param Estimated_Capacity: To get the estimated capacity of the battery.
+ *        @param Estimated_Capacity: To get the charge in the pack at plug-in ( mAh ), from its resting voltage.
+ *        @param SoC: To get the state of charge in percent ( 0 .. 100 ).
+ *        @param Warning_Level: To get the low-battery level ( 0 OK, 1 low battery, 2 critical ).
+ *        @param Resistance: To get the pack resistance in milliohms ( 0 until measured in flight ).
  *
  * @return `uint16_t` The value of the requested BMS parameter. Returns 0 if an undefined option is passed.
  */

@@ -11,13 +11,14 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 8th May 2026                                           #
+ #  Last Modified: Mon, 28th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments # #  ----------	---
 ---------------------------------------------------------  # #  2026-04-10
 OD	Added CRSF battery telemetry update in main loop           #
+ #  2026-09-28	AJ	BMS_Update at its own 21 ms interval ( bmsLastServiced )  #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -316,6 +317,7 @@ void annexCode ( void ) {
 
   static uint32_t vbatLastServiced = 0;
   static uint32_t ibatLastServiced = 0;
+  static uint32_t bmsLastServiced  = 0;
 
   if ( rcData [ THROTTLE ] < currentControlRateProfile->tpa_breakpoint ) {
     prop2 = 100;
@@ -439,7 +441,8 @@ void annexCode ( void ) {
     }
   }
 
-  if ( cmp32 ( currentTime, BMS_UpdateInterval ) >= BMS_UpdateInterval ) {
+  if ( cmp32 ( currentTime, bmsLastServiced ) >= BMS_UpdateInterval ) {    // 21 ms; compared against the constant before task 5, so it ran every loop
+    bmsLastServiced = currentTime;
     // uint16_t vbatComp = computeVbatComp_mV ( currentTime, vbatLastServiced,
     // ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] /* your
     // 1000..2000 */ ); updateBatteryState ( vbatComp );
@@ -1108,9 +1111,36 @@ static void applyUserRcOverride ( void ) {
   }
 }
 
+// TEMPORARY battery-capacity-estimate ( task 11 ): user code kept running through short RC frame gaps. The Dev
+// Mode AUX switch still starts and stops it as in the committed code. Set to 0 to restore the exact committed
+// gating. Remove before release.
+// Timeline after the last MSP RC frame ( reviewed ): rxIsReceivingSignal ( ) drops at 200 ms, and until then the
+// retained frame re-validates the channels at 50 Hz, so the channel hold ( MAX_INVALID_PULS_TIME, 600 ms ) runs from
+// ~200 ms to ~800 ms; failsafe declares the link down 200 ms later and commands LAND at ~1 s. With a 400 ms grace
+// user code stops at ~600 ms.
+#define DEV_MODE_LINK_GRACE    1
+#define DEV_MODE_LINK_GRACE_US 400000U
+
 void userCode ( ) {
 
-  if ( ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) ) {
+#if DEV_MODE_LINK_GRACE
+  static bool devLinkSeen        = false;
+  static uint32_t devLinkLastUs  = 0;
+  const uint32_t devNowUs        = micros ( );
+  if ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) {
+    devLinkSeen   = true;
+    devLinkLastUs = devNowUs;
+  } else if ( devLinkSeen && ( uint32_t ) ( devNowUs - devLinkLastUs ) >= DEV_MODE_LINK_GRACE_US ) {
+    devLinkSeen = false;    // grace over: stay off until the link is seen again ( no return after a micros wrap )
+  }
+  // rcData [ DevModeAUX ] is held at its last value during a gap, so the switch reads the same through it.
+  const bool devSwitchOn = ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange );
+  const bool devModeOn   = devSwitchOn && devLinkSeen;
+#else
+  const bool devModeOn = ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) );
+#endif
+
+  if ( devModeOn ) {
     runUserCode = true;
     devmode     = true;
 

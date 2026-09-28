@@ -8,12 +8,14 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 31st Dec 2025                                          #
+ #  Last Modified: Mon, 28th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-28	AJ	Raw bus mV / shunt 10 uV reads with a valid flag           #
+ #  2026-09-28	AJ	Removed bus_voltage / shunt_voltage shims                  #
 *******************************************************************************/
 
 #include "ina219.h"
@@ -33,11 +35,20 @@ bool INA219_RegWrite ( uint8_t reg, uint16_t val ) {
   return i2cWriteBuffer ( INA219_I2C_ADDRESS, reg, 2, buffer );
 }
 
-uint16_t INA219_RegRead ( uint8_t reg ) {
+#define INA219_BUS_OVF_BIT 0x0001U    // Bus voltage register bit 0: math overflow
+
+// Reads one 16-bit register ( MSB first ). Returns false on an I2C error; *val is untouched then.
+static bool ina219ReadReg ( uint8_t reg, uint16_t *val ) {
   uint8_t buffer [ 2 ];
-  if ( i2cRead ( INA219_I2C_ADDRESS, reg, 2, buffer ) ) {
-    return ( uint16_t ) ( buffer [ 0 ] << 8 ) | buffer [ 1 ];
-  }
+  if ( ! i2cRead ( INA219_I2C_ADDRESS, reg, 2, buffer ) ) return false;
+  *val = ( uint16_t ) ( ( ( uint16_t ) buffer [ 0 ] << 8 ) | buffer [ 1 ] );
+  return true;
+}
+
+// Raw register read, 0xFFFF on an I2C error. Kept for the PlutoPilot.cpp diagnostic ( extern "C" ).
+uint16_t INA219_RegRead ( uint8_t reg ) {
+  uint16_t val;
+  if ( ina219ReadReg ( reg, &val ) ) return val;
   return 0xFFFF;    // Error case
 }
 
@@ -51,16 +62,19 @@ bool INA219_Init ( void ) {
   return INA219_Config ( INA219_CONFIG_RST_0, INA219_CONFIG_BRNG_16V, INA219_CONFIG_GAIN_4, INA219_CONFIG_BADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_SADC ( INA219_CONFIG_xADC_12B ), INA219_CONFIG_MODE ( INA219_CONFIG_MODE_SHUNT_BUS_CNT ) );
 }
 
-uint16_t bus_voltage ( void ) {
-  uint16_t busVoltageReg = INA219_RegRead ( INA219_REG_BUSVOLTAGE );
-  if ( busVoltageReg & 0x01 ) return 0xFFFF;
-  return ( ( busVoltageReg >> 3 ) * 4 ) / 100;    // Now returning in millivolts
+bool INA219_ReadBus_mV ( uint16_t *busMv ) {
+  uint16_t reg;
+  if ( ! ina219ReadReg ( INA219_REG_BUSVOLTAGE, &reg ) ) return false;
+  if ( reg & INA219_BUS_OVF_BIT ) return false;
+  // Bits 15..3 are the reading, LSB 4 mV; max 8191 * 4 = 32764 mV fits uint16_t
+  *busMv = ( uint16_t ) ( ( uint32_t ) ( reg >> 3 ) * 4U );
+  return true;
 }
 
-int16_t shunt_voltage ( void ) {
-  uint16_t raw      = INA219_RegRead ( INA219_REG_SHUNTVOLTAGE );
-  int16_t signedRaw = ( int16_t ) raw;    // sign-extend
-  // LSB = 10 µV → return in mV
-  return ( signedRaw * 10 ) / 1000;
+bool INA219_ReadShunt_10uV ( int16_t *shunt10uV ) {
+  uint16_t reg;
+  if ( ! ina219ReadReg ( INA219_REG_SHUNTVOLTAGE, &reg ) ) return false;
+  // The part sign-extends the two's complement reading to 16 bits; LSB 10 uV
+  *shunt10uV = ( int16_t ) reg;
+  return true;
 }
-

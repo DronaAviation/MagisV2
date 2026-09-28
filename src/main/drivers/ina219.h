@@ -8,12 +8,14 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 21st Jul 2026                                          #
+ #  Last Modified: Mon, 28th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-28	AJ	Added INA219_ReadBus_mV / INA219_ReadShunt_10uV            #
+ #  2026-09-28	AJ	Removed bus_voltage / shunt_voltage shims                  #
 *******************************************************************************/
 
 #pragma once
@@ -121,9 +123,19 @@ extern "C" {
 
 bool INA219_Init ( void );
 
-uint16_t bus_voltage ( void );
+/*!
+ * \brief Bus voltage in mV ( register bits 15..3 x 4 mV LSB, 0..32764 mV ).
+ * \return false on an I2C error or when the OVF bit ( bit 0 ) is set; *busMv is untouched then.
+ */
+bool INA219_ReadBus_mV ( uint16_t *busMv );
 
-int16_t shunt_voltage ( void );
+/*!
+ * \brief Shunt voltage, signed, in the native 10 uV LSB ( sign-extended register ).
+ *        With PGA /4 ( +/-160 mV ) the range is +/-16000 ( x 10 uV ).
+ * \return false on an I2C error; *shunt10uV is untouched then. 0xFFFF ( -10 uV ) is a valid
+ *         reading, which is why the error is reported separately.
+ */
+bool INA219_ReadShunt_10uV ( int16_t *shunt10uV );
 
 #ifdef __cplusplus
 }

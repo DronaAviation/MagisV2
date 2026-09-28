@@ -8,13 +8,14 @@
 #  Created Date: Mon, 28th Apr 2025                                           #
 #  Brief:                                                                     #
 #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
-#  Last Modified: Mon, 7th Apr 2026                                           #
+#  Last Modified: Mon, 28th Sep 2026                                          #
 #  Modified By: Ashish Jaiswal (MechAsh) <AJ>                                 #
 #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
 #  HISTORY:                                                                   #
 #  Date      	By	Comments                                                  #
 #  ----------	---	--------------------------------------------------------- #
 #  2026-04-04	OD	Added rx/crsf.c to MAIN_RX for ELRS CRSF support          #
+#  2026-09-28	AJ	PRIMUSX2_DRIVERS: drivers/ina219.cpp -> drivers/ina219.c  #
 ###############################################################################
 #
 # Makefile for building the MasigV2 firmware.
@@ -28,7 +29,7 @@ TARGET	?=
 BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
 FW_Version	=	3.10.0
-API_Version	=	1.3.2
+API_Version	=	1.4.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
@@ -327,7 +328,7 @@ PRIMUSX2_DRIVERS = 	drivers/adc.cpp \
 		   							drivers/light_led_stm32f30x.c \
 		   							drivers/flash_m25p16.cpp \
 		   							drivers/pwm_mapping.cpp \
-			 							drivers/ina219.cpp \
+			 							drivers/ina219.c \
 		   							drivers/pwm_output.cpp \
 		   							drivers/pwm_rx.cpp \
 		   							drivers/serial_uart.c \

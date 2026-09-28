@@ -11,12 +11,13 @@
  #  Created Date: Tue, 19th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 21st Jul 2026                                          #
+ #  Last Modified: Tue, 29th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-29	AJ	Voltage in mV, no gain; SoC / level / R                    #
 *******************************************************************************/
 #include "API/BMS.h"
 
@@ -26,11 +27,11 @@
 uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
   switch ( _bms_option ) {
     case Voltage:
-      // Return the current battery voltage in mV
-      return vBatRaw*100;
+      // Battery voltage in mV ( 50-sample average )
+      return vBat_mV;
     case Current:
-      // Return the current mAmpRaw
-      return mAmpWithGain;
+      // Battery current in mA ( 50-sample average, no gain )
+      return mAmpRaw;
     case mAh_Consumed:
       // Return the milliamp hours consumed
       return mAhDrawn;
@@ -41,8 +42,17 @@ uint16_t Bms_Get ( BMS_Option_e _bms_option ) {
       // Return the total battery capacity in milliamp hours
       return batteryCapacity_mAh;
     case Estimated_Capacity:
-      // Return the estimated capacity of the battery
+      // Charge in the pack at plug-in ( mAh ), from the resting voltage on the LiPo curve
       return EstBatteryCapacity;
+    case SoC:
+      // State of charge in percent ( 0 .. 100 ), rounded
+      return static_cast< uint16_t > ( soc_Fused + 0.5f );
+    case Warning_Level:
+      // 0 = OK, 1 = low battery, 2 = critical
+      return BatteryWarningMode;
+    case Resistance:
+      // Pack resistance in milliohms, 0 until measured this power-up
+      return batteryResistance_mOhm;
     default:
       // Return 0 for any undefined BMS option
       return 0;

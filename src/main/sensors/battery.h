@@ -13,12 +13,16 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 20th Jan 2026                                          #
+ #  Last Modified: Tue, 29th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-29	AJ	Config voltage comments: stored and reported, not used     #
+ #  2026-09-29	AJ	Comments: default R, voltage-only fallback                 #
+ #  2026-09-28	AJ	SoC model: R, stale flags; removed unused SoC globals      #
+ #  2026-09-28	AJ	Added vBat_mV; removed _ina219_current_gain                #
 *******************************************************************************/
 
 #pragma once
@@ -49,9 +53,9 @@ typedef struct batteryConfig_s {
   // uint8_t vbatmaxcellvoltage;        // maximum voltage per cell, used for auto-detecting battery voltage in 0.1V units, default is 43 (4.3V)
   uint8_t vBatMaxVoltage;            // maximum voltage per cell, used for auto-detecting battery voltage in 0.1V units, default is 43 (4.3V)
   // uint8_t vbatmincellvoltage;        // minimum voltage per cell, this triggers battery critical alarm, in 0.1V units, default is 33 (3.3V)
-  uint8_t vBatMinVoltage;            // minimum voltage per cell, this triggers battery critical alarm, in 0.1V units, default is 33 (3.3V)
+  uint8_t vBatMinVoltage;            // stored minimum voltage per cell ( 0.1 V ), reported over MSP; the low-battery logic does not use it
   // uint8_t vbatwarningcellvoltage;    // warning voltage per cell, this triggers battery warning alarm, in 0.1V units, default is 35 (3.5V)
-  uint8_t vBatWarningVoltage;        // warning voltage per cell, this triggers battery warning alarm, in 0.1V units, default is 35 (3.5V)
+  uint8_t vBatWarningVoltage;        // stored warning voltage per cell ( 0.1 V ), reported over MSP; the low-battery logic does not use it
 
   // int16_t currentMeterScale;           // scale the current sensor output voltage to milliamps. Value in 1/10th mV/A
   // uint16_t currentMeterOffset;         // offset of the current sensor in millivolt steps
@@ -70,8 +74,9 @@ typedef enum {
   BATTERY_NOT_PRESENT
 } batteryState_e;
 
-extern uint16_t vBatRaw;
-extern uint16_t vBatComp;
+extern uint16_t vBat_mV;    // battery ( INA219 bus ) voltage in mV, 50-sample average
+extern uint16_t vBatRaw;    // battery voltage in 0.1 V steps ( vBat_mV / 100, floored )
+extern uint16_t vBatComp;    // compensated pack voltage ( mV ): bus + I x R, R measured or 100 mOhm until then
 // extern uint16_t vbatscaled;
 extern uint16_t vbatRaw;
 // extern uint16_t vbatLatestADC;
@@ -81,17 +86,19 @@ extern uint16_t batteryWarningVoltage;
 extern uint16_t batteryCriticalVoltage;
 extern uint16_t batteryCapacity_mAh;
 // extern uint16_t amperageLatestADC;
-extern uint16_t mAmpRaw;
-extern uint16_t mAmpWithGain;
+extern uint16_t mAmpRaw;         // averaged battery current ( mA )
+extern uint16_t mAmpWithGain;    // equal to mAmpRaw since task 3 ( no auto-gain )
 extern uint16_t mAhDrawn;
-extern uint16_t mAhRemain;
+extern uint16_t mAhRemain;             // reported mAh left: E - mAhDrawn, pulled down by the voltage floor, non-increasing
+                                       // ( no current sensing: curve fraction of the raw cell voltage x capacity )
 extern uint16_t EstBatteryCapacity;
-extern uint8_t BatteryWarningMode;
-extern float soc_battery_percentage;
-extern float soc_mAh_percentage;
-extern float soc_Fused;
-extern float _ina219_current_gain;
-extern float wAh;
+extern uint8_t BatteryWarningMode;     // 0 OK, 1 WARNING, 2 CRITICAL
+extern float soc_Fused;                // mAhRemain / capacity ( % ), 0..100 ( no current sensing: raw-voltage curve % )
+extern uint16_t batteryResistance_mOhm;    // pack resistance measured in flight ( mOhm, bus basis ), 0 = not yet ( 100 used )
+
+#define BATTERY_STALE_VOLTAGE 0x01U    // batterySensorStale: no good INA219 bus read for > 250 ms
+#define BATTERY_STALE_CURRENT 0x02U    // batterySensorStale: no good INA219 shunt read for > 250 ms
+extern uint8_t batterySensorStale;
 
 batteryState_e getBatteryState ( void );
 
