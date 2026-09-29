@@ -338,8 +338,10 @@ void rgbSystemTick ( void )
 
         case Signal_loss:
             delay_time = 100;
-            if ( toggle_switch ) { RGB_SetColorAll ( 0, 0, 255 ); toggle_switch = 0; }      // blue
-            else                 { RGB_SetColorAll ( 0, 0, 0 );   toggle_switch = 1; }
+            switch ( counter % 2 ) {
+                case 0: RGB_SetColorAll ( 0, 0, 255 ); break;                              // blue
+                case 1: RGB_SetColorAll ( 0, 255, 0 ); break;                              // green
+            }
             break;
 
         case Crash:

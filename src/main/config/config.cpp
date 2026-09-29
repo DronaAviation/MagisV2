@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 24th Mar 2026                                          #
+ #  Last Modified: Wed, 30th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -547,7 +547,7 @@ static void resetConf ( void ) {
   currentProfile->throttle_correction_angle = 800;    // could be 80.0 deg with atlhold or 45.0 for fpv
 
   // Failsafe Variables
-  masterConfig.failsafeConfig.failsafe_delay              = 10;      // 1sec
+  masterConfig.failsafeConfig.failsafe_delay              = 22;      // 2.2sec guard -> ~3.0sec total budget (600ms RC hold + 200ms + 2200ms); rides out Wi-Fi RC transport stalls, see MAGISV2-SIGNAL-LOSS-FINDINGS.md
   masterConfig.failsafeConfig.failsafe_off_delay          = 200;     // 20sec
   masterConfig.failsafeConfig.failsafe_throttle           = 1300;    // default throttle off. (1000) changed
   masterConfig.failsafeConfig.failsafe_kill_switch        = 0;       // default failsafe switch action is identical to rc link loss

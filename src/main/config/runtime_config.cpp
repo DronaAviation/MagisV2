@@ -269,10 +269,22 @@ void flightStatusIndicator ( void ) {
       } break;
       case Signal_loss: {    // to indicate that signal loss has occurred//
         delay_time = 100;
-        ledOperator ( LEDr, LED_OFF );
-        ledOperator ( LEDb, LED_TOGGLE );
-        ledOperator ( LEDg, LED_OFF );
+        switch ( counter % 2 ) {
 
+          case 0: {
+            ledOperator ( LEDb, LED_ON );
+            ledOperator ( LEDg, LED_OFF );
+            ledOperator ( LEDr, LED_OFF );
+            break;
+          }
+
+          case 1: {
+            ledOperator ( LEDb, LED_OFF );
+            ledOperator ( LEDg, LED_ON );
+            ledOperator ( LEDr, LED_OFF );
+            break;
+          }
+        }
       } break;
       case Crash: {
         delay_time = 100;

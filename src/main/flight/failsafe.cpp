@@ -210,7 +210,7 @@ void failsafeOnValidDataReceived ( void ) {
 
 void failsafeOnValidDataFailed ( void ) {
   failsafeState.validRxDataFailedAt = millis ( );
-  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > PERIOD_RXDATA_FAILURE ) {
+  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > failsafeState.rxDataFailurePeriod ) {
     failsafeState.rxLinkState = FAILSAFE_RXLINK_DOWN;
   }
 }
