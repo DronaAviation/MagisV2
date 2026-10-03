@@ -121,3 +121,75 @@ commit ), no `PlutoPilot.cpp` warnings. Flash 101.7 KB ( 99.7 KB before the topi
   case on the bench. `BENCH_MOTOR_SEQUENCE` is 1 for task 8 ( **props off** ); back to 0 before task 9. **Remove before
   release** ( task 12 ).
 
+## Task 16: auto-land on critical battery ( 29 Sep 2026, flight-safety relevant )
+
+- [mw.cpp:1205-1236](../../../../src/main/mw.cpp#L1205-L1236) `batteryCriticalAutoLand ( )`, called in `loop ( )` just
+  before `executeCommand ( )` ( [mw.cpp:1448](../../../../src/main/mw.cpp#L1448) ): armed, battery CRITICAL, no LAND
+  already running and no flip running → `current_command = LAND`, `command_status = RUNNING`, as the RX-loss failsafe
+  does. It re-asserts LAND every loop, so a command from user code ( `Command_TakeOff`, `Command_Flip` ) cannot cancel
+  the landing ( review finding 2: an `isLanding` guard let them displace it and freeze the throttle ). The
+  existing `land ( )` ( `command.cpp` ) ramps the throttle, detects touchdown and disarms; it takes over the throttle
+  only ( `mw.cpp:383` ), so roll / pitch / yaw stay on the sticks, and `MSP_SET_COMMAND` is ignored while landing.
+  Why: the app switched its ARM off on critical and the craft dropped from hover ( log-3 ).
+- [mw.cpp:1347-1352](../../../../src/main/mw.cpp#L1347-L1352): after `userCode ( )`, `rcData [ THROTTLE ]` is re-pinned
+  to `landThrottle` while landing. Why ( review finding 1, BLOCKING ): user code in Dev Mode ( `RcCommand_Set`,
+  `applyUserRcOverride ( )` ) writes `rcData [ THROTTLE ]` after `annexCode ( )` pinned it, and `applyAltHold ( )` reads
+  it as the descent rate: a user throttle near 1500 would hold height while `land ( )` counts to touchdown and disarms
+  in the air. Also covers a user `Command_Land` and the RX-loss landing.
+- [serial_msp.cpp:893-899](../../../../src/main/io/serial_msp.cpp#L893-L899) `MSP_FLIGHT_STATUS`: the critical flag
+  ( `LowBattery_inFlight` ) goes to the app as `App_Low_battery` ( 7, warns only ) while armed, and as
+  `App_LowBattery_inFlight` ( 8, the app switches ARM off and blocks arming ) once disarmed. Why: bit 8 is what the app
+  disarms on ( `MainActivity.setFlightStatus` case 8 ).
+- [serial_msp.cpp:1006-1007](../../../../src/main/io/serial_msp.cpp#L1006-L1007) `MSP_ANALOG` level byte: 2 goes out as 1
+  while armed, the same rule, in case an app version acts on the byte.
+- Unchanged: `batteryState`, the FSI flags, LEDs, beeper ( critical pattern keeps sounding ) and `Bms_Get ( Warning_Level )`
+  ( 2 at critical ). Build: PRIMUS_X2_v1 flash 101.9 → 102.0 KB, RAM 14.8 KB, no new warnings.
+
+## Task 10: docs ( 1 Oct 2026 )
+
+- [PIPELINE_UPDATE.md](PIPELINE_UPDATE.md): full replacement for `Power_BMS_Pipeline.md` ( flowchart with a source line per edge ), edits for three other pipeline docs, two CLAUDE.md invariant lines, the drift list.
+- [BMS_API_WIKI.md](../../../API/BMS_API_WIKI.md): "Low-Battery Auto-Land" section, the "Land on critical" example replaced, a row in "Changes in 1.4.0".
+- APP_INTEGRATION.md ( not committed; sent to the app developer separately ): section 0, the check of the current app source.
+
+## Task 11: topic review ( 1 Oct 2026, `pluto-reviewer`, `git diff 7cf2444` ): no BLOCKING
+
+Checked clean: overflow and units, no `double`, stale sensor during a landing, ~40 cited lines of PIPELINE_UPDATE.md,
+banners, no new files, PRIMUS_X2_v1 gate. Not checked: PRIMUSX2 / PRIMUS_V5 builds ( task 12 ), the app side.
+
+| # | Finding | Status |
+|---|---|---|
+| 1 | SHOULD FIX `mw.cpp:1218`: a **provisional** critical ( default-R voltage test, before R is measured, count ≤ 40% ) starts the uncancellable landing and is then re-levelled away; reachable on a high-R pack in the first ~35 s of loaded flight | **fixed**: the auto-land needs `batteryCriticalConfirmed ( )` ( `battery.cpp`, `mw.cpp` ) |
+| 2 | SHOULD FIX `mw.cpp:1218`: the firmware does not block arming at critical ( only the app does ). Arming with critical latched starts LAND on the ground: throttle pinned to 1300 ramping down for ~2.8 s with the stick at minimum, then disarm | **fixed**: `mwArm ( )` refuses at a confirmed critical |
+| 3 | SHOULD FIX `battery.cpp:1021-1023`: without current sensing ( PRIMUSX2 ) the raw 3000 mV critical latches and now forces a landing; a sustained climb on a half-full pack could reach it. Not flight-tested on that board | left as is ( user: no PRIMUSX2 release ) |
+| 4 | NOTE `battery.cpp:433-442`: pack swap on USB power leaves the FSI flags / level outputs set until reboot | open, minor |
+| 5 | NOTE `battery.cpp:785`: `Failsafe_disable` before any level also switches the auto-land off | wiki line added |
+| 6 | NOTE `battery.cpp:683-685`: capacity 0 from MSP gives an immediate latched critical ( fails safe ) | open, minor |
+| 7 | SHOULD FIX wiki: `Estimated_Capacity` is 0 only on PRIMUSX2 | fixed |
+| 8 | SHOULD FIX `Makefile:31`: `FW_Version` still 3.10.0 | task 12 |
+| 9 | NOTE `ina219.c:48-53`: `INA219_RegRead` is dead code | task 12 |
+| 10 | NOTE 13 comments cite "task N" / INVESTIGATION.md sections | task 12 |
+| 11 | NOTE `mw.cpp:19-23`: banner HISTORY rows mangled ( pre-topic ) | task 12, optional |
+
+Also for task 12: `docs/fw-development-reference/ongoing/2026-09-29-…txt` ( session transcript, committed in 369ea71 by
+accident ), `android-app-dev_br_login/` and `logs/` must not be staged; PIPELINE_UPDATE.md section A step 8 says
+"arming blocked" at critical, which only the app does ( corrected with finding 2 ).
+
+**Fixes after the review ( 1 Oct 2026 ), re-reviewed clean:**
+
+- `battery.cpp` `batteryCriticalConfirmed ( )` ( new, declared in `battery.h` ): critical and not provisional.
+- `mw.cpp` `batteryCriticalAutoLand ( )`: lands only on a confirmed critical ( finding 1 ).
+- `mw.cpp` `mwArm ( )`: returns without arming at a confirmed critical, after the already-armed branch ( finding 2 ).
+- `battery.cpp`, end of `BMS_Update ( )`: a standing provisional level is confirmed as soon as the count supports it.
+  Why ( BLOCKING in the follow-up review ): the flag was only cleared on a step, on disarm or when R was measured, so a
+  count critical behind a provisional one would never have started the landing if R was never measured.
+- Not flight-tested yet: fly to critical, auto-land, then try to arm ( must refuse ).
+
+## Task 12: test code removed ( 3 Oct 2026 )
+
+- `PlutoPilot.cpp`: back to the pre-topic file ( `git diff 7cf2444 -- PlutoPilot.cpp` is empty ): the diagnostic line,
+  its `extern "C"` block and the bench motor sequence are gone.
+- `mw.cpp` `userCode ( )`: `DEV_MODE_LINK_GRACE` removed; the committed Developer Mode condition is restored exactly.
+- `ina219.c`: `INA219_RegRead ( )` removed ( only the diagnostic used it ).
+- Comments citing task numbers or INVESTIGATION.md sections reworded ( `battery.cpp`, `battery.h`, `mw.cpp` ).
+- Gate: PRIMUS_X2_v1 clean, flash 100.9 KB ( 101.9 with the test code ), RAM 14.8 KB. Graph refreshed
+  ( `graphify update .`, `tools/graph_labels.py` ).

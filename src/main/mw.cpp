@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 28th Sep 2026                                          #
+ #  Last Modified: Thu, 1st Oct 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -19,6 +19,8 @@
 ---------------------------------------------------------  # #  2026-04-10
 OD	Added CRSF battery telemetry update in main loop           #
  #  2026-09-28	AJ	BMS_Update at its own 21 ms interval ( bmsLastServiced )  #
+ #  2026-09-29	AJ	Critical battery while armed starts the LAND command      #
+ #  2026-10-01	AJ	Confirmed critical only: auto-land, and mwArm ( ) refuses  #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -441,7 +443,7 @@ void annexCode ( void ) {
     }
   }
 
-  if ( cmp32 ( currentTime, bmsLastServiced ) >= BMS_UpdateInterval ) {    // 21 ms; compared against the constant before task 5, so it ran every loop
+  if ( cmp32 ( currentTime, bmsLastServiced ) >= BMS_UpdateInterval ) {    // 21 ms ( bmsLastServiced; before 3.10 the constant itself was compared, so it ran every loop )
     bmsLastServiced = currentTime;
     // uint16_t vbatComp = computeVbatComp_mV ( currentTime, vbatLastServiced,
     // ibatLastServiced, ARMING_FLAG ( ARMED ), rcData [ THROTTLE ] /* your
@@ -599,6 +601,9 @@ void mwArm ( void ) {
     }
     if ( IS_RC_MODE_ACTIVE ( BOXFAILSAFE ) ) {
       return;
+    }
+    if ( batteryCriticalConfirmed ( ) ) {
+      return;    // critical is latched until the pack is changed: arming would only start the auto-land on the ground
     }
     if ( ! ARMING_FLAG ( PREVENT_ARMING ) ) {
       ENABLE_ARMING_FLAG ( ARMED );
@@ -1111,36 +1116,9 @@ static void applyUserRcOverride ( void ) {
   }
 }
 
-// TEMPORARY battery-capacity-estimate ( task 11 ): user code kept running through short RC frame gaps. The Dev
-// Mode AUX switch still starts and stops it as in the committed code. Set to 0 to restore the exact committed
-// gating. Remove before release.
-// Timeline after the last MSP RC frame ( reviewed ): rxIsReceivingSignal ( ) drops at 200 ms, and until then the
-// retained frame re-validates the channels at 50 Hz, so the channel hold ( MAX_INVALID_PULS_TIME, 600 ms ) runs from
-// ~200 ms to ~800 ms; failsafe declares the link down 200 ms later and commands LAND at ~1 s. With a 400 ms grace
-// user code stops at ~600 ms.
-#define DEV_MODE_LINK_GRACE    1
-#define DEV_MODE_LINK_GRACE_US 400000U
-
 void userCode ( ) {
 
-#if DEV_MODE_LINK_GRACE
-  static bool devLinkSeen        = false;
-  static uint32_t devLinkLastUs  = 0;
-  const uint32_t devNowUs        = micros ( );
-  if ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) {
-    devLinkSeen   = true;
-    devLinkLastUs = devNowUs;
-  } else if ( devLinkSeen && ( uint32_t ) ( devNowUs - devLinkLastUs ) >= DEV_MODE_LINK_GRACE_US ) {
-    devLinkSeen = false;    // grace over: stay off until the link is seen again ( no return after a micros wrap )
-  }
-  // rcData [ DevModeAUX ] is held at its last value during a gap, so the switch reads the same through it.
-  const bool devSwitchOn = ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange );
-  const bool devModeOn   = devSwitchOn && devLinkSeen;
-#else
-  const bool devModeOn = ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) );
-#endif
-
-  if ( devModeOn ) {
+  if ( ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) ) {
     runUserCode = true;
     devmode     = true;
 
@@ -1199,6 +1177,38 @@ void userCode ( ) {
       callonPilotFinish = false;
     }
   }
+}
+
+/**
+ * @brief Lands the craft when the battery reaches critical while armed.
+ *
+ * Starts the LAND command the way the RX-loss failsafe does ( command.cpp: throttle ramp, touchdown, disarm ), so
+ * the craft comes down instead of the app cutting the motors in the air ( the app disarms on the critical flight
+ * status; serial_msp.cpp reports critical as low battery while armed ). Only the throttle is taken over: roll,
+ * pitch and yaw stay on the sticks. It cannot be cancelled: MSP_SET_COMMAND is ignored while landing, and a command
+ * user code sets ( Command_TakeOff, Command_Flip ) is replaced by LAND again before executeCommand ( ) runs; the
+ * landing resumes where it was ( setLandTimer stays false ). Not started during a flip: the flip finishes first.
+ * Critical latches until power-off, so this runs every loop until the landing disarms; mwArm ( ) then refuses to
+ * arm. A provisional critical does not start it ( batteryCriticalConfirmed ( ) ).
+ */
+static void batteryCriticalAutoLand ( void ) {
+
+  if ( ! ARMING_FLAG ( ARMED ) || ! batteryCriticalConfirmed ( ) ) {
+    return;    // a provisional critical ( pack resistance not measured yet ) beeps but does not land
+  }
+
+  if ( current_command == LAND && command_status == RUNNING ) {
+    return;    // landing already ( this one, the RX-loss failsafe's or a user Command_Land )
+  }
+
+#ifdef ENABLE_ACROBAT
+  if ( flipState != 0 ) {
+    return;
+  }
+#endif
+
+  current_command = LAND;
+  command_status  = RUNNING;
 }
 
 void loop ( void ) {
@@ -1313,6 +1323,12 @@ void loop ( void ) {
 
     userCode ( );
 
+    // A LAND descent flies landThrottle. annexCode ( ) pinned it, but user code ( RcCommand_Set, applyUserRcOverride ( ) )
+    // may have written rcData [ THROTTLE ] since, and applyAltHold ( ) reads it below as the descent rate.
+    if ( isLanding ) {
+      rcData [ THROTTLE ] = static_cast< int16_t > ( landThrottle );
+    }
+
     /* used in localisation
      if (command_verify()){
 
@@ -1406,6 +1422,8 @@ void loop ( void ) {
      */
 
     failsafeOnCrash ( );
+
+    batteryCriticalAutoLand ( );
 
     executeCommand ( );
   }

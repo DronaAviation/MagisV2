@@ -8,7 +8,7 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 24 Sep 2026 ) |
+| **Current task** | **Closed** ( 24 Sep 2026, commit `7cf2444` ) |
 | **Next step** | The user commits with `.git/MAGISV2_COMMIT_MSG.txt`; the next pluto-commit / pluto-grill run fills in the hash |
 | **Open questions** | none |
 | **Blocked on** | nothing |

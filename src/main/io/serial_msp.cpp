@@ -13,12 +13,13 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 20th Jan 2026                                          #
+ #  Last Modified: Tue, 29th Sep 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-09-29	AJ	Critical reported to the app as low battery while armed    #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -889,7 +890,10 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
 
         case LowBattery_inFlight:
 
-          fsIndicator = ( 1 << App_LowBattery_inFlight );
+          // Critical. The app switches its ARM off on App_LowBattery_inFlight, so while armed ( the critical
+          // auto-land in mw.cpp is flying the craft down ) report App_Low_battery, which only warns; once disarmed,
+          // App_LowBattery_inFlight blocks re-arming in the app.
+          fsIndicator = ARMING_FLAG ( ARMED ) ? ( 1 << App_Low_battery ) : ( 1 << App_LowBattery_inFlight );
           break;
 
         case Signal_loss:
@@ -999,7 +1003,8 @@ static bool processOutCommand ( uint8_t cmdMSP ) {
       serialize16 ( ( uint16_t ) constrain ( mAhDrawn, 0, 0xFFFF ) );
       serialize16 ( ( uint16_t ) constrain ( mAhRemain, 0, 0xFFFF ) );
       serialize8 ( ( uint8_t ) constrain ( soc_Fused, 0, 0x65 ) );
-      serialize8 ( ( uint8_t ) constrain ( BatteryWarningMode, 0, 0x4 ) );
+      // Critical ( 2 ) goes out as 1 while armed, as the flight status does ( the auto-land is flying down )
+      serialize8 ( ( uint8_t ) constrain ( ( BatteryWarningMode == 2 && ARMING_FLAG ( ARMED ) ) ? 1 : BatteryWarningMode, 0, 0x4 ) );
       break;
     case MSP_ARMING_CONFIG:
       headSerialReply ( 2 );

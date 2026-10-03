@@ -52,7 +52,24 @@ The table describes boards with current sensing ( PRIMUS_X2_v1, PRIMUS_V5 ). For
   flights since power-up ), the voltage check only acts once the charge count shows 40% or less left. A level it
   raises that the count does not support is provisional: when you land, or once the resistance is measured, it drops
   back to the level the count supports.
-- The level is only raised when the in-flight low-battery failsafe is enabled ( the default ).
+- The level is only raised when the in-flight low-battery failsafe is enabled ( the default ). With it disabled
+  ( `Failsafe_disable` ) before any level is raised there is no low-battery level, no beeper and **no auto-land**.
+
+### Low-Battery Auto-Land
+
+When the level reaches **critical while the drone is armed, the firmware lands it**: the throttle is ramped down, the
+touchdown is detected and the drone disarms. Your code does not need to call `Command_Land ( )` for this.
+
+- Roll, pitch and yaw stay with the pilot ( or your code ) during the landing; only the throttle is taken over.
+- It cannot be cancelled: `Command_TakeOff ( )` and `Command_Flip ( )` are ignored during the battery landing.
+- `RcCommand_Set` on the throttle has no effect while any landing runs ( the battery landing, `Command_Land ( )` or a
+  signal-loss landing ). Before 1.4.0 it changed the descent of a `Command_Land ( )` in altitude hold.
+- `Bms_Get ( Warning_Level )` reads 2 from the moment critical is reached. The app is shown "low battery" until the
+  drone has landed, then "critical", and it will not arm again until the battery is changed.
+- Critical is reached with about 5% of the pack left. After the landing the drone **does not arm again** until the
+  battery is changed.
+- In the first ~35 s of flight, before the pack resistance is measured, a critical raised by the voltage alone is
+  provisional: the beeper sounds, but the drone does not land and the level can drop back.
 
 ### Timing notes
 
@@ -67,7 +84,8 @@ The table describes boards with current sensing ( PRIMUS_X2_v1, PRIMUS_V5 ). For
 
 On boards without current sensing ( the legacy PRIMUSX2, or with current sensing switched off ):
 
-- `Estimated_Capacity` stays 0. With current sensing switched off, `Current`, `mAh_Consumed` and `Resistance` also
+- `Estimated_Capacity` stays 0 on PRIMUSX2; with current sensing only switched off it is still estimated at plug-in.
+  With current sensing switched off, `Current`, `mAh_Consumed` and `Resistance` also
   stay 0; on PRIMUSX2 they are measured but play no part in the level.
 - `SoC` comes from the voltage on the LiPo curve ( in flight, with 0.65 V added for the typical hover sag ), and
   `mAh_Remain` is that fraction of `Battery_Capicity`. Both follow the voltage: they never rise in flight but can rise
@@ -99,13 +117,13 @@ void plutoLoop ( void ) {
 }
 ```
 
-### Land on critical ( `plutoLoop` )
+### React to the low-battery level ( `plutoLoop` )
 
 ```cpp
 void plutoLoop ( void ) {
-    // Warning_Level is latched, so this keeps landing once critical is reached
-    if ( FlightStatus_Check ( FS_ARMED ) && Bms_Get ( Warning_Level ) == 2 ) {
-        Command_Land ( );
+    // Level 1: finish up. At level 2 the firmware lands the drone by itself.
+    if ( Bms_Get ( Warning_Level ) == 1 ) {
+        RGB_SetColorAll ( 255, 80, 0 );    // your own "land soon" signal ( after RGB_Init )
     }
 }
 ```
@@ -132,6 +150,7 @@ void onLoopStart ( void ) {
 | `Estimated_Capacity` | straight line between 3.0 and 4.2 V | LiPo resting-voltage curve on a ~0.5 s average |
 | `mAh_Remain` | could wrap to ~65000 on an empty pack | stops at 0; lowered by the voltage check near empty; ~5% faster fall ( see `mAh_Consumed` ) |
 | `SoC`, `Warning_Level`, `Resistance` | not available | new |
+| Critical battery | level raised late or not at all; no landing | the firmware lands the drone ( Low-Battery Auto-Land ) |
 
 ---
 

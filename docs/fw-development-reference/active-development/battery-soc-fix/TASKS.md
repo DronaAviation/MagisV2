@@ -8,11 +8,11 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | 8 ( bench supply sweep: waiting for the user's log ). Work partially committed 29 Sep to continue on another PC. |
-| **Next step** | On the new PC: pull, build PRIMUS_X2_v1 ( the committed `PlutoPilot.cpp` has `BENCH_MOTOR_SEQUENCE 1`: **props off, never arm** ), flash, run TESTING.md "Task 8 plan" into logs/log-3.txt ( logs are not committed: create it ) with the supply currents and beeper notes. Then /pluto-task next analyses it; before task 9 set `BENCH_MOTOR_SEQUENCE` to 0 and rebuild. The session transcript is in `docs/fw-development-reference/ongoing/`. |
-| **Open questions** | none |
-| **Blocked on** | the bench log ( log-3 ) |
-| **Last updated** | 2026-09-29 |
+| **Current task** | **Closed - pending commit** ( 3 Oct 2026 ). All tasks done. |
+| **Next step** | The user commits with `.git/MAGISV2_COMMIT_MSG.txt`; the next pluto-commit / pluto-grill run fills in the hash. Follow-ups outside this topic: the app changes in APP_INTEGRATION.md section 0; optional unmask of level 2 in `MSP_ANALOG` while armed; `MSP_VOLTAGE_METER_CONFIG` field order; review notes 4 and 6 ( CHANGES.md "Task 11" ). log-8 charger mAh was not recorded. |
+| **Open questions** | none for this topic |
+| **Blocked on** | the user's commit |
+| **Last updated** | 2026-10-03 |
 
 ## Summary
 
@@ -24,7 +24,7 @@ Read this block first in a new session; read only the task it points to.
 | **Target** | PRIMUS_X2_v1 ( one R020 ); all targets built at commit |
 | **Analysis** | Causal chain in INVESTIGATION.md §3: wrap ( `battery.cpp:357`, `:209`, `:433` ), late warning ( straight-line voltage SoC in the fusion, `:454-551`; `BMS_Update` every loop, `mw.cpp:442` ), auto-gain −5% ( `:261-286` ), start estimate ( `:184-212` ), counter losses ( `:341-345`, `ina219.c:41-64`, `maths.cpp:381` ). |
 | **Pipeline docs affected** | `subsystems/Power_BMS_Pipeline.md` ( rewrite; carries the check topic's drift list ); `docs/API` BMS wiki if `Bms_Get` changes |
-| **Order** | 1 → 13 → 14 → 15 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 |
+| **Order** | 1 → 13 → 14 → 15 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 16 → 9 → 10 → 11 → 12 |
 
 ## Index
 
@@ -37,14 +37,15 @@ Read this block first in a new session; read only the task it points to.
 | 5 | SoC model and warnings: count-led with a voltage floor, `BMS_Update` rate | done 2026-09-29 | 1, 4, 14 | pluto-rules, cpp-pro agent |
 | 6 | `Bms_Get` and `MSP_ANALOG` values against the new model | done 2026-09-29 | 5 | pluto-rules |
 | 7 | Build gate | done 2026-09-29 | 2-6 | pluto-build |
-| 8 | Bench supply sweep | blocked ( user runs the sweep ) | 7 | pluto-flighttest ( user runs ) |
-| 9 | Validation flights on three packs | todo | 8 | pluto-flighttest ( user flies ), pluto-log-analyst agent |
-| 10 | Architecture & pipeline docs ( PIPELINE_UPDATE.md ) | todo | 9 | spec-to-code-compliance, graphify |
-| 11 | Topic review | todo | 10 | pluto-reviewer agent |
-| 12 | Remove test code, graph refresh & commit | todo | 11 | pluto-build, graphify, pluto-commit |
+| 8 | Bench supply sweep | done 2026-09-30 | 7 | pluto-flighttest ( user runs ) |
+| 9 | Validation flights on three packs | done 2026-10-01 | 8, 16 | pluto-flighttest ( user flies ), pluto-log-analyst agent |
+| 10 | Architecture & pipeline docs ( PIPELINE_UPDATE.md ) | done 2026-10-01 | 9 | spec-to-code-compliance, graphify |
+| 11 | Topic review | done 2026-10-01 | 10 | pluto-reviewer agent |
+| 12 | Remove test code, graph refresh & commit | done 2026-10-03 | 11 | pluto-build, graphify, pluto-commit |
 | 13 | Flight: full to empty on a newer 600, 60 s rest after landing | done 2026-09-28 | 1 | pluto-flighttest ( user flies ), pluto-log-analyst agent |
 | 14 | Pack survey: 2-3 more packs full to empty, fixed vs per-flight R | done 2026-09-28 | 13 | pluto-flighttest ( user flies ), pluto-log-analyst agent |
 | 15 | Current calibration: INA219 against a reference meter | done 2026-09-28 | - | pluto-flighttest ( user measures ) |
+| 16 | Auto-land on critical battery instead of the app's in-air disarm | done 2026-10-01 | 7 | pluto-rules, cpp-pro agent, pluto-flighttest ( user flies ) |
 
 Status values: `todo`, `in-progress`, `done YYYY-MM-DD`, `blocked (<why>)`, `dropped (<why>)`.
 Serial numbers are never reused or renumbered.
@@ -256,8 +257,8 @@ the expected `E`, `Cells`, `L` and `S` per voltage. Log line: `t Ph V Vc I R D S
 - **Safety impact:** props off; bench sequence back to 0 afterwards
 - **Done when:** TESTING.md table meets every expectation above, or the failures become fix tasks.
 - **Rollback:** -
-- **Status:** blocked ( user runs the sweep, TESTING.md "Task 8 plan" )
-- **Result:**
+- **Status:** done 2026-09-30
+- **Result:** log-5 ( 29 Sep, capacity 800 ): `E` on the curve ( ±1%, 3.8 V +6.6% = 7 mV ), `Cells` 1 everywhere, `E` 0 and `S` 0 at 3.2 / 3.0 / 2.9 V ( no wrap, no jump ), `L` 0 / 1 / 2 by the count, `S` never rises. `I` against the supply: proper ( user, 30 Sep ). Sequence back to 0, flight hex rebuilt 15:29.
 
 ### 9. Validation flights on three packs
 
@@ -271,7 +272,7 @@ safe; land; log 60 s at rest; then the charger mAh. Fly three packs:
 Before each flight, set the capacity in the app to the pack's rating. Results into TESTING.md, analysed against
 the done-when.
 
-- **Depends on:** 8
+- **Depends on:** 8, 16 ( the remaining two flights fly the auto-land build )
 - **Skills / agent:** pluto-flighttest ( user flies ), pluto-log-analyst agent for the logs
 - **Files:** `logs/log-N.txt`
 - **Safety impact:** flights to low battery; hover low; land at critical at the latest
@@ -280,8 +281,8 @@ the done-when.
   - app remaining at empty ≤ 5% of capacity;
   - warning with ≥ 15% really left ( by the charger ).
 - **Rollback:** fly the FW 3.10.0 build.
-- **Status:** todo
-- **Result:**
+- **Status:** done 2026-10-01
+- **Result:** 4 flights ( log-3 800, log-4 older 600, log-6 800, log-7 600 ). Empty ≤ 5%: 4/4. Warning ≥ 15% really left: 3/4 ( log-3 12.9%; the same pack 20.2% on log-6 ). `D` vs charger: a steady +5.3-5.5% on healthy packs ( corrected for the charge missing at takeoff ), 8-13% on the high-R 600s; accepted as a known offset on the safe side ( user ), no calibration factor. Both warning levels came from the voltage rule on every flight.
 
 ### 10. Architecture & pipeline docs ( PIPELINE_UPDATE.md )
 
@@ -303,8 +304,8 @@ Draw a Mermaid flowchart whose every edge is a real call or data path. Also upda
 - **Safety impact:** none
 - **Done when:** PIPELINE_UPDATE.md complete, every flowchart edge cited to a source line; CLAUDE.md line drafted.
 - **Rollback:** -
-- **Status:** todo
-- **Result:**
+- **Status:** done 2026-10-01
+- **Result:** PIPELINE_UPDATE.md rewritten ( Power_BMS_Pipeline replacement with a cited flowchart, edits for Failsafe / MSP / User_Space_API, two CLAUDE.md lines, drift list ); BMS API wiki gains the auto-land section; APP_INTEGRATION.md revised against the current app. No `Command_Land` wiki exists: the change is in the BMS wiki and the staged User_Space_API edit.
 
 ### 11. Topic review
 
@@ -317,8 +318,8 @@ docs ). Fix every BLOCKING finding and re-run the gate.
 - **Safety impact:** as the reviewed code
 - **Done when:** no BLOCKING findings open; the rest listed in CHANGES.md.
 - **Rollback:** -
-- **Status:** todo
-- **Result:**
+- **Status:** done 2026-10-01
+- **Result:** no BLOCKING on the topic diff; 11 findings in CHANGES.md "Task 11". Fixed: auto-land and `mwArm ( )` act on a confirmed critical only ( `batteryCriticalConfirmed ( )` ); the follow-up review's one BLOCKING ( provisional never promoted by the count ) fixed and re-reviewed clean. Left: PRIMUSX2 voltage-only auto-land ( user ), minor notes 4 and 6, cleanup items moved to task 12. Gate clean on PRIMUS_X2_v1 ( flash 101.9 KB, RAM 14.8 KB ).
 
 ### 12. Remove test code, graph refresh & commit
 
@@ -342,8 +343,8 @@ The commit carries both topics' docs ( battery-capacity-estimate was closed with
 - **Safety impact:** restores the committed Developer Mode gating
 - **Done when:** `git diff -- PlutoPilot.cpp` shows no test code; the `mw.cpp` diff has no `DEV_MODE_LINK_GRACE`; gate clean on all targets; commit staged and drafted; both topics Closed.
 - **Rollback:** -
-- **Status:** todo
-- **Result:**
+- **Status:** done 2026-10-03
+- **Result:** test code removed ( PlutoPilot.cpp back to pre-topic, DEV_MODE_LINK_GRACE gone, `INA219_RegRead` and task-number comments removed ); FW 3.11.0; all three targets clean ( PRIMUS_X2_v1 100.9 KB / 14.8 KB, PRIMUSX2 100.7 / 14.9, PRIMUS_V5 100.9 / 14.8 ); graph refreshed; docs promoted; change staged and message drafted for the user.
 
 ### 13. Flight: full to empty on a newer 600, 60 s rest after landing
 
@@ -414,6 +415,34 @@ read ~5.5% high. Find out which side is wrong before task 3 decides whether a fi
 - **Status:** done 2026-09-28 ( user statement, no new measurement )
 - **Result:** user: the current sensor is accurate to ±100 mA. No calibration factor in task 3; the charger is taken to read ~5% low ( `Is` / charger 1.053, 1.055 ), so task 9 compares `D` against the charger with that offset allowed for.
 
+### 16. Auto-land on critical battery instead of the app's in-air disarm
+
+**Description.** Added 29 Sep 2026 ( log-3 ). The app switches its ARM off when the flight status reports the
+`LowBattery_inFlight` bit ( firmware `App_LowBattery_inFlight` = 8, app `setFlightStatus` case 8, `swArm.setChecked ( false )`;
+bit 7 `App_Low_battery` only sounds, vibrates and toasts ). With task 5, critical now arrives reliably in flight at ~4%
+left, so on log-3 the drone dropped from hover 0.2 s after critical. Instead, the firmware lands the drone itself:
+
+- **Trigger:** the battery level reaches critical while armed ( the task 5 rules and debounce, unchanged ).
+- **Landing:** reuse the existing `LAND` path in `command/command.cpp` ( 40 counts/s throttle ramp to 1150, touchdown by
+  arrested descent / impact / 30 s timeout, then disarm ); check it runs without an app command and in and out of
+  ALT_HOLD. Never start during a flip; wait for it to end.
+- **Pilot ( user ):** roll, pitch and yaw stay live to steer clear of obstacles; the throttle stick is ignored; the
+  landing cannot be cancelled.
+- **App:** while the auto-land runs, report `Low_battery` ( bit 7: warning sound ) and not `LowBattery_inFlight`
+  ( bit 8 ), and keep the `MSP_ANALOG` level at 1 ( withhold both: the app to be updated later may read the byte ).
+  After the touchdown disarm, report bit 8 and level 2 so the app blocks re-arming ( latched until power-off, as now ).
+- **Energy:** at critical ~4% ( ~30 mAh on the 800 ) at ~4.5 A leaves ~24 s; the ramp from a ~1710 us hover to 1200 takes
+  ~13 s. Measure the descent time on the flight; if too tight, the trigger or the ramp rate is revisited here.
+
+- **Depends on:** 7
+- **Skills / agent:** pluto-rules, cpp-pro agent, pluto-flighttest ( user flies )
+- **Files:** [battery.cpp](../../../../src/main/sensors/battery.cpp), [command.cpp](../../../../src/main/command/command.cpp), [serial_msp.cpp](../../../../src/main/io/serial_msp.cpp), [mw.cpp](../../../../src/main/mw.cpp); app reference: `android-app-master/.../MainActivity.java` `setFlightStatus` ( temporary copy in the repo root, not firmware )
+- **Safety impact:** high. Replaces an in-air motor cut with a controlled descent; a landing that never detects touchdown, or one that goes through the stick limits, keeps the motors running at low battery ( FLIGHT_INVARIANTS: landing must not go through the stick limits; baro datum not re-zeroed )
+- **Done when:** a flight to critical: the drone descends and disarms on touchdown by itself; the app does not disarm it in the air; roll / pitch steer during the descent and the throttle stick has no effect; after landing the app shows LOW BATTERY and will not arm; descent time and mAh left at touchdown recorded in TESTING.md. Build gate clean; `pluto-reviewer` on the change.
+- **Rollback:** revert the task 16 change: the app's in-air disarm at critical returns.
+- **Status:** done 2026-10-01
+- **Result:** code in ( CHANGES.md "Task 16" ), gate clean ( flash 101.8 KB, RAM 14.8 KB ), pluto-reviewer: 1 BLOCKING ( user-code throttle in the ALT_HOLD descent ) and 1 SHOULD-FIX ( user commands could displace LAND ) fixed, re-review clean. Flights: log-4 ( 600 ) landed and disarmed by itself 2.84 s after critical ( arrested-descent rule ), user "all ok"; log-6 ( 800 ) 2.03 s after critical, by the crash detector at touchdown ( app CRASHED for ~0.3 s, then LOW BATTERY ). No in-air disarm on either.
+
 ## Decisions log
 
 Newest last. One line each: `YYYY-MM-DD [decision|assumption|out-of-scope|risk] text`.
@@ -454,3 +483,18 @@ Newest last. One line each: `YYYY-MM-DD [decision|assumption|out-of-scope|risk] 
 - 2026-09-29 [decision] No-current fallback ( user ): stored defaults become warning 3.0 V and minimum 2.9 V per cell ( loaded, hover-measured; still adjustable in the app; boards keep their stored values until a config reset ); in-flight SoC = curve at the cell voltage + 0.45 V typical hover sag, never rising.
 - 2026-09-29 [decision] No-current fallback revised ( user ): fixed firmware constants, warning 3.10 V and critical 3.00 V per cell on the raw loaded voltage ( ~13-27% / ~5-13% left on the two measured packs ), in-flight SoC with a 650 mV hover sag. The app's stored warning / minimum values are not used ( the app rewrites them as 3.2 / 3.0 V with every capacity change ); the config defaults go back to 32 / 30. Supersedes the two earlier fallback decisions.
 - 2026-09-29 [decision] API ( user ): `Bms_Get` gains `SoC`, `Warning_Level`, `Resistance`; `Voltage` returns exact mV; `Current` has no gain; `API_Version` 1.4.0; new `docs/API/BMS_API_WIKI.md`.
+- 2026-09-29 [decision] log-3 is a task 9 flight ( 800 pack, flown on the bench build; the motor sequence aborted on arming ). The bench sweep moves to log-4.
+- 2026-09-29 [risk] 800 pack: warning at ~12.9% of rated really left ( 13.9% of delivered ); pack gave ~742 of 800 mAh and the counter read +3.9%. Both rules fired within 7 s of each other.
+- 2026-09-29 [decision] The app disarms on the `LowBattery_inFlight` flight-status bit ( 8 ): app case 8 switches ARM off; bit 7 only warns. This app version parses `MSP_ANALOG` in the old MultiWii layout and does not read the level byte.
+- 2026-09-29 [decision] Auto-land on critical ( user ): task 16 added, supersedes "auto-land out of scope" ( 26 Sep ). The pilot steers roll / pitch / yaw, throttle ignored, no abort. The app sees bit 7 and level 1 while landing, bit 8 and level 2 after the touchdown disarm.
+- 2026-09-29 [risk] The app in `android-app-master/` reads `MSP_ANALOG` as vbat8 / pMeterSum / rssi / amperage, not the firmware's vBat16 / mA / mAh drawn / mAh remain / SoC / level: its battery display is wrong against this firmware. The copy ( sources and `base.apk` dated 22 Jan 2024 ) predates FW 2.10.0 ( `ff037b6`, 6 Jan 2026 ), which moved `MSP_ANALOG` from vbat8 ( 0.1 V ) to vBat16 ( mV ); the app the user flies shows two decimals ( e.g. 3.75 V ), so it already reads the mV layout. The flown app reads the voltage as mV / 1000 ( user, 29 Sep ): this topic did not change the packet, so neither the firmware nor the flown app's MSP receive changes; only the 2024 copy here is out of date.
+- 2026-09-29 [decision] Task 16 code: `batteryCriticalAutoLand ( )` re-asserts LAND every loop ( user commands cannot cancel it ) and `rcData [ THROTTLE ]` is re-pinned to `landThrottle` after `userCode ( )`. The re-pin also applies to a user `Command_Land` ( a user throttle override no longer changes its ALT_HOLD descent rate ): task 10 adds a line to the `Command_Land` API wiki. `BENCH_MOTOR_SEQUENCE` set to 0 for flights ( 1 again for the bench sweep, log-5 ).
+- 2026-09-30 [risk] log-4 ( worn 600, R 173 mOhm ): `D` 491 vs charger 449 = +9.4%, outside task 9's ±5%. Ratios so far 1.039 / 1.053 / 1.055 / 1.094 vary by pack, so not a pure INA219 gain error; decide after the last 600 flight whether ±5% against the charger is the right test or a fixed counter scale is needed. Warning ( 16.6% really left ) and empty ( 1% ) passed.
+- 2026-10-01 [decision] Task 16 closed: both auto-land flights landed and disarmed on the ground. A touchdown may end through the crash detector ( log-6, app CRASHED for ~0.3 s, then LOW BATTERY ); accepted, no firmware change. The app will label it a low-battery auto-land ( app developer, user ).
+- 2026-10-01 [decision] log-4 was an older 600 ( user ). Packs are not labelled; the user rotates packs for variation, so task 9's "older / newer 600" becomes "two different 600 packs". log-7: a different 600 from log-4, ideally one not flown in this topic yet.
+- 2026-10-01 [decision] Naming ( user ): the estimator is the **Pluto Fuel Gauge** ( technical: hybrid fuel gauge, coulomb counting with OCV initialisation and an IR-compensated voltage floor, per-flight internal resistance ); the critical-battery landing is **Low-Battery Auto-Land**. Task 10 uses these in PIPELINE_UPDATE.md ( Power_BMS_Pipeline ), the BMS API wiki and the CHANGELOG entry; avoid "Impedance Track" ( TI trademark ).
+- 2026-10-01 [decision] Task 9 closed ( user ): the counter reads ~5.3% above the charger on healthy packs; accepted as a known offset ( safe side: the remaining shown is slightly low ), no calibration factor. Supersedes the open counter / charger risk of 30 Sep.
+- 2026-10-01 [decision] APP_INTEGRATION.md written for the app developer ( MSP_ANALOG layout, SoC-driven % and icon, voltage max 4.20 / min 3.60 if kept, alert states incl. auto-land and the touchdown crash flag ). Task 10 links it from PIPELINE_UPDATE.md and the BMS API wiki. Open: a dedicated "auto-landing" level ( e.g. 3 while armed ) only if the app developer wants it.
+- 2026-10-01 [risk] Current app source ( `android-app-dev_br_login/`, untracked, holds `drona_app.jks` ) checked: `MSP_ANALOG` 10-byte layout and `MSP_FLIGHT_STATUS` ( 255, u16, lowest set bit ) match the firmware; % = SoC byte, mAh = remaining, V = mV / 1000, icon at SoC 70 / 40 / 20. Findings: ( 1 ) with task 16 masking the app never sees level 2 while armed, so its "Auto Landing" voice / status / "Auto Land" flight-log entry never run ( it says "Low Battery, Please Land" ); ( 2 ) case 6 logs a touchdown crash-detect as "Crashed"; ( 3 ) `MSP_VOLTAGE_METER_CONFIG` sends max, min, warning but the app reads max, warning, min and writes max, warning, min, so each capacity change swaps the stored warning / minimum ( unused by the fuel gauge since task 5 ); ( 4 ) legacy path ( protocol != 1 ) still computes its own % with 2.9-4.2 V and a fixed 600 mAh. APP_INTEGRATION.md was written against the 2024 copy: revise in task 10.
+- 2026-10-01 [decision] Topic review ( user ): refuse arming while a confirmed critical is latched ( finding 2 ). PRIMUSX2 voltage-only auto-land left as is: no firmware is released for PRIMUSX2 ( finding 3 ).
+- 2026-10-01 [decision] Finding 1 ( user ): the auto-land starts only on a confirmed critical; a provisional one beeps and does not land.

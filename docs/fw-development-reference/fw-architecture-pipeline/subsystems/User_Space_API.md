@@ -23,6 +23,8 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - **Time Slice Strictness**: Because `plutoLoop()` executes within the high-frequency control loop, user code *must not block*. The use of `delay()` is explicitly forbidden, as it would cause the drone to instantly crash by halting the PID calculations.
 - **Override Priority**: If the Failsafe mechanism activates, the firmware explicitly ignores `rcCommand` overrides originating from `plutoLoop()`. Failsafe takes ultimate precedence over the API.
 - **Rate Limiting**: To prevent API logic from running unnecessarily fast (e.g., polling an ultrasonic sensor 1000 times a second), developers use the `Monitor.timer` API to schedule tasks sequentially.
+- **Landing owns the throttle**: while any `LAND` runs ( `Command_Land`, RX loss or the critical-battery auto-land ), the landing throttle is re-applied after user code, so a throttle `RcCommand_Set` has no effect; the battery auto-land also replaces `Command_TakeOff` / `Command_Flip`.
+- **Battery**: `Bms_Get` has `SoC`, `Warning_Level` and `Resistance` ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 
 ```mermaid
 flowchart TD

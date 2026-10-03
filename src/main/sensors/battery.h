@@ -87,7 +87,7 @@ extern uint16_t batteryCriticalVoltage;
 extern uint16_t batteryCapacity_mAh;
 // extern uint16_t amperageLatestADC;
 extern uint16_t mAmpRaw;         // averaged battery current ( mA )
-extern uint16_t mAmpWithGain;    // equal to mAmpRaw since task 3 ( no auto-gain )
+extern uint16_t mAmpWithGain;    // equal to mAmpRaw ( no auto-gain )
 extern uint16_t mAhDrawn;
 extern uint16_t mAhRemain;             // reported mAh left: E - mAhDrawn, pulled down by the voltage floor, non-increasing
                                        // ( no current sensing: curve fraction of the raw cell voltage x capacity )
@@ -101,6 +101,7 @@ extern uint16_t batteryResistance_mOhm;    // pack resistance measured in flight
 extern uint8_t batterySensorStale;
 
 batteryState_e getBatteryState ( void );
+bool batteryCriticalConfirmed ( void );    // critical and not provisional: starts the auto-land, refuses arming
 
 void batteryInit ( batteryConfig_t *initialBatteryConfig );
 

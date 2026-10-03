@@ -22,6 +22,8 @@ The MultiWii Serial Protocol (MSP) is the primary API via which the Ground Contr
 - **Baud Rates**: UART connections typically default to 115200 baud. USB VCP ignores baud rate constraints entirely.
 - **Buffer Limits**: The MSP payload size is strictly bounded (historically ~255 bytes max per frame, though some extensions support larger). Buffer overflows must be prevented to avoid heap corruption.
 - **State Machine**: The MSP parser reads one byte at a time per loop iteration to avoid blocking the high-frequency control loops.
+- **Battery reports**: `MSP_ANALOG` ( 110 ) is 10 bytes: `vBatComp` mV u16, `mAmpRaw` mA u16, `mAhDrawn` u16, `mAhRemain` u16, SoC % u8, level u8. While armed, critical is reported as low battery in `MSP_ANALOG` ( level 1 ) and `MSP_FLIGHT_STATUS` ( `App_Low_battery` ): the app switches ARM off on `App_LowBattery_inFlight`. See [Power_BMS_Pipeline.md](Power_BMS_Pipeline.md).
+- **Known mismatch**: `MSP_VOLTAGE_METER_CONFIG` sends max, minimum, warning; `MSP_SET_VOLTAGE_METER_CONFIG` reads max, warning, minimum. Neither value is used by the battery gauge.
 
 ```mermaid
 flowchart TD

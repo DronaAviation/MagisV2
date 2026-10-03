@@ -17,6 +17,22 @@ that removes all legacy STM32F10x support.
 
 ### Added
 
+- **BMS**: Pluto Fuel Gauge: the remaining charge is counted ( coulomb
+  counting ), started at plug-in from the pack's resting voltage on a 21-point
+  1S LiPo curve, and corrected near empty by the battery voltage compensated for
+  the pack's internal resistance, measured in each flight ( 101-173 mOhm across
+  the test packs ). Low battery at 3.745 V per cell compensated or 15% counted,
+  critical at 3.60 V or 5%, whichever comes first, held 1.5 s and latched until
+  the pack is changed. In flight tests the warning came with 13-25% really left
+  and critical with ~4-7.5%.
+- **BMS**: Low-Battery Auto-Land: at a confirmed critical level the firmware
+  lands the drone ( the `LAND` command: throttle ramp, touchdown, disarm ).
+  Roll, pitch and yaw stay with the pilot; it cannot be cancelled. The app is
+  told "low battery" until the landing has disarmed, because it switches ARM off
+  on the critical status. Before the pack resistance is measured ( first ~35 s
+  of flight ) a critical raised by voltage alone beeps but does not land.
+- **API**: `Bms_Get` options `SoC`, `Warning_Level` and `Resistance`
+  ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 - **OLED**: Unified OLED subsystem with SYSTEM/USER ownership modes: non-blocking
   rendering API (`Oled.cpp`/`Oled.h`), framebuffer drawing primitives, and
   diff-based updates for efficient I2C communication. Ownership control prevents
@@ -104,16 +120,19 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.10.0 (API 1.3.2) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.11.0 (API 1.4.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
-  altitude-hold fusion. The API patch bumps reflect behaviour changes only: 1.3.1 for
+  altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land.
+  The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
   descent rate. No public signature changed, so existing projects compile and
   link untouched.
+  API 1.4.0 adds `Bms_Get ( SoC )`, `Warning_Level` and `Resistance`; `Voltage` is now exact mV
+  and `Current` carries no gain ( see Added / Changed ).
 - **Laser driver ( VL53L1X )**: 45 ms timing budget and 50 ms period in Medium mode ( was the ST
   default 41 ms / 100 ms ). The mode, budget and period can be overridden per target
   ( `L1X_DISTANCE_MODE`, `L1X_TIMING_BUDGET_US`, `L1X_SAMPLE_PERIOD_MS` ), with a compile-time check that
@@ -149,10 +168,16 @@ that removes all legacy STM32F10x support.
   the throttle stick sat when the override latched rather than from mid-stick,
   since throttle does not self-centre - a stick resting at minimum can no longer
   fade an autonomous climb away.
-- **BMS**: Improved current-measurement accuracy: current return now uses
-  `mAmpWithGain` instead of `mAmpRaw`, the INA219 shunt resistor value corrected
-  from 0.4 Ω to 0.02 Ω, and the current-calibration convergence rate
-  (`CURR_CAL_ALPHA`) raised from 0.002 to 0.003 for improved responsiveness.
+- **BMS**: INA219 shunt resistor value corrected from 0.4 Ω to 0.02 Ω ( one
+  R020, the production fit ). The automatic current gain added earlier in this
+  release ( `mAmpWithGain`, `CURR_CAL_ALPHA` ) is removed again: it settled at
+  ~0.95 and hid a reading error. Current is the measured value; the charge is
+  counted in microsecond steps. The counted mAh is within ~5-11% of a charger's
+  refill, depending on the charger ( accepted ).
+- **BMS**: `Bms_Get ( Voltage )` returns exact mV ( was 0.1 V steps );
+  `Current` and `mAh_Consumed` carry no gain ( ~5% higher than before ).
+- **BMS**: Arming is refused while a confirmed critical battery level is
+  latched, from every source ( app, RC, user code ); the pack must be changed.
 - **OLED**: Coordinate types widened to `int16_t` for extended range.
 - **Sensor**: `Sensor_Get` return type changed from `uint32_t` to `int32_t`.
 - **Failsafe**: Enhanced failsafe handling and refined crash detection.
@@ -171,6 +196,19 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **BMS**: Remaining charge wrapped to ~65000 mAh on an empty pack, so the app
+  jumped to 54-58% near empty; it now stops at 0 and never rises in flight.
+- **BMS**: The low-battery warning came ~15 s before empty or not at all ( a
+  straight-line voltage SoC read ~15 points high under load ); see Pluto Fuel
+  Gauge under Added.
+- **BMS**: At critical battery the app cut the motors in the air ( it disarms on
+  the critical status ); the firmware now lands first.
+- **BMS**: A 4.3 V pack was counted as 2 cells; the plug-in estimate came from a
+  single floored sample on a straight line.
+- **BMS**: `BMS_Update` ran every loop instead of every 21 ms.
+- **Developer Mode**: while any `LAND` runs, a user throttle override can no
+  longer change the descent ( in ALT_HOLD a hover value made the landing logic
+  disarm in the air ).
 - **RC**: Out-of-bounds write in `RcCommand_Set ( CHANNEL, value )`. Channels
   above `RC_THROTTLE` (`RC_AUX1`..`RC_USER3`, indices 4-10) indexed the
   4-element `RC_ARRAY` and `userRCflag` arrays, corrupting adjacent globals.

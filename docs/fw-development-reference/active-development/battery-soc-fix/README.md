@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Active** ( planned 26 Sep 2026; code done and partially committed 29 Sep, hardware validation pending ) |
+| **Status** | **Closed - pending commit** ( 3 Oct 2026, FW 3.11.0, API 1.4.0; partial commit `369ea71` 29 Sep ). Pipeline doc ( Power_BMS_Pipeline ), Failsafe / MSP / User_Space_API notes, FLIGHT_INVARIANTS, CLAUDE.md, CHANGELOG and the BMS API wiki promoted |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( one R020, 20 mOhm: production ); all targets built at commit |
@@ -44,10 +44,7 @@ older 600 pack, a newer 600, an 800 ) each meet all of:
 and an `API_Version` bump. **Out of scope:** CRSF current units, the app's pre-gain current, auto-land, the
 arming block, and the Dev Mode link fix as a product feature.
 
-**Temporary code carried over from the check topic** ( remove in the last task ):
-
-- the battery diagnostic line and the disabled bench motor sequence in `PlutoPilot.cpp`;
-- the 400 ms Developer Mode link grace in `mw.cpp` `userCode ( )`.
-
-**Next action.** `/pluto-task resume`, then run the task 8 bench sweep ( TESTING.md "Task 8 plan" ). The committed
-`PlutoPilot.cpp` has `BENCH_MOTOR_SEQUENCE 1`: props off, never arm that build.
+**Outcome.** Pluto Fuel Gauge and Low-Battery Auto-Land, validated on four packs ( TESTING.md log-3 to log-8 ):
+warning with 13-20% really left ( one flight 12.9% ), critical with ~5-8%, four auto-landings, empty ≤ 5% on every
+flight; the count reads ~5% above the charger on healthy packs ( accepted ). The temporary test code is removed.
+The app-side recommendations ( APP_INTEGRATION.md, not committed ) were sent to the app developer separately.

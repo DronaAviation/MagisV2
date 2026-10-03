@@ -1,6 +1,6 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1790240523.7371175,
+    "mtime": 1791002914.5562453,
     "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
@@ -616,8 +616,8 @@
     "hash": "fa8922fb37b49f4a00d85bda08db7069"
   },
   "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1789982644.6592693,
-    "hash": "5c173e6cc2284cb21ce7dcc3905d6e45"
+    "mtime": 1791002931.7003098,
+    "hash": "5bd054ade3dd7b062de0b7941a5bd9e3"
   },
   "F:\\MagisV2\\src\\main\\mw.h": {
     "mtime": 1777868741.0,
@@ -640,8 +640,8 @@
     "hash": "971511360bf44e0a619fa09a590b02f1"
   },
   "F:\\MagisV2\\src\\main\\API\\BMS.h": {
-    "mtime": 1777868741.0,
-    "hash": "73fee5800ed9f615525313d0c2c88731"
+    "mtime": 1790653748.8783174,
+    "hash": "dfbfb864f982fcbbb0644328a62ad9c3"
   },
   "F:\\MagisV2\\src\\main\\API\\Debugging.h": {
     "mtime": 1780643709.0,
@@ -708,8 +708,8 @@
     "hash": "5baa68e5bdc101c1555cc8ce6012999c"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\BMS.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "ea3b66bd9bbedf8e52fa5d7ff44e0f6e"
+    "mtime": 1790653748.8723154,
+    "hash": "d521814acb342b9c9a1eaf70a8e0b1f8"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\Debugging.cpp": {
     "mtime": 1780643709.0,
@@ -1044,12 +1044,12 @@
     "hash": "be36c846b38eb36a22c5db06810d8c17"
   },
   "F:\\MagisV2\\src\\main\\drivers\\ina219.c": {
-    "mtime": 1777868741.0,
-    "hash": "023921acb55c5e17ade67c3eb9fa222b"
+    "mtime": 1791002931.6983097,
+    "hash": "c7aa4c1a5aaa5a65ec6f0a54c155c93f"
   },
   "F:\\MagisV2\\src\\main\\drivers\\ina219.h": {
-    "mtime": 1785830612.0,
-    "hash": "094b272d78a24533e162ee3059f5318c"
+    "mtime": 1790653748.890315,
+    "hash": "4dbc73ff0e4b88a44cb53f5ff7d279fb"
   },
   "F:\\MagisV2\\src\\main\\drivers\\inverter.c": {
     "mtime": 1777868741.0,
@@ -1456,8 +1456,8 @@
     "hash": "1f6cdcf331ed82312f71581417f50a00"
   },
   "F:\\MagisV2\\src\\main\\io\\serial_msp.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "d0a9b08bb450004df151e0de223b018c"
+    "mtime": 1790845798.8324583,
+    "hash": "293b48faeaf167aff32e6602285693e0"
   },
   "F:\\MagisV2\\src\\main\\io\\serial_msp.h": {
     "mtime": 1777868741.0,
@@ -1560,12 +1560,12 @@
     "hash": "9cf33767f8d58949f368ffdcdaa870b8"
   },
   "F:\\MagisV2\\src\\main\\sensors\\battery.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "9a889ca7cfead9f2729c2b5c3b778958"
+    "mtime": 1791002931.7003098,
+    "hash": "53e4ddb13418f7e35cb173fe65df0fef"
   },
   "F:\\MagisV2\\src\\main\\sensors\\battery.h": {
-    "mtime": 1777868741.0,
-    "hash": "31e3c82068227df7b111ff3bd56ee5c2"
+    "mtime": 1791002931.7003098,
+    "hash": "e91306274cf3aae58cd6d552996fab8e"
   },
   "F:\\MagisV2\\src\\main\\sensors\\boardalignment.cpp": {
     "mtime": 1777868741.0,
@@ -1716,8 +1716,8 @@
     "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
   },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1790077816.1832247,
-    "hash": "c7e209f61fb6ee1624e0a85f6c5d7c4e"
+    "mtime": 1790243935.4024055,
+    "hash": "0d64e7a736334e3f8f808a521e51b292"
   },
   "F:\\MagisV2\\CLAUDE.md": {
     "mtime": 1790241886.3345103,

@@ -134,6 +134,12 @@ Each of these has cost a flight. Full mechanism and numbers:
   the estimator below 160 cm and the baro above it (back below 140 cm)** — the return to the laser and a
   re-base shift the whole altitude frame so the craft does not move, and a sudden surface change is held
   on the baro for 2.5 s before re-basing (`FLIGHT_INVARIANTS.md`).
+- **Battery current is read across one R020 ( 20 mOhm ): a stacked second shunt halves every current and mAh reading**
+  ( range 8 A ). Low-battery levels come from the Pluto Fuel Gauge ( count, or compensated voltage ≤ 3.745 / 3.60 V per
+  cell ), not from the stored warning / minimum voltages.
+- **At critical battery the firmware lands ( `LAND` ); the app must not be told "critical" while armed** — it switches
+  ARM off on that status and the motors stop in the air. Low battery is reported until the landing disarms, then
+  `mwArm ( )` refuses to arm until the pack is changed ( `FLIGHT_INVARIANTS.md` ).
 
 ## Conventions
 

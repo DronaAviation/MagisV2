@@ -8,4 +8,4 @@ plutoide.ini
 #!.gitignore
 compile_commands.json
 __pycache__/
-
+android-app-dev_br_login/*

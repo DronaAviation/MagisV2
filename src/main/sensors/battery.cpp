@@ -11,12 +11,13 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 29th Sep 2026                                          #
+ #  Last Modified: Thu, 1st Oct 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-10-01	AJ	batteryCriticalConfirmed ( ): critical, not provisional     #
  #  2026-09-29	AJ	Fallback fixed 3.1 / 3.0 V, sag 650 mV, count re-level     #
  #  2026-09-29	AJ	Provisional re-level, FSI re-assert, fallback hover sag    #
  #  2026-09-29	AJ	SoC review: default R, R over hops, latch, voltage-only    #
@@ -89,7 +90,7 @@ static constexpr uint8_t VBATT_PLUGIN_SAMPLES = 24U;
 static constexpr uint8_t VBATT_PLUGIN_MAX_CALLS = 96U;
 
 // Pack resistance used to lift the idle plug-in reading to the resting voltage ( mOhm ): board idle ~125 mA,
-// bus-basis pack resistance 100-160 mOhm measured in tasks 13/14, so about +15 mV at idle
+// bus-basis pack resistance 100-160 mOhm measured on the test packs, so about +15 mV at idle
 static constexpr uint32_t BATTERY_REST_R_MOHM = 120U;
 
 static bool batteryEstimateReady = false;    // EstBatteryCapacity set from the plug-in average
@@ -97,7 +98,7 @@ static uint8_t plugInSamples     = 0;        // good bus samples since connect (
 static uint8_t plugInCalls       = 0;        // voltage updates since connect, good or failed ( <= VBATT_PLUGIN_MAX_CALLS )
 static uint32_t plugInSum_mV     = 0;        // sum of those samples ( mV ), <= 24 x 65535
 
-// 1S LiPo resting-voltage curve ( INVESTIGATION.md 5.5 ): cell mV -> percent left, linear between points,
+// 1S LiPo resting-voltage curve ( standard 21-point table ): cell mV -> percent left, linear between points,
 // 100 % at or above 4200 mV, 0 % at or below 3270 mV. Descending voltage.
 typedef struct {
   uint16_t cell_mV;    // resting cell voltage ( mV )
@@ -110,7 +111,7 @@ static constexpr lipoCurvePoint_t lipoRestCurve [ ] = {
   { 3770, 30 },  { 3750, 25 }, { 3730, 20 }, { 3710, 15 }, { 3690, 10 }, { 3610, 5 },  { 3270, 0 },
 };
 static constexpr uint8_t LIPO_REST_CURVE_POINTS = static_cast< uint8_t > ( sizeof ( lipoRestCurve ) / sizeof ( lipoRestCurve [ 0 ] ) );
-static_assert ( LIPO_REST_CURVE_POINTS == 21, "INVESTIGATION.md 5.5 curve has 21 points" );
+static_assert ( LIPO_REST_CURVE_POINTS == 21, "the LiPo resting curve has 21 points" );
 
 uint8_t batteryCellCount        = 1;    // cell count
 uint16_t batteryMaxVoltage      = 0;
@@ -138,7 +139,7 @@ static constexpr float INA219_MA_PER_10UV = 0.01f / INA219_SHUNT_RESISTOR;
 static_assert ( INA219_MA_PER_10UV > 0.49f && INA219_MA_PER_10UV < 0.51f, "one R020 shunt: 0.5 mA per 10 uV LSB" );
 
 uint16_t mAmpRaw      = 0;    // averaged battery current in mA ( >= 0, rounded )
-uint16_t mAmpWithGain = 0;    // equal to mAmpRaw: the auto-gain was removed in task 3; task 6 reviews Bms_Get
+uint16_t mAmpWithGain = 0;    // equal to mAmpRaw ( the auto-gain was removed ); kept for its readers
 uint16_t mAhDrawn     = 0;    // milliampere hours drawn from the battery since start ( saturates at 0xFFFF )
 uint16_t mAhRemain    = 0;    // reported mAh left ( BMS_Update ): E - mAhDrawn pulled down by the voltage floor, non-increasing
                               // ( no current sensing: curve fraction of the raw cell voltage x capacity )
@@ -148,7 +149,7 @@ uint16_t mAhRemain    = 0;    // reported mAh left ( BMS_Update ): E - mAhDrawn 
 static uint32_t last_us     = 0;       // timestamp of the previous call ( us )
 static uint64_t mA_us_accum = 0;       // charge drawn since start ( mA x us )
 
-// SoC model and warnings ( task 5, INVESTIGATION.md 5.7 ). Per cell: pack mV / batteryCellCount.
+// SoC model and warnings ( Pluto Fuel Gauge ). Per cell: pack mV / batteryCellCount.
 // Vcomp = ( bus + I x R ) per cell, with R the pack resistance measured once per power-up over the first 35 s of loaded
 // flight, and BATTERY_DEFAULT_R_MOHM until then. Loaded flight: armed and mAmpRaw >= 1500 mA.
 static constexpr uint32_t BATTERY_DEFAULT_R_MOHM  = 100U;          // R until measured: at the low end of the packs ( 100-157 ), so Vcomp errs low ( early )
@@ -206,7 +207,8 @@ static uint32_t warnCountUs = 0;
 static uint32_t critCountUs = 0;
 
 // A warning or critical step caused by the default-R voltage test alone ( R unknown, no count condition ). Not latched:
-// re-levelled to what the count supports on disarm and when R is measured ( count mode only ).
+// re-levelled to what the count supports on disarm and when R is measured ( count mode only ), and confirmed as soon
+// as the count supports the standing level.
 static bool alarmProvisional = false;
 
 uint8_t BatteryWarningMode = 0;    // 0 OK, 1 WARNING, 2 CRITICAL ( MSP_ANALOG )
@@ -219,6 +221,17 @@ uint16_t vBatComp = 0;    // pack mV: Vcomp x cells, R measured or BATTERY_DEFAU
 batteryState_e getBatteryState ( void ) {
   // Return the current battery state stored in the variable 'batteryState'
   return batteryState;
+}
+
+/**
+ * @brief True when the battery is critical and the level is confirmed, not provisional.
+ *
+ * A critical raised by the default-R voltage test alone ( before the pack resistance is measured ) is provisional
+ * and can be re-levelled; it sounds the beeper but must not start the auto-land or refuse arming ( mw.cpp ). A
+ * critical from the count, from the measured-R voltage test, or on the voltage-only path is confirmed and latched.
+ */
+bool batteryCriticalConfirmed ( void ) {
+  return ( batteryState == BATTERY_CRITICAL ) && ! alarmProvisional;
 }
 
 /**
@@ -535,7 +548,7 @@ static inline void shuntAvgPush ( int16_t sample10uV ) {
  *
  * The raw signed shunt reading ( 10 uV LSB ) is averaged with no rounding; the average is converted to mA
  * ( INA219_MA_PER_10UV, 0.5 mA per 10 uV at 20 mOhm ), a negative average is clamped to 0 once, after
- * averaging, and the result is clamped to 0xFFFF. No gain is applied: the INA219 is trusted ( task 15 ).
+ * averaging, and the result is clamped to 0xFFFF. No gain is applied: the INA219 is trusted.
  * On a failed read the sample is skipped and mAmpRaw / mAmpWithGain keep the last average; after
  * INA219_STALE_CALLS failed reads in a row BATTERY_STALE_CURRENT is set.
  */
@@ -565,7 +578,7 @@ static inline void ProcessedINA219Current ( void ) {
   }
 
   mAmpRaw      = static_cast< uint16_t > ( mA + 0.5f );    // mA, rounded to nearest
-  mAmpWithGain = mAmpRaw;                                  // no auto-gain since task 3
+  mAmpWithGain = mAmpRaw;                                  // no auto-gain
 }
 
 /**
@@ -768,7 +781,7 @@ static void batteryResistanceUpdate ( uint32_t dtUs, bool armed, bool stale ) {
  * a critical condition met from OK goes through WARNING in the same update, with both steps' actions. It never
  * steps back up by itself: only handleBatteryConnected ( ) ( a new pack, normally a power-up ) sets OK again, and
  * BMS_Update ( ) re-levels a provisional alarm ( batteryApplyLevel ( ) ). Each state repeats its arming flag call,
- * beeper and BatteryWarningMode ( 0 / 1 / 2 ) every update, as before task 5, and WARNING / CRITICAL re-assert their
+ * beeper and BatteryWarningMode ( 0 / 1 / 2 ) every update, and WARNING / CRITICAL re-assert their
  * FSI flag every update ( mwDisarm ( ) resets LowBattery_inFlight on every disarm ).
  *
  * @param warnLow A warning condition held for BATTERY_DEBOUNCE_US.
@@ -886,10 +899,10 @@ static void batteryApplyLevel ( batteryState_e level ) {
  * - Outside its window a voltage timer stays at 0. Every condition must hold 1.5 s.
  *
  * @param now Current time in microseconds ( currentTime ).
- * @param vbatTs Unused since task 5 ( kept for the signature ).
- * @param ibatTs Unused since task 5 ( kept for the signature ).
+ * @param vbatTs Unused ( kept for the signature ).
+ * @param ibatTs Unused ( kept for the signature ).
  * @param armed Boolean indicating whether the system is armed.
- * @param throttle_us Unused since task 5: the throttle-sag model was removed.
+ * @param throttle_us Unused: the throttle-sag model was removed.
  */
 void BMS_Update ( uint32_t now, uint32_t vbatTs, uint32_t ibatTs, bool armed, int throttle_us ) {
   ( void ) vbatTs;
@@ -1035,8 +1048,13 @@ void BMS_Update ( uint32_t now, uint32_t vbatTs, uint32_t ibatTs, bool armed, in
   // A step ( always down: the state machine never steps up ) is provisional when taken in count mode with R unknown
   // and not caused by the count condition of the level stepped to ( the default-R voltage test alone ); a
   // count-caused or measured-R step latches.
+  // A standing provisional level becomes confirmed as soon as the count supports it, also without a step ( the
+  // state is already there ): otherwise a real count critical behind a provisional one would never start the
+  // auto-land if R is never measured.
+  const bool countSupports = ( batteryState == BATTERY_CRITICAL ) ? ( critCountUs >= BATTERY_DEBOUNCE_US ) : ( warnCountUs >= BATTERY_DEBOUNCE_US );
   if ( batteryState != prevState ) {
-    const bool countCaused = ( batteryState == BATTERY_CRITICAL ) ? ( critCountUs >= BATTERY_DEBOUNCE_US ) : ( warnCountUs >= BATTERY_DEBOUNCE_US );
-    alarmProvisional       = countMode && ! rKnown && ! countCaused;
+    alarmProvisional = countMode && ! rKnown && ! countSupports;
+  } else if ( alarmProvisional && countSupports ) {
+    alarmProvisional = false;
   }
 }

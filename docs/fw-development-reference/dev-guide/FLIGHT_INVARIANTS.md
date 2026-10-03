@@ -108,3 +108,20 @@ The shipped `target.h` has the laser defines off ( baro-only ). Details:
 ( Laser fusion ), [`../active-development/tof-althold-fusion/`](../active-development/tof-althold-fusion/)
 ( VL53L0X ) and [`../active-development/vl53l1x-althold-parity/`](../active-development/vl53l1x-althold-parity/)
 ( VL53L1X ).
+
+## Battery current is read across one R020; levels come from the fuel gauge
+
+The INA219 reads the battery current across **one R020 ( 20 mOhm )**, the production fit. A second shunt stacked on
+it ( a rework on one test board ) halves every current and mAh reading, and made an empty 600 mAh pack show ~300 mAh.
+The range tops out at 8 A. The low-battery levels come from the Pluto Fuel Gauge ( the count, or the compensated
+voltage at 3.745 / 3.60 V per cell ), not from the warning / minimum voltages stored in the config.
+See [`Power_BMS_Pipeline.md`](../fw-architecture-pipeline/subsystems/Power_BMS_Pipeline.md) and
+[`../active-development/battery-soc-fix/`](../active-development/battery-soc-fix/).
+
+## At critical battery the firmware lands; the app must not be told "critical" while armed
+
+The app switches ARM off when it sees `App_LowBattery_inFlight`, so before battery-soc-fix the craft dropped from
+hover at critical ( log-3: 0.2 s after critical ). Now a confirmed critical starts `LAND` ( `batteryCriticalAutoLand ( )`,
+`mw.cpp` ), and `MSP_FLIGHT_STATUS` / `MSP_ANALOG` report low battery until the landing has disarmed; then critical
+is reported and `mwArm ( )` refuses to arm until the pack is changed. A provisional critical ( before the pack
+resistance is measured ) beeps but does not land.

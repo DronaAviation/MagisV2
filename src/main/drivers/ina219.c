@@ -45,13 +45,6 @@ static bool ina219ReadReg ( uint8_t reg, uint16_t *val ) {
   return true;
 }
 
-// Raw register read, 0xFFFF on an I2C error. Kept for the PlutoPilot.cpp diagnostic ( extern "C" ).
-uint16_t INA219_RegRead ( uint8_t reg ) {
-  uint16_t val;
-  if ( ina219ReadReg ( reg, &val ) ) return val;
-  return 0xFFFF;    // Error case
-}
-
 bool INA219_Config ( uint16_t RST, uint16_t BRNG, uint16_t PG, uint16_t BADC, uint16_t SADC, uint16_t MODE ) {
   uint16_t config = RST | BRNG | PG | BADC | SADC | MODE;
   return INA219_RegWrite ( INA219_REG_CONFIG, config );

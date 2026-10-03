@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 24 Sep 2026, FW 3.10.0 ). Pipeline doc, CHANGELOG, CLAUDE.md, FLIGHT_INVARIANTS, PIN_MAP and HARDWARE_RESOURCES promoted |
+| **Status** | **Closed** ( 24 Sep 2026, commit `7cf2444`, FW 3.10.0 ). Pipeline doc, CHANGELOG, CLAUDE.md, FLIGHT_INVARIANTS, PIN_MAP and HARDWARE_RESOURCES promoted |
 | **Branch** | `BugFix-June26`, base `b1f070b` |
 | **Target** | `PRIMUS_X2_v1` with `LASER_TOF_L1x` + `LASER_ALT` ( VL53L1X drop-in on the L0X connector, I2C1 0x29 ) |
 | **Origin** | [tof-althold-fusion](../tof-althold-fusion/README.md), which made the VL53L0X ( `LASER_TOF` ) path flight-ready |

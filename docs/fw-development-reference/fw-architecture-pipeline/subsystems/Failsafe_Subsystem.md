@@ -22,6 +22,7 @@ The Failsafe module acts as an autonomous safety net. It runs continuously to mo
 - **Detection Delays**: Brief dropouts (< 0.5s) are usually smoothed over and ignored. The `failsafe_delay` boundary must be crossed to transition from `IDLE` to `LOSS_DETECTED`.
 - **Landing Timer**: The `failsafe_off_delay` specifies how long the drone is allowed to execute its auto-level descent (e.g., 15 seconds) before it forcefully disarms to prevent burning motors on the ground.
 - **Override Strictness**: When `failsafeApplyControlInput()` is active, the User API (`PlutoPilot`) and Pilot inputs are completely ignored. The Failsafe dictates the `rcCommand` struct exclusively.
+- **Critical battery**: `batteryCriticalAutoLand ( )` ( `mw.cpp` ) starts the same `LAND` command as the RX-loss path on a confirmed critical battery level; the battery code itself never disarms. See [Power_BMS_Pipeline.md](Power_BMS_Pipeline.md).
 
 ```mermaid
 flowchart TD
