@@ -42,8 +42,8 @@ Rev 14; API/ownership facts are from the codebase.
 | **PB7**  | GPIO_4  | — | PWM_3 (TIM4_CH2) | (I2C1_SDA alt / USART1_RX, no API) | free: DMA1_Ch5 (USART1_RX) / Ch7 (I2C1_RX) | alloc: TIM4_CH2 (PWM_3) · free: TIM17_CH1N |
 | **PB12** | GPIO_8  | ADC_5 (ADC4_IN3) | — | ⚠ SPI2_NSS / flash CS | alloc: DMA2_Ch2 (ADC4, if ADC_5) | — |
 | **PB13** | GPIO_7  | ADC_4 (ADC3_IN5) | — | ⚠ SPI2_SCK | alloc: DMA2_Ch5 (ADC3, if ADC_4) | — |
-| **PB14** | GPIO_6  | ADC_3 (ADC4_IN4) | PWM_5 (TIM15_CH1) | ⚠ SPI2_MISO | alloc: DMA2_Ch2 (ADC4, if ADC_3) · SPI2_RX would need DMA1_Ch4 (taken) | alloc: TIM15_CH1 (PWM_5) |
-| **PB15** | GPIO_5  | ADC_2 (ADC4_IN5) | PWM_4 (TIM15_CH2) | ⚠ SPI2_MOSI | alloc: DMA2_Ch2 (ADC4, if ADC_2) · free: DMA1_Ch5 (SPI2_TX) | alloc: TIM15_CH2 (PWM_4) |
+| **PB14** | GPIO_6 ⚠ XSHUT¹ | ADC_3 (ADC4_IN4) | PWM_5 (TIM15_CH1) | ⚠ SPI2_MISO | alloc: DMA2_Ch2 (ADC4, if ADC_3) · SPI2_RX would need DMA1_Ch4 (taken) | alloc: TIM15_CH1 (PWM_5) |
+| **PB15** | GPIO_5 ⚠ XSHUT¹ | ADC_2 (ADC4_IN5) | PWM_4 (TIM15_CH2) | ⚠ SPI2_MOSI | alloc: DMA2_Ch2 (ADC4, if ADC_2) · free: DMA1_Ch5 (SPI2_TX) | alloc: TIM15_CH2 (PWM_4) |
 | **PB8**  | — | — | — | **I2C1_SCL** (AF4) — API I2C bus | free: DMA1_Ch6 (I2C1_TX) | (dedicated to I2C) |
 | **PB9**  | — | — | — | **I2C1_SDA** (AF4) — API I2C bus | free: DMA1_Ch7 (I2C1_RX) | (dedicated to I2C) |
 
@@ -61,6 +61,13 @@ Notes:
   build with an `#error` if both are defined. A user I2C device must not use 0x29 while a laser is
   fitted. The VL53L1X polls data-ready every 10 ms and, per sample, reads 17 bytes and writes 1
   ( interrupt clear ): about 0.8 ms of blocking I2C per 51 ms.
+- ¹ **Second VL53L1X held in shutdown ( `L1X_XSHUT_*`, PRIMUS_X2_v1 and PRIMUS_V5 `target.h` ).** A board
+  may carry two VL53L1X ( TOF400C ) at 0x29 with their XSHUT lines on PB15 ( GPIO_5, bottom laser, used ) and
+  PB14 ( GPIO_6, second laser ). With `LASER_TOF_L1x`, `ranging_init_L1 ( )`
+  ( [ranging_vl53l1x.cpp](../../src/main/drivers/ranging_vl53l1x.cpp) ) drives PB14 push-pull LOW for the
+  whole session and releases PB15 as a floating input ( the module pulls XSHUT up to ~2.8 V; never drive it
+  HIGH ), then waits 2 ms before the first I2C access. After that PB14 / PB15 belong to the laser: see
+  conflict 8 below.
 - The SPI API (`SPI_Init`/`SPI_Read`/`SPI_Write`) targets **SPI2 on PB12–PB15**.
 
 ---
@@ -103,6 +110,17 @@ Notes:
    `PWM_4`+`PWM_5` (both TIM15) share one frequency. Last `pwmRate` per timer wins.
 7. **SPI2 has no free full-duplex DMA:** SPI2_RX request is on DMA1_Channel4, already owned
    by USART1 TX — so a DMA-driven SPI2 could only do TX (DMA1_Ch5).
+8. **PB14 / PB15 as laser XSHUT** ( `L1X_XSHUT_*` defines with `LASER_TOF_L1x` ). From laser init on, these
+   two pins hold the second VL53L1X off and the bottom one on. Until then they are SPI2 MISO / MOSI
+   ( `spiInit ( SPI2 )` runs first ), so the second laser is awake during early boot;
+   harmless while nothing addresses 0x29 before `ranging_init_L1 ( )`. After it, the **M25P16 must not be
+   accessed**: its DO output would fight PB14 held LOW. So the flash is **compiled out** where the XSHUT pins
+   are used: `ranging_vl53l1x.cpp` stops the build with an `#error` if `L1X_XSHUT_*` and `USE_FLASHFS` /
+   `USE_FLASH_M25P16` are defined together with `LASER_TOF_L1x` ( PRIMUS_X2_v1 has the flash defines
+   commented out; PRIMUS_V5 keeps them while its laser is off ). Also
+   **`GPIO_5/6`, `ADC_2/3`, `PWM_4/5`, `RGB_3`, XRanging FRONT / LEFT, `OPTIC_FLOW` and the user `SPI_Init`
+   ( re-runs `spiInit ( SPI2 )` ) must not be used**: any of them reconfigures a pin and either shuts the bottom laser off or wakes the second one, which
+   corrupts every reply at 0x29 without an I2C error. Documented only; nothing guards it at run time.
 
 ---
 

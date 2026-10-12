@@ -6,7 +6,7 @@ Fuses barometric pressure (and, when `LASER_ALT` is defined, laser Time-of-Fligh
 ## Source Files
 - **Altitude estimator and controller**: `src/main/flight/altitudehold.cpp`, `src/main/flight/altitudehold.h`
 - **Barometer chain**: `src/main/sensors/barometer.cpp` (conversion, zero, compensation), `src/main/drivers/barometer_icp10111.cpp` (ICP-10111 driver)
-- **Laser** ( one down-laser, only used by the estimator with `LASER_ALT` ): `src/main/drivers/ranging_vl53l0x.cpp` ( VL53L0X, `LASER_TOF`: 33 ms single ranging, `LASER_LPS` 0.1 IIR ) or `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( VL53L1X, `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter ). Both sit on I2C1 at 0x29, so only one can be defined: `altitudehold.cpp` stops the build with an `#error` if both are, and if `LASER_ALT` is defined without either.
+- **Laser** ( one down-laser, only used by the estimator with `LASER_ALT` ): `src/main/drivers/ranging_vl53l0x.cpp` ( VL53L0X, `LASER_TOF`: 33 ms single ranging, `LASER_LPS` 0.1 IIR ) or `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( VL53L1X, `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter ). Both sit on I2C1 at 0x29, so only one can be defined: `altitudehold.cpp` stops the build with an `#error` if both are, and if `LASER_ALT` is defined without either. With the `L1X_XSHUT_*` defines in `target.h` ( PRIMUS_X2_v1, PRIMUS_V5 ) a second VL53L1X may be fitted on the same bus: it is held in shutdown through its XSHUT pin and never read.
 - **Accelerometer sum**: `src/main/flight/imu.cpp` `imuCalculateAcceleration()` (builds `accSum[Z]`, the estimator's vertical acceleration)
 - **Flip** (drives the throttle during a flip): `src/main/flight/acrobats.cpp`, `acrobats.h`
 - **XY position** (not altitude): `src/main/flight/posEstimate.cpp`, `src/main/flight/posControl.cpp`
@@ -125,9 +125,11 @@ flowchart TD
 With a downward laser, altitude hold means height above the surface under the craft: gentle
 terrain is followed. `checkReading()` decides each estimator step what corrects the complementary
 filter. One fusion body serves both lasers, the VL53L0X ( `LASER_TOF` ) and the VL53L1X
-( `LASER_TOF_L1x` ). Only one can be fitted: both sit on I2C1 at 0x29, and both would write the same
+( `LASER_TOF_L1x` ). Only one is used: both sit on I2C1 at 0x29, and both would write the same
 estimator state. Defining both stops the build with an `#error`, and so does `LASER_ALT` without a
-laser. The two sensors differ only in the accessors and constants below, plus a return guard that
+laser. A second VL53L1X may be fitted only when the target holds it in shutdown ( `L1X_XSHUT_*`, see
+**VL53L1X driver** ); two sensors awake at 0x29 answer together and corrupt every reply without an I2C
+error. The two sensor types differ only in the accessors and constants below, plus a return guard that
 only the VL53L1X has.
 
 **Sensor interface.** The body reads the sensor only through six accessor macros, chosen with
@@ -286,7 +288,12 @@ Known limits on the VL53L1X ( PRIMUS_X2_v1, `vl53l1x-althold-parity` flights log
 
 **VL53L1X driver** ( `drivers/ranging_vl53l1x.cpp` / `.h`, `LASER_TOF_L1x` ).
 
-- **Set-up** ( `ranging_init_L1()`, from `main.cpp` ): Medium distance mode, 45 ms timing budget,
+- **Set-up** ( `ranging_init_L1()`, from `main.cpp` ): with the `L1X_XSHUT_*` target defines it first takes
+  the two XSHUT pins back from SPI2 ( `spiInit ( SPI2 )` ran earlier ): the second sensor's pin ( PB14 ) is
+  driven LOW for the whole session and the bottom sensor's ( PB15 ) is released as a floating input, so the
+  module's own pull-up ( ~2.8 V ) enables it; it is never driven HIGH. A 2 ms `delay ( )` then covers tBOOT
+  ( 1.2 ms ): the VL53L1 platform's `WaitUs` / `WaitValueMaskEx` are stubs, so `VL53L1_WaitDeviceBooted`
+  does not wait. Then Medium distance mode, 45 ms timing budget,
   50 ms inter-measurement period ( TIMED ranging ), each step only if the previous one succeeded; an
   error latches in `Global_Status_L1`. The mode, budget and period are target-overridable
   ( `L1X_DISTANCE_MODE`, `L1X_TIMING_BUDGET_US`, `L1X_SAMPLE_PERIOD_MS` ), and a `static_assert` requires

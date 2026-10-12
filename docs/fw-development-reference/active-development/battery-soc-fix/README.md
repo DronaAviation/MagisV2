@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 3 Oct 2026, FW 3.11.0, API 1.4.0; partial commit `369ea71` 29 Sep ). Pipeline doc ( Power_BMS_Pipeline ), Failsafe / MSP / User_Space_API notes, FLIGHT_INVARIANTS, CLAUDE.md, CHANGELOG and the BMS API wiki promoted |
+| **Status** | **Closed** in `cbd1c72` ( 3 Oct 2026, FW 3.11.0, API 1.4.0; partial commit `369ea71` 29 Sep ). Pipeline doc ( Power_BMS_Pipeline ), Failsafe / MSP / User_Space_API notes, FLIGHT_INVARIANTS, CLAUDE.md, CHANGELOG and the BMS API wiki promoted |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( one R020, 20 mOhm: production ); all targets built at commit |

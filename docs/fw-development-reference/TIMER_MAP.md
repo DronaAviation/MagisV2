@@ -110,6 +110,8 @@ The full LUT is `pwmConfig[]` in [Peripheral-PWM.cpp:49-61](../../src/main/API-S
 Notes:
 - The "free pin ✅" rows (`PWM_2/3/8/9` on PB6/PB7/PB4/PB5) are the safe user-PWM outputs.
 - `PWM_4/PWM_5` and the ADC pins they overlap are mutually exclusive — use one or the other.
+- With the `L1X_XSHUT_*` defines ( `LASER_TOF_L1x`, PRIMUS_X2_v1 / PRIMUS_V5 ) PB14 / PB15 are the
+  VL53L1X XSHUT lines: `PWM_4/PWM_5` ( TIM15 ) are not available ( `PIN_MAP.md` conflict 8 ).
 - `PWM_6/PWM_7` repurpose the SWD debug pins; using them blocks the debugger.
 - `PWM_1` shares TIM1_CH1/PA8 with the firmware's 5th PWM output; `PWM_10` shares TIM8_CH1/PA15
   with the LED strip — don't init these alongside those features.

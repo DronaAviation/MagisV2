@@ -27,6 +27,16 @@ on the same connector. They are mutually exclusive: `flight/altitudehold.cpp` st
 `#error` if both are defined ( and if `LASER_ALT` is defined without either ). No DMA is involved; the
 drivers poll from `UPDATE_LASER_TOF_TASK` in `mw.cpp`.
 
+**Two VL53L1X on one bus.** A board may carry a second VL53L1X at 0x29 if it is held in shutdown. With the
+`L1X_XSHUT_*` defines ( PRIMUS_X2_v1 and PRIMUS_V5 `target.h` ), `ranging_init_L1 ( )` drives the second
+sensor's XSHUT ( PB14, GPIO_6 ) LOW for the session and releases the bottom sensor's ( PB15, GPIO_5 ) as a
+floating input, then waits 2 ms ( the VL53L1 platform wait functions are stubs, so `WaitDeviceBooted` does not
+wait ). This takes PB14 / PB15 from the M25P16 flash ( compiled out: an `#error` in the driver if both are defined ),
+`GPIO_5/6`, `ADC_2/3`, `PWM_4/5`, `RGB_3`, XRanging,
+`OPTIC_FLOW` and the SPI API
+( `PIN_MAP.md` conflict 8 ). Two sensors both awake answer together at 0x29: wrong calibration and wrong
+ranges with no I2C error.
+
 Bus cost of the VL53L1X: a data-ready poll every 10 ms, and per sample ( every 51-53 ms ) one 17-byte
 result read plus a 1-byte interrupt-clear write, about 0.8 ms of blocking I2C at 400 kHz. The full ST
 API path it replaced took 5.4 ms and stretched a 3.5 ms loop. Budget any new I2C1 traffic against this.

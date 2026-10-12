@@ -134,6 +134,9 @@ Each of these has cost a flight. Full mechanism and numbers:
   the estimator below 160 cm and the baro above it (back below 140 cm)** — the return to the laser and a
   re-base shift the whole altitude frame so the craft does not move, and a sudden surface change is held
   on the baro for 2.5 s before re-basing (`FLIGHT_INVARIANTS.md`).
+- **A second VL53L1X at 0x29 must be held in shutdown** (`L1X_XSHUT_*`: PB14 LOW, PB15 released, never driven
+  HIGH); the VL53L1 platform waits are stubs, so `WaitDeviceBooted` does not wait. PB14 / PB15 then belong to
+  the laser, and the M25P16 is compiled out (`PIN_MAP.md` conflict 8, topic `vl53l1x-dual-xshut`).
 - **Battery current is read across one R020 ( 20 mOhm ): a stacked second shunt halves every current and mAh reading**
   ( range 8 A ). Low-battery levels come from the Pluto Fuel Gauge ( count, or compensated voltage ≤ 3.745 / 3.60 V per
   cell ), not from the stored warning / minimum voltages.

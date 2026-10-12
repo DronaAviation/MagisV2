@@ -13,7 +13,7 @@
  #  Created Date: Sat, 2th Aug 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 7th Jul 2026                                           #
+ #  Last Modified: Mon, 5th Oct 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -56,8 +56,10 @@ extern "C" {
 #define M25P16_CS_PIN              GPIO_Pin_12
 #define M25P16_SPI_INSTANCE        SPI2
 
-#define USE_FLASHFS
-#define USE_FLASH_M25P16
+// M25P16 off: its SPI2 MISO / MOSI ( PB14 / PB15 ) are the VL53L1X XSHUT lines ( L1X_XSHUT_* below ).
+// ranging_vl53l1x.cpp stops the build if both are defined with LASER_TOF_L1x.
+// #define USE_FLASHFS
+// #define USE_FLASH_M25P16
 
 #define ACC
 #define USE_ACC_ICM20948
@@ -181,8 +183,21 @@ extern "C" {
 // #define PAW3903_SC18
 
 // #define LASER_TOF // only to get laser height
-// #define LASER_TOF_L1x // only to get laser height
-// #define LASER_ALT // to integrate with althold
+#define LASER_TOF_L1x // only to get laser height
+#define LASER_ALT // to integrate with althold
+
+// Down-laser XSHUT ( VL53L1X, LASER_TOF_L1x only ): two TOF400C share I2C1 at 0x29. ranging_init_L1 ( ) drives
+// the OFF pin LOW ( second sensor held in shutdown all session ) and releases the ON pin as a floating input
+// ( bottom sensor enabled by the module's own pull-up to its ~2.8 V rail; never drive it HIGH ).
+// Taking PB14 / PB15 costs: M25P16 flash on SPI2 ( MISO / MOSI ), ADC_2 / ADC_3, PWM_4 / PWM_5, RGB_3,
+// XRanging FRONT / LEFT, OPTIC_FLOW and the Serial-IO-SPI user API ( spiInit ( SPI2 ) ). Any of them that
+// reconfigures PB14 / PB15 after laser init can shut the bottom laser off or wake the second one ( silent I2C
+// corruption ). Both pins share GPIOB, hence one L1X_XSHUT_PERIPHERAL.
+#define L1X_XSHUT_ON_GPIO          GPIOB
+#define L1X_XSHUT_ON_PIN           Pin_15    // PB15, GPIO_5: bottom laser, enabled
+#define L1X_XSHUT_OFF_GPIO         GPIOB
+#define L1X_XSHUT_OFF_PIN          Pin_14    // PB14, GPIO_6: second laser, held in shutdown
+#define L1X_XSHUT_PERIPHERAL       RCC_AHBPeriph_GPIOB
 
 #define FLIGHT_STATUS_INDICATOR
 #define ENABLE_ACROBAT

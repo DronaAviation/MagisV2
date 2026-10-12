@@ -11,12 +11,15 @@
  #  Created Date: Sat, 8th Nov 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 24th Sep 2026                                          #
+ #  Last Modified: Mon, 5th Oct 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  05-10-2026	AJ	XSHUT: second laser held in shutdown, bottom one released   #
+ #  			before the probe ( target L1X_XSHUT_* defines ); #error  #
+ #  			if the M25P16 flash is still defined.                    #
  #  24-09-2026	AJ	Range under 15 mm ( covered window ) counts as out of range.  #
  #  24-09-2026	AJ	L1X_DISTANCE_MODE compile-time switch ( default Medium );     #
  #  			L1X_TIMING_BUDGET_US overridable by the target.            #
@@ -102,6 +105,12 @@ void update_status_L1 ( VL53L1_Error Status ) {
 LaserSensor_L1 XVision;
 
 #ifdef LASER_TOF_L1x
+
+// The XSHUT pins are the M25P16's SPI2 MISO / MOSI: with PB14 held LOW, a flash access ( app MSP dataflash
+// read / erase ) would drive the flash's DO against it. One owner per pin.
+#if defined( L1X_XSHUT_OFF_GPIO ) && ( defined( USE_FLASH_M25P16 ) || defined( USE_FLASHFS ) )
+  #error "L1X_XSHUT_* takes PB14 / PB15 from the M25P16 ( SPI2 ): comment out USE_FLASHFS and USE_FLASH_M25P16 in target.h"
+#endif
 
 uint32_t sampleCount_L1  = 0;    // genuine new results ( valid or not ) since boot
 uint32_t lastSampleMs_L1 = 0;    // ms, millis ( ) at the last genuine new result
@@ -202,6 +211,24 @@ static void l1xDecodeResult ( const uint8_t *res, VL53L1_RangingMeasurementData_
 
 void ranging_init_L1 ( void ) {
   VL53L1_Error Status = Global_Status_L1;
+
+#if defined( L1X_XSHUT_OFF_GPIO ) && defined( L1X_XSHUT_ON_GPIO )
+  // Two VL53L1X share 0x29: hold the second in shutdown and release the bottom one before the first I2C access.
+  // spiInit ( SPI2 ) left both pins in SPI2 AF mode. The ON pin is never driven HIGH: the TOF400C pulls XSHUT up
+  // to its ~2.8 V rail ( 2.7 V measured ), so a floating input lets the module enable itself.
+  gpio_config_t xshut;
+  RCC_AHBPeriphClockCmd ( L1X_XSHUT_PERIPHERAL, ENABLE );
+  digitalLo ( L1X_XSHUT_OFF_GPIO, L1X_XSHUT_OFF_PIN );    // ODR low before the pin turns output: no HIGH glitch
+  xshut.pin   = L1X_XSHUT_OFF_PIN;
+  xshut.mode  = Mode_Out_PP;
+  xshut.speed = Speed_2MHz;
+  gpioInit ( L1X_XSHUT_OFF_GPIO, &xshut );
+  xshut.pin  = L1X_XSHUT_ON_PIN;
+  xshut.mode = Mode_IN_FLOATING;
+  gpioInit ( L1X_XSHUT_ON_GPIO, &xshut );
+  delay ( 2 );    // ms, > tBOOT ( 1.2 ms ): the platform's WaitUs / WaitValueMaskEx are stubs, so WaitDeviceBooted
+                  // does not wait, and as SPI2 MOSI ( spiInit ( SPI2 ) ) this pin's idle level was undefined
+#endif
 
   MyDevice_L1.I2cDevAddr      = 0x29;
   MyDevice_L1.comms_type      = 1;

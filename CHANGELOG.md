@@ -117,6 +117,17 @@ that removes all legacy STM32F10x support.
   stays steady within 25 cm for 2.5 s ( a real new floor, such as a take-off from a table ). A VL53L1X
   looking down past a ceiling fan read the blades as a valid 56 cm for four samples at 2.5 m, which would
   have shifted the altitude frame by about −2 m.
+- **Laser driver ( VL53L1X ), two sensors on one bus**: Boards with two VL53L1X ( TOF400C ) at 0x29 can
+  now fly on the bottom one. With the new `L1X_XSHUT_*` target defines ( PRIMUS_X2_v1 and PRIMUS_V5:
+  bottom XSHUT on PB15 / GPIO_5, second on PB14 / GPIO_6 ), `ranging_init_L1 ( )` holds the second sensor
+  in shutdown and releases the bottom one ( floating input to the module's own 2.8 V pull-up, never driven
+  HIGH ) with a 2 ms boot wait before the first I2C access ( the VL53L1 platform wait functions are stubs,
+  so `WaitDeviceBooted` does not wait ). Without it both sensors answered together: wrong calibration and
+  ranges with no error. Flight on PRIMUS_X2_v1 with both fitted: no driver error, 20 samples/s, valid
+  status in 99.9 % of flight samples, handovers at 160 / 140 cm unchanged. Costs 68 B of flash. PB14 / PB15
+  are then unavailable to the M25P16 flash ( the driver stops the build with an `#error` if
+  `USE_FLASHFS` / `USE_FLASH_M25P16` are still defined ), `GPIO_5/6`, `ADC_2/3`, `PWM_4/5`, `RGB_3`,
+  XRanging FRONT / LEFT, `OPTIC_FLOW` and the SPI API.
 
 ### Changed
 
@@ -143,8 +154,10 @@ that removes all legacy STM32F10x support.
   per-sensor accessors and constants; the VL53L0X object code is byte-identical to before. The build
   stops with an `#error` if both `LASER_TOF` and `LASER_TOF_L1x` are defined ( both are at I2C 0x29 ),
   or if `LASER_ALT` is defined without a laser.
-  The shipped `target.h` keeps the laser defines off, so the default build is unchanged
-  ( 98.9 KB / 14.8 KB ); a VL53L1X + `LASER_ALT` build is about 110 KB / 16.1 KB.
+  PRIMUS_X2_v1 now ships with `LASER_TOF_L1x` + `LASER_ALT` on and the two-sensor XSHUT pins ( see
+  Added ), so its M25P16 flash is compiled out ( `USE_FLASHFS`, `USE_FLASH_M25P16` commented out: no
+  blackbox flash, CLI flash commands or MSP dataflash ): 110.4 KB / 15.9 KB. PRIMUS_V5 and PRIMUSX2 keep the
+  laser off ( 100.9 KB / 14.8 KB and 100.7 KB / 14.9 KB ).
 - **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
   style ) instead of switching the controller to raw velocity control. The
   climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at
@@ -196,6 +209,8 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **MSP firmware version**: `FW_VERSION_LENGTH` 5 -> 6 ( `version.h` ). The `MSPII_FC_FW_VERSION` reply
+  sent only the first 5 characters of `3.11.0`, so the app received `3.11.`.
 - **BMS**: Remaining charge wrapped to ~65000 mAh on an empty pack, so the app
   jumped to 54-58% near empty; it now stops at 0 and never rises in flight.
 - **BMS**: The low-battery warning came ~15 s before empty or not at all ( a
@@ -340,6 +355,10 @@ that removes all legacy STM32F10x support.
   line each left in *Flight invariants*.
 - `PIN_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: one down-laser at 0x29 on I2C1; VL53L0X and VL53L1X
   are mutually exclusive.
+- `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`: a second VL53L1X held in shutdown;
+  XSHUT step and boot wait in the driver set-up.
+- `PIN_MAP.md` ( conflict 8 ), `TIMER_MAP.md`, `DMA_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: PB14 / PB15
+  as laser XSHUT and what that takes away.
 
 ## [v3.0.0] - 2026-02-10
 

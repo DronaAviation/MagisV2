@@ -87,6 +87,9 @@ DMA channel stays **free** for other use. See [Peripheral-ADC.cpp](../../src/mai
 | DMA2_Channel2  | ADC_2, ADC_3, ADC_5      | ADC_2 / ADC_3 / ADC_5 |
 | DMA2_Channel5  | ADC_4                    | ADC_4 |
 
+- With the `L1X_XSHUT_*` defines ( `LASER_TOF_L1x`, PRIMUS_X2_v1 / PRIMUS_V5 ) PB14 / PB15 are the
+  VL53L1X XSHUT lines: `ADC_2` / `ADC_3` are not available, so DMA2_Channel2 is claimed only by `ADC_5`
+  ( `PIN_MAP.md` conflict 8 ).
 - Pins **within the same row** share one ADC + DMA channel cooperatively — you can use
   them together (multi-channel scan). They are **not** mutually exclusive.
 - The only conflict is **an enabled ADC pin vs. your own custom use of that same DMA

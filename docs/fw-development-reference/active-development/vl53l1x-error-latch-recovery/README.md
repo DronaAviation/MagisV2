@@ -36,5 +36,11 @@ This is a robustness gap, not an observed fault.
 4. Bench test: unplug and re-plug the sensor, disarmed and then armed with props off. Check the recovery time,
    that the loop time stays bounded, and that the estimator returns to the laser cleanly ( frame shift ).
 5. Check the interaction with the estimator's dropout / return and the return guard.
+6. **Two-sensor boards ( `L1X_XSHUT_*` defines, from [vl53l1x-dual-xshut](../vl53l1x-dual-xshut/README.md) ):**
+   the second VL53L1X is held in shutdown by the OFF pin ( PB14, push-pull LOW ) and the bottom one is enabled by
+   releasing the ON pin ( PB15, floating input, never driven HIGH ). A re-init must keep the OFF pin LOW, so both
+   sensors never answer at 0x29 together. It must also wait tBOOT ( 1.2 ms ) itself after any XSHUT toggle:
+   the platform's `VL53L1_WaitUs` / `VL53L1_WaitValueMaskEx` are stubs, so `WaitDeviceBooted` does not wait.
+   Pulsing the ON pin LOW is a way to hard-reset a hung bottom sensor, but it needs that wait too.
 
 Run `/pluto-grill` on this topic to start it.
