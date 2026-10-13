@@ -362,9 +362,13 @@ void failsafeUpdateState ( void ) {
 void failsafeOnCrash ( void ) {
 
   if ( ARMING_FLAG ( ARMED ) && fsCrash && FLIGHT_MODE ( ANGLE_MODE ) ) {
-    if ( ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700 || 
-         ( ABS ( accSmooth [ 0 ] ) > 1250 ) || ( ABS ( accSmooth [ 1 ] ) > 1250 ) ||
-         ( ABS ( accADC [ 0 ] ) > 1750 ) || ( ABS ( accADC [ 1 ] ) > 1750 ) ) {    // to indicate that a crash has occurred// || (ABS(accSmooth[0])>5000)||(ABS(accSmooth[1])>5000)
+    // Impact limits, X/Y accel in LSB ( acc_1G 4096 ): 5000 / 8000 ( 1.22 g / 1.95 g ); originally 1250 / 1750 ( 0.305 g / 0.427 g ).
+    // A survivable bump peaks at up to ~1.3 g raw; a contact that tips the craft over is caught by the 70 deg term.
+    const bool angleTrip  = ABS ( inclination.values.rollDeciDegrees ) > 700 || ABS ( inclination.values.pitchDeciDegrees ) > 700;
+    const bool smoothTrip = ( ABS ( accSmooth [ 0 ] ) > 5000 ) || ( ABS ( accSmooth [ 1 ] ) > 5000 );
+    const bool rawTrip    = ( ABS ( accADC [ 0 ] ) > 8000 ) || ( ABS ( accADC [ 1 ] ) > 8000 );
+
+    if ( angleTrip || smoothTrip || rawTrip ) {    // to indicate that a crash has occurred
 
 #ifdef ENABLE_ACROBAT
       if ( flipState >= 1 ) {

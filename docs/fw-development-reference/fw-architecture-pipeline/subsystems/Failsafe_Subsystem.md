@@ -24,6 +24,53 @@ The Failsafe module acts as an autonomous safety net. It runs continuously to mo
 - **Override Strictness**: When `failsafeApplyControlInput()` is active, the User API (`PlutoPilot`) and Pilot inputs are completely ignored. The Failsafe dictates the `rcCommand` struct exclusively.
 - **Critical battery**: `batteryCriticalAutoLand ( )` ( `mw.cpp` ) starts the same `LAND` command as the RX-loss path on a confirmed critical battery level; the battery code itself never disarms. See [Power_BMS_Pipeline.md](Power_BMS_Pipeline.md).
 
+## Crash Detector ( `failsafeOnCrash ( )` )
+
+`failsafeOnCrash ( )` ( [failsafe.cpp:362](../../../../src/main/flight/failsafe.cpp#L362) ) runs once per control loop
+( 3.5 ms, called from [mw.cpp:1424](../../../../src/main/mw.cpp#L1424) ). It is active only while **armed, `fsCrash` on
+and in ANGLE mode**. `fsCrash` is on by default; user code can switch it with `Failsafe_enable / disable ( CRASH )`. It
+disarms on **one sample** in which any of these terms is true:
+
+| Term | Limit | In g / degrees |
+|---|---|---|
+| `angleTrip`: \|roll\| or \|pitch\| | > 700 deci-degrees | 70° ( commanded tilt is limited to 20° ) |
+| `smoothTrip`: \|`accSmooth` X\| or \|Y\| | > 5000 LSB | 1.22 g ( filtered, `acc_1G` 4096 ) |
+| `rawTrip`: \|`accADC` X\| or \|Y\| | > 8000 LSB | 1.95 g ( chip low-pass ~5.7 Hz ) |
+
+- **Why these limits:** in flight logs a survivable bump peaks at up to ~1.3 g raw. A contact that tips the craft over
+  is no bigger, and is caught by the 70° term within ~0.35 s. The accel terms catch a hard hit on the first sample,
+  before the tumble. Both limits are above 1 g, so tilt alone never trips them. Before FW 3.11.1 the limits were 0.305 g
+  and 0.427 g, which disarmed on light bumps. Evidence:
+  [crash-detect-false-trigger](../../active-development/crash-detect-false-trigger/INVESTIGATION.md).
+- **During a flip** ( `flipState >= 1`, `ENABLE_ACROBAT` ) the detector returns without acting.
+- **On a trip:** `set_FSI ( Crash )` then `mwDisarm ( )`. The craft disarms; it does not land and does not halt the
+  board.
+- **Flag clear:** about 300 ms after the trip, once the craft is level ( `SMALL_ANGLE` ), `Crash` is cleared
+  ( [mw.cpp:484-494](../../../../src/main/mw.cpp#L484) ) and the craft can be armed again. While `Crash` is set,
+  arming by gesture is blocked ( [rc_controls.cpp:183](../../../../src/main/io/rc_controls.cpp#L183) ).
+- **Not detected:**
+  - a craft pinned upright against a wall;
+  - a ceiling hit or an upright drop ( Z is not checked );
+  - a craft caught by a hand or a curtain;
+  - a craft resting tilted at 20-69°;
+  - any crash outside ANGLE mode.
+
+  The pilot's ARM switch covers these. Follow-up: Planned topic
+  [crash-stuck-detection](../../active-development/crash-stuck-detection/README.md).
+
+```mermaid
+flowchart TD
+    Loop([mw.cpp loop, every 3.5 ms]) --> Fn[failsafeOnCrash]
+    Fn --> Gate{Armed and fsCrash<br/>and ANGLE mode?}
+    Gate -- No --> Out([return])
+    Gate -- Yes --> Terms{angle > 70°<br/>or accSmooth X/Y > 5000<br/>or accADC X/Y > 8000?}
+    Terms -- No --> Out
+    Terms -- Yes --> Flip{flipState >= 1?}
+    Flip -- Yes --> Out
+    Flip -- No --> Trip[set_FSI Crash<br/>mwDisarm]
+    Trip --> Clear[mw.cpp: after 300 ms and SMALL_ANGLE<br/>reset_FSI Crash]
+```
+
 ```mermaid
 flowchart TD
     Start([Update Failsafe State]) --> CheckRx{Is RX Data Active?}

@@ -8,7 +8,7 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 3 Oct 2026 ). All tasks done. |
+| **Current task** | **Closed** in `cbd1c72` ( 3 Oct 2026 ). All tasks done. |
 | **Next step** | The user commits with `.git/MAGISV2_COMMIT_MSG.txt`; the next pluto-commit / pluto-grill run fills in the hash. Follow-ups outside this topic: the app changes in APP_INTEGRATION.md section 0; optional unmask of level 2 in `MSP_ANALOG` while armed; `MSP_VOLTAGE_METER_CONFIG` field order; review notes 4 and 6 ( CHANGES.md "Task 11" ). log-8 charger mAh was not recorded. |
 | **Open questions** | none for this topic |
 | **Blocked on** | the user's commit |

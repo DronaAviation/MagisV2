@@ -120,12 +120,13 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.11.0 (API 1.4.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.11.1 (API 1.4.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
-  altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land.
+  altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
+  3.11.1 for the crash-detection limits.
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -196,6 +197,11 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Failsafe**: Crash detection disarmed on light bumps and firm landings in most flights: one
+  sample of sideways acceleration over 0.305 g ( filtered ) or 0.427 g ( raw ) was enough, and a
+  survivable bump reads up to ~1.3 g. The limits are now 1.22 g / 1.95 g; the 70° tilt rule is unchanged
+  and still catches a contact that flips the craft. Not detected: a craft pinned upright, vertical impacts
+  ( see `crash-stuck-detection` ).
 - **BMS**: Remaining charge wrapped to ~65000 mAh on an empty pack, so the app
   jumped to 54-58% near empty; it now stops at 0 and never rises in flight.
 - **BMS**: The low-battery warning came ~15 s before empty or not at all ( a

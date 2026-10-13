@@ -1,7 +1,9 @@
 # Error & Failure Mode (`main.cpp`)
 
 ## Overview
-If hardware initialization fails (e.g., missing IMU) or a fatal runtime error occurs (like a hard crash exceeding accelerometer/gyro limits), the system enters a safe halt state. This state explicitly blocks arming and locks up the main thread to prevent unsafe flight. It can only be cleared by a physical power cycle.
+If hardware initialization fails (e.g., missing IMU) or a fatal runtime error occurs, the system enters a safe halt state. This state explicitly blocks arming and locks up the main thread to prevent unsafe flight. It can only be cleared by a physical power cycle.
+
+A **flight crash is not a failure mode.** The crash detector ( `failsafeOnCrash ( )` ) only disarms. The `Crash` flag clears about 300 ms later, once the craft is level, and the craft can be armed again without a power cycle. See [Failsafe_Subsystem.md](Failsafe_Subsystem.md#crash-detector--failsafeoncrash--).
 
 ## Source Files
 - **Error Handlers**: `src/main/main.cpp`, `src/main/flight/failsafe.cpp`
