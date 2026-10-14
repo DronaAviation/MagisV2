@@ -140,6 +140,7 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **At critical battery the firmware lands ( `LAND` ); the app must not be told "critical" while armed** — it switches
   ARM off on that status and the motors stop in the air. Low battery is reported until the landing disarms, then
   `mwArm ( )` refuses to arm until the pack is changed ( `FLIGHT_INVARIANTS.md` ).
+- **RC link loss lands ~2.5 s after the last frame** ( Wi-Fi / MSP; ~2.4 s on ELRS / PPM; `failsafe_delay` 15, capped at 22 ): Wi-Fi stalls of 1-2 s are normal. Extend tolerance only through `failsafe_delay`, never through the 600 ms stick hold ( `MAX_INVALID_PULS_TIME` ) or `DELAY_5_HZ` ( `FLIGHT_INVARIANTS.md` ).
 
 ## Conventions
 

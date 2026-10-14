@@ -13,7 +13,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 24th Mar 2026                                          #
+ #  Last Modified: Tue, 13th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -150,7 +150,11 @@ controlRateConfig_t *currentControlRateProfile;
 
 // 107: alt-hold outer-loop gain P8 [ PIDALT ] 100 -> 128. Stored profiles keep
 //      their old gain, so the bump is required for the change to take effect.
-static const uint8_t EEPROM_CONF_VERSION = 107;
+// 108: failsafe_delay default 10 -> 15, now actually applied ( LAND ~2.5 s after the
+//      last RC frame ). Stored configs keep 10, so the bump is required; it resets
+//      all saved settings, accelerometer and magnetometer calibration included
+//      ( MAG_ENFORCE: on Wi-Fi / PPM the craft will not arm until the compass is calibrated ).
+static const uint8_t EEPROM_CONF_VERSION = 108;
 
 static void resetAccelerometerTrims ( flightDynamicsTrims_t *accelerometerTrims ) {
   accelerometerTrims->values.pitch = 0;
@@ -547,7 +551,7 @@ static void resetConf ( void ) {
   currentProfile->throttle_correction_angle = 800;    // could be 80.0 deg with atlhold or 45.0 for fpv
 
   // Failsafe Variables
-  masterConfig.failsafeConfig.failsafe_delay              = 10;      // 1sec
+  masterConfig.failsafeConfig.failsafe_delay              = 15;      // 1.5 s guard: LAND ~2.5 s after the last RC frame
   masterConfig.failsafeConfig.failsafe_off_delay          = 200;     // 20sec
   masterConfig.failsafeConfig.failsafe_throttle           = 1300;    // default throttle off. (1000) changed
   masterConfig.failsafeConfig.failsafe_kill_switch        = 0;       // default failsafe switch action is identical to rc link loss

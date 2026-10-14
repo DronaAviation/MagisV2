@@ -119,7 +119,8 @@ extern uint8_t Indicator;
 Interval crashTimer;
 
 static void failsafeReset ( void ) {
-  failsafeState.rxDataFailurePeriod         = PERIOD_RXDATA_FAILURE + failsafeConfig->failsafe_delay * MILLIS_PER_TENTH_SECOND;
+  // failsafe_delay is settable up to 255 over MSP / 200 over CLI; cap it so a stored value cannot stretch the blind window
+  failsafeState.rxDataFailurePeriod         = PERIOD_RXDATA_FAILURE + MIN ( failsafeConfig->failsafe_delay, FAILSAFE_DELAY_MAX ) * MILLIS_PER_TENTH_SECOND;
   failsafeState.validRxDataReceivedAt       = 0;
   failsafeState.validRxDataFailedAt         = 0;
   failsafeState.throttleLowPeriod           = 0;
@@ -210,7 +211,7 @@ void failsafeOnValidDataReceived ( void ) {
 
 void failsafeOnValidDataFailed ( void ) {
   failsafeState.validRxDataFailedAt = millis ( );
-  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > PERIOD_RXDATA_FAILURE ) {
+  if ( ( failsafeState.validRxDataFailedAt - failsafeState.validRxDataReceivedAt ) > failsafeState.rxDataFailurePeriod ) {
     failsafeState.rxLinkState = FAILSAFE_RXLINK_DOWN;
   }
 }

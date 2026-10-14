@@ -15,13 +15,21 @@ The receiver subsystem fetches external control data, validates it, smooths it, 
 
 ## Primary Functions
 - `computeRC()`: The main entry point called periodically in the loop. It reads the latest frame, applies jitter filtering, and maps it to `rcData`.
-- `rxUpdateCheck()`: Polled to verify if a new, valid frame has arrived. If a timeout occurs, it signals `failsafeUpdateState()`.
+- `updateRx ( )` / `shouldProcessRx ( )`: take in new frames; RC processing runs at a 50 Hz floor. With MSP
+  ( `Rx_ESP` ) each `MSP_SET_RAW_RC` sets `needRxSignalBefore = now + 200 ms` ( `DELAY_5_HZ` ), and
+  `rxIsReceivingSignal ( )` stays true until then.
+- `calculateRxChannelsAndUpdateFailsafe ( )` → `detectAndApplySignalLossBehaviour ( )`: per channel, an invalid
+  sample keeps the last value for `MAX_INVALID_PULS_TIME` ( 600 ms ), then takes its rxfail value ( AUTO: roll /
+  pitch / yaw midrc, throttle 1200; AUX: HOLD ). The result is copied into `rcDataPilot`, and the failsafe is told
+  whether the flight channels are valid.
 - `rcCurve()`: Applies Expo and Deadband transformations to `rcData` to populate `rcCommand`.
 
 ## Data Flow & Boundaries
 - **Raw Pulse Constraints**: Incoming signals are expected between `1000` (min) and `2000` (max) microseconds. Midpoint is exactly `1500`.
 - **Invalid Pulses**: If a channel reports `< 885` or `> 2115` (default `rx_min_usec` / `rx_max_usec`), the pulse is marked invalid and failsafe logic may increment.
 - **Filtering**: A multi-point moving average filter (`rx_smoothing`) prevents sudden, physically impossible jumps in RC commands from reaching the PID loop.
+- **Signal loss timing ( MSP )**: last frame replayed for 200 ms, held to ~800 ms, then rxfail values. Failsafe
+  `LAND` at ~2.5 s with the default `failsafe_delay` 15. See [Failsafe_Subsystem.md](Failsafe_Subsystem.md).
 
 ```mermaid
 flowchart TD

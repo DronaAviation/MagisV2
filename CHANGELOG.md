@@ -120,13 +120,13 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.11.1 (API 1.4.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.11.2 (API 1.4.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
-  3.11.1 for the crash-detection limits.
+  3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay.
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -197,6 +197,15 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Failsafe**: Wi-Fi RC stalls of 1-2 s on a healthy link ended the flight in an automatic landing: the
+  configured `failsafe_delay` was never applied, so `LAND` came ~1.0 s after the last RC frame. It is now applied,
+  with a default of 15 ( 1.5 s ) and a cap of 22, so `LAND` comes ~2.5 s after the last frame ( ~2.4 s on ELRS / PPM ).
+  From ~0.8 s the sticks are centred and throttle is 1200, as before. A mapped failsafe switch now also waits
+  ~1.7 s before `LAND`. MSP and CLI read back the stored `failsafe_delay`, not the capped value.
+  **`EEPROM_CONF_VERSION` 108 resets every saved setting on the first boot after flashing**: accelerometer and
+  compass calibration, trims, PIDs and rates, rxfail, AUX ranges in slot 5 and up, and battery capacity.
+  Recalibrate the accelerometer and compass; on Wi-Fi / PPM the drone will not arm until the compass is done.
+  Flashing back to an older build resets the settings again.
 - **Failsafe**: Crash detection disarmed on light bumps and firm landings in most flights: one
   sample of sideways acceleration over 0.305 g ( filtered ) or 0.427 g ( raw ) was enough, and a
   survivable bump reads up to ~1.3 g. The limits are now 1.22 g / 1.95 g; the 70° tilt rule is unchanged

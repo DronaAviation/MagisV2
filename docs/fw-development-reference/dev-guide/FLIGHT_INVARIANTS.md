@@ -125,3 +125,18 @@ hover at critical ( log-3: 0.2 s after critical ). Now a confirmed critical star
 `mw.cpp` ), and `MSP_FLIGHT_STATUS` / `MSP_ANALOG` report low battery until the landing has disarmed; then critical
 is reported and `mwArm ( )` refuses to arm until the pack is changed. A provisional critical ( before the pack
 resistance is measured ) beeps but does not land.
+
+## RC link loss lands ~2.5 s after the last frame ( MSP; ~2.4 s on ELRS / PPM ); do not lengthen the stick hold
+
+On the Wi-Fi link ( MSP over TCP ), stalls of 1.2-2.2 s happen on a healthy link. Before FW 3.11.2
+`failsafeOnValidDataFailed ( )` ignored `failsafe_delay`, so every such stall ended the flight in `LAND`
+( ~1.0 s ). Now the timeline from the last frame is:
+- 0-200 ms: the last frame is replayed;
+- 200 ms: Developer Mode stops;
+- ~800 ms: the stick hold ends; sticks go centred and throttle to 1200;
+- **~2.5 s**: `Signal_loss` and `LAND` ( `failsafe_delay` 15, capped at 22 = ~3.2 s by `FAILSAFE_DELAY_MAX` ).
+
+Extend tolerance only through `failsafe_delay`, which lengthens the sticks-centred phase. Never lengthen it
+through `MAX_INVALID_PULS_TIME` or `DELAY_5_HZ`: in that phase the craft keeps flying the last stick input.
+See [`Failsafe_Subsystem.md`](../fw-architecture-pipeline/subsystems/Failsafe_Subsystem.md) and
+[`../active-development/rx-signal-loss-tolerance/`](../active-development/rx-signal-loss-tolerance/).

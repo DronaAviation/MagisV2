@@ -77,6 +77,8 @@ Failsafe delays are configured in 0.1 second steps.
 
 Guard time for failsafe activation after signal lost.  This is the amount of time the flight controller waits to see if it begins receiving a valid signal again before activating failsafe.
 
+MagisV2: default 15 ( 1.5 s ), and the firmware uses at most 22 ( `FAILSAFE_DELAY_MAX` ) whatever is stored. With MSP RC ( Wi-Fi ) the last frame is replayed for 200 ms and the sticks are held to ~800 ms, so failsafe ( `LAND` ) starts ~2.5 s after the last RC frame ( 800 ms + 200 ms + delay ). `failsafe_off_delay` and `failsafe_throttle` are not used: on signal loss MagisV2 runs its own `LAND` command. That `LAND` is **not cancelled** when the link returns: it runs until touchdown and disarm. A mapped failsafe switch ( `BOXFAILSAFE` ) centres the sticks at once but also waits 200 ms + `failsafe_delay` ( ~1.7 s ) before `LAND`. ELRS / PPM use a 100 ms signal timeout, so `LAND` comes at ~2.4 s.
+
 ### `failsafe_off_delay`
 
 Delay after failsafe activates before motors finally turn off.  This is the amount of time 'failsafe_throttle' is active.  If you fly at higher altitudes you may need more time to descend safely.

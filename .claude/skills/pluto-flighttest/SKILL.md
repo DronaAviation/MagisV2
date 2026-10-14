@@ -55,12 +55,12 @@ python tools/flightlog.py table   <log> --step 10   # block-averaged table of ev
 ### Developer Mode restarts: dropped RC frames on the link
 
 `plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true ( `userCode ( )`,
-`mw.cpp:1111-1170` ). With `Rx_ESP` that flag falls **200 ms after the last
+`mw.cpp:1119-1180` ). With `Rx_ESP` that flag falls **200 ms after the last
 `MSP_SET_RAW_RC` frame** ( `DELAY_5_HZ`, `rx/rx.cpp:369` ); the serial and PPM
 links use 100 ms. On the drop the firmware runs `onLoopFinish ( )`, clears every
 user RC override ( `RC_ARRAY`, `userRCflag` ) and `isUserHeadingSet`, and re-runs
-`onLoopStart ( )` on the next frame ( `mw.cpp:1160-1169` ). The pilot's switch has
-not moved and failsafe does not react ( `failsafe_delay` 1 s ): the only trace is
+`onLoopStart ( )` on the next frame ( `mw.cpp:1167-1178` ). The pilot's switch has
+not moved and failsafe does not react ( it waits ~2.5 s, `failsafe_delay` 15 ): the only trace is
 a restart of the user code.
 
 - **Make restarts visible:** print a marker on its own tick when `onLoopStart ( )`

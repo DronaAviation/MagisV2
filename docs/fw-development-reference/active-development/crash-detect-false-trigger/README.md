@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 13 Oct 2026, FW 3.11.1, API 1.4.0 ) |
+| **Status** | **Closed** in `386599b` ( 13 Oct 2026, FW 3.11.1, API 1.4.0 ) |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |
 | **Last updated** | 13 Oct 2026 |
@@ -35,4 +35,4 @@ within 250 ms. Quiet flight stays under 0.47 g raw.
 
 ## Next action
 
-None: closed, pending the user's commit ( FW 3.11.1 ).
+None: closed in `386599b` ( FW 3.11.1 ).
