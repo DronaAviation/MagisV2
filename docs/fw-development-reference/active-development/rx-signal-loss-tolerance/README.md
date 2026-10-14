@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 14 Oct 2026, FW 3.11.2, API 1.4.0, `EEPROM_CONF_VERSION` 108 ) |
+| **Status** | **Closed** in `84c326d` ( 14 Oct 2026, FW 3.11.2, API 1.4.0, `EEPROM_CONF_VERSION` 108 ) |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |
 | **Last updated** | 14 Oct 2026 |
@@ -30,4 +30,4 @@ and an automatic landing in flight. `failsafeOnValidDataFailed ( )` ignored the 
 
 ## Next action
 
-None: closed, pending the user's commit ( FW 3.11.2 ).
+None: closed in `84c326d` ( FW 3.11.2 ).

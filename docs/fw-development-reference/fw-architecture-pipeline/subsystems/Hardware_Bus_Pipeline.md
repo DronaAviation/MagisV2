@@ -1,7 +1,7 @@
 # Hardware Bus Pipeline (I2C & SPI)
 
 ## Overview
-The Hardware Bus abstraction layer acts as the physical communication bridge between the STM32F3 microcontroller and the onboard peripherals (IMUs, Barometers, Magnetometers, Time-of-Flight sensors). The pipeline is optimized to use DMA (Direct Memory Access) and interrupts where possible to avoid blocking the high-frequency PID control loop.
+The Hardware Bus abstraction layer acts as the physical communication bridge between the STM32F3 microcontroller and the onboard peripherals (IMUs, Barometers, Magnetometers, Time-of-Flight sensors). I2C is **polled**: every transaction busy-waits on the peripheral's status flags ( `I2C_LONG_TIMEOUT`, then a bus recovery on timeout ) and blocks the loop until it finishes. There is no I2C DMA or interrupt. Peripherals on the shared I2C1 bus must therefore budget their bytes per loop.
 
 ## Source Files
 - **I2C Drivers**: `src/main/drivers/bus_i2c.h`, `src/main/drivers/bus_i2c_stm32f30x.c`, `src/main/drivers/bus_i2c_soft.cpp`
@@ -14,13 +14,23 @@ The Hardware Bus abstraction layer acts as the physical communication bridge bet
 - `i2cError_e`: Error tracking for NACK, Timeout, or Bus Collisions.
 
 ## Primary Functions
-- `i2cInit()` / `spiInit()`: Configures the GPIO alternate functions, clock speeds, and DMA channels for the respective buses.
-- `i2cRead()` / `i2cWrite()`: Standard blocking/non-blocking I2C transactions. Fast I2C (400kHz) is enforced for sensors.
+- `i2cInit()` / `spiInit()`: configure the GPIO alternate functions and clock speeds for the bus. I2C uses no DMA.
+- `i2cRead()` / `i2cWrite()` / `i2cWriteBuffer()`: blocking, polled I2C transactions at 400 kHz
+  ( `I2C_Timing` 0x00E0257A ). A byte costs ~25 µs on the wire plus per-transaction overhead.
 - `spiTransfer()`: Handles synchronous data exchange over SPI. Required for high-speed MPU/ICM IMU gyro data polling (up to 8MHz).
 
 ## Data Flow & Boundaries
 - **I2C Constraints**: The I2C bus is notoriously susceptible to noise and hardware lockups. The firmware implements a strict timeout and recovery mechanism (bus reset) if an `I2C_Timeout` occurs.
 - **SPI Constraints**: SPI is the preferred interface for IMUs due to its high throughput. The maximum clock speed is bounded by the specific peripheral (e.g., MPU6000 limits SPI to 1MHz for registers, 20MHz for data).
+- **Shared I2C1 budget**: the IMU, barometer, magnetometer and the OLED ( 0x3C ) share I2C1 inside the gated loop.
+  The OLED never writes the panel from the loop directly. Drawing goes to a 1 KB RAM framebuffer, and
+  `oledFlushStep ( )` ( called from `OledDisplayData ( )`, `mw.cpp:1130` ) sends at most **one run of up to 16 changed
+  bytes per loop** ( ~0.6 ms ), and only while the frame differs from what the panel shows. The old per-byte
+  writes ( ~630 transactions, 45-60 ms every 200 ms ) made the drone twitch at 5 Hz
+  ( [oled-flight-wobble](../../active-development/oled-flight-wobble/README.md) ).
+- **OLED failure**: if the panel stops answering ( 3 failed runs in a row, or more than ~1 in 5 failing ), the
+  OLED is switched off, so a loose connector cannot keep stalling the loop. The 2 s start-up splash still writes
+  the panel directly, at boot only.
 
 ```mermaid
 flowchart TD

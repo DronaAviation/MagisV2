@@ -108,6 +108,11 @@ Tooling backlog: `.claude/TOOLING_BACKLOG.md`.
 - **Vendored code under `lib/` is upstream — don't reformat it.**
 - **RGB LED:** `API/RGB-LED.h` with a selectable data pin; the Cleanflight `LED_STRIP` feature stays
   off (enabling it corrupts config/BARO).
+- **OLED:** I2C is polled and shared with the IMU, so the OLED never writes the panel byte by byte from the loop
+  (that caused a 5 Hz twitch). It draws into a RAM framebuffer, and `oledFlushStep ( )` sends at most 16 changed
+  bytes per loop. `Oled_Update` / `Oled_display_Update` only queue the frame, so their buffers must be `static`.
+  Never write the panel directly: the only exception is a full hardware clear followed by `oledPanelCleared ( )`
+  inside `oled_display.c` (`active-development/oled-flight-wobble/`).
 
 Hooks, API layout, source tree, build groups, RGB LED: `docs/fw-development-reference/dev-guide/ARCHITECTURE_OVERVIEW.md`.
 

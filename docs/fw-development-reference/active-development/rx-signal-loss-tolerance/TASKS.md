@@ -8,8 +8,8 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 14 Oct 2026, FW 3.11.2 ). All tasks done. |
-| **Next step** | The user commits; the next pluto-commit or pluto-grill run fills in the hash |
+| **Current task** | **Closed** in `84c326d` ( 14 Oct 2026, FW 3.11.2 ). All tasks done. |
+| **Next step** | none |
 | **Open questions** | none |
 | **Blocked on** | nothing |
 | **Last updated** | 2026-10-14 |

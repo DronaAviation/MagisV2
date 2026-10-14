@@ -34,7 +34,7 @@ that removes all legacy STM32F10x support.
 - **API**: `Bms_Get` options `SoC`, `Warning_Level` and `Resistance`
   ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 - **OLED**: Unified OLED subsystem with SYSTEM/USER ownership modes: non-blocking
-  rendering API (`Oled.cpp`/`Oled.h`), framebuffer drawing primitives, and
+  ( RAM framebuffer and rate-limited flush, see Fixed ) rendering API (`Oled.cpp`/`Oled.h`), framebuffer drawing primitives, and
   diff-based updates for efficient I2C communication. Ownership control prevents
   system/user rendering conflicts.
 - **OLED**: Simple API layer with batched I2C, boxy "eyes", `DrawText`, bitmap
@@ -120,13 +120,15 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.11.2 (API 1.4.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.11.3 (API 1.4.1) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
-  3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay.
+  3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
+  3.11.3 for the OLED flight fix.
+  API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -197,6 +199,12 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **OLED**: With an OLED fitted and `Oled_Init ( )` called, the drone twitched about 5 times a second in
+  flight. The system telemetry wrote the panel with one blocking I2C transaction per font byte ( ~630 every
+  200 ms, 45-60 ms ) on the polled I2C1 bus the IMU shares, so the PID ran on a ~50 ms old gyro sample.
+  Drawing now goes to a 1 KB RAM framebuffer, and at most 16 changed bytes ( ~0.6 ms ) are sent per loop.
+  `Oled_Update` / `Oled_display_Update` only queue the frame, so a buffer passed in must stay valid ( `static` ),
+  and `Oled_Mode` starts from a blank frame. The OLED is switched off if the panel stops answering. RAM +2 KB.
 - **Failsafe**: Wi-Fi RC stalls of 1-2 s on a healthy link ended the flight in an automatic landing: the
   configured `failsafe_delay` was never applied, so `LAND` came ~1.0 s after the last RC frame. It is now applied,
   with a default of 15 ( 1.5 s ) and a cap of 22, so `LAND` comes ~2.5 s after the last frame ( ~2.4 s on ELRS / PPM ).

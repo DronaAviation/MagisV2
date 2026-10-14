@@ -8,7 +8,7 @@
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 24th Jun 2026                                          #
+ #  Last Modified: Wed, 14th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -70,9 +70,10 @@ void OledDisplaySystemData ( void );
 void OledDisplayNav ( void );
 
 /**
- * @brief Main entry point for system-mode rendering.
+ * @brief Per-loop OLED entry point ( called from userCode ( ) ).
  *
- * Checks mode and timing before calling Nav and System rendering functions.
+ * Redraws the system telemetry into RAM every 200 ms in System mode, then sends
+ * one bounded run of changed bytes to the panel ( both modes ).
  */
 void OledDisplayData ( void );
 
@@ -82,12 +83,14 @@ void OledDisplayData ( void );
  */
 
 /**
- * @brief Return OLED ownership to the system. Clears display if not armed.
+ * @brief Return OLED ownership to the system. The panel is replaced by the
+ * telemetry through the rate-limited flush ( armed or not ).
  */
 void Oled_SystemMode ( void );
 
 /**
- * @brief Grant OLED ownership to user code. Clears display if not armed.
+ * @brief Grant OLED ownership to user code. The panel is blanked through the
+ * rate-limited flush until the first Oled_display_Update ( ).
  */
 void Oled_UserMode ( void );
 
@@ -114,7 +117,10 @@ bool Oled_IsSystemMode ( void );
 void Oled_display_Clear ( void );
 
 /**
- * @brief Push the contents of a 1024-byte framebuffer to the display.
+ * @brief Queue a 1024-byte framebuffer for the display ( USER mode only ).
+ *
+ * Non-blocking: the frame is sent by the per-loop flush in OledDisplayData ( ),
+ * a bounded run per loop. The buffer must stay valid after the call.
  * @param buf Pointer to the source framebuffer.
  */
 void Oled_display_Update ( uint8_t *buf );

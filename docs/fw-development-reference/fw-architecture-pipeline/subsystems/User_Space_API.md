@@ -29,6 +29,10 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
   clears every user RC override and re-runs `onLoopStart ( )` when frames return. A Wi-Fi stall therefore
   restarts user code long before failsafe acts ( ~2.5 s ).
+- **OLED is deferred**: `Oled_Update ( )` / `Oled_display_Update ( )` only queue the frame. The firmware sends the
+  changed bytes to the panel at most 16 per loop, so a full screen appears in ~0.25 s. A buffer passed to
+  `Oled_display_Update ( )` must stay valid ( `static` or global ). `Oled_Update ( )` works in `User` mode only, and
+  `Oled_Mode ( )` starts from a blank frame. Wiki: `docs/API/OLED_API_WIKI.md`.
 
 ```mermaid
 flowchart TD

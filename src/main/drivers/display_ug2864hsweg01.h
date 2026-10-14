@@ -51,6 +51,7 @@ void i2c_OLED_clear_display ( void );
 void i2c_OLED_clear_display_quick ( void );
 void i2c_OLED_draw_bitmap ( uint8_t x, uint8_t y, const uint8_t *bitmap, uint8_t width, uint8_t height );
 void i2c_OLED_send_changed_bytes ( uint8_t *newBuf, uint8_t *oldBuf, int size );
+bool i2c_OLED_send_run ( uint8_t page, uint8_t col, uint8_t *data, uint8_t len );
 void i2c_OLED_send_data ( uint8_t *data, uint16_t length );
 // Rectangle outline (pixel-level)
 void i2c_OLED_draw_rect ( uint8_t x, uint8_t y, uint8_t w, uint8_t h );

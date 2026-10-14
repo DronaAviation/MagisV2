@@ -51,10 +51,10 @@ The Simple API uses an internal 1024-byte framebuffer. You don't need to manage 
 | Function | Description |
 |----------|-------------|
 | `Oled_Init()` | Enables the OLED subsystem. Call once in `plutoInit()`. |
-| `Oled_Mode(mode)` | Switches between `System` and `User` rendering modes. |
+| `Oled_Mode(mode)` | Switches between `System` and `User` rendering modes. The screen starts from a blank frame: in `System` mode the telemetry is redrawn on the next loop, and in `User` mode it stays blank until your next `Oled_Update()`. The panel itself is not cleared directly. |
 | `Oled_Is_Mode(mode)` | Checks if the display is in a specific mode. Returns `bool`. |
-| `Oled_Clear()` | Wipes the internal buffer to start a fresh frame. |
-| `Oled_Update()` | Flushes the current buffer to the display hardware. |
+| `Oled_Clear()` | Wipes the internal buffer to start a fresh frame (RAM only, nothing is sent). |
+| `Oled_Update()` | Queues the current buffer for the display ( `User` mode only; in `System` mode it does nothing ). Non-blocking: see *Timing and flight safety*. |
 
 ### Text & Numbers
 
@@ -149,7 +149,7 @@ For power users who need full control over external buffers or direct grid print
 
 ### Direct Grid Text (System Mode)
 
-`Oled_Print` is used for high-performance text on the 21x8 grid. It bypasses the pixel buffer.
+`Oled_Print` writes text on the 21x8 grid of the system screen. It draws into the system framebuffer, which the non-blocking flush sends to the panel.
 
 ```cpp
   // col 0-20, row 1-6
@@ -160,7 +160,7 @@ For power users who need full control over external buffers or direct grid print
 
 For colour-controlled text into your own buffer, use `Oled_DrawTextColor(screen, x, y, "text", on)` — `on = true` sets glyph pixels (white), `on = false` clears them (black). `Oled_DrawText(...)` is the white-only shorthand.
 
-You can use the lower-level `Oled_display_Update` to flush your own 1024-byte buffer.
+You can use the lower-level `Oled_display_Update` to show your own 1024-byte buffer (User mode only). It only queues the buffer: the flush reads it over the next loops, so the buffer must stay valid after the call. Make it `static` or global, never a local array.
 
 ```cpp
 static uint8_t myBuffer[1024];
@@ -171,6 +171,29 @@ void plutoLoop() {
     Oled_display_Update(myBuffer);
 }
 ```
+
+---
+
+## Timing and flight safety
+
+The OLED shares the I2C1 bus with the IMU, barometer and magnetometer, and I2C
+is polled: every byte sent to the display holds up the flight loop. So nothing
+draws straight to the panel.
+
+*   Drawing (`Oled_Text`, `Oled_Rect`, ...), `Oled_Clear` and the system
+    telemetry screen only change a framebuffer in RAM.
+*   `Oled_Update` only queues the frame. Once per flight loop the firmware sends
+    the next run of **changed** bytes, at most 16 bytes (about 0.6 ms) per loop.
+*   A line of text that changes reaches the panel in a few loops. A full-screen
+    change takes about 64 loops, about 0.25 s.
+*   This is the same armed or disarmed, in `System` and `User` mode, so the
+    OLED can stay live in flight.
+*   If the display stops answering (3 failed writes in a row, or more than about
+    1 write in 5 failing), the OLED is switched off, so a loose connector cannot
+    keep holding up the loop.
+
+The 2 s start-up splash page still writes the panel directly; it runs only at
+power-on, before arming.
 
 ---
 

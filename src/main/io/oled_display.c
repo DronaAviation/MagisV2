@@ -8,7 +8,7 @@
  #  Created Date: Sat, 25th Jan 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 24th Jun 2026                                          #
+ #  Last Modified: Wed, 14th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -20,6 +20,10 @@
  #                                 code, enabling safe custom UI, graphics,    #
  #                                 and PlutoBlocks-based OLED usage without    #
  #                                 interfering with flight telemetry.          #
+ #  2026-10-10   AJ    System telemetry drawn into a RAM framebuffer; every    #
+ #                     panel write goes through a diff flush of at most 16     #
+ #                     bytes per loop ( was 45-60 ms of blocking I2C every     #
+ #                     200 ms while armed: 5 Hz twitch in flight ).            #
  *******************************************************************************/
 #include "oled_display.h"
 
@@ -93,15 +97,129 @@ int blink_counter = 0;    // Counter for blinking logic
 oled_mode_e oledMode = OLED_MODE_SYSTEM;
 
 /**
- * @brief Shadow framebuffer used for diff-based OLED updates.
+ * @brief Shadow framebuffer: what the panel is showing right now.
+ *
+ * Every write to the panel after start-up goes through oledFlushStep ( ), which
+ * keeps this in step with the hardware. A direct hardware clear must zero it.
  */
 static uint8_t oledShadowBuffer [ 1024 ];
 
-#define JOY_RADIUS   18
-#define LEFT_JOY_X   32
-#define RIGHT_JOY_X  96
-#define JOY_Y        32
-#define STICK_RADIUS 3
+/**
+ * @brief System telemetry framebuffer. The system screen is drawn here ( no I2C )
+ * and reaches the panel through the same flush as user frames.
+ */
+static uint8_t oledSystemBuffer [ 1024 ];
+
+/**
+ * @brief Frame the flush is sending: oledSystemBuffer, or the user's buffer
+ * after Oled_display_Update ( ).
+ */
+static uint8_t *oledActiveBuffer = oledSystemBuffer;
+
+static bool oledDirty        = false;    // active frame may differ from the panel
+static uint8_t oledFlushPage = 0;        // page the flush is working on ( 0-7 )
+static uint8_t oledFailScore = 0;        // leaky count of failed I2C runs
+
+/**
+ * Data bytes sent per flush step. I2C1 is polled and shared with the IMU, baro and
+ * mag, so each step blocks loop ( ) between the IMU read and the PID: 16 bytes plus
+ * the page / column commands is about 0.6 ms at 400 kHz. A full 1024-byte screen
+ * takes about 64 loops ( ~225 ms at looptime 3500 us ).
+ */
+#define OLED_FLUSH_MAX_BYTES 16
+
+// Failed runs add OLED_FAIL_COST to a score, good runs take 1 off. At OLED_FAIL_LIMIT the
+// panel is treated as gone and the OLED is switched off, so neither a dead display ( 3
+// failures in a row ) nor a flaky one ( more than 1 run in 5 failing ) keeps holding up
+// the loop on I2C timeouts and bus resets.
+#define OLED_FAIL_COST  4
+#define OLED_FAIL_LIMIT 12
+
+#define JOY_RADIUS      18
+#define LEFT_JOY_X      32
+#define RIGHT_JOY_X     96
+#define JOY_Y           32
+#define STICK_RADIUS    3
+
+/* ============================================================================
+ * FRAME FLUSH ( RATE-LIMITED, DIFF-BASED )
+ * ============================================================================ */
+
+/**
+ * @brief The panel was cleared directly: the shadow must say so too.
+ */
+static void oledPanelCleared ( void ) {
+  memset ( oledShadowBuffer, 0, sizeof ( oledShadowBuffer ) );
+  oledDirty = true;
+}
+
+/**
+ * @brief Send at most one run of changed bytes ( <= OLED_FLUSH_MAX_BYTES ).
+ *
+ * Called once per loop. Finds the next byte of the active frame that differs from
+ * the shadow, sends it together with any changed bytes up to the budget, and
+ * returns. Unchanged bytes inside the run are re-sent, which is cheaper than a new
+ * transaction. When a full pass finds no difference the frame is on the panel and
+ * the flush goes idle until the next frame is marked dirty.
+ */
+static void oledFlushStep ( void ) {
+  if ( ! oledDirty || ! oledActiveBuffer ) return;
+
+  for ( uint8_t n = 0; n < 8; n++ ) {
+    uint16_t base = ( uint16_t ) ( oledFlushPage * SCREEN_WIDTH );
+
+    for ( uint8_t col = 0; col < SCREEN_WIDTH; col++ ) {
+      if ( oledActiveBuffer [ base + col ] == oledShadowBuffer [ base + col ] ) continue;
+
+      uint8_t last = col;
+      for ( uint8_t c = col; c < SCREEN_WIDTH && ( uint8_t ) ( c - col ) < OLED_FLUSH_MAX_BYTES; c++ ) {
+        if ( oledActiveBuffer [ base + c ] != oledShadowBuffer [ base + c ] ) last = c;
+      }
+      uint8_t len = ( uint8_t ) ( last - col + 1 );
+
+      if ( i2c_OLED_send_run ( oledFlushPage, col, &oledActiveBuffer [ base + col ], len ) ) {
+        memcpy ( &oledShadowBuffer [ base + col ], &oledActiveBuffer [ base + col ], len );
+        if ( oledFailScore > 0 ) oledFailScore--;
+      } else {
+        oledFailScore = ( uint8_t ) ( oledFailScore + OLED_FAIL_COST );
+        if ( oledFailScore >= OLED_FAIL_LIMIT ) {
+          OledInitStatus = false;    // display not answering reliably: stop using the bus for it
+        }
+      }
+      return;    // one run per loop
+    }
+
+    oledFlushPage = ( uint8_t ) ( ( oledFlushPage + 1 ) & 0x07 );
+  }
+
+  oledDirty = false;    // the whole frame is on the panel
+}
+
+/**
+ * @brief Draw text into the system framebuffer on the 21 x 8 character grid.
+ *
+ * Same glyph layout as i2c_OLED_send_char ( 5 font columns + 1 blank ), but into
+ * RAM; the flush sends it. Text past the right edge is cut off.
+ */
+static void sysText ( uint8_t col, uint8_t row, const char *text ) {
+  if ( row > 7 || ! text ) return;
+
+  uint16_t x   = ( uint16_t ) ( col * CHARACTER_WIDTH_TOTAL );
+  uint8_t *dst = &oledSystemBuffer [ row * SCREEN_WIDTH ];
+
+  while ( *text && x + CHARACTER_WIDTH_TOTAL <= SCREEN_WIDTH ) {
+    uint8_t ch = ( uint8_t ) *text;
+    if ( ch < 32 || ch > 166 ) ch = ' ';    // font table covers 32-166 ( incl. bargraph glyphs )
+
+    for ( uint8_t i = 0; i < FONT_WIDTH; i++ ) {
+      dst [ x + i ] = multiWiiFont [ ch - 32 ][ i ];
+    }
+    dst [ x + FONT_WIDTH ] = 0;    // the gap
+
+    x = ( uint16_t ) ( x + CHARACTER_WIDTH_TOTAL );
+    text++;
+  }
+}
 
 /* ============================================================================
  * STARTUP & SYSTEM RENDERING (FIRMWARE TELEMETRY)
@@ -138,7 +256,8 @@ void OledStartUpPage ( void ) {
       i2c_OLED_send_string ( "By DRONA AVIATION" );    // Display author information
       OledStartupPageEnd = true;                       // Mark that startup page has been shown
     } else if ( OledStartupPageEnd ) {                 // Clear the display after showing the startup page
-      i2c_OLED_clear_display_quick ( );
+      i2c_OLED_clear_display_quick ( );                // disarmed, at boot: the one direct clear left
+      oledPanelCleared ( );
       OledStartupPageEnd = false;
     }
   }
@@ -148,17 +267,15 @@ void OledStartUpPage ( void ) {
  * @brief Displays the battery voltage on the OLED.
  */
 static void dispVoltage ( void ) {
-  i2c_OLED_set_xy ( 16, 0 );
   tfp_sprintf ( buffer, "| %d.%d", ( int ) ( vBatRaw / 10 ), ( int ) ( vBatRaw % 10 ) );    // Format voltage
-  i2c_OLED_send_string ( buffer );
+  sysText ( 16, 0, buffer );
 }
 
 /**
  * @brief Displays whether the device is in development mode.
  */
 static void dispDevMode ( void ) {
-  i2c_OLED_set_xy ( 0, 0 );
-  i2c_OLED_send_string ( devmode ? "DEV |" : " X  |" );    // Display DEV if in development mode
+  sysText ( 0, 0, devmode ? "DEV |" : " X  |" );    // Display DEV if in development mode
 }
 
 /**
@@ -169,16 +286,14 @@ static void dispRxConnection ( void ) {
   rx_blink             = ! rx_blink;    // toggle every call
 
   bool connected = rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( );
-  i2c_OLED_set_xy ( 0, 7 );
-  i2c_OLED_send_string ( connected ? ( rx_blink ? "RX *|" : "RX  |" ) : " X  |" );    // blink asterisk when connected
+  sysText ( 0, 7, connected ? ( rx_blink ? "RX *|" : "RX  |" ) : " X  |" );    // blink asterisk when connected
 }
 
 /**
  * @brief Displays arm status.
  */
 static void dispArmData ( void ) {
-  i2c_OLED_set_xy ( 16, 7 );
-  i2c_OLED_send_string ( IS_RC_MODE_ACTIVE ( BOXARM ) ? "| ARM" : "|  X " );    // Display ARM if armed
+  sysText ( 16, 7, IS_RC_MODE_ACTIVE ( BOXARM ) ? "| ARM" : "|  X " );    // Display ARM if armed
 }
 
 /**
@@ -211,8 +326,7 @@ static void dispFlightStatus ( void ) {
 
   // Only update display if there is a message
   if ( message ) {
-    i2c_OLED_set_xy ( 6, 0 );
-    i2c_OLED_send_string ( message );
+    sysText ( 6, 0, message );
   }
 
   blink_counter++;
@@ -249,14 +363,12 @@ static void dispStopWatch ( void ) {
   unsigned long seconds      = totalSeconds % 60;
 
   // Display minutes with leading zero on OLED
-  i2c_OLED_set_xy ( 7, 7 );
   tfp_sprintf ( buffer, "%02lu :", minutes );
-  i2c_OLED_send_string ( buffer );
+  sysText ( 7, 7, buffer );
 
   // Display seconds with leading zero on OLED
-  i2c_OLED_set_xy ( 12, 7 );
   tfp_sprintf ( buffer, "%02lu", seconds );
-  i2c_OLED_send_string ( buffer );
+  sysText ( 12, 7, buffer );
 }
 
 /**
@@ -281,67 +393,64 @@ void OledDisplaySystemData ( void ) {
   // Check if not in dev mode and startup page has ended
   if ( ! devmode && ! OledStartupPageEnd ) {
     // Display pitch value
-    i2c_OLED_set_xy ( 1, 2 );
     tfp_sprintf ( buffer, "P : %d   ", ( int ) ( inclination.values.pitchDeciDegrees ) / 10 );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 1, 2, buffer );
 
     // Display roll value
-    i2c_OLED_set_xy ( 1, 3 );
     tfp_sprintf ( buffer, "R : %d   ", ( int ) ( inclination.values.rollDeciDegrees ) / 10 );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 1, 3, buffer );
 
     // Display yaw value
-    i2c_OLED_set_xy ( 1, 4 );
     tfp_sprintf ( buffer, "Y : %d   ", ( int ) ( heading ) );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 1, 4, buffer );
 
     // Display RC channel pitch
-    i2c_OLED_set_xy ( 11, 2 );
     tfp_sprintf ( buffer, "p : %d   ", ( int ) ( rcData [ 1 ] ) );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 11, 2, buffer );
 
     // Display RC channel roll
-    i2c_OLED_set_xy ( 11, 3 );
     tfp_sprintf ( buffer, "R : %d   ", ( int ) ( rcData [ 0 ] ) );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 11, 3, buffer );
 
     // Display RC channel yaw
-    i2c_OLED_set_xy ( 11, 4 );
     tfp_sprintf ( buffer, "Y : %d   ", ( int ) ( rcData [ 2 ] ) );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 11, 4, buffer );
 
     // Display RC channel throttle
-    i2c_OLED_set_xy ( 11, 5 );
     tfp_sprintf ( buffer, "T : %d   ", ( int ) ( rcData [ 3 ] ) );
-    i2c_OLED_send_string ( buffer );
+    sysText ( 11, 5, buffer );
   }
-
-  // Clear display if development mode state has changed
-  if ( devModeLastState != devmode ) {
-    i2c_OLED_clear_display_quick ( );
-  }
-
-  // Update last known dev mode state
-  devModeLastState = devmode;
 }
 
 /**
- * @brief Updates and displays navigation and system data on the OLED.
+ * @brief Per-loop OLED entry point ( called from userCode ( ) every loop ).
+ *
+ * In System mode the telemetry is redrawn into oledSystemBuffer every 200 ms ( RAM
+ * only ). In both modes one bounded flush step then moves the active frame to the
+ * panel, so the I2C cost per loop stays at one run ( OLED_FLUSH_MAX_BYTES ) whether
+ * armed or not.
  */
 void OledDisplayData ( void ) {
   if ( ! OledInitStatus ) return;
+  if ( OledStartupPageEnd ) return;    // the splash page owns the panel for its 2 s
 
-  //  User owns the OLED → system must not draw
-  if ( oledMode == OLED_MODE_USER ) {
-    return;
+  if ( oledMode == OLED_MODE_SYSTEM ) {
+    updatedMillis = millis ( );
+    if ( updatedMillis - OldOledDisplayDataMillis >= 200 ) {
+      // Dev mode hides the P/R/Y/RC block: start from a blank frame when it toggles
+      if ( devModeLastState != devmode ) {
+        memset ( oledSystemBuffer, 0, sizeof ( oledSystemBuffer ) );
+        devModeLastState = devmode;
+      }
+      OledDisplayNav ( );
+      OledDisplaySystemData ( );
+      oledActiveBuffer         = oledSystemBuffer;
+      oledDirty                = true;
+      OldOledDisplayDataMillis = updatedMillis;
+    }
   }
 
-  updatedMillis = millis ( );
-  if ( updatedMillis - OldOledDisplayDataMillis >= 200 ) {
-    OledDisplayNav ( );
-    OledDisplaySystemData ( );
-    OldOledDisplayDataMillis = updatedMillis;
-  }
+  oledFlushStep ( );
 }
 
 /* ============================================================================
@@ -352,23 +461,26 @@ void OledDisplayData ( void ) {
  * @brief Return OLED ownership to system firmware.
  */
 void Oled_SystemMode ( void ) {
-  if ( ARMING_FLAG ( ARMED ) ) {
-    oledMode = OLED_MODE_SYSTEM;
-    return;
-  }
   oledMode = OLED_MODE_SYSTEM;
-  i2c_OLED_clear_display_quick ( );
+
+  // Start from a blank frame and redraw the telemetry on the next loop; the flush
+  // replaces whatever user code left on the panel, armed or not.
+  memset ( oledSystemBuffer, 0, sizeof ( oledSystemBuffer ) );
+  oledActiveBuffer         = oledSystemBuffer;
+  oledDirty                = true;
+  OldOledDisplayDataMillis = millis ( ) - 200U;
 }
 
 /**
  * @brief Grant exclusive OLED ownership to user code.
+ *
+ * The panel is blanked through the flush until the user's first Oled_Update ( ).
  */
 void Oled_UserMode ( void ) {
   oledMode = OLED_MODE_USER;
-  memset ( oledShadowBuffer, 0, sizeof ( oledShadowBuffer ) );
-  if ( ! ARMING_FLAG ( ARMED ) ) {
-    i2c_OLED_clear_display_quick ( );
-  }
+  memset ( oledSystemBuffer, 0, sizeof ( oledSystemBuffer ) );
+  oledActiveBuffer = oledSystemBuffer;
+  oledDirty        = true;
 }
 
 /**
@@ -393,25 +505,33 @@ bool Oled_IsSystemMode ( void ) {
  * @brief Clear OLED display.
  */
 void Oled_display_Clear ( void ) {
+  if ( ! OledInitStatus ) return;    // OLED absent or switched off: no bus traffic at all
   if ( OledStartupPageEnd ) return;
   if ( ARMING_FLAG ( ARMED ) ) return;
 
   i2c_OLED_clear_display_quick ( );
+  oledPanelCleared ( );
 }
 
 /**
- * @brief Push framebuffer changes to OLED hardware.
+ * @brief Queue a user framebuffer for the panel.
+ *
+ * Nothing is sent here: the frame reaches the panel through oledFlushStep ( ), a
+ * bounded run per loop, so the screen catches up over a few loops ( a full screen
+ * in ~225 ms ). The buffer must stay valid; Oled.cpp passes its static buffer.
  */
 void Oled_display_Update ( uint8_t *buf ) {
-  if ( OledStartupPageEnd ) return;
   if ( oledMode != OLED_MODE_USER ) return;
   if ( ! buf ) return;
 
-  i2c_OLED_send_changed_bytes ( buf, oledShadowBuffer, sizeof ( oledShadowBuffer ) );
+  oledActiveBuffer = buf;
+  oledDirty        = true;
 }
 
 /**
  * @brief Print text using OLED text-grid (SYSTEM mode only).
+ *
+ * Drawn into the system framebuffer; the flush sends it.
  */
 void Oled_Print ( uint8_t col, uint8_t row, const char *text ) {
   // if ( ! OledEnable ) return;
@@ -420,8 +540,8 @@ void Oled_Print ( uint8_t col, uint8_t row, const char *text ) {
 
   if ( col > 20 || row < 1 || row > 6 ) return;
 
-  i2c_OLED_set_xy ( col, row );
-  i2c_OLED_send_string ( text );
+  sysText ( col, row, text );
+  oledDirty = true;
 }
 
 /* ============================================================================
@@ -436,7 +556,7 @@ void Oled_DrawPixel ( uint8_t *buf, int16_t x, int16_t y, bool on ) {
   if ( x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT ) return;
 
   uint16_t index = ( uint16_t ) ( x + ( y >> 3 ) * SCREEN_WIDTH );
-  uint8_t  mask  = ( uint8_t ) ( 1U << ( y & 7 ) );
+  uint8_t mask   = ( uint8_t ) ( 1U << ( y & 7 ) );
 
   if ( on )
     buf [ index ] |= mask;

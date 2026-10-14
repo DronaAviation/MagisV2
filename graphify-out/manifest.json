@@ -1,6 +1,6 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1791864016.4744673,
+    "mtime": 1791956616.3359885,
     "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
@@ -668,8 +668,8 @@
     "hash": "9ae0aea2f4c4250172158da2e956a6ad"
   },
   "F:\\MagisV2\\src\\main\\API\\Oled.h": {
-    "mtime": 1791799548.8428984,
-    "hash": "df20461e56286a849a945271d3d52a6f"
+    "mtime": 1791953679.5887213,
+    "hash": "5b45c8464bf0b39c14c1e9ded26693f7"
   },
   "F:\\MagisV2\\src\\main\\API\\Peripherals.h": {
     "mtime": 1777868741.0,
@@ -1004,12 +1004,12 @@
     "hash": "23b7e237df36df4577124fc3e2dc7c60"
   },
   "F:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.c": {
-    "mtime": 1791799531.3673186,
-    "hash": "b7cc214e87990db08be7dcbcb8fb80fe"
+    "mtime": 1791950660.3356857,
+    "hash": "4ca3e240690d4a25d3058d9488f3d626"
   },
   "F:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.h": {
-    "mtime": 1791799546.4855185,
-    "hash": "f27a1d4e16db0617409a899dae664584"
+    "mtime": 1791950665.5722184,
+    "hash": "b97a880f8815a35cfe3ea5a0c67419cd"
   },
   "F:\\MagisV2\\src\\main\\drivers\\dma_registry.c": {
     "mtime": 1785830612.0,
@@ -1408,12 +1408,12 @@
     "hash": "f4e15eaf6bc564fa5491ff7d5b303a6e"
   },
   "F:\\MagisV2\\src\\main\\io\\oled_display.c": {
-    "mtime": 1791799565.316401,
-    "hash": "1253d9bd914bb9bfda7f764a806cdff8"
+    "mtime": 1791953679.5887213,
+    "hash": "b08958617a5183b6497cbe19c297a340"
   },
   "F:\\MagisV2\\src\\main\\io\\oled_display.h": {
-    "mtime": 1791799567.7961867,
-    "hash": "8c0e1df4f612ddfcac4f809687a01254"
+    "mtime": 1791950675.0893512,
+    "hash": "d4e277aae1927e5d19bf210cd4c31d44"
   },
   "F:\\MagisV2\\src\\main\\io\\rc_controls.cpp": {
     "mtime": 1780647229.0,
@@ -1716,12 +1716,12 @@
     "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
   },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1791888263.2281783,
-    "hash": "a220a75cd363ab61ace1b23e8f562abb"
+    "mtime": 1791950198.0262094,
+    "hash": "9dd3671cc1be1459079f4cea1a3d02b0"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1791949818.8050869,
-    "hash": "0351f44f7c07752a18e0f87ebf8d002b"
+    "mtime": 1791953679.5903788,
+    "hash": "9d8cb0e5f8e5c1faf29e6ab8a2a280b5"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,

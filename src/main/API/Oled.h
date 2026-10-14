@@ -8,7 +8,7 @@
  #  Created Date: Thu, 18th Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 24th Jun 2026                                          #
+ #  Last Modified: Wed, 14th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -61,26 +61,29 @@ void Oled_Mode ( Oled_mode_e mode );
 bool Oled_Is_Mode ( Oled_mode_e mode );
 
 /**
- * @brief Clears the entire OLED display.
+ * @brief Clears the internal framebuffer ( RAM only, nothing is sent ).
  *
- * This operation is automatically skipped if the drone is currently armed
- * to prevent I2C contention.
+ * Call it at the start of a frame, then draw and call `Oled_Update`.
  */
 
 void Oled_Clear ( void );
 
 /**
- * @brief Finalizes the current frame and updates the display.
+ * @brief Finalizes the current frame and queues it for the display.
  *
- * Transmits only the changed pixels over I2C to the display hardware.
- * This should be called at the end of every loop (typically in `plutoLoop`).
+ * Non-blocking: only the changed bytes are sent, a small piece per flight loop,
+ * so drawing never stalls the flight controller. A full-screen change reaches
+ * the panel in about 0.25 s; a 21-character line in about 30 ms.
+ * User mode only: in System mode it does nothing.
+ * Call it at the end of every frame (typically in `plutoLoop`).
  */
 
 void Oled_Update ( void );
 
 /**
- * @brief Prints text directly to the OLED grid.
+ * @brief Prints text on the OLED character grid of the system screen.
  *
+ * Drawn into the system framebuffer and sent by the non-blocking flush.
  * This function is intended for `System` mode only.
  *
  * @param col Target text column (0–20).

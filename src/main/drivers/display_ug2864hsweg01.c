@@ -170,7 +170,7 @@ const uint8_t multiWiiFont [][ 5 ] = {
   { 0x7A, 0x7E, 0x7E, 0x7E, 0x7A },    //   (131)    - 0x00C8 Vertical Bargraph - 6 (full)
 };
 
-#define OLED_address 0x3C              // OLED at address 0x3C in 7bit
+#define OLED_address 0x3C    // OLED at address 0x3C in 7bit
 
 static bool i2c_OLED_send_cmd ( uint8_t command ) {
   return i2cWrite ( OLED_address, 0x80, command );
@@ -195,21 +195,18 @@ static bool i2c_OLED_send_bytes ( uint8_t *data, uint8_t len ) {
 }
 
 void i2c_OLED_clear_display ( void ) {
-  i2c_OLED_send_cmd ( 0xa6 );                // Set Normal Display
-  i2c_OLED_send_cmd ( 0xae );                // Display OFF
-  i2c_OLED_send_cmd ( 0x20 );                // Set Memory Addressing Mode
-  i2c_OLED_send_cmd ( 0x00 );                // Horizontal addressing mode
-  i2c_OLED_clear_display_quick ( );          // Batch-clear all 8 pages
-  i2c_OLED_send_cmd ( 0x81 );                // Setup CONTRAST CONTROL
-  i2c_OLED_send_cmd ( 200 );                 // Brightness
-  i2c_OLED_send_cmd ( 0xaf );                // display on
+  i2c_OLED_send_cmd ( 0xa6 );          // Set Normal Display
+  i2c_OLED_send_cmd ( 0xae );          // Display OFF
+  i2c_OLED_send_cmd ( 0x20 );          // Set Memory Addressing Mode
+  i2c_OLED_send_cmd ( 0x00 );          // Horizontal addressing mode
+  i2c_OLED_clear_display_quick ( );    // Batch-clear all 8 pages
+  i2c_OLED_send_cmd ( 0x81 );          // Setup CONTRAST CONTROL
+  i2c_OLED_send_cmd ( 200 );           // Brightness
+  i2c_OLED_send_cmd ( 0xaf );          // display on
 }
 
-
-
-
 void i2c_OLED_clear_display_quick ( void ) {
-  static uint8_t zeroBuf[128] = {0};
+  static uint8_t zeroBuf [ 128 ] = { 0 };
   for ( uint8_t page = 0; page < 8; page++ ) {
     i2c_OLED_send_cmd ( 0xB0 + page );       // set page address
     i2c_OLED_send_cmd ( 0x00 );              // set low col address to 0
@@ -235,7 +232,7 @@ void i2c_OLED_send_char ( unsigned char ascii ) {
   uint8_t buffer;
   for ( i = 0; i < 5; i++ ) {
     buffer = multiWiiFont [ ascii - 32 ][ i ];
-    buffer ^= CHAR_FORMAT;               // apply
+    buffer ^= CHAR_FORMAT;    // apply
     i2c_OLED_send_byte ( buffer );
   }
   i2c_OLED_send_byte ( CHAR_FORMAT );    // the gap
@@ -249,154 +246,174 @@ void i2c_OLED_send_string ( const char *string ) {
   }
 }
 
-static inline uint8_t bitreverse8(uint8_t x)
-{
-    x = (x >> 4) | (x << 4);
-    x = ((x & 0xCC) >> 2) | ((x & 0x33) << 2);
-    x = ((x & 0xAA) >> 1) | ((x & 0x55) << 1);
-    return x;
+static inline uint8_t bitreverse8 ( uint8_t x ) {
+  x = ( x >> 4 ) | ( x << 4 );
+  x = ( ( x & 0xCC ) >> 2 ) | ( ( x & 0x33 ) << 2 );
+  x = ( ( x & 0xAA ) >> 1 ) | ( ( x & 0x55 ) << 1 );
+  return x;
 }
 
 //
-void i2c_OLED_draw_bitmap(
-    uint8_t x,
-    uint8_t y,
-    const uint8_t *bitmap,
-    uint8_t width,
-    uint8_t height
-) {
-    if (!bitmap) return;
-    if (height % 8 != 0) return;
-    if (x >= 128 || y >= 64) return;
+void i2c_OLED_draw_bitmap (
+          uint8_t x,
+          uint8_t y,
+          const uint8_t *bitmap,
+          uint8_t width,
+          uint8_t height ) {
+  if ( ! bitmap ) return;
+  if ( height % 8 != 0 ) return;
+  if ( x >= 128 || y >= 64 ) return;
 
-    uint8_t pages = height >> 3;
-    uint8_t startPage = y >> 3;
+  uint8_t pages     = height >> 3;
+  uint8_t startPage = y >> 3;
 
-    if (startPage + pages > 8) return;
+  if ( startPage + pages > 8 ) return;
 
-    // Temp buffer for bit-reversed page data (max 128 cols)
-    uint8_t revBuf[128];
+  // Temp buffer for bit-reversed page data (max 128 cols)
+  uint8_t revBuf [ 128 ];
 
-    for (uint8_t page = 0; page < pages; page++) {
+  for ( uint8_t page = 0; page < pages; page++ ) {
 
-        uint8_t pageCmd = (uint8_t)(0xB0u + startPage + page);
-        i2c_OLED_send_cmd(pageCmd);
+    uint8_t pageCmd = ( uint8_t ) ( 0xB0u + startPage + page );
+    i2c_OLED_send_cmd ( pageCmd );
 
-        i2c_OLED_send_cmd((uint8_t)(0x00u + (x & 0x0F)));
-        i2c_OLED_send_cmd((uint8_t)(0x10u + ((x >> 4) & 0x0F)));
+    i2c_OLED_send_cmd ( ( uint8_t ) ( 0x00u + ( x & 0x0F ) ) );
+    i2c_OLED_send_cmd ( ( uint8_t ) ( 0x10u + ( ( x >> 4 ) & 0x0F ) ) );
 
-        const uint8_t *row = bitmap + (page * width);
-        uint8_t len = (width <= 128) ? width : 128;
-        for (uint8_t col = 0; col < len; col++) {
-            revBuf[col] = bitreverse8(row[col]);
-        }
-        i2c_OLED_send_bytes(revBuf, len);
+    const uint8_t *row = bitmap + ( page * width );
+    uint8_t len        = ( width <= 128 ) ? width : 128;
+    for ( uint8_t col = 0; col < len; col++ ) {
+      revBuf [ col ] = bitreverse8 ( row [ col ] );
     }
+    i2c_OLED_send_bytes ( revBuf, len );
+  }
 }
 
+void i2c_OLED_draw_rect (
+          uint8_t x,
+          uint8_t y,
+          uint8_t w,
+          uint8_t h ) {
+  if ( x >= 128 || y >= 64 ) return;
+  if ( w == 0 || h == 0 ) return;
 
-void i2c_OLED_draw_rect(
-    uint8_t x,
-    uint8_t y,
-    uint8_t w,
-    uint8_t h
-) {
-    if (x >= 128 || y >= 64) return;
-    if (w == 0 || h == 0) return;
+  // Align height to pages
+  uint8_t startPage = y >> 3;
+  uint8_t pages     = h >> 3;
+  if ( h % 8 ) pages++;    // round up
 
-    // Align height to pages
-    uint8_t startPage = y >> 3;
-    uint8_t pages = h >> 3;
-    if (h % 8) pages++;   // round up
+  // ── Top horizontal line
+  i2c_OLED_send_cmd ( 0xB0 + startPage );
+  i2c_OLED_send_cmd ( 0x00 + ( x & 0x0F ) );
+  i2c_OLED_send_cmd ( 0x10 + ( x >> 4 ) );
+  for ( uint8_t i = 0; i < w; i++ ) {
+    i2c_OLED_send_byte ( 0xFF );
+  }
 
-    // ── Top horizontal line
-    i2c_OLED_send_cmd(0xB0 + startPage);
-    i2c_OLED_send_cmd(0x00 + (x & 0x0F));
-    i2c_OLED_send_cmd(0x10 + (x >> 4));
-    for (uint8_t i = 0; i < w; i++) {
-        i2c_OLED_send_byte(0xFF);
+  // ── Bottom horizontal line
+  uint8_t bottomPage = startPage + pages - 1;
+  if ( bottomPage < 8 ) {
+    i2c_OLED_send_cmd ( 0xB0 + bottomPage );
+    i2c_OLED_send_cmd ( 0x00 + ( x & 0x0F ) );
+    i2c_OLED_send_cmd ( 0x10 + ( x >> 4 ) );
+    for ( uint8_t i = 0; i < w; i++ ) {
+      i2c_OLED_send_byte ( 0xFF );
     }
+  }
 
-    // ── Bottom horizontal line
-    uint8_t bottomPage = startPage + pages - 1;
-    if (bottomPage < 8) {
-        i2c_OLED_send_cmd(0xB0 + bottomPage);
-        i2c_OLED_send_cmd(0x00 + (x & 0x0F));
-        i2c_OLED_send_cmd(0x10 + (x >> 4));
-        for (uint8_t i = 0; i < w; i++) {
-            i2c_OLED_send_byte(0xFF);
-        }
+  // ── Vertical lines (page-aligned = SOLID)
+  for ( uint8_t p = startPage; p <= bottomPage && p < 8; p++ ) {
+
+    // Left
+    i2c_OLED_send_cmd ( 0xB0 + p );
+    i2c_OLED_send_cmd ( 0x00 + ( x & 0x0F ) );
+    i2c_OLED_send_cmd ( 0x10 + ( x >> 4 ) );
+    i2c_OLED_send_byte ( 0xFF );
+
+    // Right
+    uint8_t xr = x + w - 1;
+    if ( xr < 128 ) {
+      i2c_OLED_send_cmd ( 0x00 + ( xr & 0x0F ) );
+      i2c_OLED_send_cmd ( 0x10 + ( xr >> 4 ) );
+      i2c_OLED_send_byte ( 0xFF );
     }
-
-    // ── Vertical lines (page-aligned = SOLID)
-    for (uint8_t p = startPage; p <= bottomPage && p < 8; p++) {
-
-        // Left
-        i2c_OLED_send_cmd(0xB0 + p);
-        i2c_OLED_send_cmd(0x00 + (x & 0x0F));
-        i2c_OLED_send_cmd(0x10 + (x >> 4));
-        i2c_OLED_send_byte(0xFF);
-
-        // Right
-        uint8_t xr = x + w - 1;
-        if (xr < 128) {
-            i2c_OLED_send_cmd(0x00 + (xr & 0x0F));
-            i2c_OLED_send_cmd(0x10 + (xr >> 4));
-            i2c_OLED_send_byte(0xFF);
-        }
-    }
+  }
 }
-
 
 //
 
-
-
-void i2c_OLED_send_data(uint8_t *data, uint16_t length)
-{
-    // Send full framebuffer page-by-page using batch I2C
-    for (uint8_t page = 0; page < 8 && length > 0; page++) {
-        i2c_OLED_send_cmd ( 0xB0 + page );
-        i2c_OLED_send_cmd ( 0x00 );
-        i2c_OLED_send_cmd ( 0x10 );
-        uint8_t chunk = (length >= 128) ? 128 : (uint8_t)length;
-        i2c_OLED_send_bytes ( data, chunk );
-        data   += chunk;
-        length -= chunk;
-    }
+void i2c_OLED_send_data ( uint8_t *data, uint16_t length ) {
+  // Send full framebuffer page-by-page using batch I2C
+  for ( uint8_t page = 0; page < 8 && length > 0; page++ ) {
+    i2c_OLED_send_cmd ( 0xB0 + page );
+    i2c_OLED_send_cmd ( 0x00 );
+    i2c_OLED_send_cmd ( 0x10 );
+    uint8_t chunk = ( length >= 128 ) ? 128 : ( uint8_t ) length;
+    i2c_OLED_send_bytes ( data, chunk );
+    data += chunk;
+    length -= chunk;
+  }
 }
 
-void i2c_OLED_send_changed_bytes(uint8_t* newBuf, uint8_t* oldBuf, int size) {
-  (void)size;
+/**
+ * @brief Write one run of bytes to a page in two I2C transactions.
+ *
+ * The page / column commands go out as one transaction ( each command keeps its
+ * own 0x80 control byte, Co = 1 ), then the data bytes as a second one. This is
+ * what the frame flush in oled_display.c calls, one bounded run per loop.
+ *
+ * @param page Page 0-7 ( 8 pixel rows each )
+ * @param col  Start column 0-127
+ * @param data Bytes to write
+ * @param len  Number of bytes; the caller keeps col + len <= 128
+ * @return true if both transactions were acknowledged
+ */
+bool i2c_OLED_send_run ( uint8_t page, uint8_t col, uint8_t *data, uint8_t len ) {
+  uint8_t cmds [ 5 ] = {
+    ( uint8_t ) ( 0xB0 + ( page & 0x07 ) ),    // set page address
+    0x80,
+    ( uint8_t ) ( 0x00 + ( col & 0x0F ) ),    // set low col address
+    0x80,
+    ( uint8_t ) ( 0x10 + ( ( col >> 4 ) & 0x0F ) )    // set high col address
+  };
 
-  for (uint8_t page = 0; page < 8; page++) {
+  if ( ! i2cWriteBuffer ( OLED_address, 0x80, sizeof ( cmds ), cmds ) ) {
+    return false;
+  }
+  return i2c_OLED_send_bytes ( data, len );
+}
+
+void i2c_OLED_send_changed_bytes ( uint8_t *newBuf, uint8_t *oldBuf, int size ) {
+  ( void ) size;
+
+  for ( uint8_t page = 0; page < 8; page++ ) {
     uint16_t base = page * 128;
 
     // Find first and last changed column in this page
     int first = -1;
     int last  = -1;
-    for (uint8_t col = 0; col < 128; col++) {
-      if (newBuf[base + col] != oldBuf[base + col]) {
-        if (first < 0) first = col;
+    for ( uint8_t col = 0; col < 128; col++ ) {
+      if ( newBuf [ base + col ] != oldBuf [ base + col ] ) {
+        if ( first < 0 ) first = col;
         last = col;
       }
     }
 
     // No changes in this page — skip entirely
-    if (first < 0) continue;
+    if ( first < 0 ) continue;
 
     // Set cursor to first changed column
-    uint8_t len = (uint8_t)(last - first + 1);
+    uint8_t len = ( uint8_t ) ( last - first + 1 );
     i2c_OLED_send_cmd ( 0xB0 + page );
-    i2c_OLED_send_cmd ( 0x00 + (first & 0x0F) );
-    i2c_OLED_send_cmd ( 0x10 + ((first >> 4) & 0x0F) );
+    i2c_OLED_send_cmd ( 0x00 + ( first & 0x0F ) );
+    i2c_OLED_send_cmd ( 0x10 + ( ( first >> 4 ) & 0x0F ) );
 
     // Send only the changed range in one I2C transaction
-    i2c_OLED_send_bytes ( &newBuf[base + first], len );
+    i2c_OLED_send_bytes ( &newBuf [ base + first ], len );
 
     // Update shadow for the sent range
-    for (uint8_t col = first; col <= last; col++) {
-      oldBuf[base + col] = newBuf[base + col];
+    for ( uint8_t col = first; col <= last; col++ ) {
+      oldBuf [ base + col ] = newBuf [ base + col ];
     }
   }
 }
@@ -469,9 +486,9 @@ bool ug2864hsweg01InitI2C ( void ) {
   i2c_OLED_send_cmd ( 0x12 );             // COM Hardware Configuration
   i2c_OLED_send_cmd ( 0xDB );             // Set VCOMH Deselect Level
   i2c_OLED_send_cmd ( 0x20 /* 40 */ );    // VCOMH Deselect Level
-  i2c_OLED_send_cmd ( 0x8D );    // Set Charge Pump
-  i2c_OLED_send_cmd ( 0x14 );    // Charge Pump (0x10 External, 0x14 Internal DC/DC)
-  i2c_OLED_send_cmd ( 0xAF );    // Set display On
+  i2c_OLED_send_cmd ( 0x8D );             // Set Charge Pump
+  i2c_OLED_send_cmd ( 0x14 );             // Charge Pump (0x10 External, 0x14 Internal DC/DC)
+  i2c_OLED_send_cmd ( 0xAF );             // Set display On
 
   i2c_OLED_clear_display ( );
 
