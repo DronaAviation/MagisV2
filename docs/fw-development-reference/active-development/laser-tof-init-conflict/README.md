@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 14 Oct 2026 ): fixed by [tof-single-pipeline](../tof-single-pipeline/README.md) ( FW 3.12.0 ) and committed with it |
+| **Status** | **Closed** in `edfbd61` ( 14 Oct 2026 ): fixed by [tof-single-pipeline](../tof-single-pipeline/README.md) ( FW 3.12.0 ) and committed with it |
 | **Mode** | `check` ( investigation only; the fix follows with `/pluto-grill fix laser-tof-init-conflict` ) |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |

@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 23rd Mar 2026                                          #
+ #  Last Modified: Thu, 15th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -95,16 +95,53 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle ) {
       // If the angle is pitch, set the pitch inclination in deci-degrees
       inclination.values.pitchDeciDegrees = angle;
       break;
-    case AG_YAW:
-      // If the angle is yaw, set the magnetic hold and user heading, then mark the user heading as set
-      magHold          = angle;
-      userHeading      = angle;
-      isUserHeadingSet = true;
+    case AG_YAW: {
+      // If the angle is yaw, set the magnetic hold and user heading, then mark the user heading as set.
+      // Wrap into 0..359 first: updateMagHold ( ) folds the heading error by 360 only once, so an
+      // unwrapped bearing of 720 or more ( e.g. 900 written as deci-degrees ), or -361 or less,
+      // never settles and the craft keeps yawing.
+      int32_t bearing = angle % 360;
+      if ( bearing < 0 ) bearing += 360;
+
+      magHold               = ( int16_t ) bearing;
+      userHeading           = ( int16_t ) bearing;
+      isUserHeadingSet      = true;
+      isUserHeadingRelative = false;    // absolute: return to this bearing after a pilot yaw
+      userHeadingStale      = false;
       break;
+    }
     default:
       // Default case to handle any unspecified angles; no action needed
       break;
   }
+}
+
+void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle ) {
+  // Only yaw carries an absolute setpoint the firmware holds between loops.
+  // Roll and pitch are re-derived from the sticks on every PID iteration, so a
+  // relative offset on them would be overwritten before it could take effect.
+  if ( ANGLE != AG_YAW ) return;
+
+  // Compose against the setpoint user code has already latched so repeated
+  // calls accumulate exactly ( +90 three times is a full turn, not three
+  // partial ones chasing a heading that is still slewing ). The first call
+  // after entering Developer Mode has nothing latched, so it falls back to the
+  // measured heading - that is the "turn X degrees from where the nose is
+  // pointing now" case. So does a call made after yaw was taken off heading
+  // hold ( pilot stick ) and before updateMagHold ( ) re-based the target: the
+  // latched target no longer describes where the pilot left the nose.
+  int32_t base = ( isUserHeadingSet && ! userHeadingStale ) ? ( int32_t ) userHeading : ( int32_t ) heading;
+
+  // Wrap into the 0..359 range magHold is compared against in updateMagHold ( ).
+  // Reduce the turn first so base + turn cannot overflow for any int32_t input.
+  int32_t target = ( base + angle % 360 ) % 360;
+  if ( target < 0 ) target += 360;
+
+  magHold               = ( int16_t ) target;
+  userHeading           = ( int16_t ) target;
+  isUserHeadingSet      = true;
+  isUserHeadingRelative = true;    // re-based to the nose after a pilot yaw
+  userHeadingStale      = false;
 }
 
 int32_t getDesiredRate ( angle_e ANGLE ) {
@@ -159,35 +196,33 @@ void DesiredPosition_setRelative ( axis_e AXIS, int32_t position ) {
   }
 }
 
-void Failsafe_enable(failsafe_e FAILSAFE) {
+void Failsafe_enable ( failsafe_e FAILSAFE ) {
   // Determine if all failsafes need to be enabled
-  bool enableAll = (FAILSAFE == ALL);
+  bool enableAll = ( FAILSAFE == ALL );
 
   // Enable low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically LOW_BATTERY
-  fsLowBattery = enableAll || (FAILSAFE == LOW_BATTERY);
+  fsLowBattery = enableAll || ( FAILSAFE == LOW_BATTERY );
 
   // Enable in-flight low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY
-  fsInFlightLowBattery = enableAll || (FAILSAFE == INFLIGHT_LOW_BATTERY);
+  fsInFlightLowBattery = enableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY );
 
   // Enable crash failsafe if 'enableAll' is true or if FAILSAFE is specifically CRASH
-  fsCrash = enableAll || (FAILSAFE == CRASH);
+  fsCrash = enableAll || ( FAILSAFE == CRASH );
 }
 
-
-
-void Failsafe_disable(failsafe_e FAILSAFE) {
+void Failsafe_disable ( failsafe_e FAILSAFE ) {
   // Determine if all failsafes need to be disabled
-  bool disableAll = (FAILSAFE == ALL);
+  bool disableAll = ( FAILSAFE == ALL );
 
   // Disable low battery failsafe if 'disableAll' is true or if FAILSAFE is specifically LOW_BATTERY;
   // otherwise, retain the current state of fsLowBattery
-  fsLowBattery = disableAll || (FAILSAFE == LOW_BATTERY) ? false : fsLowBattery;
+  fsLowBattery = disableAll || ( FAILSAFE == LOW_BATTERY ) ? false : fsLowBattery;
 
   // Disable in-flight low battery failsafe if 'disableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY;
   // otherwise, retain the current state of fsInFlightLowBattery
-  fsInFlightLowBattery = disableAll || (FAILSAFE == INFLIGHT_LOW_BATTERY) ? false : fsInFlightLowBattery;
+  fsInFlightLowBattery = disableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY ) ? false : fsInFlightLowBattery;
 
   // Disable crash failsafe if 'disableAll' is true or if FAILSAFE is specifically CRASH;
   // otherwise, retain the current state of fsCrash
-  fsCrash = disableAll || (FAILSAFE == CRASH) ? false : fsCrash;
+  fsCrash = disableAll || ( FAILSAFE == CRASH ) ? false : fsCrash;
 }

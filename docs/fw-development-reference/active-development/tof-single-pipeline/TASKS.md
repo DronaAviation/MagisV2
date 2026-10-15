@@ -8,7 +8,7 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 15 Oct 2026, FW 3.12.0, API 1.5.0 ). All tasks done. |
+| **Current task** | **Closed** in `edfbd61` ( 15 Oct 2026, FW 3.12.0, API 1.5.0 ). All tasks done. |
 | **Next step** | The user commits ( `git commit -F .git/MAGISV2_COMMIT_MSG.txt` ); the next `pluto-commit` / `pluto-grill` run records the hash here |
 | **Open questions** | none for this topic. Follow-ups: an OA-behaviour topic ( roll / pitch override adds motion ); the M25P16 flash not detected on this board ( `Flash:0`, pre-existing ) |
 | **Blocked on** | nothing |

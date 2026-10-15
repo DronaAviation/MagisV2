@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 1st Oct 2026                                           #
+ #  Last Modified: Thu, 15th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -694,13 +694,40 @@ void updateInflightCalibrationState ( void ) {
 
 void updateMagHold ( void ) {
   static bool isMagHoldChanged = false;
+  static bool yawStickWasOut   = false;
   int16_t headingError;
 
-  if ( ABS ( rcData [ YAW ] - 1500 ) < 300 && ( FLIGHT_MODE ( MAG_MODE ) || FLIGHT_MODE ( HEADFREE_MODE ) ) ) {
+  // rcData [ YAW ] is the pilot's yaw stick: user code never writes it ( RcCommand_Set
+  // yaw goes to rcCommand only, which heading hold below replaces once its latch is clear );
+  // only failsafe centres it. It is the same test that takes yaw off heading hold below.
+  bool yawStickOut = ABS ( rcData [ YAW ] - 1500 ) >= 300;
+  if ( yawStickOut && ! yawStickWasOut && ARMING_FLAG ( ARMED ) ) {
+    // Flag on the edge only: a relative call made while the stick is still held is then
+    // measured from the nose at that call and is not overwritten at release. Only while
+    // armed: a stick gesture on the ground ( e.g. stick arming ) is not a pilot yaw and
+    // must not re-base a turn user code set before takeoff.
+    userHeadingStale = true;
+  }
+  yawStickWasOut = yawStickOut;
+
+  if ( ! yawStickOut && ( FLIGHT_MODE ( MAG_MODE ) || FLIGHT_MODE ( HEADFREE_MODE ) ) ) {
 
     if ( isMagHoldChanged && ABS ( gyroADC [ YAW ] / 4 ) < 70 ) {
       isMagHoldChanged = false;
-      magHold          = heading;
+      // The yaw stick was released and the craft has stopped turning. A relative user
+      // target is re-based to where the pilot left the nose, so the craft does not swing
+      // back and the next relative call is measured from here. An absolute one
+      // ( setDesiredAngle ) is kept: the craft returns to that bearing. A re-arm after a
+      // mode change alone ( no stick edge ) keeps the target, so the first turn survives
+      // MAG mode being switched on for it.
+      if ( userHeadingStale && isUserHeadingSet && isUserHeadingRelative ) {
+        userHeading = heading;
+      }
+      userHeadingStale = false;
+      // Re-arm on the user's yaw target if user code holds one: userCode ( ) restores it
+      // only on loops that do not call plutoLoop ( ), so at a fast user loop rate a
+      // re-arm to the measured heading would lose the target.
+      magHold = isUserHeadingSet ? userHeading : heading;
     }
 
     if ( ! isMagHoldChanged ) {
@@ -1114,7 +1141,12 @@ static void applyUserRcOverride ( void ) {
 
 void userCode ( ) {
 
-  if ( ( rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange ) && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) ) {
+  // The Developer Mode switch itself. AUX channels hold their last value through an RC
+  // signal loss ( rx.cpp: MAX_INVALID_PULS_TIME hold, then RX_FAILSAFE_MODE_HOLD ), so this
+  // only goes false when the pilot really switches dev mode off, never on a Wi-Fi flicker.
+  bool devSwitchOn = rcData [ DevModeAUX ] >= DevModeMinRange && rcData [ DevModeAUX ] <= DevModeMaxRange;
+
+  if ( devSwitchOn && ( rxIsReceivingSignal ( ) || ppmIsRecievingSignal ( ) ) ) {
     runUserCode = true;
     devmode     = true;
 
@@ -1167,12 +1199,47 @@ void userCode ( ) {
         userRCflag [ i ] = false;
       }
 
-      isUserHeadingSet = false;
       onLoopFinish ( );
       callOnPilotStart  = true;
       callonPilotFinish = false;
     }
   }
+
+  // The user yaw target is dropped only when dev mode is really switched off. A Wi-Fi
+  // flicker ( an RC frame > 200 ms late ) re-runs onLoopFinish ( ) / onLoopStart ( ) above,
+  // but the target, its relative / stale flags and the forced heading hold below all
+  // survive it, so a turn in progress is not cut short. At the real switch-off the craft
+  // holds the heading it points at instead of finishing a half-done turn. It is also
+  // dropped on the armed -> disarmed edge ( landing, crash, ARM switch ): the craft may be
+  // moved by hand before it is re-armed, and must not yaw back to an old target on the
+  // next takeoff. The edge, not the disarmed level, so a target user code sets before
+  // arming ( e.g. in onLoopStart ( ) on the ground ) still survives to takeoff.
+  static bool wasArmed = false;
+  bool        armed    = ARMING_FLAG ( ARMED );
+  bool        disarmed = wasArmed && ! armed;
+  wasArmed             = armed;
+
+  if ( ( ! devSwitchOn || disarmed ) && isUserHeadingSet ) {
+    isUserHeadingSet      = false;
+    isUserHeadingRelative = false;
+    userHeadingStale      = false;
+    magHold               = heading;
+  }
+
+#ifdef MAG
+  // A user yaw target ( setDesiredAngle / DesiredAngle_setRelative on AG_YAW ) is only
+  // flown by updateMagHold ( ) in MAG or HEADFREE mode; otherwise it overwrites magHold
+  // with the measured heading every loop and the target is lost. Hold heading for user
+  // code while it owns a target, including through a flicker. processRx ( ) re-derives
+  // MAG_MODE from AUX1 on each RX update ( new data, or at least 50 Hz ), so this ends
+  // within ~20 ms of the target being dropped. A pilot-selected HEADFREE already holds
+  // heading and keeps its own stick mapping, so it is left alone. Without a magnetometer
+  // updateMagHold ( ) never runs, so the mode is not forced ( it would only open the flip
+  // gate ).
+  if ( isUserHeadingSet && sensors ( SENSOR_MAG ) && ! FLIGHT_MODE ( HEADFREE_MODE ) ) {
+    ENABLE_FLIGHT_MODE ( MAG_MODE );
+  }
+#endif
 }
 
 /**

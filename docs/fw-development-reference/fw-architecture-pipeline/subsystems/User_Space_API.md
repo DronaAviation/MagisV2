@@ -25,11 +25,15 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - **Override Priority**: If the Failsafe mechanism activates, the firmware explicitly ignores `rcCommand` overrides originating from `plutoLoop()`. Failsafe takes ultimate precedence over the API.
 - **Rate Limiting**: To prevent API logic from running unnecessarily fast (e.g., polling an ultrasonic sensor 1000 times a second), developers use the `Monitor.timer` API to schedule tasks sequentially.
 - **Landing owns the throttle**: while any `LAND` runs ( `Command_Land`, RX loss or the critical-battery auto-land ), the landing throttle is re-applied after user code, so a throttle `RcCommand_Set` has no effect; the battery auto-land also replaces `Command_TakeOff` / `Command_Flip`.
+- **User yaw is heading hold**: `setDesiredAngle ( AG_YAW, bearing )` and `DesiredAngle_setRelative ( AG_YAW, turn )`
+  set the heading-hold target `magHold`. While one is held, the firmware engages MAG mode itself, so no app switch is
+  needed. See **Yaw setpoints** below; wiki `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.6.0 ).
 - **Battery**: `Bms_Get` has `SoC`, `Warning_Level` and `Resistance` ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 - **Link drop stops user code**: `plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true. With `Rx_ESP`
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
   clears every user RC override and re-runs `onLoopStart ( )` when frames return. A Wi-Fi stall therefore
-  restarts user code long before failsafe acts ( ~2.5 s ).
+  restarts user code long before failsafe acts ( ~2.5 s ). A user **yaw target survives** such a restart; see
+  **Yaw setpoints** below.
 - **OLED is deferred**: `Oled_Update ( )` / `Oled_display_Update ( )` only queue the frame. The firmware sends the
   changed bytes to the panel at most 16 per loop, so a full screen appears in ~0.25 s. A buffer passed to
   `Oled_display_Update ( )` must stay valid ( `static` or global ). `Oled_Update ( )` works in `User` mode only, and
@@ -43,7 +47,6 @@ flowchart TD
     
     DevCheck -- No --> FinishCheck{Was it just turned off?}
     FinishCheck -- Yes --> RunFinish["Run onLoopFinish()"]
-    FinishCheck -- No --> End
     
     DevCheck -- Yes --> TimeCheck{Has userLoopInterval passed?}
     TimeCheck -- No --> ApplyOld[Apply existing RC overrides]
@@ -58,8 +61,68 @@ flowchart TD
     ProcessLogic --> Overrides[Process User rcCommand Overrides]
     
     Overrides --> ApplyOld
-    ApplyOld --> End([Return to firmware Loop])
-    RunFinish --> End
+    ApplyOld --> YawTail
+    RunFinish --> YawTail
+    FinishCheck -- No --> YawTail
+    YawTail{"Dev switch off<br/>or just disarmed?"} -- Yes --> Drop["Drop the user yaw target<br/>magHold = heading"]
+    YawTail -- No --> Force
+    Drop --> Force{"User yaw target held?"}
+    Force -- Yes --> Mag["Force MAG_MODE<br/>unless HEADFREE"]
+    Force -- No --> End([Return to firmware Loop])
+    Mag --> End
+```
+
+## Yaw setpoints ( heading hold )
+
+User code steers yaw by giving heading hold a target. It does not set a yaw rate. Full reference:
+[YAW_HEADING_API_WIKI.md](../../../API/YAW_HEADING_API_WIKI.md) ( API 1.6.0 ).
+
+| Call | Target | Repeated calls | After a pilot yaw |
+|---|---|---|---|
+| `setDesiredAngle ( AG_YAW, bearing )` | Compass bearing, 0..359 degrees ( other values wrapped ) | Each call replaces the target | The craft returns to the bearing |
+| `DesiredAngle_setRelative ( AG_YAW, turn )` | The current target + `turn` ( + is clockwise ), or the nose + `turn` if no target is held | Turns add up exactly ( 4 × +90 = 360 ) | The target is re-based to the nose; there is no swing back |
+
+Rules:
+- **Heading hold is engaged automatically.** While Developer Mode is on and a target is held, `userCode ( )` enables
+  MAG mode on every loop. It does not do this when the pilot has selected HEADFREE, which already holds heading, or
+  when there is no magnetometer. `processRx ( )` re-derives MAG mode from AUX1 on each RX update, so the forced mode
+  ends within ~20 ms of the target being dropped. Heading hold itself always sees MAG on while a target is held,
+  and so does the app flip ( which needs MAG mode ), which runs after `userCode ( )`. But `processRx ( )` clears the
+  flag from AUX1 earlier in the same pass, before the MSP reply ( `annexCode ( )` → `handleSerial ( )` ) and before
+  `plutoLoop ( )`. So `FlightMode_Check ( MAGHOLD )` in user code and the app's BOXMAG indicator can momentarily read
+  false.
+- **Turns are clamped and fast.** `updateMagHold ( )` flies `( heading - magHold )`, wrapped to ±180, clamped to ±30°,
+  × `P8[PIDMAG]` ( 40 ), clamped to ±400 on `rcCommand[YAW]`. Full yaw authority is reached at 10° of error. A 90°
+  turn takes about 1.5-2 s and settles within ±1°. The craft takes the short way: +270 flies −90.
+- **The pilot's yaw stick wins.** Past ±300 from centre it bypasses heading hold. When it is released and the yaw
+  rate falls below ~17°/s, heading hold re-arms on the user target. A relative target is first re-based to the nose.
+  That re-base is keyed on the armed rising edge of the stick, so the MAG mode switch-on at the first call cannot erase
+  a turn. A relative call made during a stick hold clears the edge, so its call-time target stands after release.
+  A `RcCommand_Set` yaw override is flown only while the re-arm latch is set; a sustained override faster than ~17°/s
+  keeps the latch set, and the target is then never flown.
+- **When the target is dropped.** On a real Developer Mode switch-off, and on the armed → disarmed edge, the target is
+  dropped and `magHold = heading` is set, so the craft holds where it points. AUX channels hold their value through an
+  RC loss ( `RX_FAILSAFE_MODE_HOLD`, the default for AUX, config.cpp:479; an `rxfail` SET value outside the dev range
+  turns a stall over 600 ms into a switch-off ), so the target **survives a Wi-Fi flicker**, and also a long RC loss: heading hold keeps flying it through a
+  failsafe `LAND` ( yaw only ). A target set while disarmed survives until takeoff.
+- **Units.** Yaw is in whole degrees, and both setters wrap their value into 0..359. Roll and pitch in
+  `setDesiredAngle` are in deci-degrees. The relative setter ignores `AG_ROLL` and `AG_PITCH`. `updateMagHold ( )`
+  corrects the heading error by 360 only once, so an unwrapped target of 720 or more would never settle.
+
+```mermaid
+flowchart TD
+    UC([plutoLoop / onLoopStart]) --> SA["setDesiredAngle ( AG_YAW )<br/>absolute"]
+    UC --> SR["DesiredAngle_setRelative ( AG_YAW )<br/>base = target, or nose if none / stale"]
+    SA --> T[("userHeading, magHold<br/>isUserHeadingSet")]
+    SR --> T
+    T --> Tail["userCode ( ) tail<br/>restore magHold, force MAG_MODE"]
+    Tail --> MH["updateMagHold ( )"]
+    MH --> RC["rcCommand [ YAW ]<br/>±30° × 40, ±400"]
+    RC --> PID["pid_controller ( )"]
+    Stick([pilot yaw stick, armed edge]) --> MH
+    MH -- "release: relative re-base<br/>userHeading = heading" --> T
+    Off([dev switch-off / disarm edge]) --> Drop["drop target<br/>magHold = heading"]
+    Drop --> T
 ```
 
 ## XRanging ( laser ranging and object avoidance )

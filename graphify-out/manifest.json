@@ -1,7 +1,7 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1792036040.0146942,
-    "hash": "40784ec6da68e3effb872f95235ac46f"
+    "mtime": 1792061375.0880072,
+    "hash": "f20fbb6a69b6610c64bca0b776ee708e"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
     "mtime": 1785830612.0,
@@ -616,8 +616,8 @@
     "hash": "97bb1338164ddc708ad34c60f205f8a1"
   },
   "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1792039156.9238794,
-    "hash": "ef982e6e6bb1d416ce6560490c2d3cbc"
+    "mtime": 1792060384.4403627,
+    "hash": "d0891063963eed8c9191911d90b1820c"
   },
   "F:\\MagisV2\\src\\main\\mw.h": {
     "mtime": 1777868741.0,
@@ -636,8 +636,8 @@
     "hash": "ed82759c9f6a13e40298243a982e8645"
   },
   "F:\\MagisV2\\src\\main\\API\\API-Utils.h": {
-    "mtime": 1792039156.8902843,
-    "hash": "561070cd9a2faf8f0bf2ffb4af7a1403"
+    "mtime": 1792057198.5975182,
+    "hash": "045bcd87f398b88015407adb11d2ef94"
   },
   "F:\\MagisV2\\src\\main\\API\\BMS.h": {
     "mtime": 1790653748.8783174,
@@ -648,8 +648,8 @@
     "hash": "7b319f2f91ce5468bbc8d277132c93e2"
   },
   "F:\\MagisV2\\src\\main\\API\\FC-Config.h": {
-    "mtime": 1777868741.0,
-    "hash": "7f72a666e2508cd8b0f2aae5f4f4ff6c"
+    "mtime": 1792061102.412309,
+    "hash": "98d71dd113f75a818f4e98a7153d409a"
   },
   "F:\\MagisV2\\src\\main\\API\\FC-Control.h": {
     "mtime": 1777868741.0,
@@ -704,8 +704,8 @@
     "hash": "0060a067558d550b7fd9b9a4230305eb"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\API-Utils.cpp": {
-    "mtime": 1791964975.69007,
-    "hash": "79c17bb4cb18ed931d51f01cba74c09c"
+    "mtime": 1792057197.5406237,
+    "hash": "894c0f13d6da4f170bfbe28520bb3f4e"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\BMS.cpp": {
     "mtime": 1790653748.8723154,
@@ -720,8 +720,8 @@
     "hash": "b6818957e0303986ab7e94bbc155adb8"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\FC-Config-Setpoints.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "05a5f7157a99a833ed307969d72a0102"
+    "mtime": 1792060545.3523595,
+    "hash": "1d20aec1b83f3975301ae234ebe2ae33"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\FC-Control-Command.cpp": {
     "mtime": 1777868741.0,
@@ -1724,12 +1724,12 @@
     "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
   },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1791956796.6952088,
-    "hash": "8f78640dcfb8346b2f846a408f34ef52"
+    "mtime": 1792039808.953384,
+    "hash": "ca4629898a69417984c27ebf0d828106"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1791953679.5903788,
-    "hash": "9d8cb0e5f8e5c1faf29e6ab8a2a280b5"
+    "mtime": 1792039828.2828918,
+    "hash": "b07a0eecf12f759f6e2d116578a5a21d"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,

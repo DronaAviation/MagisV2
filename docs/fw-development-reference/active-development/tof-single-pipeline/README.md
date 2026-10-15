@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Oct 2026, FW 3.12.0, API 1.5.0 ) |
+| **Status** | **Closed** in `edfbd61` ( 15 Oct 2026, FW 3.12.0, API 1.5.0 ) |
 | **Mode** | `fix` ( follows the check topic [laser-tof-init-conflict](../laser-tof-init-conflict/README.md) ) |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all three targets plus an L1x + `LASER_ALT` check build at the gate and at commit ) |

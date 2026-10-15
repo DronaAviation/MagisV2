@@ -17,6 +17,10 @@ that removes all legacy STM32F10x support.
 
 ### Added
 
+- **Yaw ( user API )**: `DesiredAngle_setRelative ( AG_YAW, turn )` turns the craft by `turn` degrees from its own
+  heading ( + is clockwise ). Repeated calls add up exactly ( 4 × +90 = 360 ). After a pilot yaw, the target is
+  re-based to where the pilot left the nose. `setDesiredAngle ( AG_YAW )` targets still return to their bearing.
+  Wiki: `docs/API/YAW_HEADING_API_WIKI.md`.
 - **XRanging**: One VL53L0X pipeline for the down-laser and up to five side lasers
   ( `drivers/tof_manager` ). `XRanging.initAlt ( pin )` / `initAlt ( )` in `plutoInit ( )` replaces
   `#define LASER_TOF` + `LASER_ALT`: it switches on the down-laser and the laser / baro altitude fusion,
@@ -134,15 +138,17 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.12.0 (API 1.5.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.13.0 (API 1.6.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
-  3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ).
+  3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
+  3.13.0 for the relative yaw API and automatic heading hold for user yaw.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
+  API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -214,6 +220,18 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Yaw ( user API )**: A user yaw target ( `setDesiredAngle` or `DesiredAngle_setRelative` on `AG_YAW` ) did nothing
+  unless the app's heading-hold switch was on: `updateMagHold ( )` overwrote it with the measured heading every loop.
+  While user code holds a yaw target, the firmware now engages MAG heading hold itself ( unless the pilot chose
+  HEADFREE or there is no magnetometer ). A Wi-Fi RC flicker no longer drops the target. It is dropped at a real
+  Developer Mode switch-off ( the craft then holds its heading instead of finishing the turn ) and on a disarm. The
+  heading-hold re-arm keeps the user target, so the first call is not lost at fast user loop rates.
+  `setDesiredAngle ( AG_YAW, x )` now wraps `x` into 0..359: a value of 720 or more ( e.g. 900, written as
+  deci-degrees per the old header ) or −361 or less made the drone spin without stopping. Flight-tested on
+  PRIMUS_X2_v1 with AUX1 off: single and repeated turns ( ±1°, about 2 s per 90° ), a clean 0/359 wrap, an absolute
+  turn, and the target dropped on disarm. **Not yet flight-tested:** the re-base and return after a hand yaw, dev mode
+  switched off mid-turn, a turn through a flicker, no yaw at takeoff after a disarm, and HEADFREE
+  ( `active-development/relative-yaw-api/TESTING.md` ).
 - **Lasers**: With the VL53L0X down-laser ( `LASER_TOF` + `LASER_ALT` ) and XRanging side lasers
   together, no laser worked.
   - **Cause:** two separate bring-ups shared I2C 0x29. The first side laser's address change also moved

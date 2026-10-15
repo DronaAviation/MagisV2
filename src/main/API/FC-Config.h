@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sun, 24th Aug 2025                                          #
+ #  Last Modified: Thu, 15th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -38,12 +38,11 @@ typedef enum {
 } pid_profile_e;
 
 typedef enum {
-  LOW_BATTERY,          // Indicates a low battery condition, triggering actions to prevent power loss.
-  INFLIGHT_LOW_BATTERY, // Indicates a low battery condition specifically when in flight, requiring immediate attention.
-  CRASH,                // Represents a crash condition, prompting emergency procedures to minimize damage.
-  ALL                   // Represents all failsafe conditions, used to enable or check all failsafes simultaneously.
+  LOW_BATTERY,             // Indicates a low battery condition, triggering actions to prevent power loss.
+  INFLIGHT_LOW_BATTERY,    // Indicates a low battery condition specifically when in flight, requiring immediate attention.
+  CRASH,                   // Represents a crash condition, prompting emergency procedures to minimize damage.
+  ALL                      // Represents all failsafe conditions, used to enable or check all failsafes simultaneously.
 } failsafe_e;
-
 
 /**
  * @brief Sets the loop frequency within 3.5 to 2000 Hz.
@@ -91,10 +90,54 @@ int32_t getDesiredAngle ( angle_e ANGLE );
  * the specified angle type using a switch statement. It supports
  * setting roll, pitch, and yaw angles.
  *
+ * For AG_YAW, heading hold is engaged automatically while Developer Mode
+ * is on and the target is held ( a pilot-selected HEADFREE is kept ). The
+ * pilot's yaw stick overrides it while deflected; once it is released and
+ * the craft has stopped turning, the craft returns to this bearing.
+ *
  * @param ANGLE An enumerated type specifying the angle type.
- * @param angle The angle value to be set in deci-degrees.
+ * @param angle The angle value to be set. Deci-degrees for AG_ROLL and
+ *              AG_PITCH; whole degrees ( 0..359, compass referenced ) for
+ *              AG_YAW. Other yaw values are wrapped ( 450 is 90, -90 is 270 ).
  */
 void setDesiredAngle ( angle_e ANGLE, int32_t angle );
+
+/**
+ * @brief Turns the craft by an angle measured from its own heading.
+ *
+ * Where setDesiredAngle ( AG_YAW, x ) commands an absolute compass bearing,
+ * this commands a turn of x degrees relative to the craft: positive turns
+ * clockwise ( to the right ), negative anti-clockwise. The relative offset is
+ * resolved to an absolute bearing once, at the moment of the call, and then
+ * held - so a single call is a single turn, not a continuous rotation.
+ *
+ * Repeated calls compose against the setpoint already commanded, so three
+ * calls of +90 add up to a full turn. The first call after entering Developer
+ * Mode is measured from the craft's actual heading. A Wi-Fi hiccup re-runs
+ * onLoopStart ( ) but keeps the target, so a relative call placed there adds
+ * another turn after each hiccup: guard it, or use setDesiredAngle there.
+ *
+ * Like the absolute setter, heading hold is engaged for it automatically
+ * while Developer Mode is on and a yaw target is held ( a pilot-selected
+ * HEADFREE is kept, as it also holds heading ), so no app switch or
+ * FlightMode_Set call is needed.
+ *
+ * The pilot's yaw stick overrides the turn while deflected. Once it is
+ * released and the craft has stopped turning, the target is re-based to
+ * where the pilot left the nose: the craft does not swing back, and the
+ * next relative call is measured from there. A call made while the stick
+ * is held, or while the craft is still turning from it, is measured from
+ * the nose at that moment, and that target then stands after the release.
+ * Do not mix with a yaw RcCommand_Set override: heading hold replaces it
+ * once engaged, but the override is flown while heading hold waits to
+ * re-arm ( yaw rate above ~17 deg/s ), and a fast override keeps it waiting.
+ *
+ * Only AG_YAW is supported; AG_ROLL and AG_PITCH are ignored.
+ *
+ * @param ANGLE An enumerated type specifying the angle type. Only AG_YAW acts.
+ * @param angle The turn to make, in whole degrees, relative to the craft.
+ */
+void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle );
 
 /**
  * @brief Retrieves the desired rate for a given angle type.

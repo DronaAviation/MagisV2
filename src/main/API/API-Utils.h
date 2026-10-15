@@ -94,6 +94,8 @@ extern bool fsLowBattery;
 extern bool fsInFlightLowBattery;
 extern bool fsCrash;
 extern bool isUserHeadingSet;
+extern bool isUserHeadingRelative;
+extern bool userHeadingStale;
 extern bool isUserGPSCoordSet;
 extern bool startShieldRanging;
 extern bool reverseReferenceFrame;
