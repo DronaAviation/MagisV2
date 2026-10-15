@@ -48,7 +48,7 @@ OD	Added CRSF battery telemetry update in main loop           #
 #include "drivers/pwm_rx.h"
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
-#include "drivers/ranging_vl53l0x.h"
+#include "drivers/tof_manager.h"
 #include "drivers/ranging_vl53l1x.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
@@ -811,18 +811,14 @@ void executePeriodicTasks ( void ) {
 
     case UPDATE_LASER_TOF_TASK:
 
-#ifdef LASER_TOF
+      tofManagerPollDown ( );     // returns at once unless XRanging.initAlt brought the down-laser up
+      tofManagerPollSides ( );    // one side laser at most, only when it has a sample ready
 
-      getRange ( );
-
-#endif
 #ifdef LASER_TOF_L1x
 
       getRange_L1 ( );
 
 #endif
-      //        if(useRangingSensor)
-      //            getRange();
 
       break;
   }

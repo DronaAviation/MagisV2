@@ -135,10 +135,18 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **During a flip, altitude hold is bypassed, not switched off** — BARO_MODE stays on and altitude hold
   flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
   (`FLIGHT_INVARIANTS.md`).
-- **With `LASER_ALT`, one down-laser (VL53L0X `LASER_TOF` or VL53L1X `LASER_TOF_L1x`, never both) corrects
-  the estimator below 160 cm and the baro above it (back below 140 cm)** — the return to the laser and a
-  re-base shift the whole altitude frame so the craft does not move, and a sudden surface change is held
-  on the baro for 2.5 s before re-basing (`FLIGHT_INVARIANTS.md`).
+- **With `XRanging.initAlt ( )` (VL53L0X) or `LASER_TOF_L1x` + `LASER_ALT` (VL53L1X), one down-laser (never
+  both: `initAlt` is refused in a VL53L1X build) corrects the estimator below 160 cm and the baro above it (back
+  below 140 cm)** — latched once after `plutoInit ( )`; without `initAlt` the firmware is the baro build. The return
+  to the laser and a re-base shift the whole altitude frame so the craft does not move, and a sudden surface change
+  is held on the baro for 2.5 s before re-basing. An accepted `initAlt` whose laser fails to start still runs the
+  fusion as a dropout (`FLIGHT_INVARIANTS.md`). `LASER_TOF` is a build error.
+- **All VL53L0X lasers go through one owner, `drivers/tof_manager`, started once by `xRangingInit ( )`** (each laser
+  its own state; one bus error stops only that laser; getters read cached samples). The down-laser XSHUT may only be
+  GPIO_2/4/5/8 and needs `initAlt ( <pin> )`; that pin is reserved after start-up (no LED / `Peripheral_*` / ADC /
+  PWM). SPI2 (GPIO_5-8: the flash and the user SPI API) is off whenever XRanging is used. Every fitted side laser
+  must be enabled, or the start-up refuses the lasers after it (`BUS_BUSY`; undetectable with no XSHUT wire)
+  (`docs/API/XRANGING_API_WIKI.md`, `active-development/tof-single-pipeline/`).
 - **Battery current is read across one R020 ( 20 mOhm ): a stacked second shunt halves every current and mAh reading**
   ( range 8 A ). Low-battery levels come from the Pluto Fuel Gauge ( count, or compensated voltage ≤ 3.745 / 3.60 V per
   cell ), not from the stored warning / minimum voltages.

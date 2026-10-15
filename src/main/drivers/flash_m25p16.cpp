@@ -68,11 +68,26 @@ static flashGeometry_t geometry = {0,0,M25P16_PAGESIZE, 0, 0 };
  */
 static bool couldBeBusy = false;
 
+// Set by m25p16_release ( ): the bus belongs to someone else, every call returns at once.
+static bool released = false;
+
+void m25p16_release()
+{
+    released            = true;
+    couldBeBusy         = false;
+    geometry.sectors        = 0;
+    geometry.pagesPerSector = 0;
+    geometry.sectorSize     = 0;
+    geometry.totalSize      = 0;
+}
+
 /**
  * Send the given command byte to the device.
  */
 static void m25p16_performOneByteCommand(uint8_t command)
 {
+    if (released) return;
+
     ENABLE_M25P16;
 
     spiTransferByte(M25P16_SPI_INSTANCE, command);
@@ -97,6 +112,8 @@ static uint8_t m25p16_readStatus()
     uint8_t command[2] = { M25P16_INSTRUCTION_READ_STATUS_REG, 0 };
     uint8_t in[2];
 
+    if (released) return 0;
+
     ENABLE_M25P16;
 
     spiTransfer(M25P16_SPI_INSTANCE, in, command, sizeof(command));
@@ -108,6 +125,8 @@ static uint8_t m25p16_readStatus()
 
 bool m25p16_isReady()
 {
+    if (released) return true;    // nothing pending on an absent flash
+
     // If couldBeBusy is false, don't bother to poll the flash chip for its status
     couldBeBusy = couldBeBusy && ((m25p16_readStatus() & M25P16_STATUS_FLAG_WRITE_IN_PROGRESS) != 0);
 
@@ -201,6 +220,8 @@ static bool m25p16_readIdentification()
  */
 bool m25p16_init()
 {
+    if (released) return false;
+
     //Maximum speed for standard READ command is 20mHz, other commands tolerate 25mHz
     //spiSetDivisor(M25P16_SPI_INSTANCE, SPI_18MHZ_CLOCK_DIVIDER);  //changes by DD
 
@@ -213,6 +234,8 @@ bool m25p16_init()
 void m25p16_eraseSector(uint32_t address)
 {
     uint8_t out[] = { M25P16_INSTRUCTION_SECTOR_ERASE, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
+
+    if (released) return;
 
     m25p16_waitForReady(SECTOR_ERASE_TIMEOUT_MILLIS);
 
@@ -227,6 +250,8 @@ void m25p16_eraseSector(uint32_t address)
 
 void m25p16_eraseCompletely()
 {
+    if (released) return;
+
     m25p16_waitForReady(BULK_ERASE_TIMEOUT_MILLIS);
 
     m25p16_writeEnable();
@@ -237,6 +262,8 @@ void m25p16_eraseCompletely()
 void m25p16_pageProgramBegin(uint32_t address)
 {
     uint8_t command[] = { M25P16_INSTRUCTION_PAGE_PROGRAM, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
+
+    if (released) return;
 
     m25p16_waitForReady(DEFAULT_TIMEOUT_MILLIS);
 
@@ -249,11 +276,15 @@ void m25p16_pageProgramBegin(uint32_t address)
 
 void m25p16_pageProgramContinue(const uint8_t *data, int length)
 {
+    if (released) return;
+
     spiTransfer(M25P16_SPI_INSTANCE, NULL, data, length);
 }
 
 void m25p16_pageProgramFinish()
 {
+    if (released) return;
+
     DISABLE_M25P16;
 }
 
@@ -292,6 +323,8 @@ void m25p16_pageProgram(uint32_t address, const uint8_t *data, int length)
 int m25p16_readBytes(uint32_t address, uint8_t *buffer, int length)
 {
     uint8_t command[] = { M25P16_INSTRUCTION_READ_BYTES, (address >> 16) & 0xFF, (address >> 8) & 0xFF, address & 0xFF };
+
+    if (released) return 0;
 
     if (!m25p16_waitForReady(DEFAULT_TIMEOUT_MILLIS)) {
         return 0;

@@ -36,7 +36,7 @@
 #include "drivers/accgyro.h"
 #include "drivers/light_led.h"
 #include "drivers/gpio.h"
-#include "drivers/ranging_vl53l0x.h"
+#include "drivers/tof_manager.h"
 #include "drivers/ranging_vl53l1x.h"
 
 #include "sensors/sensors.h"
@@ -103,12 +103,17 @@ static float buff [ 15 ];
 static int16_t head      = 0;
 static int16_t rear      = -1;
 static int16_t itemCount = 0;
-// The VL53L0X and the VL53L1X both sit on I2C1 at 0x29, so only one can be fitted; with both
-// defined both laser paths would also write the same estimator state.
-#if defined( LASER_TOF ) && defined( LASER_TOF_L1x )
-  #error "LASER_TOF ( VL53L0X ) and LASER_TOF_L1x ( VL53L1X ) are both defined: define only the laser that is fitted"
+// Altitude-laser fusion ( tof-single-pipeline ). The VL53L0X down-laser is switched on at run time
+// by XRanging.initAlt ( ) in plutoInit ( ) and latched once at boot ( altLaserFusionLatch ( ) ); the
+// VL53L1X keeps its build switch ( LASER_TOF_L1x + LASER_ALT ). Only one down-laser can be fitted,
+// so initAlt is refused in a VL53L1X build. The fusion below is always compiled; with the flag off
+// every path takes the branch the baro-only build took.
+#if defined( LASER_TOF )
+  #error "LASER_TOF is replaced by XRanging.initAlt ( ) in plutoInit ( ): remove the define"
 #endif
-#ifdef LASER_ALT
+#if defined( LASER_ALT ) && ! defined( LASER_TOF_L1x )
+  #error "LASER_ALT now applies to the VL53L1X only ( with LASER_TOF_L1x ); the VL53L0X uses XRanging.initAlt ( )"
+#endif
 // Complementary-filter time constant, s. One value for the laser and the baro path, so a
 // source change does not also change the filter gains ( tof-althold-fusion task 3 ).
   #define ALT_EST_TAU_S 1.5f
@@ -165,24 +170,7 @@ static int16_t itemCount = 0;
 //   tofOutOfRange ( )  no valid reading ( driver's test )   tofReseed ( )    restart the range filter
 //   tofFiltCm ( )      filtered range, cm, before tilt      tofRawCm ( )     unfiltered range, cm
 // Constants that are sample counts, or follow the sample period or the driver filter, live here.
-  #if defined( LASER_TOF )
-// VL53L0X: a sample every ~33 ms. NewSensorRange is the driver's LASER_LPS 0.1 IIR of the range,
-// RangingMeasurementData.RangeMilliMeter the unfiltered sample.
-    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // it dropped out at ~172 cm on the test floor
-    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
-    #define ALT_TOF_DROPOUT_MS       120       // 3 missed samples at 33 ms + the 10 ms estimator tick ( 100 tripped on 2 )
-    #define ALT_TOF_RETURN_SAMPLES   3
-    #define ALT_TOF_IIR_LAG_S        0.3f      // LASER_LPS 0.1 at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s
-    #define ALT_TOF_STEADY_SAMPLES   15        // 0.5 s at 33 ms
-    #define ALT_TOF_RING_LEN         24        // > 0.66 s of samples at 33 ms
-    #define ALT_TOF_OFFSET_DT_MAX_S  0.05f     // longest step one baro-offset update weights, s
-    #define tofNew()        isTofDataNew ( )
-    #define tofClearNew()   ( isTofDataNewflag = false )
-    #define tofOutOfRange() isOutofRange ( )
-    #define tofReseed()     tofRequestReseed ( )
-    #define tofFiltCm()     ( ( float ) NewSensorRange / 10.0f )
-    #define tofRawCm()      ( ( float ) RangingMeasurementData.RangeMilliMeter / 10.0f )
-  #elif defined( LASER_TOF_L1x )
+  #if defined( LASER_TOF_L1x )
 // VL53L1X: a result every L1X_SAMPLE_PERIOD_MS ( 50 ms ) and no driver filter, so NewSensorRange_L1
 // ( last valid range, mm ) is both the filtered and the raw value, the lag is 0 and reseed does
 // nothing. isOutofRange_L1 ( ) is also true on a latched error, a result older than 3 periods
@@ -226,13 +214,51 @@ static_assert ( ALT_TOF_STEADY_SAMPLES >= 1 && ALT_TOF_STEADY_SAMPLES <= 255, "s
 static_assert ( ALT_TOF_RING_LEN * L1X_SAMPLE_PERIOD_MS > ALT_TOF_WINDOW_MS, "the ring must span the step window" );
 static_assert ( ALT_TOF_DROPOUT_MS >= L1X_STALE_MS, "dropout must not be shorter than the driver's stale time" );
   #else
-    #error "LASER_ALT needs a laser: define LASER_TOF ( VL53L0X ) or LASER_TOF_L1x ( VL53L1X )"
+// VL53L0X ( the XRanging DOWN entry, drivers/tof_manager ): a sample every ~33 ms. tofDownFiltMm ( )
+// is the manager's 0.1 IIR of the range ( the old NewSensorRange ), tofDownRawMm ( ) the unfiltered
+// sample. tofDownOutOfRange ( ) is also true while the DOWN laser is not running ( failed or not started ).
+    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // it dropped out at ~172 cm on the test floor
+    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
+    #define ALT_TOF_DROPOUT_MS       120       // 3 missed samples at 33 ms + the 10 ms estimator tick ( 100 tripped on 2 )
+    #define ALT_TOF_RETURN_SAMPLES   3
+    #define ALT_TOF_IIR_LAG_S        0.3f      // LASER_LPS 0.1 at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s
+    #define ALT_TOF_STEADY_SAMPLES   15        // 0.5 s at 33 ms
+    #define ALT_TOF_RING_LEN         24        // > 0.66 s of samples at 33 ms
+    #define ALT_TOF_OFFSET_DT_MAX_S  0.05f     // longest step one baro-offset update weights, s
+    #define tofNew()        tofDownNew ( )
+    #define tofClearNew()   tofDownClearNew ( )
+    #define tofOutOfRange() tofDownOutOfRange ( )
+    #define tofReseed()     tofDownReseed ( )
+    #define tofFiltCm()     ( ( float ) tofDownFiltMm ( ) / 10.0f )
+    #define tofRawCm()      ( ( float ) tofDownRawMm ( ) / 10.0f )
   #endif
 static_assert ( ALT_TOF_RING_LEN > 0 && ALT_TOF_RING_LEN <= 255, "the window ring is indexed with uint8_t" );
-float _time_constant_z = ALT_EST_TAU_S;
+
+#if defined( LASER_TOF_L1x ) && defined( LASER_ALT )
+  #define ALT_LASER_FUSION_BUILD true     // VL53L1X: the fusion is chosen at build time
 #else
-float _time_constant_z = 2.0f;
+  #define ALT_LASER_FUSION_BUILD false    // VL53L0X: chosen at boot by XRanging.initAlt ( )
 #endif
+// ALT_EST_TAU_S with the laser fusion, 2 s for the baro alone. main.cpp computes the gains from it at
+// boot ( updateGains ( ) ); altLaserFusionLatch ( ) recomputes them when initAlt turns the fusion on.
+float _time_constant_z = ALT_LASER_FUSION_BUILD ? ALT_EST_TAU_S : 2.0f;
+static bool altLaserFusionOn      = ALT_LASER_FUSION_BUILD;
+static bool altLaserFusionLatched = false;
+
+bool altLaserFusion ( void ) {
+  return altLaserFusionOn;
+}
+
+void altLaserFusionLatch ( bool on ) {
+  if ( altLaserFusionLatched ) return;    // once, at boot, before arming is possible
+  altLaserFusionLatched = true;
+  if ( ALT_LASER_FUSION_BUILD ) return;   // the VL53L1X build decided at compile time
+  altLaserFusionOn = on;
+  if ( on ) {
+    _time_constant_z = ALT_EST_TAU_S;
+    updateGains ( );
+  }
+}
 float accZ_tmp;
 static float accZ_old = 0.0f;
 
@@ -915,8 +941,12 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   if ( AltRstRequired && ! ARMING_FLAG ( ARMED ) )
     AltRst ( );
 
-  #if defined( BARO ) && ! ( defined( LASER_ALT ) )
-  checkBaro ( );
+  #if defined( BARO )
+  if ( altLaserFusion ( ) ) {
+    checkReading ( );
+  } else {
+    checkBaro ( );
+  }
   #else
   checkReading ( );
   #endif
@@ -966,7 +996,6 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
     AltRstRequired = 1;
 }
 
-  #ifdef LASER_ALT
 static bool altSourceLaser = true;    // estimator corrected by the laser ( true ) or the baro
 static bool altStepPending = false;   // object step seen, holding on the baro ( task 6 )
 
@@ -1045,9 +1074,7 @@ void checkReading ( ) {
   float baroDt = 0.0f;              // s since the previous baro sample, 0 when none is new
   float tilt   = 0;                 // rad
   static float baro_offset = 0.0f;  // cm, filtered baro altitude minus laser height, updated on the laser
-    #if defined( LASER_TOF ) || defined( LASER_TOF_L1x )
   static bool tofTiltOk    = true;  // last laser sample taken within ALT_TOF_MAX_TILT_DECIDEG
-    #endif
 
   baro_update_time = getBaroLastUpdate ( );
   if ( baro_update_time != baro_last_update ) {
@@ -1056,7 +1083,6 @@ void checkReading ( ) {
     filtered         = ( 0.75f * filtered ) + ( ( 1 - 0.75f ) * Baro_Height );
     baro_last_update = baro_update_time;
   }
-    #if defined( LASER_TOF ) || defined( LASER_TOF_L1x )    // the shared fusion body, for either laser
   const uint32_t nowMs = millis ( );
   static uint32_t lastGoodTofMs  = 0;       // time of the last usable laser sample
   static uint8_t returnCount     = 0;       // consecutive usable samples below the lower edge
@@ -1308,9 +1334,7 @@ void checkReading ( ) {
   } else {
     correctedWithBaro ( Baro_Height - baro_offset, baroDt );
   }
-    #endif
 }
-  #endif
 
 void checkBaro ( ) {
   uint32_t baro_update_time;
@@ -1336,14 +1360,15 @@ void correctedWithBaro ( float baroAlt, float dt ) {
   }
   _position_error_z = baroAlt - ( hist_position_base_z + _position_correction_z );
 
-  #ifdef LASER_ALT
-  // One time constant for both sources: switching 1.5 s <-> 2 s at every laser/baro change
-  // disturbed the estimate. Tilted laser samples are already rejected in checkReading ( ).
-  if ( _time_constant_z != ALT_EST_TAU_S ) {
-    _time_constant_z = ALT_EST_TAU_S;
-    updateGains ( );
+  if ( altLaserFusion ( ) ) {
+    // One time constant for both sources: switching 1.5 s <-> 2 s at every laser/baro change
+    // disturbed the estimate. Tilted laser samples are already rejected in checkReading ( ).
+    if ( _time_constant_z != ALT_EST_TAU_S ) {
+      _time_constant_z = ALT_EST_TAU_S;
+      updateGains ( );
+    }
+    return;
   }
-  #else
   // Deci-degrees: 300 = 30 deg ( the old 30 meant 3 deg, so the slow ~15 s filter
   // ran all the time and the estimate lagged high in descents ). 30 deg is above
   // the 20 deg max_angle_inclination, so this only trips in aggressive flight.
@@ -1354,10 +1379,8 @@ void correctedWithBaro ( float baroAlt, float dt ) {
     _time_constant_z = 2;
     updateGains ( );
   }
-  #endif
 }
 
-  #ifdef LASER_ALT
 void correctedWithTof ( float tofHeightCm ) {
   if ( first_reads == 0 ) {
     setAltitude ( tofHeightCm );
@@ -1371,7 +1394,6 @@ void correctedWithTof ( float tofHeightCm ) {
     updateGains ( );
   }
 }
-  #endif
 
 void updateGains ( ) {
   if ( _time_constant_z == 0.0f ) {

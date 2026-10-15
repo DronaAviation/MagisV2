@@ -28,6 +28,10 @@
 
 #include "API/Peripherals.h"
 
+// Declared in API/API-Utils.h ( C linkage ). Not included here: it would repeat utils.h's warnings
+// in this file.
+extern "C" bool xRangingAdcClaimed ( uint8_t adcPin );
+
 // Define a structure named Peripheral_M to handle ADC peripherals.
 // Peripheral_M Peripheral;
 
@@ -69,6 +73,8 @@ static const ADC_PinMapping adcPinMap [] = {
 };
 
 void Peripheral_Init ( peripheral_adc_pin _adc_pin ) {
+  // The down-laser's XSHUT pin ( XRanging.initAlt ): an analog input would reset the altitude laser
+  if ( xRangingAdcClaimed ( ( uint8_t ) _adc_pin ) ) return;
   if ( _adc_pin >= ADC_1 && _adc_pin <= ADC_9 ) {
     // Reserve this ADC's DMA channel up front. If another subsystem already owns
     // it (e.g. user code grabbed it for something else), do NOT enable the pin so
@@ -77,6 +83,12 @@ void Peripheral_Init ( peripheral_adc_pin _adc_pin ) {
       _isAdcEnable [ adcPinMap [ _adc_pin ].adcIndex ] = true;
     }
   }
+}
+
+// Declared in API/API-Utils.h ( C linkage ); defined here so the ADC map stays private.
+extern "C" bool adcPinEnabled ( uint8_t adcPin ) {
+  if ( adcPin > ( uint8_t ) ADC_9 ) return false;
+  return _isAdcEnable [ adcPinMap [ adcPin ].adcIndex ];
 }
 
 uint16_t Peripheral_Read ( peripheral_adc_pin _adc_pin ) {

@@ -33,6 +33,12 @@ bool spiTransfer(SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int len
 
 uint16_t spiGetErrorCounter(SPI_TypeDef *instance);
 void spiResetErrorCounter(SPI_TypeDef *instance);
+// Switch an SPI instance off for the rest of the run ( XRanging owns SPI2's pins ): peripheral
+// disabled and reset, clock off; SCK / MISO / MOSI that SPI2 still owns become pulled-up inputs,
+// pins user code already took are left alone, NSS is untouched. spiInit, spiTransfer and
+// spiTransferByte then return at once for that instance.
+void spiRelease(SPI_TypeDef *instance);
+bool spiIsReleased(SPI_TypeDef *instance);
 
 #ifdef __cplusplus
 }

@@ -43,6 +43,9 @@ bool m25p16_isReady();
 bool m25p16_waitForReady(uint32_t timeoutMillis);
 
 const flashGeometry_t* m25p16_getGeometry();
+// The SPI bus was handed to another user ( XRanging ): from now on the flash is absent ( size 0 )
+// and no call touches the bus or the CS pin.
+void m25p16_release();
 
 #ifdef __cplusplus
 }

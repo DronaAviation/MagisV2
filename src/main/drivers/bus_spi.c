@@ -136,6 +136,8 @@ void initSpi1 ( void ) {
     #define SPI2_MOSI_PIN_SOURCE GPIO_PinSource15
   #endif
 
+static bool spi2Released = false;    // XRanging took PB12-15 ( spiRelease )
+
 void initSpi2 ( void ) {
   // Specific to the STM32F103 / STM32F303 (AF5)
   // SPI2 Driver
@@ -214,6 +216,48 @@ void initSpi2 ( void ) {
 }
 #endif
 
+void spiRelease ( SPI_TypeDef *instance ) {
+#ifdef USE_SPI_DEVICE_2
+  if ( instance == SPI2 && ! spi2Released ) {
+    spi2Released = true;
+    SPI_Cmd ( SPI2, DISABLE );
+    SPI_I2S_DeInit ( SPI2 );
+    RCC_APB1PeriphClockCmd ( RCC_APB1Periph_SPI2, DISABLE );
+  #ifdef STM32F303xC
+    // Only pins SPI2 still owns ( alternate function, AF5 ) become pulled-up inputs: user code may
+    // already have taken a pin in plutoInit ( ) ( RGB_3, PWM_4 / 5, ADC_2-4, a GPIO ) and keeps it.
+    // The pull-up matches an XSHUT's idle ( a fitted laser stays awake, so the bring-up sees it ).
+    // NSS ( PB12 ) is left as it is: SPI2 only ever drove it as a GPIO output.
+    static const uint8_t spiPinSources [] = { SPI2_SCK_PIN_SOURCE, SPI2_MISO_PIN_SOURCE, SPI2_MOSI_PIN_SOURCE };
+    for ( uint8_t i = 0; i < ( uint8_t ) sizeof ( spiPinSources ); i++ ) {
+      const uint32_t src   = spiPinSources [ i ];
+      const uint32_t moder = ( SPI2_GPIO->MODER >> ( src * 2u ) ) & 0x3u;                        // 2 = alternate function
+      const uint32_t af    = ( SPI2_GPIO->AFR [ src >> 3 ] >> ( ( src & 7u ) * 4u ) ) & 0xFu;    // 5 = SPI2
+      if ( moder != 0x2u || af != GPIO_AF_5 ) continue;
+      GPIO_InitTypeDef pin;
+      pin.GPIO_Pin   = ( uint32_t ) ( 1u << src );
+      pin.GPIO_Mode  = GPIO_Mode_IN;
+      pin.GPIO_Speed = GPIO_Speed_2MHz;
+      pin.GPIO_OType = GPIO_OType_PP;
+      pin.GPIO_PuPd  = GPIO_PuPd_UP;
+      GPIO_Init ( SPI2_GPIO, &pin );
+    }
+  #endif
+  }
+#else
+  UNUSED ( instance );
+#endif
+}
+
+bool spiIsReleased ( SPI_TypeDef *instance ) {
+#ifdef USE_SPI_DEVICE_2
+  return instance == SPI2 && spi2Released;
+#else
+  UNUSED ( instance );
+  return false;
+#endif
+}
+
 bool spiInit ( SPI_TypeDef *instance ) {
 #if ( ! ( defined( USE_SPI_DEVICE_1 ) && defined( USE_SPI_DEVICE_2 ) ) )
   UNUSED ( instance );
@@ -227,6 +271,7 @@ bool spiInit ( SPI_TypeDef *instance ) {
 #endif
 #ifdef USE_SPI_DEVICE_2 
   if ( instance == SPI2 ) {
+    if ( spi2Released ) return false;    // XRanging owns the pins
     initSpi2 ( );
     return true;
   }
@@ -253,6 +298,8 @@ uint32_t spiTimeoutUserCallback ( SPI_TypeDef *instance ) {
 uint8_t spiTransferByte ( SPI_TypeDef *instance, uint8_t data ) {
   uint16_t spiTimeout = 1000;
 
+  if ( spiIsReleased ( instance ) ) return 0;
+
   while ( SPI_I2S_GetFlagStatus ( instance, SPI_I2S_FLAG_TXE ) == RESET )
     if ( ( spiTimeout-- ) == 0 )
       return spiTimeoutUserCallback ( instance );
@@ -274,6 +321,8 @@ uint8_t spiTransferByte ( SPI_TypeDef *instance, uint8_t data ) {
 
 bool spiTransfer ( SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int len ) {
   uint16_t spiTimeout = 1000;
+
+  if ( spiIsReleased ( instance ) ) return false;
 
   uint8_t b;
   instance->DR;

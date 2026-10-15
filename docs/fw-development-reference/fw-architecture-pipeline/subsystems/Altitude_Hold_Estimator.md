@@ -1,12 +1,15 @@
 # Altitude Hold & Estimator (`altitudehold.cpp`)
 
 ## Overview
-Fuses barometric pressure (and, when `LASER_ALT` is defined, laser Time-of-Flight) with the accelerometer's Z-axis to estimate altitude and vertical velocity. When `ALT_HOLD` mode is active, it takes over the throttle channel to hold or smoothly change height.
+Fuses barometric pressure (and, with a down-laser, laser Time-of-Flight: the VL53L0X switched on at boot by `XRanging.initAlt ( )`, or the VL53L1X built with `LASER_TOF_L1x` + `LASER_ALT`) with the accelerometer's Z-axis to estimate altitude and vertical velocity. When `ALT_HOLD` mode is active, it takes over the throttle channel to hold or smoothly change height.
 
 ## Source Files
 - **Altitude estimator and controller**: `src/main/flight/altitudehold.cpp`, `src/main/flight/altitudehold.h`
 - **Barometer chain**: `src/main/sensors/barometer.cpp` (conversion, zero, compensation), `src/main/drivers/barometer_icp10111.cpp` (ICP-10111 driver)
-- **Laser** ( one down-laser, only used by the estimator with `LASER_ALT` ): `src/main/drivers/ranging_vl53l0x.cpp` ( VL53L0X, `LASER_TOF`: 33 ms single ranging, `LASER_LPS` 0.1 IIR ) or `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( VL53L1X, `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter ). Both sit on I2C1 at 0x29, so only one can be defined: `altitudehold.cpp` stops the build with an `#error` if both are, and if `LASER_ALT` is defined without either.
+- **Laser** ( one down-laser, used by the estimator only while the laser fusion is on, `altLaserFusion ( )` ):
+  - **VL53L0X:** the DOWN entry of `src/main/drivers/tof_manager.cpp` / `.h` ( 33 ms single ranging, start + read, a 0.1 IIR of samples < 2000 mm, address 0x30 ). The per-device helpers are in `src/main/drivers/ranging_vl53l0x.cpp` / `.h`. The bring-up is `xRangingInit ( )` in `src/main/API-Src/XRanging.cpp`. User code turns it on with `XRanging.initAlt ( )` in `plutoInit ( )`.
+  - **VL53L1X:** `src/main/drivers/ranging_vl53l1x.cpp` / `.h` ( `LASER_TOF_L1x`: Medium mode, 45 ms budget, 50 ms period, no filter, at 0x29 ), fused with `LASER_ALT`.
+  - **Only one down-laser can be fitted.** `initAlt` is refused in a `LASER_TOF_L1x` build. `altitudehold.cpp` stops the build with an `#error` if `LASER_TOF` is still defined, or if `LASER_ALT` is defined without `LASER_TOF_L1x`.
 - **Accelerometer sum**: `src/main/flight/imu.cpp` `imuCalculateAcceleration()` (builds `accSum[Z]`, the estimator's vertical acceleration)
 - **Flip** (drives the throttle during a flip): `src/main/flight/acrobats.cpp`, `acrobats.h`
 - **XY position** (not altitude): `src/main/flight/posEstimate.cpp`, `src/main/flight/posControl.cpp`
@@ -22,9 +25,13 @@ Fuses barometric pressure (and, when `LASER_ALT` is defined, laser Time-of-Fligh
 
 ## Primary Functions
 - `apmCalculateEstimatedAltitude()`: runs the third-order complementary filter each altitude task, integrating accel-Z and correcting towards the height measurement.
-- `checkBaro()` → `correctedWithBaro()`: barometer path (no `LASER_ALT`). Time constant `_time_constant_z` is 2 s, or 5 s above 30° of tilt.
-- `checkReading()` (with `LASER_ALT`): chooses the correction source each estimator step: `correctedWithTof()` on the laser, `correctedWithBaro()` with a frozen offset on the baro or during an object hold-off, or no correction ( coast ) during a short gap or a suspected edge. One body serves either laser; it reads the sensor only through accessor macros and per-sensor constants. See **Laser fusion** below.
-- `correctedWithTof()`: position error against the filter's own `_position_z`; one time constant `ALT_EST_TAU_S` 1.5 s for both sources under `LASER_ALT`.
+- `checkBaro()` → `correctedWithBaro()`: barometer path, used while the laser fusion is off. Time constant `_time_constant_z` is 2 s, or 5 s above 30° of tilt.
+- `checkReading()` ( laser fusion on ): chooses the correction source each estimator step: `correctedWithTof()` on the laser, `correctedWithBaro()` with a frozen offset on the baro or during an object hold-off, or no correction ( coast ) during a short gap or a suspected edge. One body serves either laser; it reads the sensor only through accessor macros and per-sensor constants. See **Laser fusion** below.
+- `correctedWithTof()`: position error against the filter's own `_position_z`; one time constant `ALT_EST_TAU_S` 1.5 s for both sources while the fusion is on.
+- `altLaserFusion()` / `altLaserFusionLatch()`: the boot-latched fusion flag.
+  - **VL53L0X:** `xRangingInit ( )` latches it once, after `plutoInit ( )`, from the accepted `XRanging.initAlt ( )` request. When it turns on, τ becomes 1.5 s and the gains are recomputed.
+  - **VL53L1X:** a `LASER_TOF_L1x` + `LASER_ALT` build has it on at compile time.
+  - **What it selects:** `checkReading ( )` or `checkBaro ( )`; τ; the accel-Z deadband ( `imu.cpp` ); and the take-off height ( `command.cpp`: absolute with the laser, relative to the arming height on the baro ).
 - `altShiftFrame()`: moves the whole altitude frame ( estimate, its history, the smoother, the setpoint, the goal and the flip's return height ) by one amount, so a change of reference does not move the craft.
 - `altHoldSource()`: 1 laser, 0 baro, 2 object hold-off ( diagnostics ).
 - `applyAltHold()` → `applyMultirotorAltHold()` (main loop): turns the throttle stick into `setVelocity` (landing descent while `isLanding`, 0 for `ALT_FLIP_EXIT_IGNORE_MS` after a flip, the raw flip rate while a flip runs), sets `altHoldGroundIdle`, and writes `rcCommand[THROTTLE] = initialThrottleHold + altHoldThrottleAdjustment`.
@@ -120,44 +127,62 @@ flowchart TD
     VEL --> OUT[throttle = initialThrottleHold + adjustment]
 ```
 
-## Laser fusion (`LASER_ALT`, VL53L0X or VL53L1X)
+## Laser fusion (`altLaserFusion ( )`: VL53L0X with `XRanging.initAlt ( )`, or VL53L1X with `LASER_ALT`)
 
 With a downward laser, altitude hold means height above the surface under the craft: gentle
 terrain is followed. `checkReading()` decides each estimator step what corrects the complementary
-filter. One fusion body serves both lasers, the VL53L0X ( `LASER_TOF` ) and the VL53L1X
-( `LASER_TOF_L1x` ). Only one can be fitted: both sit on I2C1 at 0x29, and both would write the same
-estimator state. Defining both stops the build with an `#error`, and so does `LASER_ALT` without a
-laser. The two sensors differ only in the accessors and constants below, plus a return guard that
-only the VL53L1X has.
+filter. The fusion runs while `altLaserFusion ( )` is true:
+
+- **VL53L0X:** the flag is latched once at boot by `xRangingInit ( )`, from an accepted `XRanging.initAlt ( )`. It
+  never changes while the craft runs. Without `initAlt`, or with a refused one, the estimator is exactly the
+  baro build.
+- **VL53L1X:** the flag is on at build time with `LASER_TOF_L1x` + `LASER_ALT`.
+
+One fusion body serves both lasers. Only one laser can be fitted, because both would write the same estimator
+state, so `initAlt` is refused in a VL53L1X build. The two sensors differ only in the accessors and constants below,
+plus a return guard that only the VL53L1X has.
+
+**A down-laser that fails to start still runs the fusion.** An accepted `initAlt` turns the fusion on even if the
+laser then ends BOOT_FAILED: no answer, a failed init step, or 0x29 busy at its release ( `BUS_BUSY` ). Then:
+- the estimator starts on the laser source, finds no usable sample, and hands over to the baro on its first tick
+  ( `ALT_TOF_DROPOUT_MS` has already passed since boot );
+- it stays on the baro with the frozen offset;
+- it keeps the laser tuning: τ 1.5 s, accel-Z deadband 0, absolute take-off height;
+- `XRanging.getStatus ( DOWN )` reports the failure.
+
+**No side laser reaches the estimator.** Every laser has its own entry in `drivers/tof_manager`. The side lasers are
+polled into their own entries ( `tofManagerPollSides ( )` ), and the estimator's accessors read the DOWN entry
+only. Before this, the side lasers' bring-up and reads wrote the same globals the estimator read.
 
 **Sensor interface.** The body reads the sensor only through six accessor macros, chosen with
-`#if defined( LASER_TOF ) / #elif defined( LASER_TOF_L1x )` near the top of `altitudehold.cpp`:
+`#if defined( LASER_TOF_L1x ) / #else` near the top of `altitudehold.cpp`. The VL53L0X accessors are
+functions of `drivers/tof_manager` that read the DOWN entry only:
 
-| Accessor | Meaning | VL53L0X | VL53L1X |
+| Accessor | Meaning | VL53L0X ( DOWN entry ) | VL53L1X |
 |---|---|---|---|
-| `tofNew()` | a new result is waiting | `isTofDataNew()` | `isTofDataNew_L1()` |
-| `tofClearNew()` | mark it consumed | `isTofDataNewflag = false` | `isTofDataNewflag_L1 = false` |
-| `tofOutOfRange()` | no valid reading now | `isOutofRange()` | `isOutofRange_L1()` |
-| `tofReseed()` | restart the driver's range filter | `tofRequestReseed()` | nothing ( no filter ) |
-| `tofFiltCm()` | filtered range, cm, before the tilt correction | `NewSensorRange` ( the IIR ) / 10 | `NewSensorRange_L1` / 10 |
-| `tofRawCm()` | unfiltered range, cm | `RangingMeasurementData.RangeMilliMeter` / 10 | `NewSensorRange_L1` / 10 |
+| `tofNew()` | a new result is waiting | `tofDownNew()` | `isTofDataNew_L1()` |
+| `tofClearNew()` | mark it consumed | `tofDownClearNew()` | `isTofDataNewflag_L1 = false` |
+| `tofOutOfRange()` | no valid reading now | `tofDownOutOfRange()`: the last sample was invalid, **or DOWN's status is not OK** | `isOutofRange_L1()` |
+| `tofReseed()` | restart the driver's range filter | `tofDownReseed()` | nothing ( no filter ) |
+| `tofFiltCm()` | filtered range, cm, before the tilt correction | `tofDownFiltMm()` ( the 0.1 IIR ) / 10 | `NewSensorRange_L1` / 10 |
+| `tofRawCm()` | unfiltered range, cm | `tofDownRawMm()` / 10 | `NewSensorRange_L1` / 10 |
 
-Under `LASER_TOF` every accessor and constant expands to exactly the expression the VL53L0X-only code
-used, so the refactor left the VL53L0X object code of `altitudehold.o` byte-identical.
+The down poll ( `tofManagerPollDown ( )`, from `UPDATE_LASER_TOF_TASK` ) keeps the former VL53L0X driver's
+values on the success path: the same 33 ms start + read, IIR, rounding, `< 2000 mm` test and reseed.
 
 What counts as a valid reading is decided in each driver:
 
 | | VL53L0X | VL53L1X |
 |---|---|---|
 | Valid sample | range status 0 and < 2000 mm | range status 0 and `L1X_MIN_VALID_MM` 15 ≤ range < 4500 mm |
-| Held range | `NewSensorRange`: IIR of valid samples | `NewSensorRange_L1`: the last valid sample |
-| `tofOutOfRange()` also true | - | on a latched ST error ( `Global_Status_L1` ), or no new result for `L1X_STALE_MS` = 3P + 10 = 160 ms |
+| Held range | the DOWN entry's IIR of valid samples ( `tofDownFiltMm()` ) | `NewSensorRange_L1`: the last valid sample |
+| `tofOutOfRange()` also true | while DOWN's status is not OK: not started, BOOT_FAILED, or I2C_ERROR after a failed read ( never retried ) | on a latched ST error ( `Global_Status_L1` ), or no new result for `L1X_STALE_MS` = 3P + 10 = 160 ms |
 
-**Accelerometer input.** Under `LASER_ALT`, `accSum[Z]` is built without a deadband
+**Accelerometer input.** With the fusion on ( `altLaserFusion ( )` ), `accSum[Z]` is built without a deadband
 ( `ALT_EST_ACC_Z_DEADBAND` 0 counts, a compile-time constant, so a saved profile cannot bring the old
 value back ). The profile's 40-count Z deadband ( ~9.6 cm/s² ) removed most of a hover's vertical
 acceleration: `VelocityZ` read 0.3-0.4 × the real speed, the velocity loop had a third of its
-damping, and the craft bobbed 30 cm at ~4 s. Baro-only builds keep `accDeadband.z`. `accSum[Z]`
+damping, and the craft bobbed 30 cm at ~4 s. With the fusion off, `accSum[Z]` keeps `accDeadband.z`. `accSum[Z]`
 also reaches the velocity loop's D term through `accZ_tmp`; at the default `d_vel` 1 the term is 0
 until the sum of two consecutive averages ( `accZ_tmp + accZ_old` ) reaches 512 counts, ~256 per
 sample.
@@ -168,12 +193,12 @@ against the filter's `_position_z`, not the smoothed integer `EstAlt`. The corre
 sample period. Laser samples taken above `ALT_TOF_MAX_TILT_DECIDEG` 25° are rejected, for both
 sensors; accepted ones are multiplied by the cosine of the tilt.
 
-The VL53L0X driver IIR keeps float state and is reseeded from the raw sample after an out-of-range
-sample, a rejected tilted sample, and at every object detection, cancel and re-base
-( `tofRequestReseed()` ). It lags ~0.3 s ( `ALT_TOF_IIR_LAG_S` ), so the laser is advanced by
-`VelocityZ × 0.3 s` for the baro-offset average and the return shift; the object
-test advances the estimate by the same amount instead. The estimator correction itself uses the IIR
-reading as it is. The VL53L1X has no driver filter: its lag is 0 and its reseed does nothing.
+The VL53L0X IIR ( in `tofManagerPollDown ( )`, DOWN entry ) keeps float state. It is reseeded from the raw sample
+after an out-of-range sample, after a rejected tilted sample, and at every object detection, cancel and re-base
+( `tofDownReseed()` ). It lags ~0.3 s ( `ALT_TOF_IIR_LAG_S` ), so the laser is advanced by `VelocityZ × 0.3 s` for
+the baro-offset average and the return shift; the object test advances the estimate by the same amount instead. The
+estimator correction itself uses the IIR reading as it is. The VL53L1X has no driver filter: its lag is 0 and its
+reseed does nothing.
 
 **Per-sensor constants.** P is `L1X_SAMPLE_PERIOD_MS`, 50 ms by default. The VL53L1X counts and
 times are derived from P in macros ( with `static_assert`s on the steady count, the ring span and the
@@ -205,8 +230,9 @@ Shared by both sensors: `ALT_EST_TAU_S` 1.5 s, `ALT_TOF_MAX_TILT_DECIDEG` 25°, 
 | baro | laser | `ALT_TOF_RETURN_SAMPLES` 3 usable samples below `ALT_TOF_HANDOVER_DOWN_CM` 140 cm after a climb above the band, otherwise below 160 cm. On the VL53L1X the return guard below can hold a sample off |
 
 Short gaps: out-of-range and tilted samples coast on the accelerometer ( no correction ) until the
-dropout timeout. A VL53L0X that simply stops reporting keeps its last reading usable, so the estimator
-keeps correcting towards that reading until the 120 ms timeout. A silent VL53L1X does the same for
+dropout timeout. A VL53L0X read that fails marks DOWN I2C_ERROR for the rest of the run ( never
+retried ). `tofOutOfRange()` is then true, so the estimator coasts, hands over to the baro at the 120 ms
+timeout, and stays on the baro until a power cycle. A silent VL53L1X keeps its last reading usable for
 160 ms ( `L1X_STALE_MS` ), then coasts until the 185 ms timeout.
 
 On the laser, `baro_offset` is a 2 s ( `ALT_BARO_OFFSET_TAU_S` ) average of baro minus laser, paused
@@ -325,7 +351,7 @@ Known limits on the VL53L1X ( PRIMUS_X2_v1, `vl53l1x-althold-parity` flights log
 
 ```mermaid
 flowchart TD
-    Task([executePeriodicTasks<br/>UPDATE_LASER_TOF_TASK]) --> Drv[getRange or getRange_L1<br/>new-sample flag, held range,<br/>out-of-range flag]
+    Task([executePeriodicTasks<br/>UPDATE_LASER_TOF_TASK]) --> Drv[tofManagerPollDown: DOWN entry<br/>or getRange_L1<br/>new-sample flag, held range,<br/>out-of-range flag]
     Est([apmCalculateEstimatedAltitude]) --> Tick[checkReading, each estimator step<br/>reads the laser through the tof accessors]
     Drv -. flags and range .-> Tick
     Tick --> New{New laser sample<br/>in range?}
@@ -352,17 +378,19 @@ flowchart TD
     Ret --> Laser
 ```
 
-<!-- Edge sources ( 24 Sep 2026; graphify path for the function calls, source lines for the rest ):
-Task -> Drv: mw.cpp:804-815 executePeriodicTasks ( ) UPDATE_LASER_TOF_TASK calls getRange ( ) / getRange_L1 ( ).
-Est -> Tick: altitudehold.cpp:921 ( graphify: apmCalculateEstimatedAltitude -> checkReading, EXTRACTED ).
-Drv -.-> Tick: ranging_vl53l1x.cpp:285-297 sets isTofDataNewflag_L1 / NewSensorRange_L1 / out_of_range_L1;
-  ranging_vl53l0x.cpp:201-228 the L0X equivalents; read via the accessors altitudehold.cpp:179-184 / :219-224.
-New -> Rej: altitudehold.cpp:1083-1090.  New -> Raw: :1092-1097.  Raw -> Win: :1118 tofWindowMismatch ( ).
-Win -> Sus: :1128 ( suspect ), :1176-1177 ( step ).  Sus -> Hold: :1178.  Hold -> Laser ( cancel ): :1202-1203.
-Hold -> Rebase: :1206-1218 altShiftFrame ( ).  Sus -> Coast / Band -> Coast: :1303-1306.  Band -> Laser: :1304.
-Band -> BaroP: :1273-1279 ( handover ), :1309 correctedWithBaro ( ).  BaroP -> Guard: :1235-1236 ( L1x only ).
-Guard -> BaroP: :1281-1282 ( returnHeld resets the count ).  Guard -> Ret ( steady exit ): :1237-1247.
-Guard -> Cnt -> Ret: :1284-1289.  Ret -> Laser: :1291. -->
+<!-- Edge sources ( 15 Oct 2026, source lines; the graph predates drivers/tof_manager ):
+Task -> Drv: mw.cpp:812-820 executePeriodicTasks ( ) UPDATE_LASER_TOF_TASK calls tofManagerPollDown ( ) ( :814 )
+  and, with LASER_TOF_L1x, getRange_L1 ( ) ( :819 ).
+Est -> Tick: altitudehold.cpp:945-946 ( if ( altLaserFusion ( ) ) checkReading ( ) ).
+Drv -.-> Tick: tof_manager.cpp:152-170 sets the DOWN entry's newSample / rawMm / outOfRange and the IIR, read via the
+  accessors altitudehold.cpp:228-233 -> tof_manager.cpp:209-231; ranging_vl53l1x.cpp:287-296 sets
+  isTofDataNewflag_L1 / NewSensorRange_L1 / out_of_range_L1, read via altitudehold.cpp:207-212.
+Tick -> New: altitudehold.cpp:1109.  New -> Rej: :1114-1117.  New -> Raw: :1118-1123.  Raw -> Win: :1144 tofWindowMismatch ( ).
+Win -> Sus: :1154-1155 ( suspect ), :1202-1204 ( step ).  Sus -> Hold: :1204.  Hold -> Laser ( cancel ): :1228-1229.
+Hold -> Rebase: :1232-1245 altShiftFrame ( ) :1238.  Sus -> Coast / Band -> Coast: :1328-1332.  Band -> Laser: :1330.
+Band -> BaroP: :1299-1304 ( handover ), :1335 correctedWithBaro ( ).  BaroP -> Guard: :1261-1262 ( L1x only, :1250 ).
+Guard -> BaroP: :1307-1308 ( returnHeld resets the count ).  Guard -> Ret ( steady exit ): :1263-1274.
+Guard -> Cnt -> Ret: :1310-1315.  Ret -> Laser: :1317. -->
 
 ## Flip interaction (`flight/acrobats.cpp`)
 
@@ -437,11 +465,11 @@ inside its 2.2 s time-out). After the rotation the altitude estimate re-converge
 **Landing must keep its own descent rate.** Near the floor the barometer drifts low in the craft's own downwash. At the stick's 10-20 cm/s that drift alone met the descent demand: the craft hovered a few cm up with `EstAlt` still falling, and `land()`'s touchdown test (descent stopped) never fired.
 
 **Not covered:** there is no general landed detector. A touchdown and re-take-off without disarming can still wind the integrator down. `limitAltitude()` only clamps the stick, and the target coasts about 8 cm past the clamp, which is inside the 25 cm margin.
-- **ToF vs Baro**: with `LASER_ALT` and either down-laser ( VL53L0X `LASER_TOF` or VL53L1X `LASER_TOF_L1x` ), the laser corrects the estimator below the handover band and the barometer above it ( **Laser fusion** above ). Without `LASER_ALT` the estimator is barometer and accel-Z only. `LASER_TOF` or `LASER_TOF_L1x` alone reads the laser for logging and does not affect altitude.
+- **ToF vs Baro**: with the laser fusion on, the laser corrects the estimator below the handover band and the barometer above it ( **Laser fusion** above ). The fusion is on for the VL53L0X with `XRanging.initAlt ( )`, latched at boot, and for the VL53L1X with `LASER_TOF_L1x` + `LASER_ALT`. With it off, the estimator is barometer and accel-Z only. A VL53L1X built without `LASER_ALT`, and every XRanging side laser, are read for user code or logging and never affect altitude. `XRanging.getRange ( DOWN )` gives user code the down-laser's cached range.
 
 ```mermaid
 flowchart TD
-    Start([Altitude task]) --> Src{LASER_ALT?}
+    Start([Altitude task]) --> Src{altLaserFusion?}
     Src -- Yes --> LF[checkReading<br/>see Laser fusion]
     LF -- laser --> ToF[correctedWithTof]
     LF -- baro / hold-off:<br/>BaroAlt minus frozen offset --> Baro
@@ -472,3 +500,7 @@ flowchart TD
     Reset --> End([End])
     Mix --> End
 ```
+
+<!-- Edge sources at the source decision ( 15 Oct 2026 ): Start -> Src: altitudehold.cpp:945. Src -> LF: :946 checkReading ( ).
+Src -> Baro: :948 checkBaro ( ) ( :1339 ). LF -> ToF: :1330 correctedWithTof ( ). LF -> Baro: :1335 correctedWithBaro (
+Baro_Height - baro_offset ). LF -> CF: :1332 ( no correction ). The other edges are unchanged. -->

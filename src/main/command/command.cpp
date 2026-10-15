@@ -113,17 +113,14 @@ void takeOff ( ) {
         takeoffTimer.reset ( );
         posSetTimer.reset ( );
 
-#ifdef LASER_ALT
         if ( ! isTakeOffHeightSet ) {
-          setDesiredPosition ( Z, takeOffHeight );
+          if ( altLaserFusion ( ) ) {    // laser: an absolute height above the floor
+            setDesiredPosition ( Z, takeOffHeight );
+          } else {                       // baro: relative to the arming height
+            DesiredPosition_setRelative ( Z, takeOffHeight );
+          }
           isTakeOffHeightSet = true;
         }
-#else
-        if ( ! isTakeOffHeightSet ) {
-          DesiredPosition_setRelative ( Z, takeOffHeight );
-          isTakeOffHeightSet = true;
-        }
-#endif
       }
     }
   }

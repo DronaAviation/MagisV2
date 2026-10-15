@@ -43,6 +43,7 @@
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
 #include "drivers/ranging_vl53l0x.h"
+#include "drivers/tof_manager.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
 #include "sensors/compass.h"
@@ -352,8 +353,8 @@ void calculateSensorFlow(uint32_t currentTime)
 //    sensor_flow[0]=filtered_raw_flow[0]*constrainf((opticflowHeight), height_min, height_max);
 //    sensor_flow[1]=filtered_raw_flow[1]*constrainf((opticflowHeight), height_min, height_max);
 
-    sensor_flow[0] = filtered_raw_flow[0] * constrainf((NewSensorRange * 0.001), height_min, height_max);
-    sensor_flow[1] = filtered_raw_flow[1] * constrainf((NewSensorRange * 0.001), height_min, height_max);
+    sensor_flow[0] = filtered_raw_flow[0] * constrainf(((float) tofDownFiltMm() * 0.001f), height_min, height_max);
+    sensor_flow[1] = filtered_raw_flow[1] * constrainf(((float) tofDownFiltMm() * 0.001f), height_min, height_max);
 
 
     debugOpticFlow1[0]=filtered_raw_flow[0];

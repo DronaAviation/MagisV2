@@ -32,6 +32,7 @@
 #include "config/config.h"
 
 #include "API/Peripherals.h"
+#include "API/API-Utils.h"    // xRangingGpioClaimed ( )
 
 // Structure to hold mapping information for GPIO pins
 typedef struct {
@@ -88,6 +89,10 @@ void Peripheral_Init ( peripheral_gpio_pin_e _gpio_pin, GPIO_Mode_e _mode ) {
   if ( _gpio_pin >= GPIO_COUNT ) {
     return;    // Exit if invalid
   }
+  // The down-laser's XSHUT ( XRanging.initAlt ): reconfiguring it would reset the altitude laser
+  if ( xRangingGpioClaimed ( ( uint8_t ) _gpio_pin ) ) {
+    return;
+  }
 
   // Get the corresponding entry from the gpioMap based on the provided pin
   entry = gpioMap [ _gpio_pin ];
@@ -123,10 +128,32 @@ void Peripheral_Write ( peripheral_gpio_pin_e _gpio_pin, GPIO_State_e _state ) {
   if ( _gpio_pin >= GPIO_COUNT ) {
     return;    // Exit if invalid
   }
+  // The down-laser's XSHUT ( XRanging.initAlt ): a LOW would reset the altitude laser
+  if ( xRangingGpioClaimed ( ( uint8_t ) _gpio_pin ) ) {
+    return;
+  }
 
   // Get the corresponding entry from the gpioMap
   entry = gpioMap [ _gpio_pin ];
 
   // Call the appropriate function to set the GPIO state
   writeMap [ _state ]( entry.port, entry.pin );
+}
+
+void xshutPinInit ( uint8_t gpioPin ) {
+  if ( gpioPin >= ( uint8_t ) GPIO_COUNT ) return;
+  const GpioMapEntry &e = gpioMap [ gpioPin ];
+  gpio_config_t cfg     = { .pin = e.pin, .mode = Mode_Out_PP, .speed = Speed_2MHz };
+  RCC_AHBPeriphClockCmd ( e.clock, ENABLE );
+  gpioInit ( e.port, &cfg );
+}
+
+void xshutPinWrite ( uint8_t gpioPin, bool high ) {
+  if ( gpioPin >= ( uint8_t ) GPIO_COUNT ) return;
+  const GpioMapEntry &e = gpioMap [ gpioPin ];
+  if ( high ) {
+    digitalHi ( e.port, e.pin );
+  } else {
+    digitalLo ( e.port, e.pin );
+  }
 }

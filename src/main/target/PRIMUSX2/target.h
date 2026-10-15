@@ -179,8 +179,7 @@ extern "C" {
 #define DCM
 // #define OPTIC_FLOW
 
-// #define LASER_TOF // only to get laser height
-// #define LASER_ALT // to integrate with althold
+// VL53L0X down-laser: no define, call XRanging.initAlt ( ) in plutoInit ( ).
 
 // #define PAW3903_SPI
 #define PAW3903_SC18

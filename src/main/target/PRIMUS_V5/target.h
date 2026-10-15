@@ -182,9 +182,9 @@ extern "C" {
 // #define PAW3903_SC18
 
 
-// #define LASER_TOF // only to get laser height
-// #define LASER_TOF_L1x // only to get laser height
-// #define LASER_ALT // to integrate with althold
+// VL53L0X down-laser: no define, call XRanging.initAlt ( ) in plutoInit ( ).
+// #define LASER_TOF_L1x // VL53L1X down-laser, only to get laser height
+// #define LASER_ALT // with LASER_TOF_L1x: integrate the VL53L1X with althold
 
 #define FLIGHT_STATUS_INDICATOR
 #define ENABLE_ACROBAT

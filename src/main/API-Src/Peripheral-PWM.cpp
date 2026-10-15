@@ -68,6 +68,9 @@ void Peripheral_Init ( peripheral_pwm_pin_e _pin, uint16_t pwmRate ) {
   // Use the enum value directly as an index for arrays
   uint8_t idx = _pin;
 
+  // The down-laser's XSHUT pin ( XRanging.initAlt ): a timer output would reset the altitude laser
+  if ( xRangingPwmClaimed ( idx ) ) return;
+
   // Proceed only if the PWM at this index has not been initialized yet
   if ( ! isPwmInit [ idx ] ) {
     // Get the configuration settings for the specified PWM pin

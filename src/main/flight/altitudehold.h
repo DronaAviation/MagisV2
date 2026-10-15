@@ -56,10 +56,12 @@ void AltRst(void);
 void correctedWithTof(float tofHeightCm);
 void correctedWithBaro(float baroAlt, float dt);
 void checkReading();
-#ifdef LASER_ALT
 // Altitude estimator source: 1 laser, 0 baro, 2 holding on the baro after an object step.
 uint8_t altHoldSource(void);
-#endif
+// Altitude-laser fusion: on with XRanging.initAlt ( ) ( or a VL53L1X build with LASER_ALT ).
+// altLaserFusionLatch ( ) fixes it once at boot, after plutoInit ( ); it never changes afterwards.
+bool altLaserFusion(void);
+void altLaserFusionLatch(bool on);
 void checkBaro();
 
 void updateGains();

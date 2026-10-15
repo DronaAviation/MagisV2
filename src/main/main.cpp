@@ -49,7 +49,6 @@
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
 
-#include "drivers/ranging_vl53l0x.h"
 #include "drivers/ranging_vl53l1x.h"
 #include "drivers/ina219.h"
 #include "rx/rx.h"
@@ -513,11 +512,6 @@ void init ( void ) {
 
   systemState |= SYSTEM_STATE_READY;
 
-#ifdef LASER_TOF
-
-  ranging_init ( );
-
-#endif
 #ifdef LASER_TOF_L1x
 
   ranging_init_L1 ( );
@@ -602,8 +596,6 @@ void init ( void ) {
     Uart_Init ( UART2, BAUD_RATE_115200 );
     Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );
   }
-  // if(useRangingSensor)
-  //     ranging_init();
 
 #endif
 }

@@ -103,7 +103,7 @@ extern bool DONT_USE_STATUS_LED;
 
 extern bool isPwmInit [ 11 ];
 extern bool isUserFlightModeSet [ 6 ];
-extern bool isXLaserInit [ 5 ];
+extern bool isXLaserInit [ 6 ];    // indexed by laser_e: LEFT … EXTERNAL, DOWN
 
 extern int32_t userDesiredAngle [ 3 ];
 extern int32_t userDesiredRate [ 3 ];
@@ -123,6 +123,21 @@ void userRCrelease ( uint8_t channel );
 
 void xRangingInit ( void );
 void applyObjectAvoidance ( );
+// Down-laser ( XRanging.initAlt ) state. xRangingAltLatch ( ) runs once at the bring-up, after
+// plutoInit ( ): it re-checks the XSHUT pin and fixes the result for the rest of the run.
+bool xRangingAltLatch ( void );
+int8_t xRangingAltXshut ( void );    // peripheral_gpio_pin_e, or -1 for no XSHUT wire
+// True once the latch gave this pin to the down-laser's XSHUT ( as a GPIO, or through its ADC /
+// PWM alias ). The public Peripheral_Init / Peripheral_Write then refuse it: any other drive of
+// that pin resets the altitude laser in flight.
+bool xRangingGpioClaimed ( uint8_t gpioPin );
+bool xRangingAdcClaimed ( uint8_t adcPin );
+bool xRangingPwmClaimed ( uint8_t pwmPin );
+// XSHUT pins for the laser bring-up only: no claim check ( peripheral_gpio_pin_e ).
+void xshutPinInit ( uint8_t gpioPin );
+void xshutPinWrite ( uint8_t gpioPin, bool high );
+// True if user code enabled this ADC pin ( peripheral_adc_pin ) with Peripheral_Init.
+bool adcPinEnabled ( uint8_t adcPin );
 
 // int getGPIOport ( unibus_e pin );
 // GPIO_Pin getGPIOpin ( unibus_e pin );

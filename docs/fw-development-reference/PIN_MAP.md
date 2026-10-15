@@ -55,12 +55,20 @@ Notes:
 - `(… no API)` in Serial = the pin's hardware alternate function exists but no user API drives it.
 - The I2C API (`I2C_Read`/`I2C_Write`) targets **I2C1 on PB8/PB9** (`I2C_DEVICE = I2CDEV_1`),
   *not* PB6/PB7. PB6/PB7 are free for PWM/other use.
-- **Down-laser on I2C1.** One downward laser at **0x29** on I2C1 ( PB8/PB9 ): the VL53L0X
-  ( `LASER_TOF` ) or the VL53L1X ( `LASER_TOF_L1x` ), both on the same connector. They are mutually
-  exclusive: both at 0x29, and [`altitudehold.cpp`](../../src/main/flight/altitudehold.cpp) stops the
-  build with an `#error` if both are defined. A user I2C device must not use 0x29 while a laser is
-  fitted. The VL53L1X polls data-ready every 10 ms and, per sample, reads 17 bytes and writes 1
-  ( interrupt clear ): about 0.8 ms of blocking I2C per 51 ms.
+- **Lasers on I2C1** ( PB8/PB9 ). Every VL53L0X starts at **0x29**. XRanging ( one start-up, after
+  `plutoInit ( )`, [XRanging.cpp](../../src/main/API-Src/XRanging.cpp) `xRangingInit ( )` ) holds every enabled
+  laser in reset and moves them off 0x29 one at a time: the down-laser ( `XRanging.initAlt ( )` ) to **0x30**,
+  the side lasers to **0x2A + n**. So after start-up **0x29-0x30** belong to the lasers, and a user I2C
+  device must not use them. The VL53L1X down-laser ( `LASER_TOF_L1x`, a build switch ) stays at 0x29, and
+  `initAlt` is refused in that build. The VL53L1X polls data-ready every 10 ms and, per sample, reads 17
+  bytes and writes 1 ( interrupt clear ): about 0.8 ms of blocking I2C per 51 ms. The VL53L0X side lasers
+  are read one per 10 ms, when a sample is ready; the down-laser every 33 ms.
+- **XRanging pins.** XSHUT / LED: LEFT `GPIO_7` / `GPIO_6`, RIGHT `GPIO_9` / `GPIO_10`, FRONT `GPIO_16` /
+  `GPIO_5`, BACK `GPIO_15` / `GPIO_8`, EXTERNAL `GPIO_14` / none. The down-laser's XSHUT is the pin given
+  to `initAlt ( pin )` ( `GPIO_5` = PB15 on the test board ). After start-up that pin is reserved: the
+  public `Peripheral_Init` / `Peripheral_Write` and its ADC / PWM alias are refused, and no LED write
+  reaches it ( FRONT then has no LED ). Every fitted side laser must be enabled: one left awake at 0x29
+  makes the start-up refuse the others ( `BUS_BUSY` ). Wiki: [XRANGING_API_WIKI.md](../API/XRANGING_API_WIKI.md).
 - The SPI API (`SPI_Init`/`SPI_Read`/`SPI_Write`) targets **SPI2 on PB12–PB15**.
 
 ---
@@ -75,7 +83,7 @@ Notes:
 | PB11 | Motor **M4** | TIM2_CH4 |
 | PA9  | USART1_TX (ESP receiver) | DMA1_Ch4 (TX DMA) |
 | PA10 | USART1_RX (ESP receiver) | — |
-| PB8 / PB9 | I2C1 (also the onboard sensor bus, and the down-laser at 0x29: VL53L0X or VL53L1X, never both) | — |
+| PB8 / PB9 | I2C1 (also the onboard sensor bus, and the lasers: VL53L0X down at 0x30 and side at 0x2A + n after start-up; or a VL53L1X down-laser at 0x29) | — |
 | PC13 / PC14 / PC15 | Status LEDs (R/G/B) | — |
 | — | System timebase | **SysTick** (millis/micros) |
 
@@ -89,7 +97,12 @@ Notes:
    flash** (blackbox storage) lives on SPI2 (PB12 NSS, PB13 SCK, PB14 MISO, PB15 MOSI) and
    is initialised at boot (`m25p16_init()` → [main.cpp:450](../../src/main/main.cpp#L450)). Using
    `ADC_2/3/4/5`, `GPIO_5–8`, `PWM_4/5`, or the user `SPI_Init` on these pins **conflicts
-   with the flash / blackbox**. Pick one owner per pin.
+   with the flash / blackbox**. Pick one owner per pin. **Whenever XRanging is used, SPI2 is switched off at
+   start-up** ( [bus_spi.c](../../src/main/drivers/bus_spi.c) `spiRelease ( )`: only pins still on SPI2's
+   AF5 become pulled-up inputs; PB12 is left alone ). The flash then reports size 0 and the user SPI API
+   does nothing, because XRanging's XSHUT / LED pins ( `GPIO_5`-`8` ) must not be driven as SPI lines: an SPI
+   line resting low holds an XSHUT in reset. Pins user code set up in `plutoInit ( )` as RGB, PWM, ADC or
+   GPIO keep their setup.
 2. **PA8** — `PWM_1` (TIM1_CH1) is the *same channel/pin* as the firmware's 5th PWM output
    (`timerHardware[4]`). Don't drive both.
 3. **PA15** — `PWM_10` (TIM8_CH1) is the *same channel/pin* as the **WS2811 LED strip**

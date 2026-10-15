@@ -11,17 +11,20 @@
  #  Created Date: Sat, 31st Jan 2026                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 2nd Feb 2026                                           #
+ #  Last Modified: Wed, 14th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-10-14	AJ	DOWN laser: initAlt ( ), getStatus ( ) ( tof-single-pipeline ) #
 *******************************************************************************/
 #ifndef X_RANGING_H
 #define X_RANGING_H
 
 #include <stdint.h>
+
+#include "API/Peripherals.h"    // peripheral_gpio_pin_e
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,12 +35,22 @@ typedef enum laser_sensors {
   RIGHT,
   FRONT,
   BACK,
-  EXTERNAL
+  EXTERNAL,
+  DOWN    // the downward altitude laser, enabled only with initAlt ( )
 } laser_e;
+
+// Health of one laser, from getStatus ( ).
+typedef enum laser_status {
+  LASER_NOT_ENABLED = 0,    // not requested, refused, or not started yet
+  LASER_OK,                 // ranging, last sample valid
+  LASER_BOOT_FAILED,        // did not answer or failed its start-up; not retried
+  LASER_I2C_ERROR,          // stopped answering after a good start; not retried until power-off
+  LASER_OUT_OF_RANGE        // ranging, but the last sample had no valid range
+} laser_status_e;
 
 class XRanging_P {
  private:
-  int16_t triggerThreshold [ 5 ] = { -1, -1, -1, -1, -1 };
+  int16_t triggerThreshold [ 6 ] = { -1, -1, -1, -1, -1, -1 };
 
  public:
   /**
@@ -73,25 +86,53 @@ class XRanging_P {
   bool isTriggered ( laser_e laser );
 
   /**
-   * @brief Retrieves the range measurement for a specified laser module.
-   *
-   * This function checks if the specified laser module is initialized. If it is,
-   * it iterates through available lasers to find the matching one and initiates
-   * a ranging process to obtain the distance measurement. Returns -1 if the laser
-   * is not initialized or not found.
-   *
-   * @param laser The enumeration value representing the laser module to measure. (`LEFT`,`RIGHT`,`FRONT`,`BACK`)
-   * @return The range measurement as an `int16_t` if successful, otherwise -1.
+   * @brief Retrieves the latest range of a laser module.
+   * Returns the cached sample: the firmware reads the lasers itself ( DOWN every 33 ms, one side laser
+   * per 10 ms ), so this call never waits on the I2C bus.
+   * @param laser The enumeration value representing the laser module to measure. (`LEFT`,`RIGHT`,`FRONT`,`BACK`,
+   *        `EXTERNAL`, or `DOWN` after `initAlt ( )` )
+   * @return The range in mm; -100 when the laser has no valid sample; -1 if the laser is not initialized.
    */
   int16_t getRange ( laser_e laser );
+
+  /**
+   * @brief Uses the downward laser for altitude: the laser and the altitude-hold fusion together.
+   * Call it only from `plutoInit ( )`. Without it the firmware holds altitude on the barometer alone.
+   * The request is fixed at start-up and never changes while the drone runs.
+   *
+   * The pin wired to the down-laser's XSHUT lets the firmware hold the down-laser off while the
+   * side lasers start. That pin then belongs to the down-laser: a side laser's LED on the same pin
+   * ( `GPIO_5` is FRONT's LED ) is never driven.
+   * @param xshutGpio The GPIO wired to the down-laser's XSHUT ( e.g. `GPIO_5` ).
+   * @return `false` if refused: called after `plutoInit ( )`, the pin is a side laser's XSHUT, an
+   *         RGB-LED slot or UART2 pin ( GPIO_1, 3, 6, 10-13, 16-18 ), or in use as ADC / PWM, or the
+   *         firmware is built for the VL53L1X ( GPIO_2, 4, 5, 8 remain ). The pin is checked again
+   *         after `plutoInit ( )`; check `getStatus ( DOWN )`. A refused call keeps an earlier
+   *         accepted request. After start-up the pin is reserved: `Peripheral_Init` /
+   *         `Peripheral_Write` on it ( or on its ADC / PWM alias ) are ignored.
+   */
+  bool initAlt ( peripheral_gpio_pin_e xshutGpio );
+
+  /**
+   * @brief As `initAlt ( xshutGpio )`, for a down-laser with no XSHUT wire. The firmware moves it
+   * off the shared start-up address before the side lasers start.
+   */
+  bool initAlt ( void );
+
+  /**
+   * @brief Health of a laser, including `DOWN`.
+   * @param laser The laser ( `LEFT`, `RIGHT`, `FRONT`, `BACK`, `EXTERNAL`, `DOWN` ).
+   * @return `LASER_OK`, `LASER_OUT_OF_RANGE`, `LASER_BOOT_FAILED`, `LASER_I2C_ERROR` or `LASER_NOT_ENABLED`.
+   */
+  laser_status_e getStatus ( laser_e laser );
 
   /**
    * @brief Initializes the object avoidance system with specified parameters.
    *
    * This function sets the object avoidance distance to `_avoidDist` and initializes
    * up to four lasers for obstacle detection. Each laser is enabled by setting its
-   * corresponding entry in `isXLaserInit` to `true`, provided it is a valid laser
-   * identifier (non-negative).
+   * corresponding entry in `isXLaserInit` to `true`, provided it is a side laser
+   * ( `LEFT` … `EXTERNAL` ); -1 ( the default ) means unused.
    *
    * @param _avoidDist The distance ( in `cm`) parameter for triggering object avoidance.
    * @param _laser1 The first laser to be initialized for object avoidance. (`LEFT`,`RIGHT`,`FRONT`,`BACK`)

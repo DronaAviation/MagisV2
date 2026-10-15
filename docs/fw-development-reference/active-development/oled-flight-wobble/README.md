@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 14 Oct 2026, FW 3.11.3, API 1.4.1 ) |
+| **Status** | **Closed** in `c495d6a` ( 14 Oct 2026, FW 3.11.3, API 1.4.1 ) |
 | **Mode** | `fix` ( planned with pluto-grill in the separate copy; merge planned 14 Oct with a TASKS.md ) |
 | **Branch** | `BugFix-June26` ( written in a separate working copy that was not a git repo ) |
 | **Target** | `PRIMUS_X2_v1`, receiver `Rx_ESP` |

@@ -80,12 +80,16 @@ uint16_t getPrescaler ( uint16_t speed ) {
 }
 
 
+// Once XRanging owns SPI2's pins ( GPIO_5-8 ), every call here returns at once.
 void SPI_init ( ) {
+  if ( spiIsReleased ( SPI2 ) ) return;
   spiInit ( SPI2 );
 }
 
 
 void SPI_Init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit ) {
+  if ( spiIsReleased ( SPI2 ) ) return;
+
   uint16_t prescaler = getPrescaler ( speed );
   SPI_InitTypeDef spi;
 
@@ -136,16 +140,20 @@ void SPI_Init ( SPImode_t mode, uint16_t speed, SPIfirst_bit_t bit ) {
 }
 
 void SPI_Enable ( void ) {
+  if ( spiIsReleased ( SPI2 ) ) return;
   ENABLE_SPI;
 }
 
 void SPI_Disable ( void ) {
+  if ( spiIsReleased ( SPI2 ) ) return;
   DISABLE_SPI;
 }
 
 uint8_t SPI_Read ( uint8_t register_address ) {
 
   uint8_t value = 0;
+
+  if ( spiIsReleased ( SPI2 ) ) return value;
 
   register_address &= ~0x80u;
 
@@ -170,6 +178,8 @@ uint8_t SPI_Read ( uint8_t register_address ) {
 
 void SPI_Read ( uint8_t register_address, int16_t length, uint8_t *buffer ) {
 
+  if ( spiIsReleased ( SPI2 ) ) return;
+
   register_address &= ~0x80u;
 
   ENABLE_SPI;
@@ -190,6 +200,8 @@ void SPI_Read ( uint8_t register_address, int16_t length, uint8_t *buffer ) {
 }
 
 void SPI_Write ( uint8_t register_address, uint8_t data ) {
+
+  if ( spiIsReleased ( SPI2 ) ) return;
 
   register_address |= 0x80u;
 

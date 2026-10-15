@@ -17,6 +17,20 @@ that removes all legacy STM32F10x support.
 
 ### Added
 
+- **XRanging**: One VL53L0X pipeline for the down-laser and up to five side lasers
+  ( `drivers/tof_manager` ). `XRanging.initAlt ( pin )` / `initAlt ( )` in `plutoInit ( )` replaces
+  `#define LASER_TOF` + `LASER_ALT`: it switches on the down-laser and the laser / baro altitude fusion,
+  fixed at start-up. Without it the firmware flies on the barometer exactly as before ( flight-checked ).
+  - **Start-up:** one sequence after `plutoInit ( )`. Every laser is held in reset, the down-laser is moved
+    to 0x30 ( through its XSHUT pin, or found without one ), and the side lasers come up one at a time at
+    0x2A + n. A release waits for 0x29 to be silent.
+  - **Health:** each laser has its own status, readable with `XRanging.getStatus ( id )`; `DOWN` is a new
+    `laser_e`.
+  - **Reads:** `getRange`, `isTriggered` and object avoidance return cached samples; the side lasers are
+    read one per 10 ms, only when a sample is ready.
+  - **Pins:** the down-laser's XSHUT pin is reserved after start-up ( no LED, `Peripheral_*`, ADC, PWM,
+    RGB or UART2 use ). SPI2 ( `GPIO_5`-`8` ) is off whenever XRanging is used, and the on-board flash
+    then reports size 0.
 - **BMS**: Pluto Fuel Gauge: the remaining charge is counted ( coulomb
   counting ), started at plug-in from the pack's resting voltage on a 21-point
   1S LiPo curve, and corrected near empty by the battery voltage compensated for
@@ -96,8 +110,8 @@ that removes all legacy STM32F10x support.
   ( all-target build, version bump, doc promotion ), `flight-test` and
   `add-driver`. Trail of Bits analysis plugins enabled in `.claude/settings.json`.
 
-- **AltitudeHold ( laser )**: With `LASER_ALT` and the VL53L0X ( `LASER_TOF` ), the
-  laser hands over to the barometer above 160 cm and takes back below 140 cm; a
+- **AltitudeHold ( laser )**: With the VL53L0X down-laser ( `LASER_TOF` + `LASER_ALT`, since 3.12.0
+  `XRanging.initAlt ( )` ), the laser hands over to the barometer above 160 cm and takes back below 140 cm; a
   dropout of 120 ms or a tilt above 25° also hands over, shorter gaps coast on the
   accelerometer. The barometer offset is a 2 s average of baro minus laser, frozen
   on the baro, and on the return the whole altitude frame shifts by the baro drift
@@ -120,14 +134,14 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.11.3 (API 1.4.1) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.12.0 (API 1.5.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
-  3.11.3 for the OLED flight fix.
+  3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ).
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
@@ -136,6 +150,8 @@ that removes all legacy STM32F10x support.
   link untouched.
   API 1.4.0 adds `Bms_Get ( SoC )`, `Warning_Level` and `Resistance`; `Voltage` is now exact mV
   and `Current` carries no gain ( see Added / Changed ).
+  API 1.5.0 adds `XRanging.initAlt ( )`, `getStatus ( )` and the `DOWN` laser; `getRange` /
+  `isTriggered` now return the cached sample. No existing signature changed.
 - **Laser driver ( VL53L1X )**: 45 ms timing budget and 50 ms period in Medium mode ( was the ST
   default 41 ms / 100 ms ). The mode, budget and period can be overridden per target
   ( `L1X_DISTANCE_MODE`, `L1X_TIMING_BUDGET_US`, `L1X_SAMPLE_PERIOD_MS` ), with a compile-time check that
@@ -143,11 +159,10 @@ that removes all legacy STM32F10x support.
   1-byte interrupt clear, decoded with the ST API's own status mapping: 0.79 ms of blocking I2C per
   sample instead of 5.44 ms, which had stretched one 3.5 ms loop in about 15. Flash −2.1 KB.
 - **AltitudeHold ( laser )**: One laser-fusion code path for both sensors. It reads the sensor through
-  per-sensor accessors and constants; the VL53L0X object code is byte-identical to before. The build
-  stops with an `#error` if both `LASER_TOF` and `LASER_TOF_L1x` are defined ( both are at I2C 0x29 ),
-  or if `LASER_ALT` is defined without a laser.
-  The shipped `target.h` keeps the laser defines off, so the default build is unchanged
-  ( 98.9 KB / 14.8 KB ); a VL53L1X + `LASER_ALT` build is about 110 KB / 16.1 KB.
+  per-sensor accessors and constants. Since 3.12.0 the VL53L0X is switched on at run time
+  ( `XRanging.initAlt ( )`, see Added ); `LASER_TOF` is a build error, and `LASER_ALT` applies to the
+  VL53L1X ( `LASER_TOF_L1x` ) only. The shipped `target.h` keeps the VL53L1X switches off; a
+  VL53L1X + `LASER_ALT` build is about 115 KB / 18.4 KB.
 - **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
   style ) instead of switching the controller to raw velocity control. The
   climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at
@@ -199,6 +214,15 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Lasers**: With the VL53L0X down-laser ( `LASER_TOF` + `LASER_ALT` ) and XRanging side lasers
+  together, no laser worked.
+  - **Cause:** two separate bring-ups shared I2C 0x29. The first side laser's address change also moved
+    the down-laser, the next read failed, and one shared error flag stopped all five for good. Side-laser
+    samples could also reach altitude hold through shared globals.
+  - **Now:** each laser has its own state, and one laser's bus error stops only that laser. A hand at a
+    side laser does not move the laser height ( bench, T4 ). Object avoidance no longer blocks 4-6 ms on
+    I2C every 100 ms ( now ~30 µs ). Altitude hold with the laser shows no regression against 3.11.3 in a
+    same-day A/B flight.
 - **OLED**: With an OLED fitted and `Oled_Init ( )` called, the drone twitched about 5 times a second in
   flight. The system telemetry wrote the panel with one blocking I2C transaction per font byte ( ~630 every
   200 ms, 45-60 ms ) on the polled I2C1 bus the IMU shares, so the PID ran on a ~50 ms old gyro sample.
@@ -335,6 +359,9 @@ that removes all legacy STM32F10x support.
 
 ### Documentation
 
+- New `docs/API/XRANGING_API_WIKI.md`. The pipeline docs ( Main_Initialization, Hardware_Bus_Pipeline,
+  User_Space_API, Altitude_Hold_Estimator ), PIN_MAP and the dev-guide describe the single ToF
+  pipeline, `initAlt` and the SPI2 release.
 - Updated README for the OLED Simple API, ELRS (USART1, acro/angle modes,
   battery telemetry), and Primus X2 info.
 - Converted the ELRS integration report from HTML to Markdown.

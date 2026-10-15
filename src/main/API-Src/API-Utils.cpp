@@ -131,7 +131,7 @@ bool DONT_USE_STATUS_LED    = false;
 
 bool isPwmInit [ 11 ]          = { false };
 bool isUserFlightModeSet [ 6 ] = { false };
-bool isXLaserInit [ 5 ]        = { false };
+bool isXLaserInit [ 6 ]        = { false };
 
 int32_t userDesiredAngle [ 3 ]  = { 0 };
 int32_t userDesiredRate [ 3 ]   = { 0 };
