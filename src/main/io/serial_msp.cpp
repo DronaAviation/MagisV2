@@ -13,13 +13,14 @@
  #  Created Date: Sat, 22nd Feb 2025                                            #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 29th Sep 2026                                          #
+ #  Last Modified: Fri, 16th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
  #  2026-09-29	AJ	Critical reported to the app as low battery while armed    #
+ #  2026-10-16	AJ	MSP_SET_COMMAND marks a take-off as the app's              #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -1569,6 +1570,7 @@ static bool processInCommand ( void ) {
       if ( ! isLanding ) {
         current_command = read16 ( );
         command_status  = RUNNING;
+        takeOffFromUser = false;    // the app's command: not dropped with Dev Mode
       }
 
       break;

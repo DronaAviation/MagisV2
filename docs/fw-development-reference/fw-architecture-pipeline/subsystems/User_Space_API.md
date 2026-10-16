@@ -12,19 +12,36 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 ## Key Data Structures
 - `rcCommand[4]`: The user API often overwrites this array (Pitch, Roll, Yaw, Throttle) to fly the drone autonomously.
 - `Flight_State_e`: Enumeration that the API uses to determine if the drone is Armed, in Failsafe, or Grounded.
-- `Control_Command_t`: The wrapper structure the API uses to push new commands (like `TakeOff`, `Land`, or `Flip`) to the flight controller queue.
+- `current_command` / `command_status` ( `command/command.h` ): the one-slot command queue. `Command_TakeOff`,
+  `Command_Land` and `Command_Flip` write it, and `executeCommand ( )` runs it at the end of the loop
+  ( `mw.cpp:1500` ). The app's `MSP_SET_COMMAND` writes the same slot.
 
 ## Primary Functions
 - `plutoInit()`: Called once during boot by `init()` ( main.cpp:534 ), after `SYSTEM_STATE_READY` and before the motor timers and the laser bring-up. Used by the developer to configure GPIOs, external sensors, or set up API timers. `XRanging` calls here only record requests; the lasers start after `plutoInit()` returns.
 - `plutoLoop()`: The continuously executing user function. Called directly by the main control loop.
-- `Command.set(CommandType)`: Exposed API function used inside `plutoLoop()` to trigger complex maneuvers or state changes natively.
-- `Estimate.get(State)`: Exposed API function to pull live `EstAlt`, `EstVel`, or `Pitch/Roll` angles safely.
+- `Command_Arm ( )`, `Command_TakeOff ( cm )`, `Command_Land ( speed )`, `Command_Flip ( BACK_FLIP )`,
+  `Command_DisArm ( )` ( `API/FC-Control.h` ): arm and fly the drone from user code. Wiki
+  `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.7.0 ).
+- `Estimate_Get ( Position | Velocity | Angle | Rate, axis )` ( `API/FC-Data.h` ): `EstAlt` in cm, the Z velocity in
+  cm/s, and the angles.
 
 ## Data Flow & Boundaries
 - **Time Slice Strictness**: Because `plutoLoop()` executes within the high-frequency control loop, user code *must not block*. The use of `delay()` is explicitly forbidden, as it would cause the drone to instantly crash by halting the PID calculations.
 - **Override Priority**: If the Failsafe mechanism activates, the firmware explicitly ignores `rcCommand` overrides originating from `plutoLoop()`. Failsafe takes ultimate precedence over the API.
 - **Rate Limiting**: To prevent API logic from running unnecessarily fast (e.g., polling an ultrasonic sensor 1000 times a second), developers use the `Monitor.timer` API to schedule tasks sequentially.
-- **Landing owns the throttle**: while any `LAND` runs ( `Command_Land`, RX loss or the critical-battery auto-land ), the landing throttle is re-applied after user code, so a throttle `RcCommand_Set` has no effect; the battery auto-land also replaces `Command_TakeOff` / `Command_Flip`.
+- **Landing owns the throttle and the command slot**: while any `LAND` runs ( `Command_Land`, RX loss or the
+  critical-battery auto-land ), the landing throttle is re-applied after user code ( `mw.cpp:387`, `:1399` ), so a
+  throttle `RcCommand_Set` has no effect. `Command_TakeOff` and `Command_Flip` are refused until the landing has
+  disarmed ( `landingInProgress ( )`, `FC-Control-Command.cpp:130` ). The battery auto-land also re-asserts `LAND` as
+  a backstop. `Command_Land` is refused while a flip runs ( `FC-Control-Command.cpp:157` ), and a flip ends after at
+  most 8 s ( `acrobats.cpp:84` ).
+- **Take-off**: `Command_TakeOff` is queued. From disarmed it arms once the ARM switch is on and the throttle is
+  centred ( `altHoldStickCentred ( )`, alt-hold deadband ), and sets the climb goal. On a drone that is already armed
+  it sets the goal once per arm, within 3 s of `arm_time` or at the ARM-switch ground idle, which it releases first
+  ( `takeOff ( )`, `command.cpp:152` ). A queued take-off is dropped after 2 s of refused arming
+  ( `takeOffRefusedTick ( )`, `command.cpp:143` ). A user-code take-off is also dropped at a real Dev Mode switch-off
+  ( `dropUserTakeOff ( )`, `mw.cpp:1226` ). With the battery OK, arming is allowed again right after a landing, so a
+  re-sent take-off re-arms and climbs.
 - **User yaw is heading hold**: `setDesiredAngle ( AG_YAW, bearing )` and `DesiredAngle_setRelative ( AG_YAW, turn )`
   set the heading-hold target `magHold`. While one is held, the firmware engages MAG mode itself, so no app switch is
   needed. See **Yaw setpoints** below; wiki `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.6.0 ).
@@ -33,7 +50,10 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
   clears every user RC override and re-runs `onLoopStart ( )` when frames return. A Wi-Fi stall therefore
   restarts user code long before failsafe acts ( ~2.5 s ). A user **yaw target survives** such a restart; see
-  **Yaw setpoints** below.
+  **Yaw setpoints** below. `onLoopStart ( )` and `onLoopFinish ( )` therefore run on every link drop, not only at a
+  Dev Mode switch. A command placed in them is sent again at each hiccup: `Command_Land` in `onLoopFinish ( )` lands
+  the drone at the first hiccup, and `Command_Arm` / `Command_TakeOff` in `onLoopStart ( )` take off again after a
+  landing. The wiki advises sending flight commands from `plutoLoop ( )`, once per ARM switch-on.
 - **OLED is deferred**: `Oled_Update ( )` / `Oled_display_Update ( )` only queue the frame. The firmware sends the
   changed bytes to the panel at most 16 per loop, so a full screen appears in ~0.25 s. A buffer passed to
   `Oled_display_Update ( )` must stay valid ( `static` or global ). `Oled_Update ( )` works in `User` mode only, and
@@ -61,9 +81,12 @@ flowchart TD
     ProcessLogic --> Overrides[Process User rcCommand Overrides]
     
     Overrides --> ApplyOld
-    ApplyOld --> YawTail
-    RunFinish --> YawTail
-    FinishCheck -- No --> YawTail
+    ApplyOld --> TakeOffTail
+    RunFinish --> TakeOffTail
+    FinishCheck -- No --> TakeOffTail
+    TakeOffTail{"Dev switch off?"} -- Yes --> DropTakeOff["dropUserTakeOff()<br/>a queued user take-off ends"]
+    TakeOffTail -- No --> YawTail
+    DropTakeOff --> YawTail
     YawTail{"Dev switch off<br/>or just disarmed?"} -- Yes --> Drop["Drop the user yaw target<br/>magHold = heading"]
     YawTail -- No --> Force
     Drop --> Force{"User yaw target held?"}

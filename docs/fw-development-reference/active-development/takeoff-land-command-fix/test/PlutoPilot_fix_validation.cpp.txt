@@ -1,0 +1,153 @@
+// Do not remove the include below
+#include "PlutoPilot.h"
+
+/*
+ * takeoff-land-command-fix, task 4 - validation versions. Set TEST_CASE, build, fly ( TESTING.md ).
+ * Diagnostic only: restore the template PlutoPilot.cpp before committing.
+ *
+ *   1  A   Command_Arm ( ) then Command_TakeOff ( 100 ): must climb now ( the reported fault )
+ *   2  B   Command_TakeOff ( 100 ) alone: unchanged ( check topic log-2 )
+ *   3  D   take-off; Command_Land ( 5 ) at 8 s; Command_TakeOff ( 100 ) re-sent at 9 s: must be ignored ( D1 )
+ *   4  E   armed by the ARM switch with the stick low, then Dev Mode: Command_TakeOff must leave the idle ( D3 )
+ *   5  F   take-off; default Command_Land ( ) at 12 s: must disarm on the floor ( D2 )
+ *   6  F2  take-off; default Command_Land ( ) 1 s after arming, during the climb ( D2, optional )
+ *   7  G   take-off with the stick held above centre: must wait disarmed, then arm and climb once centred ( task 13 )
+ *
+ * Log, one line per user tick ( ~119 B, budget 130 ):
+ *   t   millis ( )                           n   tick counter ( steps by 2 across a lost record )
+ *   F   flags, read as 4 digits: armed, ALT HOLD, isThrottleStickArmed ( ground idle ), isTakeOffHeightSet
+ *   C   current_command * 10 + command_status ( command: 0 NONE, 1 TAKE_OFF, 2 LAND; status: 0 FINISHED, 1 RUNNING, 2 ABORT )
+ *   Zd  shaped altitude target AltHold, cm   Ze  estimated altitude, cm      Vz  estimated Z velocity, cm/s
+ *   Mo  mean motor output, us                Tp  pilot throttle stick rcDataPilot, us
+ *   S   printed on its own tick when onLoopStart ( ) ran: ms since arming at that moment, -1 if disarmed
+ *       ( a Dev Mode restart on a Wi-Fi flicker shows here too )
+ *   X   printed on its own tick when the test sent a command: X:1 Command_Land, X:2 re-sent Command_TakeOff
+ */
+#define TEST_CASE 1
+
+#if TEST_CASE == 3
+  #define LAND_AT_MS   8000
+  #define RESEND_AT_MS 9000
+#elif TEST_CASE == 6
+  #define LAND_AT_MS   1000
+#else
+  #define LAND_AT_MS   12000
+#endif
+
+extern "C" {
+uint32_t millis ( void );
+extern uint32_t arm_time;               // mw.h: set on the arming edge, 0 at disarm
+extern bool     isThrottleStickArmed;   // io/rc_controls.h: set only by the ARM-switch arming path
+extern int16_t  motor [ ];              // flight/mixer.h
+extern int16_t  rcDataPilot [ ];        // rx/rx.h: the pilot's sticks, before user overrides
+}
+extern uint8_t current_command;     // command/command.h
+extern uint8_t command_status;      // command/command.h
+extern bool    isTakeOffHeightSet;  // command/command.h
+
+static bool     startMarker = false;
+static int      startInfo   = -1;   // ms since arming when onLoopStart ( ) ran, -1 if disarmed
+#if TEST_CASE == 4
+static uint32_t devOnAt     = 0;    // millis ( ) of the first onLoopStart ( ) while armed
+#else
+static bool     sent        = false;    // the take-off is sent once per boot: a re-send after the landing would
+                                        // stay queued while disarmed and take off at the next ARM-on
+#endif
+static int      sentMarker  = 0;
+static uint16_t tick        = 0;
+static uint32_t armSeen     = 0;    // arm_time of the arm the schedule below belongs to
+static bool     landSent    = false;
+static bool     resendSent  = false;
+
+void plutoRxConfig ( void ) {
+  Receiver_Mode ( Rx_ESP );    // Onboard ESP
+}
+
+void plutoInit ( void ) {
+}
+
+void onLoopStart ( void ) {
+  bool armed = FlightStatus_Check ( FS_ARMED );
+  startInfo  = armed ? ( int ) ( millis ( ) - arm_time ) : -1;
+#if TEST_CASE == 4
+  // E: the ARM switch armed the drone at ground idle before Dev Mode. Re-sent on every restart while armed,
+  // as the user's code did: the firmware must ignore the repeat ( once per arm, never in a landing ).
+  if ( armed ) {
+    if ( devOnAt == 0 ) {
+      devOnAt = millis ( );
+    }
+    Command_TakeOff ( 100 );
+  }
+#else
+  // Only the first call while disarmed is the scenario; restarts on a Wi-Fi flicker skip it.
+  if ( ! sent && ! armed ) {
+    sent = true;
+  #if TEST_CASE == 1
+    Command_Arm ( );
+  #endif
+    Command_TakeOff ( 100 );
+  }
+#endif
+  startMarker = true;
+}
+
+void plutoLoop ( void ) {
+  if ( startMarker ) {
+    startMarker = false;
+    Monitor_Println ( "S:", startInfo );
+    return;
+  }
+  if ( sentMarker != 0 ) {
+    Monitor_Println ( "X:", sentMarker );
+    sentMarker = 0;
+    return;
+  }
+  tick++;
+
+  bool armed = FlightStatus_Check ( FS_ARMED );
+  if ( armed && arm_time != armSeen ) {    // a new arm: restart the schedule
+    armSeen    = arm_time;
+    landSent   = false;
+    resendSent = false;
+  }
+  if ( armed ) {
+#if TEST_CASE == 4
+    uint32_t sinceArm = millis ( ) - devOnAt;    // E: from Dev Mode, since the arm-to-Dev-Mode wait varies
+#else
+    uint32_t sinceArm = millis ( ) - arm_time;
+#endif
+    if ( ! landSent && sinceArm > LAND_AT_MS ) {
+#if TEST_CASE == 5 || TEST_CASE == 6
+      Command_Land ( );      // the API default ( 105 ): D2
+#else
+      Command_Land ( 5 );    // ramp from 1300, like the failsafe
+#endif
+      landSent   = true;
+      sentMarker = 1;
+    }
+#if TEST_CASE == 3
+    if ( landSent && ! resendSent && sinceArm > RESEND_AT_MS ) {
+      Command_TakeOff ( 100 );    // D1: must be ignored while the landing runs
+      resendSent = true;
+      sentMarker = 2;
+    }
+#endif
+  }
+
+  int flags = ( armed ? 1000 : 0 ) + ( FlightMode_Check ( ATLTITUDEHOLD ) ? 100 : 0 )
+              + ( isThrottleStickArmed ? 10 : 0 ) + ( isTakeOffHeightSet ? 1 : 0 );
+  int motorMean = ( motor [ 0 ] + motor [ 1 ] + motor [ 2 ] + motor [ 3 ] ) / 4;
+
+  Monitor_Print ( "t:", ( int ) millis ( ) );
+  Monitor_Print ( " n:", ( int ) tick );
+  Monitor_Print ( " F:", flags );
+  Monitor_Print ( " C:", current_command * 10 + command_status );
+  Monitor_Print ( " Zd:", ( int ) getDesiredPositions ( Z ) );
+  Monitor_Print ( " Ze:", ( int ) Estimate_Get ( Position, Z ) );
+  Monitor_Print ( " Vz:", ( int ) Estimate_Get ( Velocity, Z ) );
+  Monitor_Print ( " Mo:", motorMean );
+  Monitor_Println ( " Tp:", ( int ) rcDataPilot [ RC_THROTTLE ] );
+}
+
+void onLoopFinish ( void ) {
+}

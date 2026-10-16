@@ -49,6 +49,10 @@ int32_t altitudeHoldGetEstimatedAltitude(void);
 int32_t getSetVelocity(void);
 int32_t getSetAltitude(void);
 void AltRst(void);
+// Leave the ARM-switch ground idle now, so the next controller cycle flies AltHold instead of resetting it.
+void altHoldReleaseGroundIdle(void);
+// Throttle stick inside the alt-hold deadband ( no climb or descent request ).
+bool altHoldStickCentred(void);
 
 
 

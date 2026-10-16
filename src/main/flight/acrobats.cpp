@@ -71,8 +71,29 @@ bool takeControl       = false;
 bool isPitchStabelised = false;
 bool isRollStabelised  = false;
 
+#define FLIP_WATCHDOG_MS     8000    // timeouts allow ascend 2.2 + pitching 2 + slowdown 2 + hold 1.5 s, plus the unmatched
+                                       // time in SLOWDOWN; measured flips take about 2.5 s
+#define FLIP_UPRIGHT_MAX_DECI 700     // hand back within 70 deg on both axes: the crash detector's angle limit
+
 void flip ( bool doFlip ) {
   if ( doFlip ) {
+    // SLOWDOWNANDEXIT has no exit for some attitudes ( pitch below 0, or a large roll ), so a flip could
+    // stay active until disarm, holding off Command_Land, the battery auto-land and crash detection.
+    // Upright: hand back to level flight as a finished flip does. Beyond the crash detector's 70 deg ( it would
+    // disarm the drone in the same loop ) or inverted: disarm, as the other stuck-flip timeouts below do.
+    if ( ( millis ( ) - flipStartTime ) > FLIP_WATCHDOG_MS ) {
+      flipState                                     = 0;
+      stateon                                       = 0;
+      currentControlRateProfile->rates [ FD_PITCH ] = 75;
+      currentControlRateProfile->rates [ FD_ROLL ]  = 75;
+      if ( ABS ( inclination.values.rollDeciDegrees ) <= FLIP_UPRIGHT_MAX_DECI && ABS ( inclination.values.pitchDeciDegrees ) <= FLIP_UPRIGHT_MAX_DECI ) {
+        ACTIVATE_RC_MODE ( BOXBARO );
+        ENABLE_FLIGHT_MODE ( ANGLE_MODE );
+      } else {
+        mwDisarm ( );
+      }
+      return;
+    }
     switch ( flipState ) {
 
         //   rcData[THROTTLE] = 1800;

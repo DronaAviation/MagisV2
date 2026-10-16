@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 24th Sep 2026                                          #
+ #  Last Modified: Fri, 16th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -19,6 +19,7 @@
  #  ----------	---	---------------------------------------------------------  #
  #  24-09-2026	AJ	VL53L1X runs the shared laser fusion; guarded return.        #
  #  24-09-2026	AJ	Laser fusion reads the sensor via per-sensor accessors.      #
+ #  16-10-2026	AJ	Take-off idle release and stick-centred test.                #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -411,8 +412,10 @@ static int32_t EstAlt = 0;    // in cm
 
 /*
  * Landing keeps its own descent profile, not the stick limits. land ( ) ramps
- * landThrottle 1300 -> 1150 and it is flown as ( landThrottle - 1500 ) / 4, so
- * -50 -> -87 cm/s, as before setpoint shaping. Near the floor the baro drifts
+ * landThrottle from its start down to 1150 and it is flown as
+ * ( landThrottle - 1500 ) / 4, clamped to -100 cm/s: from the default 1300
+ * ( failsafe, battery ) that is -50 -> -87 cm/s; Command_Land ( speed ) starts
+ * at 1305 - speed ( 1305 .. 1050 ), as before setpoint shaping. Near the floor the baro drifts
  * low in the craft's own downwash; at the stick's 10-20 cm/s that drift alone
  * met the descent demand, so the craft hovered a few cm up with EstAlt still
  * falling and the touchdown test ( descent stopped ) never fired.
@@ -1433,6 +1436,19 @@ int32_t getSetVelocity ( void ) {
 
 int32_t getSetAltitude ( void ) {
   return AltHold;
+}
+
+// The controller runs before applyAltHold ( ) recomputes the idle, so clearing isThrottleStickArmed
+// alone would leave altHoldGroundIdle set for one more cycle, and that cycle's reset would wipe a goal.
+void altHoldReleaseGroundIdle ( void ) {
+  isThrottleStickArmed = false;
+  altHoldGroundIdle    = false;
+}
+
+// Throttle inside the alt-hold deadband: no stick rate ( setVelocity ), which would cancel a goal at once.
+// The same test as the stick-rate branch of applyMultirotorAltHold ( ).
+bool altHoldStickCentred ( void ) {
+  return ABS ( rcData [ THROTTLE ] - 1500 ) <= rcControlsConfig->alt_hold_deadband;
 }
 
 void AltRst ( void ) {

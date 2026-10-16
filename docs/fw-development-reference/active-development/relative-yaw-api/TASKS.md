@@ -8,7 +8,7 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 15 Oct 2026, FW 3.13.0, API 1.6.0 ). All tasks done ( task 6 partial, task 11 dropped to a follow-up ). |
+| **Current task** | **Closed** in `794002d` ( 15 Oct 2026, FW 3.13.0, API 1.6.0 ). All tasks done ( task 6 partial, task 11 dropped to a follow-up ). |
 | **Next step** | The user commits with `git commit -F .git/MAGISV2_COMMIT_MSG.txt`; then fill the hash into this README and the topic table |
 | **Open questions** | none |
 | **Blocked on** | the user's commit |

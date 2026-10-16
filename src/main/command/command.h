@@ -60,6 +60,8 @@ extern bool isTookOff;
 
 extern bool isTakeOffHeightSet;
 
+// The queued TAKE_OFF came from Command_TakeOff ( user code ), not from the app ( MSP_SET_COMMAND ).
+extern bool takeOffFromUser;
 
 extern uint16_t takeOffHeight;
 extern uint16_t landThrottle;
@@ -71,5 +73,8 @@ void resetCommandRCflag(void);
 void executeCommand();
 
 void updateCommandStatus();
+
+// Dev Mode really switched off: drop a take-off user code queued that has not armed the drone yet.
+void dropUserTakeOff(void);
 
 

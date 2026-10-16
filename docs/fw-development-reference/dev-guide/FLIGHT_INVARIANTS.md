@@ -152,3 +152,21 @@ Extend tolerance only through `failsafe_delay`, which lengthens the sticks-centr
 through `MAX_INVALID_PULS_TIME` or `DELAY_5_HZ`: in that phase the craft keeps flying the last stick input.
 See [`Failsafe_Subsystem.md`](../fw-architecture-pipeline/subsystems/Failsafe_Subsystem.md) and
 [`../active-development/rx-signal-loss-tolerance/`](../active-development/rx-signal-loss-tolerance/).
+
+## User flight commands cannot replace a landing; a landing cannot start in a flip
+
+- **Mechanism.** One command slot ( `current_command`, `command_status` ) is shared by user code, the app
+  ( `MSP_SET_COMMAND` ), the RC-loss failsafe and the battery auto-land. A flip marks itself FINISHED as soon as it
+  starts, and `isLanding` is cleared only by `finishLanding ( )` or a disarm.
+- **What broke.** A `Command_TakeOff` / `Command_Flip` during a landing stopped `land ( )` but left `isLanding` set:
+  the throttle stayed pinned and nothing disarmed after touchdown. `Command_Arm` followed by `Command_TakeOff` set no
+  climb goal ( [`../active-development/takeoff-api-ground-hover/`](../active-development/takeoff-api-ground-hover/) ).
+- **Rules.**
+  - Never write `current_command` from user-reachable code without the landing guard ( `landingInProgress ( )` ).
+  - A take-off goal on an armed drone must release the ground idle first ( `altHoldReleaseGroundIdle ( )` ).
+  - The touchdown test must not confirm before the descent has started ( `LAND_CONFIRM_MIN_MS` ).
+  - With the battery OK, `BMS_Update ( )` re-enables `OK_TO_ARM` every update, so arming is allowed right after a
+    landing: a re-sent take-off re-arms. User code must send take-offs once per ARM switch-on.
+
+See [`../active-development/takeoff-land-command-fix/`](../active-development/takeoff-land-command-fix/) and
+[`docs/API/FC_CONTROL_API_WIKI.md`](../../API/FC_CONTROL_API_WIKI.md).

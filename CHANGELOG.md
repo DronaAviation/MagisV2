@@ -138,7 +138,11 @@ that removes all legacy STM32F10x support.
 
 ### Changed
 
-- **Firmware version** bumped to 3.13.0 (API 1.6.0) over this release: 3.5.0 for
+- **Flight commands ( user API )**: `Command_TakeOff` arms a disarmed drone only with the throttle centred
+  ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
+  is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
+  Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
+- **Firmware version** bumped to 3.14.0 (API 1.7.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -146,9 +150,11 @@ that removes all legacy STM32F10x support.
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
   3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
-  3.13.0 for the relative yaw API and automatic heading hold for user yaw.
+  3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
+  command fixes.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
+  API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -219,6 +225,20 @@ that removes all legacy STM32F10x support.
   reduced from 50 to 25 cm.
 
 ### Fixed
+
+- **Take-off ( user API )**: `Command_Arm ( )` followed by `Command_TakeOff ( )` skimmed the floor: on an armed
+  drone the take-off set no height. It now climbs if it comes within 3 s of arming, or at the ARM-switch ground idle,
+  which it releases first. Validated on PRIMUS_X2_v1 ( 100 cm target, hover 80-103 cm ).
+- **Landing ( user API )**: `Command_TakeOff` or `Command_Flip` during a landing stopped the landing logic but kept
+  the throttle pinned. The drone touched down with the motors running and the stick locked out, until the ARM
+  switch killed it. Both are now ignored until the landing has disarmed.
+- **Landing**: the default `Command_Land ( )` ( start at 1200 ) could confirm touchdown at the start of the landing
+  and disarm the drone in the air. Touchdown now needs at least 1 s of landing; the failsafe and battery landings
+  are unchanged.
+- **Take-off**: a take-off queued while arming was refused stayed queued, and could arm the drone at a later ARM-on,
+  even with Developer Mode off. A take-off sent from disarmed with the stick off centre armed the drone with no height.
+- **Flip**: a flip stuck in its slow-down phase stayed active until disarm, blocking landings and crash detection.
+  A flip now ends after 8 s: back to level flight within 70°, otherwise the drone is disarmed.
 
 - **Yaw ( user API )**: A user yaw target ( `setDesiredAngle` or `DesiredAngle_setRelative` on `AG_YAW` ) did nothing
   unless the app's heading-hold switch was on: `updateMagHold ( )` overwrote it with the measured heading every loop.
@@ -376,6 +396,10 @@ that removes all legacy STM32F10x support.
 - **Config**: Removed redundant SPDX identifiers and deprecated GPIO functions.
 
 ### Documentation
+
+- New `docs/API/FC_CONTROL_API_WIKI.md` ( arm, take-off, land, flip; the `onLoopStart ( )` restart pitfall; after a
+  landing a re-sent take-off re-arms at once ). `FC-Control.h` comments rewritten. The pipeline docs
+  ( User_Space_API, Power_BMS_Pipeline, Altitude_Hold_Estimator ) and the dev-guide describe the command rules.
 
 - New `docs/API/XRANGING_API_WIKI.md`. The pipeline docs ( Main_Initialization, Hardware_Bus_Pipeline,
   User_Space_API, Altitude_Hold_Estimator ), PIN_MAP and the dev-guide describe the single ToF

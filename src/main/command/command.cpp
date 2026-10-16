@@ -90,22 +90,88 @@ bool isUserLandCommand = false;
 Interval takeoffTimer;
 Interval posSetTimer;
 
+#define TAKEOFF_ARMED_WINDOW_MS 3000    // a take-off on an armed drone counts as from the floor this long after arming
+#define TAKEOFF_REFUSED_DROP_MS 2000    // ARM switch on but mwArm ( ) refusing this long: the take-off is dropped
+
+bool takeOffFromUser = false;
+
+static bool     takeOffRefused   = false;    // the ARM switch is on and mwArm ( ) refuses
+static uint32_t takeOffRefusedAt = 0;        // ms, when the refusal started
+
+// Every end of a take-off ( done, dropped ) goes through here, so nothing of it carries over to the next.
+static void endTakeOff ( void ) {
+  current_command = NONE;
+  command_status  = FINISHED;
+  takeOffFromUser = false;
+  takeOffRefused  = false;
+}
+
+// A queued take-off waits for the ARM switch. One that user code queued must not outlive Dev Mode, or it
+// would arm the drone at the next ARM-on with no user code running. The app's take-off is left alone.
+void dropUserTakeOff ( void ) {
+  if ( current_command == TAKE_OFF && takeOffFromUser ) {
+    endTakeOff ( );
+  }
+}
+
+// Climb goal of a take-off. Laser: an absolute height above the floor. Baro: relative to the current height.
+// Only with the stick centred: a stick rate cancels the goal at once and the once-per-arm flag would be
+// spent on nothing. A ground idle is released first, or its reset wipes the goal ( altitudehold.cpp ).
+static void setTakeOffGoal ( void ) {
+  if ( ! altHoldStickCentred ( ) ) {
+    return;
+  }
+  altHoldReleaseGroundIdle ( );
+  if ( altLaserFusion ( ) ) {
+    setDesiredPosition ( Z, takeOffHeight );
+  } else {
+    DesiredPosition_setRelative ( Z, takeOffHeight );
+  }
+  isTakeOffHeightSet = true;
+}
+
+// Armed before the take-off ran ( Command_Arm, the ARM switch ): still on the floor just after arming, or
+// while the ARM-switch ground idle holds the motors. arm_time is set on the arming edge ( mw.cpp ).
+static bool takeOffFromFloor ( void ) {
+  return ( millis ( ) - arm_time ) < TAKEOFF_ARMED_WINDOW_MS || isThrottleStickArmed;
+}
+
+// ARM switch on and arming refused: start the timer, and drop the take-off once it has run
+// TAKEOFF_REFUSED_DROP_MS, so a take-off that cannot arm ( calibrating, low battery ) does not wait to arm the
+// drone later. With the battery OK, BMS_Update ( ) re-enables OK_TO_ARM every update, so arming is allowed
+// again right after a landing: a re-sent take-off then re-arms at once ( documented, not blocked ).
+static void takeOffRefusedTick ( void ) {
+  if ( ! takeOffRefused ) {
+    takeOffRefused   = true;
+    takeOffRefusedAt = millis ( );
+  } else if ( ( millis ( ) - takeOffRefusedAt ) >= TAKEOFF_REFUSED_DROP_MS ) {
+    endTakeOff ( );
+  }
+}
+
 void takeOff ( ) {
 
   if ( command_status != FINISHED ) {
 
     if ( ARMING_FLAG ( ARMED ) ) {
 
+      // Already armed: set the goal here, once per arm, if the drone is still on the floor. In the air
+      // the take-off sets no goal.
+      if ( ! isTakeOffHeightSet && takeOffFromFloor ( ) ) {
+        setTakeOffGoal ( );
+      }
+
       //            if(takeoffTimer.set(1000, false)){
 
-      current_command = NONE;
-      command_status  = FINISHED;
-      isTookOff       = true;
+      endTakeOff ( );
+      isTookOff = true;
 
       //            }
 
     } else {
-      if ( IS_RC_MODE_ACTIVE ( BOXARM ) ) {
+      // Arm only with the stick centred: off centre no goal can be set, and the drone would arm with
+      // nothing to climb to and follow the stick. Until then it waits, as for the ARM switch.
+      if ( IS_RC_MODE_ACTIVE ( BOXARM ) && altHoldStickCentred ( ) ) {
 
         pidResetErrorAngle ( );
         pidResetErrorGyro ( );
@@ -113,14 +179,22 @@ void takeOff ( ) {
         takeoffTimer.reset ( );
         posSetTimer.reset ( );
 
-        if ( ! isTakeOffHeightSet ) {
-          if ( altLaserFusion ( ) ) {    // laser: an absolute height above the floor
-            setDesiredPosition ( Z, takeOffHeight );
-          } else {                       // baro: relative to the arming height
-            DesiredPosition_setRelative ( Z, takeOffHeight );
+        if ( ARMING_FLAG ( ARMED ) ) {
+          takeOffRefused = false;
+          // mwArm ( ) can refuse ( calibration, battery ). A goal set while disarmed is wiped, and the
+          // flag would then block the goal once a later attempt arms.
+          if ( ! isTakeOffHeightSet ) {
+            setTakeOffGoal ( );
           }
-          isTakeOffHeightSet = true;
+        } else {
+          takeOffRefusedTick ( );
         }
+      } else if ( IS_RC_MODE_ACTIVE ( BOXARM ) && ! ARMING_FLAG ( OK_TO_ARM ) ) {
+        // Off centre, but arming is refused anyway ( OK_TO_ARM is off ): still a refusal, so moving the
+        // stick cannot keep the take-off alive past the drop.
+        takeOffRefusedTick ( );
+      } else {
+        takeOffRefused = false;    // waiting for the ARM switch or a centred stick: not a refusal
       }
     }
   }
@@ -147,13 +221,18 @@ void takeOff ( ) {
  * means something other than the rotors is carrying the weight.
  *
  * The ramp also removes the need for the old two-second blanking window - at
- * land entry the throttle is far above LAND_CONFIRM_THROTTLE, so the "velocity
- * is already zero because we have not started moving yet" case cannot fire.
+ * land entry the throttle is normally far above LAND_CONFIRM_THROTTLE, so the
+ * "velocity is already zero because we have not started moving yet" case cannot
+ * fire. Command_Land ( speed ) can start the ramp at or below it ( 105, the
+ * default, gives 1200 ), so an arrest is not believed before the ramp has run
+ * LAND_CONFIRM_MIN_MS either: by then a real descent has built up ( about
+ * -45 cm/s after 0.6 s in flight logs ).
  */
 #define LAND_RAMP_RATE        40      // throttle counts shed per second
 #define LAND_THROTTLE_MIN     1150    // motors near idle - nothing hovers here
 #define LAND_CONFIRM_THROTTLE 1200    // below any plausible in-ground-effect hover
 #define LAND_SETTLE_MS        300     // an arrest must persist this long to count
+#define LAND_CONFIRM_MIN_MS   1000    // no arrest counts before the ramp has run this long
 #define LAND_IMPACT_ACC       6000    // ~1.46 G with acc_1G = 4096 - firm contact
 #define LAND_VEL_STOP         ( -8 )  // cm/s - slower descent counts as arrested
 #define LAND_TIMEOUT_MS       30000   // backstop if nothing else ever fires
@@ -212,10 +291,11 @@ void land ( ) {
   }
 
   // Confirmed touchdown: the descent has stopped AND the ramp has already gone
-  // below a throttle that could have held the craft up. The settle timer throws
-  // out momentary arrests from gusts or baro noise.
+  // below a throttle that could have held the craft up, and has run long enough
+  // for a descent to start. The settle timer throws out momentary arrests from
+  // gusts or baro noise.
   bool arrested   = ( getEstVelocity ( ) > LAND_VEL_STOP );
-  bool conclusive = ( landThrottle <= LAND_CONFIRM_THROTTLE );
+  bool conclusive = ( landThrottle <= LAND_CONFIRM_THROTTLE ) && ( elapsed >= LAND_CONFIRM_MIN_MS );
 
   if ( arrested && conclusive ) {
 
@@ -231,6 +311,12 @@ void land ( ) {
 }
 
 void executeCommand ( ) {
+
+  // Any end of a take-off that skips endTakeOff ( ) must not leave the refusal timer running for the next
+  // one: an app command or a flip replaces it, and mwDisarm ( ) sets FINISHED but leaves TAKE_OFF in place.
+  if ( current_command != TAKE_OFF || command_status == FINISHED ) {
+    takeOffRefused = false;
+  }
 
   switch ( current_command ) {
 

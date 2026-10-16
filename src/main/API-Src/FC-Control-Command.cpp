@@ -11,12 +11,13 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Fri, 16th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-10-16	AJ	TakeOff / Flip ignored in a landing, Land in a flip        #
 *******************************************************************************/
 #include "platform.h"
 
@@ -34,6 +35,7 @@
 #include "io/rc_controls.h"
 
 #include "flight/imu.h"
+#include "flight/acrobats.h"
 
 #include "telemetry/telemetry.h"
 
@@ -121,12 +123,25 @@ void FlightMode_Set ( flight_mode_e MODE ) {
   }
 }
 
+// A landing owns current_command until it disarms. Replacing LAND stops land ( ) but leaves isLanding
+// set, so the throttle stays pinned to a frozen landThrottle and nothing disarms after touchdown.
+// current_command is checked too: it is LAND for the cycle before land ( ) first sets isLanding. It
+// stays LAND after the landing ( nothing resets it ), so only a LAND that land ( ) would still run counts.
+static bool landingInProgress ( void ) {
+  return isLanding || ( current_command == LAND && command_status != FINISHED );
+}
+
 void Command_TakeOff ( uint16_t height ) {
+  // Ignored during a landing ( user, RC-loss or battery ), as MSP_SET_COMMAND is ( serial_msp.cpp )
+  if ( landingInProgress ( ) ) {
+    return;
+  }
   // Check if the current command is not already TAKE_OFF
   if ( current_command != TAKE_OFF ) {
     // Set the current command to TAKE_OFF and update command status to RUNNING
     current_command = TAKE_OFF;
     command_status  = RUNNING;
+    takeOffFromUser = true;    // dropped at a real Dev Mode switch-off if it has not armed by then
 
     // Constrain the take-off height and set it
     height        = constrain ( height, 100, 250 );
@@ -135,6 +150,14 @@ void Command_TakeOff ( uint16_t height ) {
 }
 
 void Command_Land ( uint8_t landSpeed ) {
+#ifdef ENABLE_ACROBAT
+  // A flip marks its command FINISHED as soon as it starts, so a landing would otherwise take the throttle
+  // over in mid-flip, and its impact check would read the flip as a touchdown. Ignored until the flip ends,
+  // as the battery auto-land waits ( mw.cpp ).
+  if ( flipState != 0 ) {
+    return;
+  }
+#endif
   // Check if the command status is FINISHED or ABORTED and if the system is armed
   if ( ( command_status == FINISHED || command_status == ABORT ) && ARMING_FLAG ( ARMED ) ) {
     // Set the current command to LAND and update the command status to RUNNING
@@ -147,6 +170,10 @@ void Command_Land ( uint8_t landSpeed ) {
 }
 
 void Command_Flip ( flip_direction_e direction ) {
+  // Ignored during a landing, as Command_TakeOff is
+  if ( landingInProgress ( ) ) {
+    return;
+  }
   // Check if the current command is not already B_FLIP
   if ( current_command != B_FLIP ) {
     // Set the current command to B_FLIP

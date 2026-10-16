@@ -103,13 +103,17 @@ not used for any decision.
 and the craft is armed, the same way the RX-loss failsafe does. A provisional critical sounds the beeper but does not
 land the craft.
 
-- `land ( )` ( `command.cpp:179` ) ramps `landThrottle` down at 40 counts/s, and disarms on touchdown: descent stopped
-  for 0.3 s once the ramp is at 1200 or below ( 2.8 s at the earliest ), a firm vertical contact, or a 30 s timeout.
-  The crash detector can also end it at touchdown.
+- `land ( )` ( `command.cpp:255` ) ramps `landThrottle` down at 40 counts/s from its start, 1300 here, to 1150. It
+  disarms on touchdown: the descent stopped for 0.3 s once the ramp is at 1200 or below **and the landing has run at
+  least 1 s** ( `LAND_CONFIRM_MIN_MS`, `command.cpp:235` ). From 1300 that is 2.8 s at the earliest, unchanged. It also
+  disarms on a firm vertical contact, or after a 30 s timeout. The crash detector can also end it at touchdown. The
+  1 s floor matters for `Command_Land ( speed )`, whose default speed 105 starts at 1200.
 - Only the throttle is taken over ( `mw.cpp:386`, and again after user code at `mw.cpp:1329` ). Roll, pitch and yaw
   stay on the sticks.
-- It cannot be cancelled: `MSP_SET_COMMAND` is ignored while landing, and a command set by user code is replaced by
-  `LAND` on the next loop. It does not start during a flip; the flip finishes first.
+- It cannot be cancelled. `MSP_SET_COMMAND` is ignored while landing. `Command_TakeOff` and `Command_Flip` are
+  refused while a landing runs ( `landingInProgress ( )`, `FC-Control-Command.cpp:130` ). This function also
+  re-asserts `LAND` before `executeCommand ( )` as a backstop. It does not start during a flip: the flip finishes
+  first, and a flip ends after at most 8 s ( watchdog, `acrobats.cpp:84` ).
 - After the disarm, critical is still latched and `mwArm ( )` refuses to arm until the pack is changed.
 
 ## What the app is told
@@ -206,11 +210,11 @@ Every edge, with its source line:
 | `BMS_Update` → `updateBatteryState` | `battery.cpp:1046` |
 | `updateBatteryState` → `set_FSI ( Low_battery )`, beeper | `battery.cpp:800-801`, `:823-824` |
 | `updateBatteryState` → `set_FSI ( LowBattery_inFlight )`, beeper | `battery.cpp:806-808`, `:818-820`, `:831-832` |
-| `loop` → `batteryCriticalAutoLand` | `mw.cpp:1426` |
-| `batteryCriticalAutoLand` → `batteryCriticalConfirmed` | `mw.cpp:1196` |
-| `batteryCriticalAutoLand` → `current_command = LAND` | `mw.cpp:1210-1211` |
-| `loop` → `executeCommand` → `land` | `mw.cpp:1428`, `command.cpp:252` |
-| `land` → `mwDisarm` ( `finishLanding` ) | `command.cpp:171` |
+| `loop` → `batteryCriticalAutoLand` | `mw.cpp:1498` |
+| `batteryCriticalAutoLand` → `batteryCriticalConfirmed` | `mw.cpp:1268` |
+| `batteryCriticalAutoLand` → `current_command = LAND` | `mw.cpp:1282-1283` |
+| `loop` → `executeCommand` → `land` | `mw.cpp:1500`, `command.cpp:313` |
+| `land` → `mwDisarm` ( `finishLanding` ) | `command.cpp:243-247`, called at `:283`, `:289`, `:305` |
 | `mAhRemain`, `soc_Fused`, `vBatComp` → `MSP_ANALOG` | `serial_msp.cpp:999-1007` |
 | flight-status flags → `MSP_FLIGHT_STATUS` | `serial_msp.cpp:886-896` |
 | `mAhRemain` and the rest → `Bms_Get` | `BMS.cpp:29-55` |

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Oct 2026, FW 3.13.0, API 1.6.0 ) |
+| **Status** | **Closed** in `794002d` ( 15 Oct 2026, FW 3.13.0, API 1.6.0 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1`, receiver `Rx_ESP` |

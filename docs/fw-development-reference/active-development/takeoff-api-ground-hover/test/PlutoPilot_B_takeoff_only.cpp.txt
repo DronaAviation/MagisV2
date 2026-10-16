@@ -1,0 +1,86 @@
+// Do not remove the include below
+#include "PlutoPilot.h"
+
+/*
+ * takeoff-api-ground-hover, task 1 - sketch B: Command_TakeOff ( 100 ) alone in
+ * onLoopStart ( ); it arms the drone itself. Diagnostic only: restore the template PlutoPilot.cpp before
+ * committing.
+ *
+ * Log, one line per user tick ( ~119 B, budget 130 ):
+ *   t   millis ( )                           n   tick counter ( steps by 2 across a lost record )
+ *   F   flags, read as 4 digits: armed, ALT HOLD, isThrottleStickArmed ( ground idle ), isTakeOffHeightSet
+ *   C   current_command * 10 + command_status ( command: 0 NONE, 1 TAKE_OFF, 2 LAND; status: 0 FINISHED, 1 RUNNING, 2 ABORT )
+ *   Zd  shaped altitude target AltHold, cm ( not the goal )        Ze  estimated altitude, cm      Vz  estimated Z velocity, cm/s
+ *   Mo  mean motor output, us                Tp  pilot throttle stick rcDataPilot, us
+ *   S   printed on its own tick when onLoopStart ( ) ran ( a Dev Mode restart on a Wi-Fi flicker shows here )
+ */
+
+extern "C" {
+uint32_t millis ( void );
+extern bool    isThrottleStickArmed;    // io/rc_controls.h: set only by the ARM-switch arming path
+extern int16_t motor [ ];               // flight/mixer.h
+extern int16_t rcDataPilot [ ];         // rx/rx.h: the pilot's sticks, before user overrides
+}
+extern uint8_t current_command;     // command/command.h
+extern uint8_t command_status;      // command/command.h
+extern bool    isTakeOffHeightSet;  // command/command.h
+
+static bool     startMarker = false;
+static uint16_t tick        = 0;
+static uint32_t armedAt     = 0;    // ms of the first armed tick; a Dev Mode restart does not reset it
+static bool     landSent    = false;
+
+void plutoRxConfig ( void ) {
+  Receiver_Mode ( Rx_ESP );    // Onboard ESP
+}
+
+void plutoInit ( void ) {
+}
+
+void onLoopStart ( void ) {
+  // onLoopStart ( ) runs again on every Wi-Fi flicker. Only the first call ( disarmed ) is the user's
+  // scenario; a later Command_TakeOff would overwrite a running LAND ( task 7 ).
+  if ( ! FlightStatus_Check ( FS_ARMED ) ) {
+    armedAt  = 0;        // plutoLoop ( ) never sees the disarm if the pilot landed with Dev Mode off
+    landSent = false;
+    Command_TakeOff ( 100 );
+  }
+  startMarker = true;
+}
+
+void plutoLoop ( void ) {
+  if ( startMarker ) {
+    startMarker = false;
+    Monitor_Println ( "S:", ( int ) millis ( ) );
+    return;
+  }
+  tick++;
+
+  bool armed = FlightStatus_Check ( FS_ARMED );
+  if ( ! armed ) {
+    armedAt  = 0;
+    landSent = false;
+  } else if ( armedAt == 0 ) {
+    armedAt = millis ( );
+  } else if ( ! landSent && millis ( ) - armedAt > 12000 ) {    // end the test after 12 s armed
+    Command_Land ( 5 );    // ramp from 1300 like the failsafe; the default 105 starts at LAND_CONFIRM_THROTTLE ( 1200 )
+    landSent = true;
+  }
+
+  int flags = ( armed ? 1000 : 0 ) + ( FlightMode_Check ( ATLTITUDEHOLD ) ? 100 : 0 )
+              + ( isThrottleStickArmed ? 10 : 0 ) + ( isTakeOffHeightSet ? 1 : 0 );
+  int motorMean = ( motor [ 0 ] + motor [ 1 ] + motor [ 2 ] + motor [ 3 ] ) / 4;
+
+  Monitor_Print ( "t:", ( int ) millis ( ) );
+  Monitor_Print ( " n:", ( int ) tick );
+  Monitor_Print ( " F:", flags );
+  Monitor_Print ( " C:", current_command * 10 + command_status );
+  Monitor_Print ( " Zd:", ( int ) getDesiredPositions ( Z ) );
+  Monitor_Print ( " Ze:", ( int ) Estimate_Get ( Position, Z ) );
+  Monitor_Print ( " Vz:", ( int ) Estimate_Get ( Velocity, Z ) );
+  Monitor_Print ( " Mo:", motorMean );
+  Monitor_Println ( " Tp:", ( int ) rcDataPilot [ RC_THROTTLE ] );
+}
+
+void onLoopFinish ( void ) {
+}

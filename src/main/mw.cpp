@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 15th Oct 2026                                          #
+ #  Last Modified: Fri, 16th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -21,6 +21,7 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-09-28	AJ	BMS_Update at its own 21 ms interval ( bmsLastServiced )  #
  #  2026-09-29	AJ	Critical battery while armed starts the LAND command      #
  #  2026-10-01	AJ	Confirmed critical only: auto-land, and mwArm ( ) refuses  #
+ #  2026-10-16	AJ	Dev Mode off drops a take-off queued by user code         #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -1219,6 +1220,12 @@ void userCode ( ) {
   bool        disarmed = wasArmed && ! armed;
   wasArmed             = armed;
 
+  // A take-off user code queued and that is still waiting for the ARM switch ends with Dev Mode too, or it
+  // would arm the drone later with no user code running. Not on a flicker: devSwitchOn keeps its last value.
+  if ( ! devSwitchOn ) {
+    dropUserTakeOff ( );
+  }
+
   if ( ( ! devSwitchOn || disarmed ) && isUserHeadingSet ) {
     isUserHeadingSet      = false;
     isUserHeadingRelative = false;
@@ -1248,9 +1255,11 @@ void userCode ( ) {
  * Starts the LAND command the way the RX-loss failsafe does ( command.cpp: throttle ramp, touchdown, disarm ), so
  * the craft comes down instead of the app cutting the motors in the air ( the app disarms on the critical flight
  * status; serial_msp.cpp reports critical as low battery while armed ). Only the throttle is taken over: roll,
- * pitch and yaw stay on the sticks. It cannot be cancelled: MSP_SET_COMMAND is ignored while landing, and a command
- * user code sets ( Command_TakeOff, Command_Flip ) is replaced by LAND again before executeCommand ( ) runs; the
- * landing resumes where it was ( setLandTimer stays false ). Not started during a flip: the flip finishes first.
+ * pitch and yaw stay on the sticks. It cannot be cancelled: MSP_SET_COMMAND is ignored while landing, and
+ * Command_TakeOff / Command_Flip are refused while a landing runs ( landingInProgress ( ), FC-Control-Command.cpp ).
+ * Re-asserting LAND here before executeCommand ( ) runs is the backstop for any other writer; the landing resumes
+ * where it was ( setLandTimer stays false ). Not started during a flip: the flip finishes first ( at most 8 s, the
+ * flip watchdog in acrobats.cpp ).
  * Critical latches until power-off, so this runs every loop until the landing disarms; mwArm ( ) then refuses to
  * arm. A provisional critical does not start it ( batteryCriticalConfirmed ( ) ).
  */
