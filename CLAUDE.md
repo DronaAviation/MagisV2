@@ -136,7 +136,7 @@ Each of these has cost a flight. Full mechanism and numbers:
   flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
   (`FLIGHT_INVARIANTS.md`).
 - **With `XRanging.initAlt ( )` (VL53L0X) or `X1Ranging.initAlt ( )` (VL53L1X), one down-laser corrects the
-  estimator below 160 cm and the baro above it (back below 140 cm)** — latched once after `plutoInit ( )`, which also
+  estimator below its handover and the baro above it (VL53L0X 160 / 140 cm, VL53L1X 190 / 170 cm)** — latched once after `plutoInit ( )`, which also
   picks the fusion copy for that sensor (`altLaserFusionLatch ( on, vl53l1x )`); without `initAlt` the firmware is
   the baro build. The return
   to the laser and a re-base shift the whole altitude frame so the craft does not move, and a sudden surface change

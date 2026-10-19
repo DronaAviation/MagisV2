@@ -191,8 +191,11 @@ static int16_t itemCount = 0;
 // L1X_STALE_MS, or a range under L1X_MIN_VALID_MM ( a covered window reads 0-10 mm as valid ). Comments in the
 // shared body that mention the driver IIR apply to the L0X only.
 struct AltTofL1x {
-  static constexpr float ALT_TOF_HANDOVER_UP_CM   = 160.0f;    // Medium mode on the flying floor: 100 % valid to 180 cm ( log-5 )
-  static constexpr float ALT_TOF_HANDOVER_DOWN_CM = 140.0f;
+  // Medium mode on the flying floor ( vl53l1x-althold-parity log-5 ): 100 % valid to 180 cm, 90 % at 180-190,
+  // 57 % at 190-200, ~0 above 210. 190 / 170 ( user, 19 Oct 2026; was 160 / 140 ): the handover sits at the edge of
+  // the valid zone, so a dropout ( ALT_TOF_DROPOUT_MS ) can hand over just below 190 instead of the band.
+  static constexpr float ALT_TOF_HANDOVER_UP_CM   = 190.0f;
+  static constexpr float ALT_TOF_HANDOVER_DOWN_CM = 170.0f;
   // 2 missed samples at the measured 51-53 ms period, plus ~14 ms poll quantisation and the 10 ms estimator
   // tick ( the L0X 120 ms is 3 x 33 + 21 )
   static constexpr int ALT_TOF_DROPOUT_MS         = ( 3 * L1X_SAMPLE_PERIOD_MS + 35 );                              // 185 ms

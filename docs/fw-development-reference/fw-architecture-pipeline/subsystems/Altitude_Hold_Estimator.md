@@ -238,7 +238,7 @@ dropout against `L1X_STALE_MS` ), so a target that overrides the period gets con
 | Constant | VL53L0X | VL53L1X | Meaning |
 |---|---|---|---|
 | Sample period | ~33 ms | P = 50 ms ( measured 51-53 ms ) | one new sample per period |
-| `ALT_TOF_HANDOVER_UP_CM` / `_DOWN_CM` | 160 / 140 cm | 160 / 140 cm | laser → baro above, back below ( VL53L1X: 100 % valid to 180 cm on the test floor ) |
+| `ALT_TOF_HANDOVER_UP_CM` / `_DOWN_CM` | 160 / 140 cm | **190 / 170 cm** ( 3.15.1; was 160 / 140 ) | laser → baro above, back below. VL53L1X valid rate on the test floor: 100 % to 180 cm, 90 % at 180-190, 57 % at 190-200, so its upper edge sits at the end of the valid zone |
 | `ALT_TOF_DROPOUT_MS` | 120 ms | 3P + 35 = 185 ms | no usable sample this long → baro ( 2 missed samples + poll quantisation + one estimator tick ) |
 | `ALT_TOF_RETURN_SAMPLES` | 3 | 3 ( 150 ms ) | usable samples in a row to return to the laser |
 | `ALT_TOF_IIR_LAG_S` | 0.3 s | 0 | driver-filter lag advanced by `VelocityZ` |
@@ -257,8 +257,8 @@ Shared by both sensors: `ALT_EST_TAU_S` 1.5 s, `ALT_TOF_MAX_TILT_DECIDEG` 25°, 
 
 | From | To | When |
 |---|---|---|
-| laser | baro | the laser height ( filtered, tilt-corrected ) reads ≥ `ALT_TOF_HANDOVER_UP_CM` 160 cm; or no usable sample for `ALT_TOF_DROPOUT_MS` ( dropout, tilt, silent sensor ); or a suspected edge times out with the laser ≥ 160 cm, or an escalated edge gets no usable sample within `ALT_TOF_DROPOUT_MS` |
-| baro | laser | `ALT_TOF_RETURN_SAMPLES` 3 usable samples below `ALT_TOF_HANDOVER_DOWN_CM` 140 cm after a climb above the band, otherwise below 160 cm. On the VL53L1X the return guard below can hold a sample off |
+| laser | baro | the laser height ( filtered, tilt-corrected ) reads ≥ `ALT_TOF_HANDOVER_UP_CM` ( 160 cm VL53L0X, 190 cm VL53L1X ); or no usable sample for `ALT_TOF_DROPOUT_MS` ( dropout, tilt, silent sensor ); or a suspected edge times out with the laser ≥ `ALT_TOF_HANDOVER_UP_CM`, or an escalated edge gets no usable sample within `ALT_TOF_DROPOUT_MS` |
+| baro | laser | `ALT_TOF_RETURN_SAMPLES` 3 usable samples below `ALT_TOF_HANDOVER_DOWN_CM` ( 140 cm VL53L0X, 170 cm VL53L1X ) after a climb above the band, otherwise below `ALT_TOF_HANDOVER_UP_CM`. On the VL53L1X the return guard below can hold a sample off |
 
 Short gaps: out-of-range and tilted samples coast on the accelerometer ( no correction ) until the
 dropout timeout. A VL53L0X read that fails marks DOWN I2C_ERROR for the rest of the run ( never
@@ -297,7 +297,7 @@ The guard is compiled into the VL53L1X copy only: `if constexpr ( T::RETURN_GUAR
 `RETURN_GUARD` false. The VL53L0X copy has no guard code.
 
 **Object under the craft** ( `altStepPending`, armed, airborne, not landing, on the laser, below
-160 cm ). The raw laser ( tilt-corrected; before the IIR on the VL53L0X ) is tested two ways:
+`ALT_TOF_HANDOVER_UP_CM` ). The raw laser ( tilt-corrected; before the IIR on the VL53L0X ) is tested two ways:
 
 - **Per sample:** more than `ALT_TOF_STEP_CM` 30 cm from the lag-advanced estimate.
 - **Window:** the raw change over the last `ALT_TOF_WINDOW_MS` 0.5 s minus the change of
@@ -307,7 +307,7 @@ The guard is compiled into the VL53L1X copy only: `if constexpr ( T::RETURN_GUAR
   frozen, the laser correction pauses ( coast ) and the mismatch keeps adding up: above 30 cm it is
   an edge; after `ALT_TOF_SUSPECT_MAX_MS` 1 s, above `ALT_TOF_SUSPECT_ESCALATE_CM` 20 cm it is an edge
   that the next usable sample turns into a hold-off ( the baro takes over instead if the laser reads
-  ≥ 160 cm or no usable sample arrives within `ALT_TOF_DROPOUT_MS` ); at or below 20 cm it is a slope
+  ≥ `ALT_TOF_HANDOVER_UP_CM` or no usable sample arrives within `ALT_TOF_DROPOUT_MS` ); at or below 20 cm it is a slope
   that is then followed. A suspect is also cleared early when the accumulated mismatch falls below
   0.5 × `ALT_TOF_SUSPECT_CM` ( 7.5 cm ): laser and accelerometer agree again. No window test for `ALT_TOF_AIRBORNE_GRACE_MS` 1 s after becoming airborne.
 
@@ -336,13 +336,16 @@ Known limits on the VL53L1X ( PRIMUS_X2_v1, `vl53l1x-althold-parity` flights log
   guard held and its exit returned correctly in log-12, with the earlier 10 cm band.
 - **Object frame after a re-base onto a close object** ( inherited from the VL53L0X ). After a re-base
   onto a close object and the climb back to the old clearance, removing the object with the craft
-  above 160 cm hands over to the baro in the object's frame ( ~1.1 m off in log-12 ). The frame is
+  above `ALT_TOF_HANDOVER_UP_CM` hands over to the baro in the object's frame ( ~1.1 m off in log-12 ). The frame is
   corrected by the return guard's exit or the return.
 - **Near-field take-off blip.** At lift-off the sensor briefly reads 0-12 mm with status 0, below the
   15 mm minimum: a baro leg of 0.1-0.2 s in flight ( bench estimate up to 0.3 s ), then a return with a frame shift of a few cm. No visible
   effect in flight.
-- **Margin to the reach.** On the matt test floor the valid reach is ~1.8 m, 20 cm above the 160 cm
-  edge. A darker floor or bright light shortens it; the dropout then hands over earlier.
+- **Margin to the reach.** On the matt test floor the VL53L1X reads 100 % valid to ~1.8 m and 90 % at 1.8-1.9 m.
+  With the 190 cm edge ( 3.15.1 ) there is no margin: near 1.9 m a run of misses can hand over through the dropout
+  just below the band, and after a dropout the return is allowed below 190 cm, so a hover at 185-195 cm can switch
+  source more than once ( each switch a frame shift, no craft movement ). A darker floor or bright light shortens the
+  reach further. Not flight-tested at 190 / 170 yet.
 
 **VL53L1X down-laser** ( `drivers/tof_manager_l1x.cpp` / `.h`, through `X1Ranging` ).
 
@@ -415,8 +418,8 @@ flowchart TD
     Rej --> Band
     Band -- laser, usable sample --> Laser[correctedWithTof<br/>offset average]
     Band -- laser, out of range or tilted,<br/>under the dropout time --> Coast
-    Band -- 160+ or dropout --> BaroP[correctedWithBaro<br/>Baro_Height minus frozen offset]
-    BaroP -- candidate below 140, or 160 after<br/>a dropout or an edge handover --> Guard{RETURN_GUARD, AltTofL1x only:<br/>armed, not ground idle,<br/>over 50 cm from the estimate?}
+    Band -- UP edge+ or dropout<br/>L0X 160, L1X 190 --> BaroP[correctedWithBaro<br/>Baro_Height minus frozen offset]
+    BaroP -- candidate below DOWN edge L0X 140, L1X 170,<br/>or the UP edge after a dropout or an edge handover --> Guard{RETURN_GUARD, AltTofL1x only:<br/>armed, not ground idle,<br/>over 50 cm from the estimate?}
     Guard -- no, or AltTofL0x --> Cnt[count: 3 samples in a row]
     Cnt --> Ret[altShiftFrame by<br/>laser minus estimate]
     Guard -- yes, not steady for 2.5 s --> BaroP

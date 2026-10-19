@@ -111,11 +111,11 @@ reads the lasers itself:
 ## Altitude hold with the down-laser
 
 - **Without `initAlt`, the firmware holds altitude on the barometer alone, exactly as a build without a laser.**
-- With `initAlt`, altitude hold uses the down-laser below 160 cm and the barometer above it. The handover moves the
+- With `initAlt`, altitude hold uses the down-laser below **190 cm** and the barometer above it ( the VL53L0X: 160 cm ). The handover moves the
   whole altitude frame, so the craft does not jump. A sudden change of the surface underneath ( a table, an object ) is
   held on the barometer for 2.5 s before the frame is re-based. Details:
   `fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`.
-- **Going back from the barometer to the laser** happens below 140 cm after a climb, and below 160 cm after a laser
+- **Going back from the barometer to the laser** happens below 170 cm after a climb, and below 190 cm after a laser
   dropout, once 3 good samples in a row have arrived. In the air, the VL53L1X has one extra check that the VL53L0X does not:
   - a laser sample counts for the return only if it is within **50 cm** of the barometer estimate;
   - if the two disagree by a steady amount ( within 25 cm ) for **2.5 s**, the laser's reading is taken as a new floor

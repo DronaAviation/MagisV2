@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.0 (API 1.8.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.1 (API 1.8.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -159,7 +159,8 @@ that removes all legacy STM32F10x support.
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
   3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
-  command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ).
+  command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
+  laser / baro handover at 190 / 170 cm.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -184,7 +185,8 @@ that removes all legacy STM32F10x support.
   constants and accessors as traits; the VL53L1X return guard only in its copy ). `XRanging.initAlt ( )` or
   `X1Ranging.initAlt ( )` turns it on at start-up and picks the copy ( 3.15.0; see Added ). `LASER_TOF`,
   `LASER_ALT` and `LASER_TOF_L1x` are build errors. One image now drives either laser family: PRIMUS_X2_v1
-  121.0 KB / 20.5 KB ( +14.4 KB flash, +3.0 KB RAM over 3.14.0 ).
+  121.0 KB / 20.5 KB ( +14.4 KB flash, +3.0 KB RAM over 3.14.0 ). Since 3.15.1 the VL53L1X hands over to the baro
+  at 190 cm and back below 170 cm ( was 160 / 140; the VL53L0X stays 160 / 140 ); not flight-tested yet.
 - **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
   style ) instead of switching the controller to raw velocity control. The
   climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at

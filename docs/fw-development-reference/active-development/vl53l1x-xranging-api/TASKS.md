@@ -8,7 +8,7 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | **Closed - pending commit** ( 19 Oct 2026 ) |
+| **Current task** | **Closed** in `019a55c` ( 19 Oct 2026 ). Follow-up, not in that commit: VL53L1X handover 190 / 170 ( user ), unflown |
 | **Next step** | The user commits ( `git commit -F .git/MAGISV2_COMMIT_MSG.txt` ); the next pluto-commit / pluto-grill fills in the hash |
 | **Open questions** | none |
 | **Blocked on** | nothing |

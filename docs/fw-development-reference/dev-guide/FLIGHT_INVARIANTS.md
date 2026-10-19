@@ -75,7 +75,7 @@ stays on while the app holds AUX3. Altitude hold therefore flies the whole flip.
 Details: [`../fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`](../fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md)
 ( Flip interaction ) and [`../active-development/flip-althold-regression/`](../active-development/flip-althold-regression/).
 
-## With a down-laser, it corrects the estimator below 160 cm and the baro above it
+## With a down-laser, it corrects the estimator below its handover and the baro above it
 
 The laser fusion works with one down-laser:
 - the VL53L0X, switched on at run time by `XRanging.initAlt ( pin )` / `initAlt ( )` in `plutoInit ( )`;
@@ -93,8 +93,9 @@ guard only in its copy ); the latch picks the copy, and each copy is instruction
 - **The laser fails to start after `initAlt`:** the fusion still runs and treats it as a dropout ( baro ),
   so it keeps the laser tuning. `XRanging.getStatus ( DOWN )` reports it.
 
-- **Handover.** The laser corrects the altitude estimator below 160 cm and hands over to the baro above
-  it ( back below 140 cm ). A dropout of `ALT_TOF_DROPOUT_MS` ( 120 ms VL53L0X, 185 ms VL53L1X ) also hands
+- **Handover.** The laser corrects the altitude estimator below its upper edge and hands over to the baro above
+  it: VL53L0X 160 cm ( back below 140 cm ), VL53L1X 190 cm ( back below 170 cm, 3.15.1, at the end of its valid
+  reach on the test floor; not flight-tested yet ). A dropout of `ALT_TOF_DROPOUT_MS` ( 120 ms VL53L0X, 185 ms VL53L1X ) also hands
   over, and so does a tilt above 25° that lasts that long ( tilted samples are only unusable ); shorter
   gaps coast on the accelerometer. On the baro the baro-minus-laser
   offset is frozen; the baro ground datum itself is never re-zeroed.

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 19 Oct 2026, FW 3.15.0, API 1.8.0 ) |
+| **Status** | **Closed** in `019a55c` ( 19 Oct 2026, FW 3.15.0, API 1.8.0 ) |
 | **Mode** | `feature` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |
