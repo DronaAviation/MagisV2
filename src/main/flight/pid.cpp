@@ -65,6 +65,7 @@ static int32_t errorGyroI[3] = { 0, 0, 0 };
 static float errorGyroIf[3] = { 0.0f, 0.0f, 0.0f };
 static int32_t errorAngleI[2] = { 0, 0 };
 static float errorAngleIf[2] = { 0.0f, 0.0f };
+static uint16_t gyroResetCount = 0;    // pidResetErrorGyro ( ) calls, for the diagnostic log
 
 int32_t desiredAngle[3] = { 0, 0, 0 };
 int32_t desiredRate[3] = { 0, 0, 0 };
@@ -98,6 +99,21 @@ void pidResetErrorGyro(void)
     errorGyroIf[ROLL] = 0.0f;
     errorGyroIf[PITCH] = 0.0f;
     errorGyroIf[YAW] = 0.0f;
+
+    gyroResetCount++;
+}
+
+int16_t pidGetGyroITerm(uint8_t axis)
+{
+    if (axis > YAW) {
+        return 0;
+    }
+    return (int16_t)(errorGyroI[axis] >> 13);    // pidRewrite's scale: constrained to ±GYRO_I_MAX << 13
+}
+
+uint16_t pidGetGyroResetCount(void)
+{
+    return gyroResetCount;
 }
 
 const angle_index_t rcAliasToAngleIndexMap[] = { AI_ROLL, AI_PITCH };

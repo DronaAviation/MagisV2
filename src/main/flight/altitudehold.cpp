@@ -24,6 +24,8 @@
  #  19-10-2026	AJ	One fusion switch for both lasers: altLaserFusionLatch ( ).  #
  #  19-10-2026	AJ	LASER_TOF_L1x is #error ( vl53l1x-xranging-api t15 ).        #
  #  19-10-2026	AJ	Two compiled fusion copies ( VL53L0X / VL53L1X ), picked at boot ( t17 ). #
+ #  19-10-2026	AJ	altHoldKeepRateITerm ( ): no stick-low I reset in flight.   #
+ #  19-10-2026	AJ	Stick-descent touchdown latch ( updateStickTouchdown ).    #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -452,6 +454,7 @@ static float altTarget         = 0.0f;     // AltHold with the fraction kept, cm
 static float altGoal           = 0.0f;     // commanded altitude the target is travelling to, cm
 static bool altGoalActive      = false;
 static bool altHoldGroundIdle  = false;    // armed on the throttle stick, motors held at idle
+static bool altStickTouchdown  = false;    // a fast stick descent was stopped by a surface ( updateStickTouchdown )
 static int32_t altPreFlipAltHold = 0;      // AltHold when a flip was sent, flown back to after it, cm
 
 // Drop all setpoint shaping state and pin the target to the current estimate.
@@ -544,6 +547,41 @@ static void offloadHoverTrim ( void ) {
   altHoldThrottleAdjustment -= step;
 }
 
+#define ALT_TOUCHDOWN_MIN_REQ_CMS 15      // cm/s, only a descent request at least this fast is watched
+#define ALT_TOUCHDOWN_VEL_CMS     ( -8 )  // cm/s, slower descent counts as arrested ( land ( )'s LAND_VEL_STOP )
+#define ALT_TOUCHDOWN_MS          300     // ms, an arrest must last this long ( land ( )'s LAND_SETTLE_MS )
+
+// Touchdown under a stick descent, for altHoldKeepRateITerm ( ): a fast descent is asked for, the craft
+// was seen moving down, and then it stopped for ALT_TOUCHDOWN_MS. Only a fast request is watched ( the
+// stick-low band asks 23-30 cm/s ), so a slow partial descent cannot latch it in the air; the moving
+// check keeps the lag at the start of a descent from looking like an arrest. Latched until the request
+// ends, so noise on the floor cannot release it. With alt_hold_fast_change 1 ( not the default ) the
+// stick never sets setVelocity, so this never latches and only the 20 cm floor guards the reset.
+static void updateStickTouchdown ( void ) {
+  static bool descentSeen       = false;
+  static uint32_t arrestStartMs = 0;
+
+  if ( ! ARMING_FLAG ( ARMED ) || altHoldGroundIdle || setVelocity > -ALT_TOUCHDOWN_MIN_REQ_CMS ) {
+    descentSeen       = false;
+    arrestStartMs     = 0;
+    altStickTouchdown = false;
+    return;
+  }
+  if ( altStickTouchdown ) {
+    return;
+  }
+  if ( VelocityZ <= ALT_TOUCHDOWN_VEL_CMS ) {
+    descentSeen   = true;
+    arrestStartMs = 0;
+  } else if ( descentSeen ) {
+    if ( arrestStartMs == 0 ) {
+      arrestStartMs = millis ( );
+    } else if ( ( millis ( ) - arrestStartMs ) >= ALT_TOUCHDOWN_MS ) {
+      altStickTouchdown = true;
+    }
+  }
+}
+
 static void applyMultirotorAltHold ( void ) {
   static uint8_t isAltHoldChanged = 0;
   static int16_t throttle_history = 0;
@@ -612,6 +650,8 @@ static void applyMultirotorAltHold ( void ) {
     isThrottleStickArmed = false;
     altHoldGroundIdle    = false;
   }
+
+  updateStickTouchdown ( );
 
   altholdDebug  = AltHold;
   altholdDebug1 = altHoldThrottleAdjustment;
@@ -1478,6 +1518,20 @@ void altHoldReleaseGroundIdle ( void ) {
 // The same test as the stick-rate branch of applyMultirotorAltHold ( ).
 bool altHoldStickCentred ( void ) {
   return ABS ( rcData [ THROTTLE ] - 1500 ) <= rcControlsConfig->alt_hold_deadband;
+}
+
+#define ALT_ITERM_KEEP_MIN_CM 20    // cm, below this a stick-low reset still zeroes the rate integrators
+
+// In an ALT_HOLD flight a low throttle stick is a descent, not "on the ground", so processRx ( ) keeps
+// the rate integrators: they hold an off-centre payload level ( cg-offset-takeoff-tilt ). False when
+// disarmed, in throttle mode, at the ARM-switch ground idle, below ALT_ITERM_KEEP_MIN_CM, or once a
+// stick descent has touched down: a stick-down landing leaves the craft armed on a surface, where the
+// integrator winds against it ( ±256 within ~1 s in log-1 ). Both ground tests are needed: EstAlt is
+// relative to the arm point and can read 10-20 cm on the floor after a warm flight ( the temperature
+// compensation errs high ), and a table is above it; the touchdown test knows neither.
+bool altHoldKeepRateITerm ( void ) {
+  return ARMING_FLAG ( ARMED ) && FLIGHT_MODE ( BARO_MODE ) && ! altHoldGroundIdle && ! altStickTouchdown
+         && EstAlt >= ALT_ITERM_KEEP_MIN_CM;
 }
 
 void AltRst ( void ) {

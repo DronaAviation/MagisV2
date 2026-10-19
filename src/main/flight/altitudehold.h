@@ -53,6 +53,8 @@ void AltRst(void);
 void altHoldReleaseGroundIdle(void);
 // Throttle stick inside the alt-hold deadband ( no climb or descent request ).
 bool altHoldStickCentred(void);
+// Flying in ALT_HOLD ( armed, not at ground idle, 20 cm or higher ): a low stick must not zero the rate integrators.
+bool altHoldKeepRateITerm(void);
 
 
 

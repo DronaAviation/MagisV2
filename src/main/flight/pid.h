@@ -108,6 +108,13 @@ void pidSetController(pidControllerType_e type);
 void pidResetErrorAngle(void);
 void pidResetErrorGyro(void);
 
+// Diagnostics ( read-only ): the rate integrator errorGyroI[axis] in axisPID units ( ±GYRO_I_MAX;
+// meaningful for pidRewrite, the default controller, only: the others keep it on another scale, and
+// LuxFloat integrates errorGyroIf, so this returns 0 there ),
+// and the number of pidResetErrorGyro ( ) calls since power-on ( wraps at 65535 ).
+int16_t pidGetGyroITerm(uint8_t axis);
+uint16_t pidGetGyroResetCount(void);
+
 
 
 #ifdef __cplusplus

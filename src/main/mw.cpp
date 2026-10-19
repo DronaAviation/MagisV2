@@ -25,6 +25,7 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-10-19	AJ	VL53L1X polls via tof_manager_l1x ( X1Ranging )           #
  #  2026-10-19	AJ	Object avoidance: X1Ranging's core in a VL53L1X build     #
  #  2026-10-19	AJ	OA and laser polls by run-time laser family ( t15 )       #
+ #  2026-10-19	AJ	Stick-low I-term reset skipped in an ALT_HOLD flight      #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -892,7 +893,10 @@ void processRx ( void ) {
   throttleStatus_e throttleStatus = calculateThrottleStatus (
             &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
 
-  if ( throttleStatus == THROTTLE_LOW ) {
+  // A low stick means "on the ground" to Cleanflight, which zeroes the rate integrators here. In an ALT_HOLD
+  // flight it is a descent, and the integrators hold an off-centre payload level: zeroing them leaned the
+  // craft toward it for the whole descent ( cg-offset-takeoff-tilt ). The reset stays on the ground.
+  if ( throttleStatus == THROTTLE_LOW && ! altHoldKeepRateITerm ( ) ) {
     pidResetErrorAngle ( );
     pidResetErrorGyro ( );
   }
