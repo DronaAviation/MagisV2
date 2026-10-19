@@ -11,13 +11,18 @@
  #  Created Date: Sat, 31st Jan 2026                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 14th Oct 2026                                          #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
  #  2026-10-14	AJ	initAlt / getStatus / DOWN, bounds checks, XSHUT beats LED  #
+ #  2026-10-16	AJ	Pin table shared with X1Ranging ( vl53l1x-xranging-api t3 ) #
+ #  2026-10-19	AJ	Every request refused in a VL53L1X build ( t4 )             #
+ #  2026-10-19	AJ	OA loop moved to ObjectAvoidanceCore.h ( t6 )               #
+ #  2026-10-19	AJ	Run-time laser family; both APIs used refuses both ( t15 )  #
+ #  2026-10-19	AJ	initAlt latches the VL53L0X fusion copy ( t17 )             #
 *******************************************************************************/
 
 #include "API/API-Utils.h"
@@ -29,9 +34,10 @@
 #include "drivers/ranging_vl53l0x.h"    // VL53L0X_BOOT_ADDRESS, vl53l0xProbe ( )
 #include "drivers/bus_spi.h"           // spiRelease ( ): SPI2 shares GPIO_5-8
 #include "drivers/flash_m25p16.h"      // m25p16_release ( )
+#include "API-Src/ObjectAvoidanceCore.h"    // oaCoreRun ( ), the shared avoidance loop
 
 // flight/altitudehold.h ( C linkage ); not included: it needs the mixer / PID headers first.
-extern "C" void altLaserFusionLatch ( bool on );
+extern "C" void altLaserFusionLatch ( bool on, bool vl53l1x );
 
 // laser_e is used as a tofId_e index.
 static_assert ( ( int ) LEFT == ( int ) TOF_LEFT && ( int ) RIGHT == ( int ) TOF_RIGHT && ( int ) FRONT == ( int ) TOF_FRONT
@@ -151,19 +157,62 @@ int8_t xRangingAltXshut ( void ) {
   return altEnabled ? altXshutGpio : ( int8_t ) -1;
 }
 
+// X1Ranging's down XSHUT ( VL53L1X ) is reserved the same way: x1RangingAltXshut ( ) is -1 unless
+// X1Ranging latched a down-laser with an XSHUT wire ( only one family runs, so at most one is set ).
 bool xRangingGpioClaimed ( uint8_t gpioPin ) {
-  const int8_t x = xRangingAltXshut ( );
+  const int8_t x  = xRangingAltXshut ( );
+  const int8_t x1 = x1RangingAltXshut ( );
+  if ( x1 >= 0 && gpioPin == ( uint8_t ) x1 ) return true;
   return x >= 0 && gpioPin == ( uint8_t ) x;
 }
 
 bool xRangingAdcClaimed ( uint8_t adcPin ) {
-  const int8_t x = xRangingAltXshut ( );
+  const int8_t x  = xRangingAltXshut ( );
+  const int8_t x1 = x1RangingAltXshut ( );
+  if ( x1 >= 0 && gpioAlias [ x1 ].adc >= 0 && adcPin == ( uint8_t ) gpioAlias [ x1 ].adc ) return true;
   return x >= 0 && gpioAlias [ x ].adc >= 0 && adcPin == ( uint8_t ) gpioAlias [ x ].adc;
 }
 
 bool xRangingPwmClaimed ( uint8_t pwmPin ) {
-  const int8_t x = xRangingAltXshut ( );
+  const int8_t x  = xRangingAltXshut ( );
+  const int8_t x1 = x1RangingAltXshut ( );
+  if ( x1 >= 0 && gpioAlias [ x1 ].pwm >= 0 && pwmPin == ( uint8_t ) gpioAlias [ x1 ].pwm ) return true;
   return x >= 0 && gpioAlias [ x ].pwm >= 0 && pwmPin == ( uint8_t ) gpioAlias [ x ].pwm;
+}
+
+// X1Ranging ( VL53L1X ) uses the same side-laser pins and down-XSHUT rules: one table, one check.
+int8_t xRangingSideXshut ( uint8_t side ) {
+  return ( side < LASER_COUNT ) ? ( int8_t ) lasers [ side ].xshutGpio : ( int8_t ) -1;
+}
+
+int8_t xRangingSideLed ( uint8_t side ) {
+  return ( side < LASER_COUNT ) ? ( int8_t ) lasers [ side ].ledGpio : ( int8_t ) -1;
+}
+
+bool xRangingAltPinConflict ( int8_t gpio ) {
+  return altPinConflict ( gpio );
+}
+
+// ---- Laser family ( vl53l1x-xranging-api t15 ) ----
+static rangingFamily_e latchedFamily = RANGING_NONE;    // RANGING_NONE until rangingFamilyLatch ( )
+static bool familyLatched            = false;
+
+// Once, right after plutoInit ( ): which laser API has requests. Requests are recorded in plutoInit ( )
+// whatever the family ( it is not known until here ); xRangingInit ( ) / x1RangingInit ( ) apply it.
+void rangingFamilyLatch ( void ) {
+  if ( familyLatched ) return;
+  familyLatched = true;
+  bool xUsed    = altRequested;    // any XRanging request, DOWN ( initAlt ) included
+  for ( uint8_t id = 0; id < XLASER_ID_COUNT; id++ ) xUsed = xUsed || isXLaserInit [ id ];
+  const bool x1Used = x1RangingRequested ( );
+  if ( xUsed && x1Used ) latchedFamily = RANGING_BOTH;
+  else if ( xUsed ) latchedFamily = RANGING_VL53L0X;
+  else if ( x1Used ) latchedFamily = RANGING_VL53L1X;
+  else latchedFamily = RANGING_NONE;
+}
+
+rangingFamily_e rangingFamily ( void ) {
+  return latchedFamily;
 }
 
 #define SIDE_FIRST_ADDRESS 0x2A    // side lasers get 0x2A + n, n = enabled side lasers before it in the table
@@ -191,8 +240,21 @@ bool xRangingPwmClaimed ( uint8_t pwmPin ) {
  */
 void xRangingInit ( void ) {
 
+  const rangingFamily_e family = rangingFamily ( );
+  if ( family == RANGING_VL53L1X || family == RANGING_BOTH ) {
+    // X1Ranging is used. Alone, it owns the bus and the altitude-fusion latch ( x1RangingInit ( ) ); with
+    // XRanging too, both are refused. Either way XRanging starts nothing and drops its requests, so its
+    // getters read -1 / LASER_NOT_ENABLED, initAlt is closed, and the fusion latch is not touched here.
+    for ( uint8_t id = 0; id < XLASER_ID_COUNT; id++ ) isXLaserInit [ id ] = false;
+    altRequested = false;
+    altXshutGpio = -1;
+    altEnabled   = false;
+    altLatched   = true;
+    return;
+  }
+
   const bool altOn = xRangingAltLatch ( );
-  altLaserFusionLatch ( altOn );
+  altLaserFusionLatch ( altOn, false );
 
   // SPI2's pins are GPIO_5-8 ( PB15 MOSI, PB14 MISO, PB13 SCK, PB12 NSS ). Whenever XRanging is used,
   // SPI2 is switched off for the run before any laser pin is touched: an SPI line resting low would
@@ -294,6 +356,9 @@ void xRangingInit ( void ) {
 // XRanging public API
 // ============================================================
 
+// Requests are recorded in plutoInit ( ) whatever the family; if X1Ranging is used too, xRangingInit ( )
+// drops them at the latch ( rangingFamily ( ) RANGING_VL53L1X or RANGING_BOTH ).
+
 void XRanging_P::init ( void ) {
   static_assert ( sizeof ( triggerThreshold ) / sizeof ( triggerThreshold [ 0 ] ) == XLASER_ID_COUNT, "triggerThreshold: one entry per laser_e" );
   isXLaserInit [ LEFT ]      = true;
@@ -314,17 +379,12 @@ void XRanging_P::init ( laser_e laser, int16_t threshold ) {
 
 // Records the down-laser request; gpio -1 = no XSHUT wire.
 static bool altRequest ( int8_t gpio ) {
-#if defined( LASER_TOF_L1x )
-  ( void ) gpio;
-  return false;    // the VL53L1X build already owns the one down-laser
-#else
   if ( altLatched ) return false;    // only before the bring-up, i.e. from plutoInit ( )
   if ( gpio >= 0 && altPinConflict ( gpio ) ) return false;
   altRequested          = true;
   altXshutGpio          = gpio;
   isXLaserInit [ DOWN ] = true;
   return true;
-#endif
 }
 
 bool XRanging_P::initAlt ( peripheral_gpio_pin_e xshutGpio ) {
@@ -372,81 +432,17 @@ bool XRanging_P::isTriggered ( laser_e laser ) {
 XRanging_P XRanging;
 
 // ============================================================
-// Object Avoidance configuration
+// Object Avoidance ( the push / brake loop and its constants: API-Src/ObjectAvoidanceCore.h )
 // ============================================================
-#define RC_MID                1500    // Midpoint value for RC signal, typically neutral position
-#define RC_MIN                1000    // Minimum value for RC signal, lower bound
-#define RC_MAX                2000    // Maximum value for RC signal, upper bound
+#define RC_MID 1500    // Midpoint value for RC signal, typically neutral position
+#define RC_MIN 1000    // Minimum value for RC signal, lower bound
+#define RC_MAX 2000    // Maximum value for RC signal, upper bound
 
-#define AVOID_RC_MAX          25       // Maximum RC value deviation allowed during avoidance
-#define OA_MAX_PUSH_TIME_MS   500      // Maximum time in milliseconds to push forward during obstacle avoidance
-#define OA_CLEAR_HOLD_MS      500      // Time in milliseconds to hold clear state after an obstacle is no longer detected
-#define OA_BRAKE_GAIN         0.45f    // Gain factor applied to braking during obstacle avoidance
-
-#define USER_OA_BLEND_PUSH    0.3f    // User-defined blend factor for pushing action in obstacle avoidance
-#define USER_OA_BLEND_BRAKE   0.2f    // User-defined blend factor for braking action in obstacle avoidance
-
-#define AVOIDANCE_INTERVAL_MS 100    // Interval in milliseconds between successive obstacle avoidance checks
-
-static uint16_t _objectAoidDistance = 0;        // Distance to the nearest detected obstacle
-static uint32_t lastAvoidanceRunMs  = 0;        // Timestamp of the last obstacle avoidance logic execution
+static uint16_t _objectAoidDistance = 0;        // mm, an obstacle at or below this is avoided ( initObjectAvoidance cm * 10 )
 static bool _enOA                   = false;    // Flag indicating whether obstacle avoidance is enabled
 
-/**
- * @brief Filters the input distance using a simple moving average filter.
- *
- * This function applies a weighted moving average filter to smooth out the
- * distance readings. The filter uses a fixed size array to store the
- * filtered values for different indices. If the provided distance (d) is
- * less than or equal to zero, it returns the previously filtered value
- * for that index without updating.
- *
- * @param idx Index of the filter array to update and return the filtered value.
- * @param d   New distance measurement to be filtered.
- * @return    The filtered distance value at the specified index.
- */
-static int16_t dFilt [ XLASER_ID_COUNT ] = { 0 };
-
-static int16_t filterDistance ( uint8_t idx, int16_t d ) {
-  if ( d <= 0 ) return dFilt [ idx ];
-  dFilt [ idx ] = ( int16_t ) ( ( dFilt [ idx ] * 3 + d ) / 4 );
-  return dFilt [ idx ];
-}
-
-// OA distance for one side laser. A laser that stopped working ( boot failed, I2C error ) gives
-// "no obstacle" and its filter restarts: otherwise its last distance would keep OA pushing for good.
-static int16_t oaDistance ( uint8_t idx, laser_e laser ) {
-  const laser_status_e st = XRanging.getStatus ( laser );
-  if ( st != LASER_OK && st != LASER_OUT_OF_RANGE ) {
-    dFilt [ idx ] = 0;
-    return 0;
-  }
-  return filterDistance ( idx, XRanging.getRange ( laser ) );
-}
-
-/**
- * @brief Calculates the remote control offset for object avoidance based on distance.
- *
- * This function determines the offset to be applied for object avoidance,
- * depending on the input distance and an inversion flag. If the distance is
- * less than or equal to zero, or greater than a predefined threshold (_objectAoidDistance),
- * it returns zero. The offset is inverted if the 'invert' parameter is true.
- *
- * @param distance  The measured distance to the object.
- * @param invert    Boolean flag indicating whether to invert the offset direction.
- * @return          The calculated remote control offset for object avoidance.
- */
-static int16_t mapAvoidance ( int16_t distance, bool invert ) {
-  if ( distance <= 0 ) return 0;
-  if ( distance > _objectAoidDistance ) return 0;
-
-  int16_t rcOffset = AVOID_RC_MAX;
-  if ( invert ) rcOffset = -rcOffset;
-  return rcOffset;
-}
-
 void XRanging_P::enableOA ( void ) {
-  _enOA = true;
+  _enOA = true;    // applyObjectAvoidance ( ) runs only for RANGING_NONE / RANGING_VL53L0X ( mw.cpp )
 }
 
 void XRanging_P::disableOA ( void ) {
@@ -471,122 +467,10 @@ void XRanging_P::initObjectAvoidance ( uint16_t _avoidDist, laser_e _laser1, las
 }
 
 /**
- * @brief Applies object avoidance logic to adjust roll and pitch remote control values.
- *
- * This function periodically checks the status of laser distance sensors to determine
- * if any objects are within a predefined range. It calculates offsets for roll and pitch
- * based on sensor input, adjusting the remote control values accordingly to avoid obstacles.
- * The function ensures that object avoidance is only applied at specified intervals and
- * blends user inputs with calculated offsets for smooth operation.
+ * @brief XRanging's object avoidance, once per loop from mw.cpp: the shared core
+ * ( oaCoreRun, ObjectAvoidanceCore.h ) over the VL53L0X cache, the lasers set by
+ * initObjectAvoidance ( ) and the side-laser LEDs.
  */
 void applyObjectAvoidance ( void ) {
-
-  // Get the current time in milliseconds
-  uint32_t now = millis ( );
-
-  // Check if the avoidance logic should run based on the predefined interval
-  if ( now - lastAvoidanceRunMs < AVOIDANCE_INTERVAL_MS )
-    return;
-
-  // Update the last run timestamp
-  lastAvoidanceRunMs = now;
-
-  // Return if object avoidance is not enabled
-  if ( ! _enOA ) return;
-
-  // Calculate user input adjustments for roll and pitch
-  int16_t userRoll  = rcData [ ROLL ] - 1500;
-  int16_t userPitch = rcData [ PITCH ] - 1500;
-
-  // Initialize offsets for roll and pitch
-  int16_t rollOffset  = 0;
-  int16_t pitchOffset = 0;
-
-  // Flags to indicate if an obstacle is detected
-  bool rollSense  = false;
-  bool pitchSense = false;
-
-  // Check and process left laser sensor
-  if ( isXLaserInit [ LEFT ] ) {
-    int16_t o = mapAvoidance ( oaDistance ( 0, LEFT ), false );
-    rollSense |= ( o != 0 );
-    ledWrite ( LEFT, o ? STATE_HIGH : STATE_LOW );
-    rollOffset += o;
-  }
-
-  // Check and process right laser sensor
-  if ( isXLaserInit [ RIGHT ] ) {
-    int16_t o = mapAvoidance ( oaDistance ( 1, RIGHT ), true );
-    rollSense |= ( o != 0 );
-    ledWrite ( RIGHT, o ? STATE_HIGH : STATE_LOW );
-    rollOffset += o;
-  }
-
-  // Check and process front laser sensor
-  if ( isXLaserInit [ FRONT ] ) {
-    int16_t o = mapAvoidance ( oaDistance ( 2, FRONT ), true );
-    pitchSense |= ( o != 0 );
-    ledWrite ( FRONT, o ? STATE_HIGH : STATE_LOW );
-    pitchOffset += o;
-  }
-
-  // Check and process back laser sensor
-  if ( isXLaserInit [ BACK ] ) {
-    int16_t o = mapAvoidance ( oaDistance ( 3, BACK ), false );
-    pitchSense |= ( o != 0 );
-    ledWrite ( BACK, o ? STATE_HIGH : STATE_LOW );
-    pitchOffset += o;
-  }
-
-  // Static variables to track the last known state for roll and pitch avoidance
-  static uint32_t rollOAStartTs  = 0;
-  static uint32_t pitchOAStartTs = 0;
-  static int16_t lastRollOA      = 0;
-  static int16_t lastPitchOA     = 0;
-
-  // If a roll obstacle is sensed, update the start timestamp and last offset
-  if ( rollSense ) {
-    if ( rollOAStartTs == 0 ) rollOAStartTs = now;
-    lastRollOA = rollOffset;
-  }
-
-  // If a pitch obstacle is sensed, update the start timestamp and last offset
-  if ( pitchSense ) {
-    if ( pitchOAStartTs == 0 ) pitchOAStartTs = now;
-    lastPitchOA = pitchOffset;
-  }
-
-  // Adjust roll control based on the object avoidance state
-  if ( rollOAStartTs && ( now - rollOAStartTs < OA_MAX_PUSH_TIME_MS ) )
-    RC_ARRAY [ ROLL ] = ( userRoll * USER_OA_BLEND_PUSH ) + rollOffset;
-  else if ( rollOAStartTs && ( now - rollOAStartTs < OA_MAX_PUSH_TIME_MS + OA_CLEAR_HOLD_MS ) )
-    RC_ARRAY [ ROLL ] = ( userRoll * USER_OA_BLEND_BRAKE ) + ( -lastRollOA * OA_BRAKE_GAIN );
-  else {
-    rollOAStartTs     = 0;
-    lastRollOA        = 0;
-    RC_ARRAY [ ROLL ] = userRoll * USER_OA_BLEND_PUSH;
-  }
-
-  // Adjust pitch control based on the object avoidance state
-  if ( pitchOAStartTs && ( now - pitchOAStartTs < OA_MAX_PUSH_TIME_MS ) )
-    RC_ARRAY [ PITCH ] = ( userPitch * USER_OA_BLEND_PUSH ) + pitchOffset;
-  else if ( pitchOAStartTs && ( now - pitchOAStartTs < OA_MAX_PUSH_TIME_MS + OA_CLEAR_HOLD_MS ) )
-    RC_ARRAY [ PITCH ] = ( userPitch * USER_OA_BLEND_BRAKE ) + ( -lastPitchOA * OA_BRAKE_GAIN );
-  else {
-    pitchOAStartTs     = 0;
-    lastPitchOA        = 0;
-    RC_ARRAY [ PITCH ] = userPitch * USER_OA_BLEND_PUSH;
-  }
-
-  // Constrain the roll and pitch values within acceptable limits
-  RC_ARRAY [ ROLL ]  = constrain ( RC_ARRAY [ ROLL ], -500, 500 );
-  RC_ARRAY [ PITCH ] = constrain ( RC_ARRAY [ PITCH ], -500, 500 );
-
-  // Latch the override and keep it fresh against the watchdog. Pilot authority
-  // is 0 here because the pilot's stick is already folded into RC_ARRAY above
-  // (USER_OA_BLEND_PUSH / USER_OA_BLEND_BRAKE); letting mw.cpp cross-fade it in
-  // again would both double-count the pilot and let a full stick fade the
-  // obstacle push away, which is exactly when it is needed most.
-  userRCassert ( ROLL, 0.0f );
-  userRCassert ( PITCH, 0.0f );
+  oaCoreRun < OA_CORE_XRANGING > ( _enOA, _objectAoidDistance, isXLaserInit, XRanging, ledWrite );
 }

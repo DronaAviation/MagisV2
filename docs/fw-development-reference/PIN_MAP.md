@@ -59,9 +59,11 @@ Notes:
   `plutoInit ( )`, [XRanging.cpp](../../src/main/API-Src/XRanging.cpp) `xRangingInit ( )` ) holds every enabled
   laser in reset and moves them off 0x29 one at a time: the down-laser ( `XRanging.initAlt ( )` ) to **0x30**,
   the side lasers to **0x2A + n**. So after start-up **0x29-0x30** belong to the lasers, and a user I2C
-  device must not use them. The VL53L1X down-laser ( `LASER_TOF_L1x`, a build switch ) stays at 0x29, and
-  `initAlt` is refused in that build. The VL53L1X polls data-ready every 10 ms and, per sample, reads 17
-  bytes and writes 1 ( interrupt clear ): about 0.8 ms of blocking I2C per 51 ms. The VL53L0X side lasers
+  device must not use them. **VL53L1X lasers ( X1Ranging ) use the same addresses and the same XSHUT pins**
+  ( [X1Ranging.cpp](../../src/main/API-Src/X1Ranging.cpp) `x1RangingInit ( )`, `drivers/tof_manager_l1x` ); the family
+  is chosen at run time from the API user code calls, and only one family runs ( both used → no laser ). A VL53L1X
+  is polled for data-ready every 10 ms and, per sample, read for 17 bytes and written 1 ( interrupt clear ): about
+  0.8 ms of blocking I2C per 50 ms sample; the side lasers one per 10 ms, never in the same pass as the DOWN read. The VL53L0X side lasers
   are read one per 10 ms, when a sample is ready; the down-laser every 33 ms.
 - **XRanging pins.** XSHUT / LED: LEFT `GPIO_7` / `GPIO_6`, RIGHT `GPIO_9` / `GPIO_10`, FRONT `GPIO_16` /
   `GPIO_5`, BACK `GPIO_15` / `GPIO_8`, EXTERNAL `GPIO_14` / none. The down-laser's XSHUT is the pin given

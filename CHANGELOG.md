@@ -35,6 +35,14 @@ that removes all legacy STM32F10x support.
   - **Pins:** the down-laser's XSHUT pin is reserved after start-up ( no LED, `Peripheral_*`, ADC, PWM,
     RGB or UART2 use ). SPI2 ( `GPIO_5`-`8` ) is off whenever XRanging is used, and the on-board flash
     then reports size 0.
+- **X1Ranging ( VL53L1X )**: the same user API as XRanging for VL53L1X lasers: a down-laser by
+  `X1Ranging.initAlt ( pin )` / `initAlt ( )` and up to five side lasers, with `getRange`, `getStatus`, `isTriggered` and
+  object avoidance ( `drivers/tof_manager_l1x`, same pins and addresses as XRanging ). **No build switch:** the laser
+  family is chosen at run time from the API `plutoInit ( )` enables lasers through; using both APIs refuses both ( no
+  laser, baro ). The altitude fusion is compiled once per sensor and the start-up picks the copy, each instruction-
+  identical to the flown code. The two managers share one device RAM area. Flight-validated on PRIMUS_X2_v1
+  ( 1 down + 4 side VL53L1X: laser hover, 160 / 140 cm handovers, avoidance on all four sides, landing ).
+  Wiki: `docs/API/X1RANGING_API_WIKI.md`.
 - **BMS**: Pluto Fuel Gauge: the remaining charge is counted ( coulomb
   counting ), started at plug-in from the pack's resting voltage on a 21-point
   1S LiPo curve, and corrected near empty by the battery voltage compensated for
@@ -142,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.14.0 (API 1.7.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.0 (API 1.8.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -151,10 +159,12 @@ that removes all legacy STM32F10x support.
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
   3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
-  command fixes.
+  command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ).
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
+  API 1.8.0 adds `X1Ranging`; using XRanging and X1Ranging together refuses both; object avoidance releases an
+  out-of-range side after ~0.3 s ( both APIs ); the `initObjectAvoidance` unused-laser default is `DOWN`.
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -170,11 +180,11 @@ that removes all legacy STM32F10x support.
   the period is at least the budget + 5 ms. Each sample is fetched with one 17-byte result read and a
   1-byte interrupt clear, decoded with the ST API's own status mapping: 0.79 ms of blocking I2C per
   sample instead of 5.44 ms, which had stretched one 3.5 ms loop in about 15. Flash −2.1 KB.
-- **AltitudeHold ( laser )**: One laser-fusion code path for both sensors. It reads the sensor through
-  per-sensor accessors and constants. Since 3.12.0 the VL53L0X is switched on at run time
-  ( `XRanging.initAlt ( )`, see Added ); `LASER_TOF` is a build error, and `LASER_ALT` applies to the
-  VL53L1X ( `LASER_TOF_L1x` ) only. The shipped `target.h` keeps the VL53L1X switches off; a
-  VL53L1X + `LASER_ALT` build is about 115 KB / 18.4 KB.
+- **AltitudeHold ( laser )**: One laser-fusion body for both sensors, compiled once per sensor ( per-sensor
+  constants and accessors as traits; the VL53L1X return guard only in its copy ). `XRanging.initAlt ( )` or
+  `X1Ranging.initAlt ( )` turns it on at start-up and picks the copy ( 3.15.0; see Added ). `LASER_TOF`,
+  `LASER_ALT` and `LASER_TOF_L1x` are build errors. One image now drives either laser family: PRIMUS_X2_v1
+  121.0 KB / 20.5 KB ( +14.4 KB flash, +3.0 KB RAM over 3.14.0 ).
 - **AltitudeHold**: Throttle stick moves the altitude setpoint ( ArduPilot / DJI
   style ) instead of switching the controller to raw velocity control. The
   climb rate scales from 0 at the dead-zone edge to 40 cm/s up / 30 cm/s down at
@@ -226,6 +236,11 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Object avoidance ( XRanging and X1Ranging )**: a side laser that went out of range kept its last near
+  distance, so a removed obstacle stayed "seen" and the push / brake repeated until a valid far sample came. It
+  now counts as "no obstacle" after 3 out-of-range ticks ( ~0.3 s; a shorter dropout keeps the push, because the
+  brake always runs at full strength ). The first valid sample after a release is used as-is: before, it was
+  averaged against 0, so a wall at 2 m read 0.5 m and could fire one false push.
 - **Take-off ( user API )**: `Command_Arm ( )` followed by `Command_TakeOff ( )` skimmed the floor: on an armed
   drone the take-off set no height. It now climbs if it comes within 3 s of arming, or at the ARM-switch ground idle,
   which it releases first. Validated on PRIMUS_X2_v1 ( 100 cm target, hover 80-103 cm ).
@@ -394,6 +409,9 @@ that removes all legacy STM32F10x support.
 - **PlutoPilot**: Removed OLED and RGB initialization code (now handled by the
   new subsystems).
 - **Config**: Removed redundant SPDX identifiers and deprecated GPIO functions.
+- **Lasers**: the single-VL53L1X driver `drivers/ranging_vl53l1x` ( `LaserSensor_L1` / `XVision`, `ranging_init_L1`,
+  `getRange_L1` ) and the `LASER_TOF_L1x` / `LASER_ALT` build switches; replaced by X1Ranging ( see Added ). Every
+  build frees the 964 B the unused `XVision` object held.
 
 ### Documentation
 
@@ -404,6 +422,9 @@ that removes all legacy STM32F10x support.
 - New `docs/API/XRANGING_API_WIKI.md`. The pipeline docs ( Main_Initialization, Hardware_Bus_Pipeline,
   User_Space_API, Altitude_Hold_Estimator ), PIN_MAP and the dev-guide describe the single ToF
   pipeline, `initAlt` and the SPI2 release.
+- New `docs/API/X1RANGING_API_WIKI.md`; `XRANGING_API_WIKI.md` 1.8.0. The pipeline docs ( Main_Initialization,
+  Hardware_Bus_Pipeline, User_Space_API, Altitude_Hold_Estimator ), PIN_MAP, FLIGHT_INVARIANTS, HARDWARE_RESOURCES
+  and CLAUDE.md describe X1Ranging, the run-time laser family, the two fusion copies and the shared device area.
 - Updated README for the OLED Simple API, ELRS (USART1, acro/angle modes,
   battery telemetry), and Primus X2 info.
 - Converted the ELRS integration report from HTML to Markdown.

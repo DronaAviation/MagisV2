@@ -48,7 +48,7 @@ extern "C" {
  * override away. 1.0f means a fully deflected stick takes the channel back
  * completely; 0.0f means the pilot cannot fade the override at all, which is
  * what producers that already fold the pilot's input into RC_ARRAY themselves
- * (applyObjectAvoidance) ask for.                                           */
+ * (applyObjectAvoidance, x1RangingApplyObjectAvoidance) ask for.            */
 #define USER_RC_AUTHORITY_DEFAULT 1.0f
 
 /* Stick travel, either side of centre, at which the pilot has taken a channel
@@ -61,7 +61,8 @@ extern "C" {
 /* An override is dropped if it has not been re-asserted within this window.
  * The actual timeout is max ( this, 2 * userLoopFrequency ) so that
  * re-asserting once per plutoLoop() always keeps the override alive; the
- * floor also covers applyObjectAvoidance(), which re-asserts every 100 ms. */
+ * floor also covers applyObjectAvoidance() / x1RangingApplyObjectAvoidance(),
+ * which re-assert every 100 ms.                                             */
 #define USER_RC_HOLD_MIN_US       250000
 
 extern uint8_t resetCounter;
@@ -123,6 +124,19 @@ void resetUserRCflag ( void );
 void userRCassert ( uint8_t channel, float pilotAuthority );
 void userRCrelease ( uint8_t channel );
 
+// Laser family ( vl53l1x-xranging-api t15 ): which laser API user code asked for in plutoInit ( ).
+// rangingFamilyLatch ( ) fixes it once, right after plutoInit ( ) and before xRangingInit ( ); later
+// calls do nothing. Before the latch rangingFamily ( ) is RANGING_NONE. RANGING_BOTH ( XRanging and
+// X1Ranging both requested ) refuses both: no laser starts and altitude hold stays on the baro.
+typedef enum {
+  RANGING_NONE = 0,    // no laser requested
+  RANGING_VL53L0X,     // XRanging only
+  RANGING_VL53L1X,     // X1Ranging only
+  RANGING_BOTH         // both requested: both refused
+} rangingFamily_e;
+void rangingFamilyLatch ( void );
+rangingFamily_e rangingFamily ( void );
+
 void xRangingInit ( void );
 void applyObjectAvoidance ( );
 // Down-laser ( XRanging.initAlt ) state. xRangingAltLatch ( ) runs once at the bring-up, after
@@ -131,10 +145,21 @@ bool xRangingAltLatch ( void );
 int8_t xRangingAltXshut ( void );    // peripheral_gpio_pin_e, or -1 for no XSHUT wire
 // True once the latch gave this pin to the down-laser's XSHUT ( as a GPIO, or through its ADC /
 // PWM alias ). The public Peripheral_Init / Peripheral_Write then refuse it: any other drive of
-// that pin resets the altitude laser in flight.
+// that pin resets the altitude laser in flight. X1Ranging's down XSHUT counts too.
 bool xRangingGpioClaimed ( uint8_t gpioPin );
 bool xRangingAdcClaimed ( uint8_t adcPin );
 bool xRangingPwmClaimed ( uint8_t pwmPin );
+
+// X1Ranging ( VL53L1X, API-Src/X1Ranging.cpp ): the one bring-up, run once after plutoInit ( ) as
+// xRangingInit ( ); it starts lasers only when the family is RANGING_VL53L1X.
+void x1RangingInit ( void );
+bool x1RangingRequested ( void );     // user code asked X1Ranging for any laser ( DOWN included )
+int8_t x1RangingAltXshut ( void );    // X1Ranging's down XSHUT once latched ( peripheral_gpio_pin_e ), else -1
+void x1RangingApplyObjectAvoidance ( void );    // X1Ranging's applyObjectAvoidance ( ): the same core, the L1X lasers
+// XRanging's side-laser pin table and down-XSHUT pin rules, shared with X1Ranging ( API-Src/XRanging.cpp ).
+int8_t xRangingSideXshut ( uint8_t side );      // side = laser_e LEFT … EXTERNAL; peripheral_gpio_pin_e, -1 out of range
+int8_t xRangingSideLed ( uint8_t side );        // the side laser's indicator LED, -1 none
+bool xRangingAltPinConflict ( int8_t gpio );    // true if a down-laser XSHUT may not use this GPIO
 // XSHUT pins for the laser bring-up only: no claim check ( peripheral_gpio_pin_e ).
 void xshutPinInit ( uint8_t gpioPin );
 void xshutPinWrite ( uint8_t gpioPin, bool high );

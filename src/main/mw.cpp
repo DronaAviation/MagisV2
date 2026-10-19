@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Oct 2026                                          #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -22,6 +22,9 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-09-29	AJ	Critical battery while armed starts the LAND command      #
  #  2026-10-01	AJ	Confirmed critical only: auto-land, and mwArm ( ) refuses  #
  #  2026-10-16	AJ	Dev Mode off drops a take-off queued by user code         #
+ #  2026-10-19	AJ	VL53L1X polls via tof_manager_l1x ( X1Ranging )           #
+ #  2026-10-19	AJ	Object avoidance: X1Ranging's core in a VL53L1X build     #
+ #  2026-10-19	AJ	OA and laser polls by run-time laser family ( t15 )       #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -50,7 +53,7 @@ OD	Added CRSF battery telemetry update in main loop           #
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
 #include "drivers/tof_manager.h"
-#include "drivers/ranging_vl53l1x.h"
+#include "drivers/tof_manager_l1x.h"
 #include "sensors/sensors.h"
 #include "sensors/boardalignment.h"
 #include "sensors/compass.h"
@@ -530,7 +533,14 @@ void annexCode ( void ) {
   if ( gyro.temperature )
     gyro.temperature ( &telemTemperature1 );
 
-  applyObjectAvoidance ( );
+  // Object avoidance ( one shared core, API-Src/ObjectAvoidanceCore.h ) for the laser family latched
+  // after plutoInit ( ). NONE keeps XRanging's ( an enableOA with no lasers behaves as before ); BOTH: neither.
+  switch ( rangingFamily ( ) ) {
+    case RANGING_NONE:
+    case RANGING_VL53L0X: applyObjectAvoidance ( ); break;
+    case RANGING_VL53L1X: x1RangingApplyObjectAvoidance ( ); break;
+    case RANGING_BOTH: break;
+  }
 }
 
 void mwDisarm ( void ) {
@@ -839,14 +849,13 @@ void executePeriodicTasks ( void ) {
 
     case UPDATE_LASER_TOF_TASK:
 
-      tofManagerPollDown ( );     // returns at once unless XRanging.initAlt brought the down-laser up
+      // Both families, unconditionally: only the latched family's lasers are up, and each poll returns at once
+      // when its lasers are not running.
+      tofManagerPollDown ( );     // VL53L0X: returns at once unless XRanging.initAlt brought the down-laser up
       tofManagerPollSides ( );    // one side laser at most, only when it has a sample ready
-
-#ifdef LASER_TOF_L1x
-
-      getRange_L1 ( );
-
-#endif
+      // VL53L1X ( X1Ranging ). This order: PollSides skips a pass in which PollDown used the bus.
+      tofL1xPollDown ( );     // returns at once unless X1Ranging.initAlt brought the down-laser up
+      tofL1xPollSides ( );    // one side laser at most, only when it has a result ready
 
       break;
   }

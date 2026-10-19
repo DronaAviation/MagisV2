@@ -1,0 +1,148 @@
+// Do not remove the include below
+#include "PlutoPilot.h"
+
+// ============================================================================
+// vl53l1x-xranging-api task 7: ONE test for X1Ranging ( VL53L1X ) altitude hold and object avoidance.
+// TEMPORARY TEST FILE: restore the template PlutoPilot.cpp before committing.
+//
+// Build: the normal build; X1Ranging is chosen by calling it.
+// X1Ranging.initAlt turns the VL53L1X fusion copy on ( fu:1, task 17 ): fly the ALT_HOLD laser tests.
+// Hardware: down VL53L1X with XSHUT on GPIO_5; side VL53L1X on the stock pins
+//           LEFT GPIO_7, RIGHT GPIO_9, FRONT GPIO_16, BACK GPIO_15.
+// Fly with the app sticks in ALT_HOLD. Avoidance acts only in Developer Mode: switching Dev Mode off
+// ( or disarming ) stops it. Procedure and pass criteria: TESTING.md §2 in the topic folder.
+//
+// Log line ( one $D frame + newline: ~112 B per 100 ms tick, 123 B worst case ):
+//   t    millis ( ), ms              n    plutoLoop tick count ( steps by 2 across a lost record )
+//   D/L/R/F/B  X1Ranging.getRange ( ), mm ( -100 no valid sample, -1 not enabled )
+//   S    getStatus ( ) of D L R F B, one digit each: 0 not enabled, 1 OK, 2 boot failed, 3 I2C error,
+//        4 out of range
+//   src  altitude source: 1 laser, 0 baro, 2 holding on the baro after an object step
+//   alt  estimated altitude, cm      fu   laser fusion latched on ( initAlt accepted )
+//   a    armed                       r/p  avoidance roll / pitch override ( RC_ARRAY, -500..500 )
+// A line "START altInit:<0|1>" marks each onLoopStart ( ) ( a Developer Mode restart ).
+// ============================================================================
+
+#include "drivers/tof_manager_l1x.h"    // tofL1xEntry ( ): failedStep / lastError on the START line ( log-4 diagnosis )
+
+extern "C" uint8_t altHoldSource ( void );    // flight/altitudehold.h
+extern "C" bool altLaserFusion ( void );      // flight/altitudehold.h
+extern "C" int32_t RC_ARRAY [ 4 ];            // API/API-Utils.h: user RC overrides, [ 0 ] roll, [ 1 ] pitch
+
+#define OA_DISTANCE_CM 50    // a side laser closer than this pushes the drone away
+
+static bool altInitAccepted = false;
+static bool restartPending  = false;
+static uint16_t tick        = 0;
+
+// One log line, sent as a single Monitor_Println frame ( static: no large array on the stack ).
+static char line [ 128 ];
+static uint8_t lineLen = 0;
+
+static void lineChar ( char c ) {
+  if ( lineLen < sizeof ( line ) - 1 ) line [ lineLen++ ] = c;
+}
+
+static void lineText ( const char *s ) {
+  while ( *s ) lineChar ( *s++ );
+}
+
+static void lineInt ( const char *tag, int32_t v ) {
+  char digits [ 11 ];
+  uint8_t k   = 0;
+  uint32_t u  = ( v < 0 ) ? ( uint32_t ) ( -( v + 1 ) ) + 1u : ( uint32_t ) v;
+  lineText ( tag );
+  if ( v < 0 ) lineChar ( '-' );
+  do {
+    digits [ k++ ] = ( char ) ( '0' + ( u % 10u ) );
+    u /= 10u;
+  } while ( u != 0u && k < sizeof ( digits ) );
+  while ( k > 0 ) lineChar ( digits [ --k ] );
+}
+
+static void lineStatus ( void ) {
+  static const laser_e order [ 5 ] = { DOWN, LEFT, RIGHT, FRONT, BACK };
+  lineText ( " S:" );
+  for ( uint8_t i = 0; i < 5; i++ ) lineChar ( ( char ) ( '0' + ( int ) X1Ranging.getStatus ( order [ i ] ) ) );
+}
+
+/**
+ * Configures Pluto's receiver mode.
+ * AUX channel configurations for ELRS:
+ * ARM mode      : Rx_AUX1, range 1300 to 2100 (2-pos switch)
+ * ANGLE mode    : Rx_AUX2, range 1300 to 2100 (3-pos switch: mid+high = ANGLE, low = ACRO)
+ * MAG mode      : Rx_AUX3, range 1500 to 2100
+ * DEV mode      : Rx_AUX4, range 1500 to 2100
+ * ALT HOLD / THROTTLE mode : Rx_AUX5, range 1500 to 2100
+ *                            (2-pos switch: low = THROTTLE mode, high = ALT HOLD mode)
+ */
+void plutoRxConfig ( void ) {
+  // Receiver mode: Uncomment one line matching your setup.
+  Receiver_Mode ( Rx_ESP );    // Onboard ESP
+  // Receiver_Mode ( Rx_CAM );    // WiFi CAMERA
+  // Receiver_Mode ( Rx_PPM );    // PPM based
+  // Receiver_Mode ( Rx_ELRS );      // ExpressLRS (CRSF) on USART1
+}
+
+// The setup function is called once at Pluto's hardware startup
+void plutoInit ( void ) {
+  // Down VL53L1X ( XSHUT on GPIO_5 ): laser altitude below 160 cm, baro above it ( back below 140 cm ).
+  altInitAccepted = X1Ranging.initAlt ( GPIO_5 );
+  // Four side VL53L1X for object avoidance; each one also gets its XSHUT from the stock pin table.
+  X1Ranging.initObjectAvoidance ( OA_DISTANCE_CM, LEFT, RIGHT, FRONT, BACK );
+}
+
+// The function is called once before plutoLoop when you activate Developer Mode
+void onLoopStart ( void ) {
+  X1Ranging.enableOA ( );
+  restartPending = true;
+}
+
+// The loop function is called in an endless loop
+void plutoLoop ( void ) {
+  if ( restartPending ) {    // the restart marker gets its own tick
+    restartPending = false;
+    // fs: start-up step that failed per laser ( D L R F B; tofL1xStep_e: 0 none, 1 bus busy at 0x29, 2 boot wait,
+    // 3 model id, 4 set address, 5-10 init / config, 11 start ranging ), le: the VL53L1 error code of that step.
+    static const tofId_e ids [ 5 ] = { TOF_DOWN, TOF_LEFT, TOF_RIGHT, TOF_FRONT, TOF_BACK };
+    lineLen = 0;
+    lineInt ( "START altInit:", altInitAccepted ? 1 : 0 );
+    lineText ( " fs:" );
+    for ( uint8_t i = 0; i < 5; i++ ) {
+      const tofEntry_t *e = tofL1xEntry ( ids [ i ] );
+      lineInt ( i ? "," : "", e ? e->failedStep : 0 );
+    }
+    lineText ( " le:" );
+    for ( uint8_t i = 0; i < 5; i++ ) {
+      const tofEntry_t *e = tofL1xEntry ( ids [ i ] );
+      lineInt ( i ? "," : "", e ? e->lastError : 0 );
+    }
+    line [ lineLen ] = '\0';
+    Monitor_Println ( line );
+    return;
+  }
+
+  tick++;
+  lineLen = 0;
+  lineInt ( "t:", ( int32_t ) millis ( ) );
+  lineInt ( " n:", tick );
+  lineInt ( " D:", X1Ranging.getRange ( DOWN ) );
+  lineInt ( " L:", X1Ranging.getRange ( LEFT ) );
+  lineInt ( " R:", X1Ranging.getRange ( RIGHT ) );
+  lineInt ( " F:", X1Ranging.getRange ( FRONT ) );
+  lineInt ( " B:", X1Ranging.getRange ( BACK ) );
+  lineStatus ( );
+  lineInt ( " src:", altHoldSource ( ) );
+  lineInt ( " alt:", Estimate_Get ( Position, Z ) );
+  lineInt ( " fu:", altLaserFusion ( ) ? 1 : 0 );
+  lineInt ( " a:", FlightStatus_Check ( FS_ARMED ) ? 1 : 0 );
+  lineInt ( " r:", RC_ARRAY [ 0 ] );
+  lineInt ( " p:", RC_ARRAY [ 1 ] );
+  line [ lineLen ] = '\0';
+  Monitor_Println ( line );
+}
+
+// The function is called once after plutoLoop when you deactivate Developer Mode
+void onLoopFinish ( void ) {
+  X1Ranging.disableOA ( );    // no avoidance push outside Developer Mode
+}

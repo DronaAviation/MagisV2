@@ -12,10 +12,15 @@
  #         device struct, status and results ( no shared latch, no shared      #
  #         result globals ), so altitude hold only ever sees DOWN's samples.   #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
+ #  Modified By: AJ                                                            #
+ #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
  #  2026-10-14	AJ	Created ( tof-single-pipeline task 2 )                     #
+ #  2026-10-19	AJ	Device table shared with the other laser family            #
+ #            	  	( vl53l1x-xranging-api t16 )                               #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -29,6 +34,8 @@
 
 #include "drivers/ranging_vl53l0x.h"
 #include "drivers/tof_manager.h"
+#include "drivers/tof_dev_area.h"    // tofDevArea.l0x: the device table, shared with the VL53L1X manager
+#include "API/API-Utils.h"           // rangingFamily ( )
 #include "API/Scheduler-Timer.h"
 
 #define TOF_DOWN_PERIOD_MS 33       // DOWN start + read period ( getRange ( ) )
@@ -41,7 +48,8 @@ static const vl53l0xConfig_t tofDownConfig = { VL53L0X_DEVICEMODE_SINGLE_RANGING
 // Side lasers keep the former LaserSensor::init ( ) configuration, plus the sample-ready interrupt for the paced poll.
 static const vl53l0xConfig_t tofSideConfig = { VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, 20000, 18, 14, true };
 
-static VL53L0X_Dev_t tofDev [ TOF_COUNT ];
+// The device structs live in tofDevArea.l0x ( drivers/tof_dev_area.h ), shared with the VL53L1X manager: touched
+// only by a bring-up in the VL53L0X family, and afterwards only for an entry whose status that bring-up set OK.
 static tofEntry_t tofTable [ TOF_COUNT ];
 
 static Interval downPoll;
@@ -77,9 +85,10 @@ const tofEntry_t *tofManagerEntry ( tofId_e id ) {
 
 bool tofManagerBringUp ( tofId_e id, uint8_t fromAddr7, uint8_t toAddr7 ) {
   if ( ! tofIdValid ( id ) ) return false;
+  if ( rangingFamily ( ) != RANGING_VL53L0X ) return false;    // tofDevArea is the VL53L1X table in that family
 
   tofEntry_t *e     = &tofTable [ id ];
-  VL53L0X_Dev_t *dev = &tofDev [ id ];
+  VL53L0X_Dev_t *dev = &tofDevArea.l0x [ id ];
   uint8_t step      = VL53L0X_STEP_NONE;
 
   dev->I2cDevAddr      = fromAddr7;
@@ -119,7 +128,7 @@ void tofManagerStartSides ( void ) {
   for ( uint8_t i = ( uint8_t ) TOF_LEFT; i < ( uint8_t ) TOF_DOWN; i++ ) {
     tofEntry_t *e = &tofTable [ i ];
     if ( e->status != TOF_STATUS_OK ) continue;
-    const VL53L0X_Error status = VL53L0X_StartMeasurement ( &tofDev [ i ] );    // continuous, back-to-back
+    const VL53L0X_Error status = VL53L0X_StartMeasurement ( &tofDevArea.l0x [ i ] );    // continuous, back-to-back
     if ( status != VL53L0X_ERROR_NONE ) {
       e->status     = TOF_STATUS_BOOT_FAILED;
       e->failedStep = VL53L0X_STEP_START_RANGING;
@@ -141,7 +150,7 @@ void tofManagerPollDown ( void ) {
   if ( ! downPoll.set ( TOF_DOWN_PERIOD_MS, true ) ) return;
 
   VL53L0X_RangingMeasurementData_t data;
-  VL53L0X_Error status = vl53l0xStartAndRead ( &tofDev [ TOF_DOWN ], &data );
+  VL53L0X_Error status = vl53l0xStartAndRead ( &tofDevArea.l0x [ TOF_DOWN ], &data );
   if ( status != VL53L0X_ERROR_NONE ) {
     e->status    = TOF_STATUS_I2C_ERROR;    // never retried in flight; altitude hold sees out of range
     e->lastError = status;
@@ -189,7 +198,7 @@ void tofManagerPollSides ( void ) {
   tofEntry_t *e = &tofTable [ id ];
   VL53L0X_RangingMeasurementData_t data;
   bool ready           = false;
-  VL53L0X_Error status = vl53l0xReadIfReady ( &tofDev [ id ], &data, &ready );
+  VL53L0X_Error status = vl53l0xReadIfReady ( &tofDevArea.l0x [ id ], &data, &ready );
   if ( status != VL53L0X_ERROR_NONE ) {
     e->status    = TOF_STATUS_I2C_ERROR;    // this laser only; never retried in flight
     e->lastError = status;

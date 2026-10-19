@@ -1,11 +1,11 @@
 {
   "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1792140150.2974527,
-    "hash": "f20fbb6a69b6610c64bca0b776ee708e"
+    "mtime": 1792392627.0558424,
+    "hash": "feb7984ba9fb19091484188327ab225d"
   },
   "F:\\MagisV2\\PlutoPilot.h": {
-    "mtime": 1785830612.0,
-    "hash": "5deb60856e3038dc0baaed7a07abff75"
+    "mtime": 1792149717.863491,
+    "hash": "adf3dd3bcdabac6a85d6a013c8b71297"
   },
   "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_common_tables.h": {
     "mtime": 1777868741.0,
@@ -612,12 +612,12 @@
     "hash": "33025783bd1a763c3f73ea5842e060d0"
   },
   "F:\\MagisV2\\src\\main\\main.cpp": {
-    "mtime": 1792039156.9238794,
-    "hash": "97bb1338164ddc708ad34c60f205f8a1"
+    "mtime": 1792385856.2203438,
+    "hash": "abd232c1f80994d5916dbe78759cd0a1"
   },
   "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1792139257.1567066,
-    "hash": "88c707a26612962525aabebc3be84b18"
+    "mtime": 1792385856.2203438,
+    "hash": "2d7c8cff3084a236359fee7eaff70646"
   },
   "F:\\MagisV2\\src\\main\\mw.h": {
     "mtime": 1777868741.0,
@@ -636,8 +636,8 @@
     "hash": "ed82759c9f6a13e40298243a982e8645"
   },
   "F:\\MagisV2\\src\\main\\API\\API-Utils.h": {
-    "mtime": 1792057198.5975182,
-    "hash": "045bcd87f398b88015407adb11d2ef94"
+    "mtime": 1792385667.4456317,
+    "hash": "54d86cdadf58b0057f3e169ad520bc23"
   },
   "F:\\MagisV2\\src\\main\\API\\BMS.h": {
     "mtime": 1790653748.8783174,
@@ -699,9 +699,13 @@
     "mtime": 1777868741.0,
     "hash": "6658a2e1041dbe644dbc34a7a4dab093"
   },
+  "F:\\MagisV2\\src\\main\\API\\X1Ranging.h": {
+    "mtime": 1792385785.1153207,
+    "hash": "c91b3a5b633303191b626c5b58c9918e"
+  },
   "F:\\MagisV2\\src\\main\\API\\XRanging.h": {
-    "mtime": 1792039379.7556581,
-    "hash": "0060a067558d550b7fd9b9a4230305eb"
+    "mtime": 1792385808.9438145,
+    "hash": "ce6f2869fbaa3d261bc8c78bf902a4fd"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\API-Utils.cpp": {
     "mtime": 1792057197.5406237,
@@ -746,6 +750,10 @@
   "F:\\MagisV2\\src\\main\\API-Src\\Motor.cpp": {
     "mtime": 1785830612.0,
     "hash": "030350a7dc338accfa593f401c810a40"
+  },
+  "F:\\MagisV2\\src\\main\\API-Src\\ObjectAvoidanceCore.h": {
+    "mtime": 1792383794.9659674,
+    "hash": "974ee82fe92e429b3c0cf0738674a1c7"
   },
   "F:\\MagisV2\\src\\main\\API-Src\\Oled.cpp": {
     "mtime": 1785830612.0,
@@ -795,9 +803,13 @@
     "mtime": 1777868741.0,
     "hash": "f05972967d282c553bcb7fb340af9c58"
   },
+  "F:\\MagisV2\\src\\main\\API-Src\\X1Ranging.cpp": {
+    "mtime": 1792387192.3143432,
+    "hash": "830c2343ebe0c27d75657d0edb0c9032"
+  },
   "F:\\MagisV2\\src\\main\\API-Src\\XRanging.cpp": {
-    "mtime": 1792039156.919005,
-    "hash": "8e08cecd5a31a2969af34ab45fd71f56"
+    "mtime": 1792387205.1509867,
+    "hash": "9e76360b98e21b989186ba0d93e8103b"
   },
   "F:\\MagisV2\\src\\main\\blackbox\\blackbox.cpp": {
     "mtime": 1785830612.0,
@@ -888,8 +900,8 @@
     "hash": "c25f2becea614dc7899f117d25064264"
   },
   "F:\\MagisV2\\src\\main\\common\\utils.h": {
-    "mtime": 1777868741.0,
-    "hash": "229ab6c39489bc9c46edeb1c7e0b05b8"
+    "mtime": 1792150285.702679,
+    "hash": "0627a1ce5331a71d00898cc41f389403"
   },
   "F:\\MagisV2\\src\\main\\config\\config.cpp": {
     "mtime": 1791949827.6484334,
@@ -1135,14 +1147,6 @@
     "mtime": 1791970840.9649372,
     "hash": "1ec0cf549c077b910b4739e6f2ec062c"
   },
-  "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l1x.cpp": {
-    "mtime": 1790240523.7804532,
-    "hash": "29132901d85580a493224522d51095d5"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l1x.h": {
-    "mtime": 1790240523.7804532,
-    "hash": "1aaf9c479325732a8da1fc2557616361"
-  },
   "F:\\MagisV2\\src\\main\\drivers\\sc18is602b.cpp": {
     "mtime": 1777868741.0,
     "hash": "cb650e69a93f2fc1ec3ec4799e07798b"
@@ -1239,13 +1243,29 @@
     "mtime": 1777868741.0,
     "hash": "b0c5ec41fa69d760c108e43aae01d63e"
   },
+  "F:\\MagisV2\\src\\main\\drivers\\tof_dev_area.cpp": {
+    "mtime": 1792388915.1609945,
+    "hash": "e2264c4385feb8e3c96ba9b990faef8b"
+  },
+  "F:\\MagisV2\\src\\main\\drivers\\tof_dev_area.h": {
+    "mtime": 1792388882.3058121,
+    "hash": "0c5ecf9668f2a8b98658887a15c944e7"
+  },
   "F:\\MagisV2\\src\\main\\drivers\\tof_manager.cpp": {
-    "mtime": 1792039156.8912842,
-    "hash": "37cfa10d56fe46e5d4933369698232d7"
+    "mtime": 1792388456.4768925,
+    "hash": "6dbcf227372852257de0e300f8d21904"
   },
   "F:\\MagisV2\\src\\main\\drivers\\tof_manager.h": {
     "mtime": 1792039156.8982198,
     "hash": "ea5b0a31ffb686a2fd15c50258630dcb"
+  },
+  "F:\\MagisV2\\src\\main\\drivers\\tof_manager_l1x.cpp": {
+    "mtime": 1792395431.3046527,
+    "hash": "7e1841e1555aea1a6f17b4ede4b96642"
+  },
+  "F:\\MagisV2\\src\\main\\drivers\\tof_manager_l1x.h": {
+    "mtime": 1792395432.3530738,
+    "hash": "2dffeff7ba16ddfc83f6dc6cd1e36e33"
   },
   "F:\\MagisV2\\src\\main\\flight\\acrobats.cpp": {
     "mtime": 1792137117.2246516,
@@ -1256,12 +1276,12 @@
     "hash": "5ad5fab4c6288f5d324d83f90d6eb6e1"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
-    "mtime": 1792140140.1385767,
-    "hash": "9806a8c6e724d6432937324aad2d556a"
+    "mtime": 1792387907.5906458,
+    "hash": "558dc2e0d238efb56e1040b003a9b69b"
   },
   "F:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
-    "mtime": 1792127523.0243616,
-    "hash": "14941f2b884b044b49a665329ffb7f07"
+    "mtime": 1792387177.5955856,
+    "hash": "c8fa764586f23858012901825e4ba15c"
   },
   "F:\\MagisV2\\src\\main\\flight\\failsafe.cpp": {
     "mtime": 1791890829.6769772,
@@ -1724,12 +1744,12 @@
     "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
   },
   "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1792061625.950654,
-    "hash": "58d3dae4f215a7b8295e48874b9de394"
+    "mtime": 1792140744.5948062,
+    "hash": "a2fe696990199a391c14ffc96c96b385"
   },
   "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1792061640.7712972,
-    "hash": "b5237ec72591421c286c7cd13dadd875"
+    "mtime": 1792393867.19507,
+    "hash": "198d5f0f5406892fa01779fdcfde4ab3"
   },
   "F:\\MagisV2\\README.md": {
     "mtime": 1785830612.0,
@@ -1742,21 +1762,5 @@
   "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\Release_Notes.html": {
     "mtime": 1777868741.0,
     "hash": "c2f799c31fc1fb3bf7874a4a7226fe92"
-  },
-  "F:\\MagisV2\\spec-compliance\\requirements\\01-REQ-17.md": {
-    "mtime": 1792134553.7414465,
-    "hash": "ccf7d81fd755f2f5df135464d1392951"
-  },
-  "F:\\MagisV2\\spec-compliance\\requirements\\04-REQ-36.md": {
-    "mtime": 1792134549.4511333,
-    "hash": "e76c369e2871ca38dfcb1ec8ab33aa42"
-  },
-  "F:\\MagisV2\\spec-compliance\\requirements\\06-REQ-02-3.md": {
-    "mtime": 1792134537.6892545,
-    "hash": "7b90472dac7dfddbfdccdb9addf0829f"
-  },
-  "F:\\MagisV2\\spec-compliance\\requirements\\08-REQ-04-3.md": {
-    "mtime": 1792134500.9962652,
-    "hash": "23f09f30e25f783499eafd9229006e11"
   }
 }

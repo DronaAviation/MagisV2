@@ -31,11 +31,12 @@ I2C API bus. It also carries the lasers.
     chips mixed up.
   - **Polling:** from `UPDATE_LASER_TOF_TASK` in `mw.cpp`. The down-laser is read every 33 ms; one side laser per
     10 ms, only when it has a sample ready. `XRanging` getters and object avoidance read the cache.
-  - **Errors:** one bus error takes that laser out until power-off, and the others carry on.
-- **VL53L1X down-laser:** `LASER_TOF_L1x`, `drivers/ranging_vl53l1x.cpp`, a build switch at 0x29. It is the
-  only down-laser in that build ( `initAlt` is refused ).
+  - **Errors:** one bus error takes that laser out until the next restart, and the others carry on.
+- **VL53L1X lasers:** `X1Ranging` over `drivers/tof_manager_l1x`, the same pins and addresses as the VL53L0X
+  ( DOWN 0x30, sides 0x2A + n ), chosen at run time ( `rangingFamilyLatch ( )` ); no build switch. Only one family
+  runs per boot; both managers' device structs share `drivers/tof_dev_area` ( one RAM area, 0x15d8 B ).
 
-No DMA is involved. Whenever XRanging is used, SPI2 ( PB12-15 = `GPIO_8`-`5`, the side lasers' XSHUT / LED
+No DMA is involved. Whenever the latched laser family ( XRanging or X1Ranging ) starts lasers, SPI2 ( PB12-15 = `GPIO_8`-`5`, the side lasers' XSHUT / LED
 pins ) is switched off at start-up and the M25P16 flash reports size 0 ( `PIN_MAP.md` §3 ).
 
 Bus cost of the VL53L1X: a data-ready poll every 10 ms, and per sample ( every 51-53 ms ) one 17-byte

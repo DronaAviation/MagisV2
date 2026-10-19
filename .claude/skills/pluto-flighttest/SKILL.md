@@ -131,9 +131,11 @@ Developer Mode with a live RC link.
   misattributed "unexplained drift".
 - **Firmware internals** are declared `extern "C"` at the top of `PlutoPilot.cpp`
   rather than including internal headers. `platform.h` is included so target
-  defines (e.g. `LASER_TOF`) reach `#ifdef`s.
-- **Ground truth:** `#define LASER_TOF` in the working target's `target.h` logs the
-  VL53L0X as `ToF` without affecting control. `LASER_ALT` puts the laser *in* the
-  loop and must stay off when testing the barometer path.
+  defines (e.g. `BARO`) reach `#ifdef`s.
+- **Ground truth:** `initAlt` puts the down-laser *in* the loop ( laser fusion ), so it
+  must stay off when testing the barometer path. For a height reference without
+  affecting control, point a side laser down ( e.g. `XRanging.init ( EXTERNAL )` or
+  `X1Ranging.init ( EXTERNAL )` ) and log `getRange ( EXTERNAL )`: side lasers never
+  reach the estimator. `LASER_TOF`, `LASER_ALT` and `LASER_TOF_L1x` are build errors.
 - **All of this is temporary.** Note in the topic README that it must be removed
   before release; `pluto-commit` checks for it.

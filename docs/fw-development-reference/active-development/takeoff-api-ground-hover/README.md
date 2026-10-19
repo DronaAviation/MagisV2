@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 16 Oct 2026, with the fix topic [takeoff-land-command-fix](../takeoff-land-command-fix/README.md) ) |
+| **Status** | **Closed** in `5e26823` ( 16 Oct 2026, with the fix topic [takeoff-land-command-fix](../takeoff-land-command-fix/README.md) ) |
 | **Mode** | `check` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |

@@ -11,7 +11,7 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Oct 2026                                          #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -20,6 +20,10 @@
  #  24-09-2026	AJ	VL53L1X runs the shared laser fusion; guarded return.        #
  #  24-09-2026	AJ	Laser fusion reads the sensor via per-sensor accessors.      #
  #  16-10-2026	AJ	Take-off idle release and stick-centred test.                #
+ #  19-10-2026	AJ	VL53L1X accessors read tof_manager_l1x; LASER_ALT is #error.  #
+ #  19-10-2026	AJ	One fusion switch for both lasers: altLaserFusionLatch ( ).  #
+ #  19-10-2026	AJ	LASER_TOF_L1x is #error ( vl53l1x-xranging-api t15 ).        #
+ #  19-10-2026	AJ	Two compiled fusion copies ( VL53L0X / VL53L1X ), picked at boot ( t17 ). #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -38,7 +42,7 @@
 #include "drivers/light_led.h"
 #include "drivers/gpio.h"
 #include "drivers/tof_manager.h"
-#include "drivers/ranging_vl53l1x.h"
+#include "drivers/tof_manager_l1x.h"
 
 #include "sensors/sensors.h"
 #include "sensors/acceleration.h"
@@ -104,16 +108,20 @@ static float buff [ 15 ];
 static int16_t head      = 0;
 static int16_t rear      = -1;
 static int16_t itemCount = 0;
-// Altitude-laser fusion ( tof-single-pipeline ). The VL53L0X down-laser is switched on at run time
-// by XRanging.initAlt ( ) in plutoInit ( ) and latched once at boot ( altLaserFusionLatch ( ) ); the
-// VL53L1X keeps its build switch ( LASER_TOF_L1x + LASER_ALT ). Only one down-laser can be fitted,
-// so initAlt is refused in a VL53L1X build. The fusion below is always compiled; with the flag off
-// every path takes the branch the baro-only build took.
+// Altitude-laser fusion ( tof-single-pipeline, vl53l1x-xranging-api ). The down-laser is switched on at run
+// time by initAlt ( ) in plutoInit ( ): XRanging.initAlt ( ) for the VL53L0X, X1Ranging.initAlt ( ) for the
+// VL53L1X ( no build flag: the API called picks the family ), and latched once at boot ( altLaserFusionLatch ( ) ).
+// Only one down-laser can be fitted. The fusion below is always compiled, once per laser family ( traits
+// AltTofL0x / AltTofL1x ), and the latch picks the copy; with the fusion off every path takes the branch the
+// baro-only build took.
 #if defined( LASER_TOF )
   #error "LASER_TOF is replaced by XRanging.initAlt ( ) in plutoInit ( ): remove the define"
 #endif
-#if defined( LASER_ALT ) && ! defined( LASER_TOF_L1x )
-  #error "LASER_ALT now applies to the VL53L1X only ( with LASER_TOF_L1x ); the VL53L0X uses XRanging.initAlt ( )"
+#if defined( LASER_ALT )
+  #error "LASER_ALT is replaced by initAlt ( ) in plutoInit ( ): X1Ranging.initAlt ( ) for the VL53L1X, XRanging.initAlt ( ) for the VL53L0X: remove the define"
+#endif
+#if defined( LASER_TOF_L1x )
+  #error "LASER_TOF_L1x is removed: X1Ranging is chosen at run time by calling it in plutoInit ( ): remove the define"
 #endif
 // Complementary-filter time constant, s. One value for the laser and the baro path, so a
 // source change does not also change the filter gains ( tof-althold-fusion task 3 ).
@@ -122,16 +130,16 @@ static int16_t itemCount = 0;
   #define ALT_TOF_MAX_TILT_DECIDEG 250
 // Laser <-> baro handover ( tof-althold-fusion task 5 ): the laser hands over to the baro above
 // ALT_TOF_HANDOVER_UP_CM and takes back below ALT_TOF_HANDOVER_DOWN_CM; the band stops it
-// chattering. The edges follow the sensor's reach: per-sensor block below.
+// chattering. The edges follow the sensor's reach: per-sensor traits below.
 // No good laser sample for ALT_TOF_DROPOUT_MS ( dropout, tilt, sensor silent ) hands over to the
 // baro. Shorter out-of-range or tilt gaps coast on the accelerometer; a silent sensor keeps its last
-// reading, which keeps correcting until the timeout. Set from the sample period: per-sensor block.
+// reading, which keeps correcting until the timeout. Set from the sample period: per-sensor traits.
 // ALT_TOF_RETURN_SAMPLES consecutive good samples before the laser takes back over: below the lower
 // edge after a climb above the band, below the upper edge after a dropout or tilt handover ( a hover
-// between the edges must not stay on the baro for good ). A sample count: per-sensor block.
+// between the edges must not stay on the baro for good ). A sample count: per-sensor traits.
 // The laser reading is advanced by VelocityZ times ALT_TOF_IIR_LAG_S ( the lag of the driver's range
 // filter ) for the baro offset and the return shift ( the object test advances the estimate
-// instead ), so speed is not baked into either. Per-sensor block.
+// instead ), so speed is not baked into either. Per-sensor traits.
 // Object under the craft ( task 6 ). A raw laser sample this far from the estimate is a change of
 // surface ( hand, box, table edge ), not motion: the estimate holds on the baro for the hold-off,
 // then re-bases to the new surface once the laser is steady ( ALT_TOF_STEADY_SAMPLES, per sensor ),
@@ -165,96 +173,109 @@ static int16_t itemCount = 0;
 // Time constant of the baro-minus-laser offset average kept while on the laser, s.
   #define ALT_BARO_OFFSET_TAU_S    2.0f
 
-// Per-sensor constants and driver accessors ( vl53l1x-althold-parity task 5 ). The laser fusion in
-// checkReading ( ) reads the sensor only through these, so one body can serve either laser:
+// Per-sensor constants and driver accessors ( vl53l1x-althold-parity task 5, vl53l1x-xranging-api task 17 ). The
+// laser fusion reads the sensor only through a traits struct, so one body serves either laser. It is compiled
+// once per laser ( checkReadingFor<AltTofL0x> ( ), checkReadingFor<AltTofL1x> ( ) ), and checkReading ( ) runs
+// the copy of the family altLaserFusionLatch ( ) recorded at boot: no build flag picks the sensor.
 //   tofNew ( )         a new result is waiting              tofClearNew ( )  mark it consumed
 //   tofOutOfRange ( )  no valid reading ( driver's test )   tofReseed ( )    restart the range filter
-//   tofFiltCm ( )      filtered range, cm, before tilt      tofRawCm ( )     unfiltered range, cm
-// Constants that are sample counts, or follow the sample period or the driver filter, live here.
-  #if defined( LASER_TOF_L1x )
-// VL53L1X: a result every L1X_SAMPLE_PERIOD_MS ( 50 ms ) and no driver filter, so NewSensorRange_L1
-// ( last valid range, mm ) is both the filtered and the raw value, the lag is 0 and reseed does
-// nothing. isOutofRange_L1 ( ) is also true on a latched error, a result older than 3 periods
-// + 10 ms, or a range under the driver's L1X_MIN_VALID_MM ( a covered window reads 0-10 mm as
-// valid ). Comments in the shared body that mention the driver IIR apply to the L0X only.
-    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // Medium mode on the flying floor: 100 % valid to 180 cm ( log-5 )
-    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
-    // 2 missed samples at the measured 51-53 ms period, plus ~14 ms poll quantisation and the 10 ms estimator
-    // tick ( the L0X 120 ms is 3 x 33 + 21 )
-    #define ALT_TOF_DROPOUT_MS       ( 3 * L1X_SAMPLE_PERIOD_MS + 35 )                              // 185 ms
-    #define ALT_TOF_RETURN_SAMPLES   3
-    #define ALT_TOF_IIR_LAG_S        0.0f
-    #define ALT_TOF_STEADY_SAMPLES   ( 500 / L1X_SAMPLE_PERIOD_MS )                                 // 10, 0.5 s
-    #define ALT_TOF_RING_LEN         ( ( 660 + L1X_SAMPLE_PERIOD_MS - 1 ) / L1X_SAMPLE_PERIOD_MS )  // 14, >= 0.66 s
-    #define ALT_TOF_OFFSET_DT_MAX_S  ( 1.5f * ( float ) L1X_SAMPLE_PERIOD_MS * 0.001f )              // 1.5 periods, s ( L0X 0.05 s ~ 1.5 x 33 ms )
-// Baro -> laser return guard ( L1x only ). The object tests all need the laser as the source, so on
-// the baro nothing checks what the laser sees: ceiling-fan blades read a valid 56 cm for 4 samples
-// with the craft at 250 cm ( log-5 ). While armed and not in the pre-take-off ground idle ( in flight
-// and landing ), a return sample counts only if the laser is within ALT_TOF_RETURN_AGREE_CM of the
-// baro-path estimate _position_z. That estimate
-// already follows Baro_Height - baro_offset ( the frozen offset carries the constant +15..22 cm baro
-// vs laser offset ), so the difference is the return frame shift itself: the baro drift since the
-// handover plus any surface change. Allowance over the 30 cm object step: the baro drift during a
-// baro leg and the estimate's residual baro noise ( raw sample sd 13 cm, smoothed by the filter ).
-// Way out: when the disagreement ( laser minus estimate ) stays within ALT_TOF_RETURN_STEADY_CM for
-// ALT_TOF_STEP_HOLD_MS, it is a new floor ( take-off from a table, baro drift over the bound ), and the
-// return is taken with the normal frame shift; any gap restarts that timer.
-    #define ALT_TOF_RETURN_BARO_CM   20.0f
-    #define ALT_TOF_RETURN_AGREE_CM  ( ALT_TOF_STEP_CM + ALT_TOF_RETURN_BARO_CM )    // 50 cm
-    // Steady band of the guard's exit: the baro-path estimate swings 20-40 cm while the craft climbs or
-    // descends ( log-12 ), so the 10 cm object band restarted the 2.5 s timer for ~10 s. Fan blades and passing
-    // objects still cannot pass: they are intermittent, and every gap restarts the run.
-    #define ALT_TOF_RETURN_STEADY_CM 25.0f
-    #define tofNew()        isTofDataNew_L1 ( )
-    #define tofClearNew()   ( isTofDataNewflag_L1 = false )
-    #define tofOutOfRange() isOutofRange_L1 ( )
-    #define tofReseed()     ( ( void ) 0 )
-    #define tofFiltCm()     ( ( float ) NewSensorRange_L1 / 10.0f )
-    #define tofRawCm()      ( ( float ) NewSensorRange_L1 / 10.0f )
-static_assert ( ALT_TOF_STEADY_SAMPLES >= 1 && ALT_TOF_STEADY_SAMPLES <= 255, "steadyCount is a saturating uint8_t" );
-static_assert ( ALT_TOF_RING_LEN * L1X_SAMPLE_PERIOD_MS > ALT_TOF_WINDOW_MS, "the ring must span the step window" );
-static_assert ( ALT_TOF_DROPOUT_MS >= L1X_STALE_MS, "dropout must not be shorter than the driver's stale time" );
-  #else
+//   tofFiltMm ( )      filtered range, mm, before tilt      tofRawMm ( )     unfiltered range, mm
+// Constants that are sample counts, or follow the sample period or the driver filter, live in the traits.
+// RETURN_GUARD switches on the baro -> laser return guard ( VL53L1X only ).
+  #define ALT_TOF_INLINE static inline __attribute__ ( ( always_inline ) )
+
+// VL53L1X ( the X1Ranging DOWN entry, drivers/tof_manager_l1x ): a result every L1X_SAMPLE_PERIOD_MS ( 50 ms ) and
+// no driver filter, so tofL1xDownRangeMm ( ) ( last valid range, mm ) is both the filtered and the raw value, the
+// lag is 0 and reseed does nothing. tofL1xDownRawMm ( ) is unchecked and never used here. tofL1xDownOutOfRange ( )
+// is also true while DOWN is not running ( failed or not started ), on a latched error, a result older than
+// L1X_STALE_MS, or a range under L1X_MIN_VALID_MM ( a covered window reads 0-10 mm as valid ). Comments in the
+// shared body that mention the driver IIR apply to the L0X only.
+struct AltTofL1x {
+  static constexpr float ALT_TOF_HANDOVER_UP_CM   = 160.0f;    // Medium mode on the flying floor: 100 % valid to 180 cm ( log-5 )
+  static constexpr float ALT_TOF_HANDOVER_DOWN_CM = 140.0f;
+  // 2 missed samples at the measured 51-53 ms period, plus ~14 ms poll quantisation and the 10 ms estimator
+  // tick ( the L0X 120 ms is 3 x 33 + 21 )
+  static constexpr int ALT_TOF_DROPOUT_MS         = ( 3 * L1X_SAMPLE_PERIOD_MS + 35 );                              // 185 ms
+  static constexpr int ALT_TOF_RETURN_SAMPLES     = 3;
+  static constexpr float ALT_TOF_IIR_LAG_S        = 0.0f;
+  static constexpr int ALT_TOF_STEADY_SAMPLES     = ( 500 / L1X_SAMPLE_PERIOD_MS );                                 // 10, 0.5 s
+  static constexpr int ALT_TOF_RING_LEN           = ( ( 660 + L1X_SAMPLE_PERIOD_MS - 1 ) / L1X_SAMPLE_PERIOD_MS );  // 14, >= 0.66 s
+  static constexpr float ALT_TOF_OFFSET_DT_MAX_S  = ( 1.5f * ( float ) L1X_SAMPLE_PERIOD_MS * 0.001f );              // 1.5 periods, s ( L0X 0.05 s ~ 1.5 x 33 ms )
+  // Baro -> laser return guard ( L1x only ). The object tests all need the laser as the source, so on
+  // the baro nothing checks what the laser sees: ceiling-fan blades read a valid 56 cm for 4 samples
+  // with the craft at 250 cm ( log-5 ). While armed and not in the pre-take-off ground idle ( in flight
+  // and landing ), a return sample counts only if the laser is within ALT_TOF_RETURN_AGREE_CM of the
+  // baro-path estimate _position_z. That estimate
+  // already follows Baro_Height - baro_offset ( the frozen offset carries the constant +15..22 cm baro
+  // vs laser offset ), so the difference is the return frame shift itself: the baro drift since the
+  // handover plus any surface change. Allowance over the 30 cm object step: the baro drift during a
+  // baro leg and the estimate's residual baro noise ( raw sample sd 13 cm, smoothed by the filter ).
+  // Way out: when the disagreement ( laser minus estimate ) stays within ALT_TOF_RETURN_STEADY_CM for
+  // ALT_TOF_STEP_HOLD_MS, it is a new floor ( take-off from a table, baro drift over the bound ), and the
+  // return is taken with the normal frame shift; any gap restarts that timer.
+  static constexpr bool RETURN_GUARD              = true;
+  static constexpr float ALT_TOF_RETURN_BARO_CM   = 20.0f;
+  static constexpr float ALT_TOF_RETURN_AGREE_CM  = ( ALT_TOF_STEP_CM + ALT_TOF_RETURN_BARO_CM );    // 50 cm
+  // Steady band of the guard's exit: the baro-path estimate swings 20-40 cm while the craft climbs or
+  // descends ( log-12 ), so the 10 cm object band restarted the 2.5 s timer for ~10 s. Fan blades and passing
+  // objects still cannot pass: they are intermittent, and every gap restarts the run.
+  static constexpr float ALT_TOF_RETURN_STEADY_CM = 25.0f;
+  ALT_TOF_INLINE bool tofNew ( void ) { return tofL1xDownNew ( ); }
+  ALT_TOF_INLINE void tofClearNew ( void ) { tofL1xDownClearNew ( ); }
+  ALT_TOF_INLINE bool tofOutOfRange ( void ) { return tofL1xDownOutOfRange ( ); }
+  ALT_TOF_INLINE void tofReseed ( void ) { }
+  ALT_TOF_INLINE uint16_t tofFiltMm ( void ) { return tofL1xDownRangeMm ( ); }
+  ALT_TOF_INLINE uint16_t tofRawMm ( void ) { return tofL1xDownRangeMm ( ); }     // = tofFiltMm, as NewSensorRange_L1 was
+};
+static_assert ( AltTofL1x::ALT_TOF_STEADY_SAMPLES >= 1 && AltTofL1x::ALT_TOF_STEADY_SAMPLES <= 255, "steadyCount is a saturating uint8_t" );
+static_assert ( AltTofL1x::ALT_TOF_RING_LEN * L1X_SAMPLE_PERIOD_MS > ALT_TOF_WINDOW_MS, "the ring must span the step window" );
+static_assert ( AltTofL1x::ALT_TOF_DROPOUT_MS >= L1X_STALE_MS, "dropout must not be shorter than the driver's stale time" );
+static_assert ( AltTofL1x::ALT_TOF_RING_LEN > 0 && AltTofL1x::ALT_TOF_RING_LEN <= 255, "the window ring is indexed with uint8_t" );
+
 // VL53L0X ( the XRanging DOWN entry, drivers/tof_manager ): a sample every ~33 ms. tofDownFiltMm ( )
 // is the manager's 0.1 IIR of the range ( the old NewSensorRange ), tofDownRawMm ( ) the unfiltered
 // sample. tofDownOutOfRange ( ) is also true while the DOWN laser is not running ( failed or not started ).
-    #define ALT_TOF_HANDOVER_UP_CM   160.0f    // it dropped out at ~172 cm on the test floor
-    #define ALT_TOF_HANDOVER_DOWN_CM 140.0f
-    #define ALT_TOF_DROPOUT_MS       120       // 3 missed samples at 33 ms + the 10 ms estimator tick ( 100 tripped on 2 )
-    #define ALT_TOF_RETURN_SAMPLES   3
-    #define ALT_TOF_IIR_LAG_S        0.3f      // LASER_LPS 0.1 at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s
-    #define ALT_TOF_STEADY_SAMPLES   15        // 0.5 s at 33 ms
-    #define ALT_TOF_RING_LEN         24        // > 0.66 s of samples at 33 ms
-    #define ALT_TOF_OFFSET_DT_MAX_S  0.05f     // longest step one baro-offset update weights, s
-    #define tofNew()        tofDownNew ( )
-    #define tofClearNew()   tofDownClearNew ( )
-    #define tofOutOfRange() tofDownOutOfRange ( )
-    #define tofReseed()     tofDownReseed ( )
-    #define tofFiltCm()     ( ( float ) tofDownFiltMm ( ) / 10.0f )
-    #define tofRawCm()      ( ( float ) tofDownRawMm ( ) / 10.0f )
-  #endif
-static_assert ( ALT_TOF_RING_LEN > 0 && ALT_TOF_RING_LEN <= 255, "the window ring is indexed with uint8_t" );
+struct AltTofL0x {
+  static constexpr float ALT_TOF_HANDOVER_UP_CM   = 160.0f;    // it dropped out at ~172 cm on the test floor
+  static constexpr float ALT_TOF_HANDOVER_DOWN_CM = 140.0f;
+  static constexpr int ALT_TOF_DROPOUT_MS         = 120;       // 3 missed samples at 33 ms + the 10 ms estimator tick ( 100 tripped on 2 )
+  static constexpr int ALT_TOF_RETURN_SAMPLES     = 3;
+  static constexpr float ALT_TOF_IIR_LAG_S        = 0.3f;      // LASER_LPS 0.1 at 33 ms for a ramp: 0.033 * 0.9 / 0.1 s
+  static constexpr int ALT_TOF_STEADY_SAMPLES     = 15;        // 0.5 s at 33 ms
+  static constexpr int ALT_TOF_RING_LEN           = 24;        // > 0.66 s of samples at 33 ms
+  static constexpr float ALT_TOF_OFFSET_DT_MAX_S  = 0.05f;     // longest step one baro-offset update weights, s
+  static constexpr bool RETURN_GUARD              = false;
+  ALT_TOF_INLINE bool tofNew ( void ) { return tofDownNew ( ); }
+  ALT_TOF_INLINE void tofClearNew ( void ) { tofDownClearNew ( ); }
+  ALT_TOF_INLINE bool tofOutOfRange ( void ) { return tofDownOutOfRange ( ); }
+  ALT_TOF_INLINE void tofReseed ( void ) { tofDownReseed ( ); }
+  ALT_TOF_INLINE uint16_t tofFiltMm ( void ) { return tofDownFiltMm ( ); }
+  ALT_TOF_INLINE uint16_t tofRawMm ( void ) { return tofDownRawMm ( ); }
+};
+static_assert ( AltTofL0x::ALT_TOF_STEADY_SAMPLES >= 1 && AltTofL0x::ALT_TOF_STEADY_SAMPLES <= 255, "steadyCount is a saturating uint8_t" );
+static_assert ( AltTofL0x::ALT_TOF_RING_LEN > 0 && AltTofL0x::ALT_TOF_RING_LEN <= 255, "the window ring is indexed with uint8_t" );
+  #undef ALT_TOF_INLINE
 
-#if defined( LASER_TOF_L1x ) && defined( LASER_ALT )
-  #define ALT_LASER_FUSION_BUILD true     // VL53L1X: the fusion is chosen at build time
-#else
-  #define ALT_LASER_FUSION_BUILD false    // VL53L0X: chosen at boot by XRanging.initAlt ( )
-#endif
 // ALT_EST_TAU_S with the laser fusion, 2 s for the baro alone. main.cpp computes the gains from it at
 // boot ( updateGains ( ) ); altLaserFusionLatch ( ) recomputes them when initAlt turns the fusion on.
-float _time_constant_z = ALT_LASER_FUSION_BUILD ? ALT_EST_TAU_S : 2.0f;
-static bool altLaserFusionOn      = ALT_LASER_FUSION_BUILD;
+// Both laser families start with the fusion off; only the latch turns it on. The latch also records the
+// family ( vl53l1x ), which picks the fusion copy checkReading ( ) runs.
+float _time_constant_z = 2.0f;
+static bool altLaserFusionOn      = false;
 static bool altLaserFusionLatched = false;
+static bool altLaserFusionL1x     = false;    // true: the VL53L1X copy ( AltTofL1x ), false: the VL53L0X copy
 
 bool altLaserFusion ( void ) {
   return altLaserFusionOn;
 }
 
-void altLaserFusionLatch ( bool on ) {
+// Declared extern "C" in altitudehold.h and again locally in XRanging.cpp and X1Ranging.cpp: keep all three in step
+// ( C linkage does not check the signature at link time ).
+void altLaserFusionLatch ( bool on, bool vl53l1x ) {
   if ( altLaserFusionLatched ) return;    // once, at boot, before arming is possible
   altLaserFusionLatched = true;
-  if ( ALT_LASER_FUSION_BUILD ) return;   // the VL53L1X build decided at compile time
-  altLaserFusionOn = on;
+  altLaserFusionOn      = on;
+  altLaserFusionL1x     = vl53l1x;
   if ( on ) {
     _time_constant_z = ALT_EST_TAU_S;
     updateGains ( );
@@ -356,7 +377,7 @@ void configureAltitudeHold ( pidProfile_t *initialPidProfile, barometerConfig_t 
   kalmanFilterInit ( &velHoldFilter, 0.1, 1.0, 0.0 );     // Higher Q, higher R for velocity
 }
 
-#if defined( BARO ) || defined( LASER_ALT )
+#if defined( BARO )
 
 int16_t initialThrottleHold_test;
 int16_t debug_e1;
@@ -944,15 +965,11 @@ void apmCalculateEstimatedAltitude ( uint32_t currentTime ) {
   if ( AltRstRequired && ! ARMING_FLAG ( ARMED ) )
     AltRst ( );
 
-  #if defined( BARO )
   if ( altLaserFusion ( ) ) {
     checkReading ( );
   } else {
     checkBaro ( );
   }
-  #else
-  checkReading ( );
-  #endif
 
   if ( accSumCount > 0 ) {
     accel_ef_z = ( float ) accSum [ 2 ] / ( float ) accSumCount;
@@ -1007,44 +1024,44 @@ uint8_t altHoldSource ( void ) {
 }
 
 // Recent raw laser samples with the inertial position at the same instant ( task 14 ).
-// The helpers below serve either laser ( the shared fusion body in checkReading ( ) ).
-static float tofRingRawCm [ ALT_TOF_RING_LEN ];
-static float tofRingBaseCm [ ALT_TOF_RING_LEN ];
-static uint32_t tofRingMs [ ALT_TOF_RING_LEN ];
-static uint8_t tofRingHead  = 0;    // next slot to write
-static uint8_t tofRingCount = 0;
+// One ring per laser family ( T: AltTofL0x / AltTofL1x ), sized by its sample period; only the latched family runs.
+template <typename T> static float tofRingRawCm [ T::ALT_TOF_RING_LEN ];
+template <typename T> static float tofRingBaseCm [ T::ALT_TOF_RING_LEN ];
+template <typename T> static uint32_t tofRingMs [ T::ALT_TOF_RING_LEN ];
+template <typename T> static uint8_t tofRingHead  = 0;    // next slot to write
+template <typename T> static uint8_t tofRingCount = 0;
 
-static void tofWindowReset ( void ) {
-  tofRingCount = 0;
+template <typename T> static void tofWindowReset ( void ) {
+  tofRingCount<T> = 0;
 }
 
-static void tofWindowPush ( uint32_t nowMs, float rawCm, float baseCm ) {
-  tofRingRawCm [ tofRingHead ]  = rawCm;
-  tofRingBaseCm [ tofRingHead ] = baseCm;
-  tofRingMs [ tofRingHead ]     = nowMs;
-  tofRingHead                   = ( uint8_t ) ( ( tofRingHead + 1 ) % ALT_TOF_RING_LEN );
-  if ( tofRingCount < ALT_TOF_RING_LEN ) {
-    tofRingCount++;
+template <typename T> static void tofWindowPush ( uint32_t nowMs, float rawCm, float baseCm ) {
+  tofRingRawCm<T> [ tofRingHead<T> ]  = rawCm;
+  tofRingBaseCm<T> [ tofRingHead<T> ] = baseCm;
+  tofRingMs<T> [ tofRingHead<T> ]     = nowMs;
+  tofRingHead<T>                   = ( uint8_t ) ( ( tofRingHead<T> + 1 ) % T::ALT_TOF_RING_LEN );
+  if ( tofRingCount<T> < T::ALT_TOF_RING_LEN ) {
+    tofRingCount<T>++;
   }
 }
 
 // Laser change minus inertial change since the newest stored sample at least ALT_TOF_WINDOW_MS old
 // ( or the oldest one, if it is at least ALT_TOF_WINDOW_MIN_MS old ). False when the ring is too short.
-static bool tofWindowMismatch ( uint32_t nowMs, float rawCm, float baseCm, float *mismatchCm, float *refRawCm, float *refBaseCm ) {
+template <typename T> static bool tofWindowMismatch ( uint32_t nowMs, float rawCm, float baseCm, float *mismatchCm, float *refRawCm, float *refBaseCm ) {
   bool found = false;
   uint8_t pick = 0;
-  for ( uint8_t k = 0; k < tofRingCount; k++ ) {    // oldest to newest
-    const uint8_t idx = ( uint8_t ) ( ( tofRingHead + ALT_TOF_RING_LEN - tofRingCount + k ) % ALT_TOF_RING_LEN );
-    const uint32_t ageMs = nowMs - tofRingMs [ idx ];
+  for ( uint8_t k = 0; k < tofRingCount<T>; k++ ) {    // oldest to newest
+    const uint8_t idx = ( uint8_t ) ( ( tofRingHead<T> + T::ALT_TOF_RING_LEN - tofRingCount<T> + k ) % T::ALT_TOF_RING_LEN );
+    const uint32_t ageMs = nowMs - tofRingMs<T> [ idx ];
     if ( ageMs >= ALT_TOF_WINDOW_MS || ( k == 0 && ageMs >= ALT_TOF_WINDOW_MIN_MS ) ) {
       pick  = idx;
       found = true;
     }
   }
   if ( found ) {
-    *mismatchCm = ( rawCm - tofRingRawCm [ pick ] ) - ( baseCm - tofRingBaseCm [ pick ] );
-    *refRawCm   = tofRingRawCm [ pick ];
-    *refBaseCm  = tofRingBaseCm [ pick ];
+    *mismatchCm = ( rawCm - tofRingRawCm<T> [ pick ] ) - ( baseCm - tofRingBaseCm<T> [ pick ] );
+    *refRawCm   = tofRingRawCm<T> [ pick ];
+    *refBaseCm  = tofRingBaseCm<T> [ pick ];
   }
   return found;
 }
@@ -1052,7 +1069,7 @@ static bool tofWindowMismatch ( uint32_t nowMs, float rawCm, float baseCm, float
 // Move the whole altitude frame by deltaCm: filter state, its delayed history, the smoother and
 // the setpoint. Every controller error is a difference of these, so none of them changes and a
 // reference change ( baro -> laser ) does not move the aircraft ( task 5 ).
-static void altShiftFrame ( float deltaCm ) {
+template <typename T> static void altShiftFrame ( float deltaCm ) {
   const bool holdTracksTarget = ( AltHold == lrintf ( altTarget ) );
   _position_base_z += deltaCm;
   _position_z      += deltaCm;
@@ -1069,10 +1086,12 @@ static void altShiftFrame ( float deltaCm ) {
     AltHold += lrintf ( deltaCm );
   }
   altPreFlipAltHold += lrintf ( deltaCm );    // a post-flip return goal stays in the same frame
-  tofWindowReset ( );                         // stored inertial positions are in the old frame
+  tofWindowReset<T> ( );                      // stored inertial positions are in the old frame
 }
 
-void checkReading ( ) {
+// The laser fusion, one copy per laser family ( T: AltTofL0x / AltTofL1x ). Its statics are per copy; only the
+// copy of the latched family runs. noinline keeps each copy a function of its own, as checkReading ( ) was.
+template <typename T> static __attribute__ ( ( noinline ) ) void checkReadingFor ( void ) {
   uint32_t baro_update_time;
   float baroDt = 0.0f;              // s since the previous baro sample, 0 when none is new
   float tilt   = 0;                 // rad
@@ -1109,26 +1128,26 @@ void checkReading ( ) {
   bool newGoodSample             = false;
   float rawCm                    = 0.0f;    // this sample before the driver IIR, tilt-corrected
 
-  if ( tofNew ( ) && ( ! tofOutOfRange ( ) ) ) {
-    tofClearNew ( );
+  if ( T::tofNew ( ) && ( ! T::tofOutOfRange ( ) ) ) {
+    T::tofClearNew ( );
     // The old gate compared radians with 25, so it never rejected a tilted sample.
     const int16_t tiltDeciDeg = calculateTiltAngle ( &inclination );
     tofTiltOk                 = tiltDeciDeg < ALT_TOF_MAX_TILT_DECIDEG;
     if ( ! tofTiltOk ) {
-      tofReseed ( );    // keep slant-range samples out of the driver's IIR history
-      tofWindowReset ( );
+      T::tofReseed ( );    // keep slant-range samples out of the driver's IIR history
+      tofWindowReset<T> ( );
     } else {
       tilt       = degreesToRadians ( ( int16_t ) ( tiltDeciDeg / 10 ) );
-      ToF_Height = tofFiltCm ( ) * cos_approx ( tilt );
-      rawCm      = tofRawCm ( ) * cos_approx ( tilt );
+      ToF_Height = ( ( float ) T::tofFiltMm ( ) / 10.0f ) * cos_approx ( tilt );
+      rawCm      = ( ( float ) T::tofRawMm ( ) / 10.0f ) * cos_approx ( tilt );
       if ( ToF_Height > 0.0f ) {
         newGoodSample = true;
       }
     }
   }
-  const bool tofUsable = tofTiltOk && ( ! tofOutOfRange ( ) ) && ToF_Height > 0.0f;
+  const bool tofUsable = tofTiltOk && ( ! T::tofOutOfRange ( ) ) && ToF_Height > 0.0f;
   // Laser height advanced past the driver IIR's lag, for pairing with the baro or the estimate.
-  const float tofNowCm = ToF_Height + ( float ) VelocityZ * ALT_TOF_IIR_LAG_S;
+  const float tofNowCm = ToF_Height + ( float ) VelocityZ * T::ALT_TOF_IIR_LAG_S;
 
   // Object under the craft ( task 6 ): compare each raw sample with the estimate. Off while
   // disarmed, in the pre-take-off ground idle or landing ( a landing on the laser keeps following
@@ -1144,8 +1163,8 @@ void checkReading ( ) {
   if ( newGoodSample ) {
     float refRawCm  = 0.0f;
     float refBaseCm = 0.0f;
-    haveWindow      = tofWindowMismatch ( nowMs, rawCm, _position_base_z, &windowMismatchCm, &refRawCm, &refBaseCm );
-    tofWindowPush ( nowMs, rawCm, _position_base_z );
+    haveWindow      = tofWindowMismatch<T> ( nowMs, rawCm, _position_base_z, &windowMismatchCm, &refRawCm, &refBaseCm );
+    tofWindowPush<T> ( nowMs, rawCm, _position_base_z );
     windowReady = haveWindow;
     lastRawCm   = rawCm;
     if ( ! windowArmed ) {
@@ -1171,14 +1190,14 @@ void checkReading ( ) {
     } else if ( ( ! suspectEscalate ) && ( nowMs - suspectStartMs ) > ALT_TOF_SUSPECT_MAX_MS ) {
       if ( fabsf ( suspectMismatchCm ) <= ALT_TOF_SUSPECT_ESCALATE_CM ) {
         tofSuspect = false;    // a slope, not an edge: follow it
-      } else if ( lastRawCm >= ALT_TOF_HANDOVER_UP_CM ) {
+      } else if ( lastRawCm >= T::ALT_TOF_HANDOVER_UP_CM ) {
         tofSuspect     = false;    // an edge that ends above the band: straight to the baro
         altSourceLaser = false;
         leftOnDropout  = true;
       } else {
         suspectEscalate = true;    // an edge: the next sample starts the hold-off
       }
-    } else if ( suspectEscalate && ( nowMs - suspectStartMs ) > ALT_TOF_SUSPECT_MAX_MS + ALT_TOF_DROPOUT_MS ) {
+    } else if ( suspectEscalate && ( nowMs - suspectStartMs ) > ALT_TOF_SUSPECT_MAX_MS + T::ALT_TOF_DROPOUT_MS ) {
       tofSuspect      = false;    // no usable sample came to start it: hand to the baro
       suspectEscalate = false;
       altSourceLaser  = false;
@@ -1191,15 +1210,15 @@ void checkReading ( ) {
       // not move ) rather than hand the whole step to correctedWithTof ( ), which would slow the
       // descent and delay touchdown.
       const float landDeltaCm = tofNowCm - _position_z;
-      altShiftFrame ( landDeltaCm );
+      altShiftFrame<T> ( landDeltaCm );
       baro_offset -= landDeltaCm;
     }
     altStepPending = false;
-  } else if ( newGoodSample && rawCm < ALT_TOF_HANDOVER_UP_CM ) {
+  } else if ( newGoodSample && rawCm < T::ALT_TOF_HANDOVER_UP_CM ) {
     // The estimate follows the IIR-lagged laser, so it trails the raw reading by VelocityZ times
     // the lag in steady motion ( up to ~30 cm in a landing or flip climb ); compare against the
     // estimate advanced by that lag, so only a change of surface counts.
-    const float expectedCm = _position_z + ( float ) VelocityZ * ALT_TOF_IIR_LAG_S;
+    const float expectedCm = _position_z + ( float ) VelocityZ * T::ALT_TOF_IIR_LAG_S;
     const float residCm    = rawCm - expectedCm;
     if ( ! altStepPending ) {
       if ( fabsf ( residCm ) > ALT_TOF_STEP_CM || ( haveWindow && fabsf ( windowMismatchCm ) > ALT_TOF_STEP_CM )
@@ -1211,8 +1230,8 @@ void checkReading ( ) {
         steadyRefCm    = rawCm;
         steadyCount    = 0;
         cancelCount    = 0;
-        tofReseed ( );    // the driver IIR follows the new surface at once
-        tofWindowReset ( );
+        T::tofReseed ( );    // the driver IIR follows the new surface at once
+        tofWindowReset<T> ( );
       }
     } else {
       if ( fabsf ( residCm ) < 0.5f * ALT_TOF_STEP_CM ) {
@@ -1228,57 +1247,57 @@ void checkReading ( ) {
         steadyRefCm = rawCm;
         steadyCount = 0;
       }
-      if ( cancelCount >= ALT_TOF_RETURN_SAMPLES ) {
+      if ( cancelCount >= T::ALT_TOF_RETURN_SAMPLES ) {
         altStepPending = false;    // the surface came back: nothing to do
-        tofReseed ( );
-        tofWindowReset ( );
-      } else if ( ( nowMs - stepStartMs ) >= ALT_TOF_STEP_HOLD_MS && steadyCount >= ALT_TOF_STEADY_SAMPLES ) {
+        T::tofReseed ( );
+        tofWindowReset<T> ( );
+      } else if ( ( nowMs - stepStartMs ) >= ALT_TOF_STEP_HOLD_MS && steadyCount >= T::ALT_TOF_STEADY_SAMPLES ) {
         // Still there and steady: re-base the estimate to the new surface without moving the
         // aircraft, then give the old setpoint back as a goal so it climbs over the object ( or
         // descends after it is gone ) on the goal profile.
         const int32_t holdBefore = AltHold;
         const float deltaCm      = rawCm - expectedCm;
-        altShiftFrame ( deltaCm );
+        altShiftFrame<T> ( deltaCm );
         baro_offset -= deltaCm;    // the offset moves with the frame ( baro minus the new surface )
         // An active goal ( take-off, flip return, MSP ) keeps its end point over the old surface.
         AltHold        = altGoalActive ? lrintf ( altGoal - deltaCm ) : holdBefore;
         altPreFlipAltHold -= lrintf ( deltaCm );    // a flip return also keeps its clearance
         ToF_Height     = rawCm;
         altStepPending = false;
-        tofReseed ( );
+        T::tofReseed ( );
       }
     }
   }
 
-    #ifdef LASER_TOF_L1x
-  // Baro -> laser return guard ( see ALT_TOF_RETURN_AGREE_CM ). A return candidate far from the
-  // baro-path estimate is held off, unless the disagreement ( laser minus estimate ) stays within
-  // ALT_TOF_RETURN_STEADY_CM for ALT_TOF_STEP_HOLD_MS: then it is a new floor ( take-off from a table, a long
-  // baro drift ), not fan blades or a passing object, and the return is taken with the normal shift.
-  // The disagreement, not the raw reading, is tested, so the craft may climb, descend or land meanwhile.
-  static bool retSteadyActive      = false;
-  static float retSteadyRefCm      = 0.0f;    // cm, disagreement of the first candidate of the steady run
-  static uint32_t retSteadyStartMs = 0;
-  bool returnHeld                  = false;   // disagreeing return candidate, not yet steady long enough
-  const float returnDisagreeCm     = tofNowCm - _position_z;    // cm, laser minus baro-path estimate
-  if ( ( ! altSourceLaser ) && newGoodSample && ToF_Height < ( leftOnDropout ? ALT_TOF_HANDOVER_UP_CM : ALT_TOF_HANDOVER_DOWN_CM )
-       && ARMING_FLAG ( ARMED ) && ( ! altHoldGroundIdle ) && fabsf ( returnDisagreeCm ) > ALT_TOF_RETURN_AGREE_CM ) {
-    if ( retSteadyActive && fabsf ( returnDisagreeCm - retSteadyRefCm ) <= ALT_TOF_RETURN_STEADY_CM ) {
-      returnHeld = ( nowMs - retSteadyStartMs ) < ALT_TOF_STEP_HOLD_MS;
-    } else {
-      retSteadyActive  = true;    // first candidate, or not steady: restart the run
-      retSteadyRefCm   = returnDisagreeCm;
-      retSteadyStartMs = nowMs;
-      returnHeld       = true;
+  bool returnHeld = false;    // disagreeing return candidate, not yet steady long enough ( L1x guard )
+  if constexpr ( T::RETURN_GUARD ) {
+    // Baro -> laser return guard ( see ALT_TOF_RETURN_AGREE_CM ). A return candidate far from the
+    // baro-path estimate is held off, unless the disagreement ( laser minus estimate ) stays within
+    // ALT_TOF_RETURN_STEADY_CM for ALT_TOF_STEP_HOLD_MS: then it is a new floor ( take-off from a table, a long
+    // baro drift ), not fan blades or a passing object, and the return is taken with the normal shift.
+    // The disagreement, not the raw reading, is tested, so the craft may climb, descend or land meanwhile.
+    static bool retSteadyActive      = false;
+    static float retSteadyRefCm      = 0.0f;    // cm, disagreement of the first candidate of the steady run
+    static uint32_t retSteadyStartMs = 0;
+    const float returnDisagreeCm     = tofNowCm - _position_z;    // cm, laser minus baro-path estimate
+    if ( ( ! altSourceLaser ) && newGoodSample && ToF_Height < ( leftOnDropout ? T::ALT_TOF_HANDOVER_UP_CM : T::ALT_TOF_HANDOVER_DOWN_CM )
+         && ARMING_FLAG ( ARMED ) && ( ! altHoldGroundIdle ) && fabsf ( returnDisagreeCm ) > T::ALT_TOF_RETURN_AGREE_CM ) {
+      if ( retSteadyActive && fabsf ( returnDisagreeCm - retSteadyRefCm ) <= T::ALT_TOF_RETURN_STEADY_CM ) {
+        returnHeld = ( nowMs - retSteadyStartMs ) < ALT_TOF_STEP_HOLD_MS;
+      } else {
+        retSteadyActive  = true;    // first candidate, or not steady: restart the run
+        retSteadyRefCm   = returnDisagreeCm;
+        retSteadyStartMs = nowMs;
+        returnHeld       = true;
+      }
+      if ( ! returnHeld ) {
+        returnCount      = T::ALT_TOF_RETURN_SAMPLES - 1;    // steady long enough: return on this sample
+        retSteadyActive  = false;
+      }
+    } else if ( newGoodSample || ( ! tofUsable ) || altSourceLaser ) {
+      retSteadyActive = false;    // a gap, an agreeing or out-of-band sample, or on the laser: restart
     }
-    if ( ! returnHeld ) {
-      returnCount      = ALT_TOF_RETURN_SAMPLES - 1;    // steady long enough: return on this sample
-      retSteadyActive  = false;
-    }
-  } else if ( newGoodSample || ( ! tofUsable ) || altSourceLaser ) {
-    retSteadyActive = false;    // a gap, an agreeing or out-of-band sample, or on the laser: restart
   }
-    #endif
 
   if ( altSourceLaser ) {
     if ( newGoodSample ) {
@@ -1293,29 +1312,27 @@ void checkReading ( ) {
         offsetSeeded = true;
       } else {
         // At most one sample period, so the first sample after a pause gets a normal weight.
-        const float dtS = fminf ( ( float ) ( nowMs - lastOffsetMs ) * 0.001f, ALT_TOF_OFFSET_DT_MAX_S );
+        const float dtS = fminf ( ( float ) ( nowMs - lastOffsetMs ) * 0.001f, T::ALT_TOF_OFFSET_DT_MAX_S );
         baro_offset += ( sampleOffset - baro_offset ) * ( dtS / ( ALT_BARO_OFFSET_TAU_S + dtS ) );
       }
       lastOffsetMs = nowMs;
     }
 
-    if ( tofUsable && ToF_Height >= ALT_TOF_HANDOVER_UP_CM ) {
+    if ( tofUsable && ToF_Height >= T::ALT_TOF_HANDOVER_UP_CM ) {
       altSourceLaser = false;    // above the band: hand over, offset frozen
       leftOnDropout  = false;
-    } else if ( ( nowMs - lastGoodTofMs ) > ALT_TOF_DROPOUT_MS ) {
+    } else if ( ( nowMs - lastGoodTofMs ) > T::ALT_TOF_DROPOUT_MS ) {
       altSourceLaser = false;    // no usable sample for too long: hand over, offset frozen
       leftOnDropout  = true;
     }
-      #ifdef LASER_TOF_L1x
-  } else if ( returnHeld ) {
+  } else if ( T::RETURN_GUARD && returnHeld ) {
     returnCount = 0;    // disagrees with the estimate and not yet steady: not the floor ( yet )
-      #endif
-  } else if ( newGoodSample && ToF_Height < ( leftOnDropout ? ALT_TOF_HANDOVER_UP_CM : ALT_TOF_HANDOVER_DOWN_CM ) ) {
-    if ( ++returnCount >= ALT_TOF_RETURN_SAMPLES ) {
+  } else if ( newGoodSample && ToF_Height < ( leftOnDropout ? T::ALT_TOF_HANDOVER_UP_CM : T::ALT_TOF_HANDOVER_DOWN_CM ) ) {
+    if ( ++returnCount >= T::ALT_TOF_RETURN_SAMPLES ) {
       // Back on the laser: move the whole altitude frame by the baro drift so the numbers
       // change and the aircraft does not ( pilot's choice, task 5 ).
       const float returnDeltaCm = tofNowCm - _position_z;
-      altShiftFrame ( returnDeltaCm );
+      altShiftFrame<T> ( returnDeltaCm );
       baro_offset -= returnDeltaCm;    // what the baro drifted by is now in the offset
       altSourceLaser = true;
       lastGoodTofMs  = nowMs;
@@ -1336,6 +1353,15 @@ void checkReading ( ) {
     }
   } else {
     correctedWithBaro ( Baro_Height - baro_offset, baroDt );
+  }
+}
+
+// Runs the fusion copy of the laser family that initAlt latched ( altLaserFusionLatch ( ) ).
+void checkReading ( ) {
+  if ( altLaserFusionL1x ) {
+    checkReadingFor<AltTofL1x> ( );
+  } else {
+    checkReadingFor<AltTofL0x> ( );
   }
 }
 

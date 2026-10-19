@@ -135,12 +135,18 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **During a flip, altitude hold is bypassed, not switched off** — BARO_MODE stays on and altitude hold
   flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
   (`FLIGHT_INVARIANTS.md`).
-- **With `XRanging.initAlt ( )` (VL53L0X) or `LASER_TOF_L1x` + `LASER_ALT` (VL53L1X), one down-laser (never
-  both: `initAlt` is refused in a VL53L1X build) corrects the estimator below 160 cm and the baro above it (back
-  below 140 cm)** — latched once after `plutoInit ( )`; without `initAlt` the firmware is the baro build. The return
+- **With `XRanging.initAlt ( )` (VL53L0X) or `X1Ranging.initAlt ( )` (VL53L1X), one down-laser corrects the
+  estimator below 160 cm and the baro above it (back below 140 cm)** — latched once after `plutoInit ( )`, which also
+  picks the fusion copy for that sensor (`altLaserFusionLatch ( on, vl53l1x )`); without `initAlt` the firmware is
+  the baro build. The return
   to the laser and a re-base shift the whole altitude frame so the craft does not move, and a sudden surface change
   is held on the baro for 2.5 s before re-basing. An accepted `initAlt` whose laser fails to start still runs the
-  fusion as a dropout (`FLIGHT_INVARIANTS.md`). `LASER_TOF` is a build error.
+  fusion as a dropout (`FLIGHT_INVARIANTS.md`). `LASER_TOF`, `LASER_ALT` and `LASER_TOF_L1x` are build errors.
+- **The laser family is chosen at run time, not by a build flag**: `rangingFamilyLatch ( )` (after `plutoInit ( )`)
+  picks VL53L0X ( XRanging, `drivers/tof_manager` ) or VL53L1X ( X1Ranging, `drivers/tof_manager_l1x` ) from the API
+  that enabled lasers; **both APIs used → both refused** ( no laser, baro ). The two managers share one device RAM area
+  ( `drivers/tof_dev_area` ): only the latched family may touch it ( `docs/API/X1RANGING_API_WIKI.md`,
+  `active-development/vl53l1x-xranging-api/` ).
 - **All VL53L0X lasers go through one owner, `drivers/tof_manager`, started once by `xRangingInit ( )`** (each laser
   its own state; one bus error stops only that laser; getters read cached samples). The down-laser XSHUT may only be
   GPIO_2/4/5/8 and needs `initAlt ( <pin> )`; that pin is reserved after start-up (no LED / `Peripheral_*` / ADC /

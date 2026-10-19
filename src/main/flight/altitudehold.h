@@ -62,10 +62,11 @@ void correctedWithBaro(float baroAlt, float dt);
 void checkReading();
 // Altitude estimator source: 1 laser, 0 baro, 2 holding on the baro after an object step.
 uint8_t altHoldSource(void);
-// Altitude-laser fusion: on with XRanging.initAlt ( ) ( or a VL53L1X build with LASER_ALT ).
-// altLaserFusionLatch ( ) fixes it once at boot, after plutoInit ( ); it never changes afterwards.
+// Altitude-laser fusion: on with XRanging.initAlt ( ) ( VL53L0X ) or X1Ranging.initAlt ( ) ( VL53L1X ).
+// altLaserFusionLatch ( ) fixes it once at boot, after plutoInit ( ); it never changes afterwards. vl53l1x
+// records the family, which picks the fusion copy checkReading ( ) runs ( VL53L1X or VL53L0X ).
 bool altLaserFusion(void);
-void altLaserFusionLatch(bool on);
+void altLaserFusionLatch(bool on, bool vl53l1x);
 void checkBaro();
 
 void updateGains();

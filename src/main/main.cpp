@@ -8,12 +8,14 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 16th Jun 2026                                          #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-10-19	AJ	VL53L1X via x1RangingInit ( ); ranging_init_L1 removed      #
+ #  2026-10-19	AJ	rangingFamilyLatch ( ) before the laser bring-ups ( t15 )   #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -49,7 +51,6 @@
 #include "drivers/flash_m25p16.h"
 #include "drivers/flash.h"
 
-#include "drivers/ranging_vl53l1x.h"
 #include "drivers/ina219.h"
 #include "rx/rx.h"
 
@@ -373,11 +374,6 @@ void init ( void ) {
     failureFlag |= ( 1 << FAILURE_EXTCLCK );
   }
 
-  // TODO: Uncomment to Init XVision Ranging Sensor
-  // if ( ! XVision.init ( VL53L1_DISTANCEMODE_LONG ) ) {
-  //   failureFlag |= ( 1 << FAILURE_VL53L1X );
-  // }
-
   // TODO: Uncomment to Init PAW3903 Opticflow Sensor
   // if ( ! paw3903_init ( ) ) {
   //   failureFlag |= ( 1 << FAILURE_PAW3903 );
@@ -512,12 +508,6 @@ void init ( void ) {
 
   systemState |= SYSTEM_STATE_READY;
 
-#ifdef LASER_TOF_L1x
-
-  ranging_init_L1 ( );
-
-#endif
-
   // spi.Init();
   // spi.Settings(MODE0, 562, LSBFIRST);
 
@@ -591,7 +581,9 @@ void init ( void ) {
 
 #if defined( PRIMUSX2 ) || defined( PRIMUS_X2_v1 ) || defined( PRIMUS_V5 )
   APIAdcInit ( );
-  xRangingInit ( );
+  rangingFamilyLatch ( );    // which laser API plutoInit ( ) used: none, XRanging, X1Ranging, or both ( both refused )
+  xRangingInit ( );          // VL53L0X lasers ( XRanging ): starts only for RANGING_VL53L0X; latches the fusion for NONE too
+  x1RangingInit ( );         // VL53L1X lasers ( X1Ranging ): starts only for RANGING_VL53L1X
   if ( localisationType == UWB ) {
     Uart_Init ( UART2, BAUD_RATE_115200 );
     Peripheral_Init ( GPIO_11, INPUT_PULL_DOWN );

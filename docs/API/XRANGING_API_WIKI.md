@@ -3,7 +3,13 @@
 Laser ranging for user code: the downward altitude laser and up to five side lasers ( VL53L0X ), their ranges and
 health, and object avoidance. Everything is in `API/XRanging.h` through the `XRanging` object.
 
-API version **1.5.0** ( firmware with tof-single-pipeline ). See "Changes in 1.5.0" for what differs from 1.4.x.
+API version **1.8.0** ( firmware 3.15.0 ). See "Changes in 1.8.0" and "Changes in 1.5.0".
+
+**VL53L1X lasers use [X1Ranging](X1RANGING_API_WIKI.md)** instead. The same firmware drives either kind: `plutoInit ( )`
+chooses by the API it enables lasers through ( `init`, `initObjectAvoidance` with a side laser, an accepted `initAlt` ).
+**If it enables lasers through both XRanging and X1Ranging, both are refused** after `plutoInit ( )`: no laser
+starts, `getRange` returns −1, `getStatus` `LASER_NOT_ENABLED`, object avoidance never runs, and altitude hold uses the
+barometer ( see the X1Ranging wiki, "Choosing the laser family" ).
 
 ## Quick Start
 
@@ -91,10 +97,11 @@ reads the lasers itself:
   drivers can take the pin over after start-up, and a timer or UART line on an XSHUT resets the laser. That leaves
   `GPIO_2`, `4`, `5` and `8`, subject to the next rule;
 - the pin's ADC or PWM alias is in use ( e.g. `GPIO_5` = `ADC_2` / `PWM_4`, `GPIO_2` = `ADC_1` );
-- the firmware is built for the VL53L1X ( `LASER_TOF_L1x` ).
 
 A refused call keeps any earlier accepted request. The pin is checked again after `plutoInit ( )`, so an ADC or PWM
-enabled **after** `initAlt` also cancels it ( `getStatus ( DOWN )` then reads `LASER_NOT_ENABLED` ).
+enabled **after** `initAlt`, or an `X1Ranging` call in `plutoInit ( )` that enables a laser ( `init`,
+`initObjectAvoidance` with a side laser, an accepted `initAlt` ), also cancels it ( `getStatus ( DOWN )` then reads
+`LASER_NOT_ENABLED` ).
 
 ## Pins: what XRanging takes over
 
@@ -131,7 +138,10 @@ enabled **after** `initAlt` also cancels it ( `getStatus ( DOWN )` then reads `L
 - A side laser closer than `avoidDist` pushes the craft away for 0.5 s, then brakes for 0.5 s.
 - **While OA is enabled, the pilot's roll / pitch stick is scaled to 30 %** ( 20 % while braking ). The craft drifts
   more and is harder to correct by hand. This was measured as larger height swings over uneven floors.
-- A side laser that is not working counts as "no obstacle".
+- A side laser that is not working counts as "no obstacle" at once. One that reads out of range keeps its last
+  distance for two more 100 ms ticks, then counts as "no obstacle": a removed obstacle is released within about
+  0.3 s ( since 1.8.0; before, the last near distance was kept until a valid sample came, and the push / brake
+  repeated ).
 
 ## Examples
 
@@ -168,6 +178,16 @@ void plutoLoop ( void ) {
 }
 ```
 
+## Changes in 1.8.0
+
+| Item | 1.7.x | 1.8.0 |
+|---|---|---|
+| VL53L1X lasers | one down-laser via `LASER_TOF_L1x` + `LASER_ALT`; XRanging could run VL53L0X side lasers beside it | `X1Ranging` ( its own wiki ), chosen at run time; XRanging + X1Ranging in one `plutoInit`: both refused |
+| `LASER_TOF_L1x` / `LASER_ALT` in `target.h` | VL53L1X build switches | build errors |
+| Object avoidance, out of range | the last distance was kept until a valid sample came | released after 3 out-of-range ticks ( ~0.3 s ); the first sample after a release is used as-is ( no false push from a quartered first reading ) |
+| `initObjectAvoidance` unused arguments | default `( laser_e ) -1` | default `DOWN` ( ignored the same way ) |
+| Object avoidance code | in `XRanging.cpp` | shared with X1Ranging ( `API-Src/ObjectAvoidanceCore.h` ), the same push / brake |
+
 ## Changes in 1.5.0
 
 | Item | 1.4.x | 1.5.0 |
@@ -185,7 +205,9 @@ void plutoLoop ( void ) {
 | File | Role |
 |---|---|
 | `src/main/API/XRanging.h` | Public header: `laser_e`, `laser_status_e`, `XRanging_P`. |
-| `src/main/API-Src/XRanging.cpp` | Requests, pin checks, the single start-up ( `xRangingInit ( )` ), object avoidance. |
+| `src/main/API-Src/XRanging.cpp` | Requests, pin checks, the single start-up ( `xRangingInit ( )` ), the object-avoidance wrapper. |
+| `src/main/API-Src/ObjectAvoidanceCore.h` | The object-avoidance loop, shared with X1Ranging. |
+| `src/main/drivers/tof_dev_area.cpp` | One RAM area for the VL53L0X and VL53L1X device data; only the chosen family uses it. |
 | `src/main/drivers/tof_manager.cpp` | One table entry per laser: start-up, polling, cached results, status. |
 | `src/main/drivers/ranging_vl53l0x.cpp` | VL53L0X helpers: configure, address, probe, read. |
 | `src/main/drivers/bus_spi.c`, `flash_m25p16.cpp` | SPI2 and flash release when XRanging is used. |

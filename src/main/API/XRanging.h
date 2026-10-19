@@ -11,13 +11,15 @@
  #  Created Date: Sat, 31st Jan 2026                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 14th Oct 2026                                          #
+ #  Last Modified: Mon, 19th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
  #  2026-10-14	AJ	DOWN laser: initAlt ( ), getStatus ( ) ( tof-single-pipeline ) #
+ #  2026-10-16	AJ	OA unused-laser default DOWN, not ( laser_e ) -1 ( -Wconversion ) #
+ #  2026-10-19	AJ	X1Ranging used too refuses both ( vl53l1x-xranging-api t15 ) #
 *******************************************************************************/
 #ifndef X_RANGING_H
 #define X_RANGING_H
@@ -105,11 +107,12 @@ class XRanging_P {
    * ( `GPIO_5` is FRONT's LED ) is never driven.
    * @param xshutGpio The GPIO wired to the down-laser's XSHUT ( e.g. `GPIO_5` ).
    * @return `false` if refused: called after `plutoInit ( )`, the pin is a side laser's XSHUT, an
-   *         RGB-LED slot or UART2 pin ( GPIO_1, 3, 6, 10-13, 16-18 ), or in use as ADC / PWM, or the
-   *         firmware is built for the VL53L1X ( GPIO_2, 4, 5, 8 remain ). The pin is checked again
-   *         after `plutoInit ( )`; check `getStatus ( DOWN )`. A refused call keeps an earlier
-   *         accepted request. After start-up the pin is reserved: `Peripheral_Init` /
-   *         `Peripheral_Write` on it ( or on its ADC / PWM alias ) are ignored.
+   *         RGB-LED slot or UART2 pin ( GPIO_1, 3, 6, 10-13, 16-18 ), or in use as ADC / PWM
+   *         ( GPIO_2, 4, 5, 8 remain ). The pin is checked again after `plutoInit ( )`; check
+   *         `getStatus ( DOWN )`. A refused call keeps an earlier accepted request. If `plutoInit ( )`
+   *         also uses X1Ranging ( VL53L1X ), XRanging and X1Ranging are both refused at start-up: no
+   *         laser starts and altitude hold uses the barometer. After start-up the pin is reserved:
+   *         `Peripheral_Init` / `Peripheral_Write` on it ( or on its ADC / PWM alias ) are ignored.
    */
   bool initAlt ( peripheral_gpio_pin_e xshutGpio );
 
@@ -132,7 +135,7 @@ class XRanging_P {
    * This function sets the object avoidance distance to `_avoidDist` and initializes
    * up to four lasers for obstacle detection. Each laser is enabled by setting its
    * corresponding entry in `isXLaserInit` to `true`, provided it is a side laser
-   * ( `LEFT` … `EXTERNAL` ); -1 ( the default ) means unused.
+   * ( `LEFT` … `EXTERNAL` ); `DOWN` ( the default ) or -1 means unused.
    *
    * @param _avoidDist The distance ( in `cm`) parameter for triggering object avoidance.
    * @param _laser1 The first laser to be initialized for object avoidance. (`LEFT`,`RIGHT`,`FRONT`,`BACK`)
@@ -140,7 +143,7 @@ class XRanging_P {
    * @param _laser3 The third laser to be initialized for object avoidance. (`LEFT`,`RIGHT`,`FRONT`,`BACK`)
    * @param _laser4 The fourth laser to be initialized for object avoidance. (`LEFT`,`RIGHT`,`FRONT`,`BACK`)
    */
-  void initObjectAvoidance ( uint16_t _avoidDist, laser_e _laser1, laser_e _laser2 = ( laser_e ) -1, laser_e _laser3 = ( laser_e ) -1, laser_e _laser4 = ( laser_e ) -1 );
+  void initObjectAvoidance ( uint16_t _avoidDist, laser_e _laser1, laser_e _laser2 = DOWN, laser_e _laser3 = DOWN, laser_e _laser4 = DOWN );
   /**
    * @brief Enables the obstacle avoidance feature.
    *

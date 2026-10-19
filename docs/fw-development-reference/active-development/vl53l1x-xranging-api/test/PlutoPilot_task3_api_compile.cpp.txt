@@ -1,0 +1,37 @@
+// Do not remove the include below
+#include "PlutoPilot.h"
+
+// vl53l1x-xranging-api task 3: compile test only. Calls every X1Ranging method once, so the stock
+// ( stubbed ) and the LASER_TOF_L1x builds both compile and link the whole public API.
+
+void plutoRxConfig ( void ) {
+  Receiver_Mode ( Rx_ESP );    // Onboard ESP
+}
+
+void plutoInit ( void ) {
+  X1Ranging.initAlt ( GPIO_5 );                                // down-laser, XSHUT on GPIO_5
+  X1Ranging.init ( );                                          // LEFT, RIGHT, FRONT, BACK at 20 cm
+  X1Ranging.init ( LEFT, 30 );                                 // LEFT at 30 cm
+  X1Ranging.initObjectAvoidance ( 40, LEFT, RIGHT, FRONT, BACK );
+  X1Ranging.initObjectAvoidance ( 40, LEFT );                  // default arguments
+}
+
+void onLoopStart ( void ) {
+  X1Ranging.enableOA ( );
+}
+
+void plutoLoop ( void ) {
+  const int16_t down          = X1Ranging.getRange ( DOWN );
+  const laser_status_e status = X1Ranging.getStatus ( DOWN );
+  const bool front            = X1Ranging.isTriggered ( FRONT );
+  const bool late             = X1Ranging.initAlt ( );    // after plutoInit ( ): refused
+
+  Monitor_Println ( "down ", down );
+  Monitor_Println ( "st ", ( int ) status );
+  Monitor_Println ( "trig ", front ? 1 : 0 );
+  Monitor_Println ( "late ", late ? 1 : 0 );
+}
+
+void onLoopFinish ( void ) {
+  X1Ranging.disableOA ( );
+}

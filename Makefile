@@ -28,8 +28,8 @@ FORKNAME	=	MAGISV2
 TARGET	?=	
 BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
-FW_Version	=	3.14.0
-API_Version	=	1.7.0
+FW_Version	=	3.15.0
+API_Version	=	1.8.0
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
@@ -278,7 +278,8 @@ DRONA_DRIVERS = drivers/opticflow_paw3903.cpp \
 								drivers/display_ug2864hsweg01 \
             		drivers/ranging_vl53l0x.cpp \
             		drivers/tof_manager.cpp \
-            		drivers/ranging_vl53l1x.cpp \
+            		drivers/tof_manager_l1x.cpp \
+            		drivers/tof_dev_area.cpp \
             		drivers/sc18is602b.cpp \
             		drivers/bridge_sc18is602b.cpp \
 								drivers/light_ws2811strip_stm32f30x.c \
@@ -306,6 +307,7 @@ DRONA_API =	API-Src/Status-LED.cpp \
 						API-Src/Scheduler-Timer.cpp \
 						API-Src/Debugging.cpp \
 		    		API-Src/XRanging.cpp \
+		    		API-Src/X1Ranging.cpp \
 						API-Src/Motor.cpp \
 						API-Src/API-Utils.cpp \
 						API-Src/RxConfig.cpp \

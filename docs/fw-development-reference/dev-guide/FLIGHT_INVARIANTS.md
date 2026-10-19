@@ -78,13 +78,13 @@ Details: [`../fw-architecture-pipeline/subsystems/Altitude_Hold_Estimator.md`](.
 ## With a down-laser, it corrects the estimator below 160 cm and the baro above it
 
 The laser fusion works with one down-laser:
-- the VL53L0X, switched on at run time by `XRanging.initAlt ( pin )` / `initAlt ( )` in `plutoInit ( )` and
-  fixed at start-up ( `altLaserFusion ( )`, `altitudehold.cpp` );
-- or the VL53L1X, with the build switches `LASER_TOF_L1x` + `LASER_ALT`.
+- the VL53L0X, switched on at run time by `XRanging.initAlt ( pin )` / `initAlt ( )` in `plutoInit ( )`;
+- or the VL53L1X, by `X1Ranging.initAlt ( pin )` / `initAlt ( )`.
 
-`initAlt` is refused in a VL53L1X build. `LASER_TOF` is gone ( `#error` ), and `LASER_ALT` without
-`LASER_TOF_L1x` is an `#error`. Both sensors run the same fusion body in `checkReading()`, reading the sensor
-through accessor macros and per-sensor constants. The VL53L0X accessors read only the down-laser's entry in
+Both are fixed at start-up ( `altLaserFusionLatch ( on, vl53l1x )`, `altitudehold.cpp` ); using both APIs refuses
+both ( baro ). `LASER_TOF`, `LASER_ALT` and `LASER_TOF_L1x` are `#error`s. The fusion body is compiled once per
+sensor ( `checkReadingFor<AltTofL0x>` / `<AltTofL1x>`: per-sensor constants and accessors as traits, the L1X return
+guard only in its copy ); the latch picks the copy, and each copy is instruction-identical to the flown code. The VL53L0X accessors read only the down-laser's entry in
 `drivers/tof_manager`, so a side laser can never reach the estimator.
 
 - **No `initAlt`: the baro build.** Without it, every fusion branch takes the baro-only path ( estimator,
