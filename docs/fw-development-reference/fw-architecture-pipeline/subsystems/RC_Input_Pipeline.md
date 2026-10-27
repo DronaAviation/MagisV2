@@ -30,6 +30,12 @@ The receiver subsystem fetches external control data, validates it, smooths it, 
 - **Filtering**: A multi-point moving average filter (`rx_smoothing`) prevents sudden, physically impossible jumps in RC commands from reaching the PID loop.
 - **Signal loss timing ( MSP )**: last frame replayed for 200 ms, held to ~800 ms, then rxfail values. Failsafe
   `LAND` at ~2.5 s with the default `failsafe_delay` 15. See [Failsafe_Subsystem.md](Failsafe_Subsystem.md).
+- **THROTTLE_LOW** ( `calculateThrottleStatus ( )`, `rc_controls.cpp:131-139` ): raw `rcData[THROTTLE]` below `mincheck`
+  1100, computed once per RX pass in `processRx ( )` ( `mw.cpp:894` ). Users: the stick-low I-term reset / freeze
+  ( Core_PID_Controller.md ), stick-arm and switch disarm ( `rc_controls.cpp:169`, `:198` ), the auto-disarm /
+  beeper block ( `mw.cpp`, inactive without FEATURE_MOTOR_STOP ), and FrSky telemetry's RPM field
+  ( `telemetry/frsky.c:201`, also only with FEATURE_MOTOR_STOP ). The app's full stick-down sends about 1004, so it is
+  always THROTTLE_LOW; after 600 ms of invalid pulses the throttle falls back to 1200, which is not.
 
 ```mermaid
 flowchart TD

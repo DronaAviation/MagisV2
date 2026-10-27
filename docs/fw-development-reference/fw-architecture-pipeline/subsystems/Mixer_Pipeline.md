@@ -19,7 +19,7 @@ The Mixer translates the mathematical corrections requested by the PID controlle
 - `stopMotors()`: Failsafe override to instantly set `motor[]` values to `mincommand` (motors off).
 
 ## Data Flow & Boundaries
-- **Motor Clipping**: The absolute maximum value any motor can receive is `maxthrottle` (default 2000). The absolute minimum while armed is `minthrottle` (default ~1070).
+- **Motor Clipping**: The absolute maximum value any motor can receive is `maxthrottle` (default 2000). The absolute minimum while armed is `minthrottle` (default 1100, `config.cpp:278`). With the throttle stick below `mincheck` and `pid_at_min_throttle` 1 ( default ), the PID still acts on the motors at idle; nothing is redistributed at the low end.
 - **AirMode / Mix Saturation**: If a maneuver requires a motor to spin at 2100 (which is physically impossible), `mixTable()` calculates the excess (+100) and subtracts it from all other motors. This preserves the *ratio* of the maneuver, sacrificing overall altitude instead of stability.
 - **Disarm State**: If the drone is disarmed, `mixTable()` is bypassed entirely and all outputs are locked to `mincommand` (1000), physically preventing ESCs from spinning.
 

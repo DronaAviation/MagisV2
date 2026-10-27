@@ -1,1766 +1,2594 @@
 {
-  "F:\\MagisV2\\PlutoPilot.cpp": {
-    "mtime": 1792392627.0558424,
-    "hash": "feb7984ba9fb19091484188327ab225d"
-  },
-  "F:\\MagisV2\\PlutoPilot.h": {
-    "mtime": 1792149717.863491,
-    "hash": "adf3dd3bcdabac6a85d6a013c8b71297"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_common_tables.h": {
-    "mtime": 1777868741.0,
-    "hash": "403aec93c7ff94f8ce034fece98844c5"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_const_structs.h": {
-    "mtime": 1777868741.0,
-    "hash": "66f2098ca65aec3cef8a26c374070393"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\arm_math.h": {
-    "mtime": 1777868741.0,
-    "hash": "c30a7d549d626dea435b178c615bdc9d"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm0.h": {
-    "mtime": 1777868741.0,
-    "hash": "2f3f34f02af96829a36660d81284fed5"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm0plus.h": {
-    "mtime": 1777868741.0,
-    "hash": "ef2d5aec98834b42b713062c5e21595d"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm3.h": {
-    "mtime": 1777868741.0,
-    "hash": "4cede867bdf2f43a4c2411b015db6bcd"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm4.h": {
-    "mtime": 1777868741.0,
-    "hash": "1a5405751c9a61d7d21ea8d351cea897"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cm4_simd.h": {
-    "mtime": 1777868741.0,
-    "hash": "1146cb9adc8960f0d96c04c48c94a35e"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cmFunc.h": {
-    "mtime": 1777868741.0,
-    "hash": "925fcddb8969ec24f6a6704eaae04289"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_cmInstr.h": {
-    "mtime": 1777868741.0,
-    "hash": "ea5e34354b1fefdc6562e0a0e57397fb"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_sc000.h": {
-    "mtime": 1777868741.0,
-    "hash": "07a1b04ccb14b72a0de47956ed5c1049"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\CoreSupport\\core_sc300.h": {
-    "mtime": 1777868741.0,
-    "hash": "44281b4bb308abcc65353f8afe7a4eac"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x.h": {
-    "mtime": 1777868741.0,
-    "hash": "be92a132cbc4bc5449696702fa69286b"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_conf.h": {
-    "mtime": 1777868741.0,
-    "hash": "3fd5a0f66e80f278f014da179ee496b8"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_gpio.c": {
-    "mtime": 1777868741.0,
-    "hash": "78a28d1bee3ec111fbe4a918218353d4"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_gpio.h": {
-    "mtime": 1777868741.0,
-    "hash": "0d0fc00e25770df4bac7d28251ae3669"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_rcc.c": {
-    "mtime": 1777868741.0,
-    "hash": "4794bed924e82762514f668f6496fedc"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM1\\DeviceSupport\\ST\\STM32F30x\\stm32f30x_rcc.h": {
-    "mtime": 1777868741.0,
-    "hash": "cc6471d07240a6f9004067b8dcf1b584"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM3\\CoreSupport\\core_cm3.c": {
-    "mtime": 1777868741.0,
-    "hash": "c043af835282d99d072cdc7fdf4551cd"
-  },
-  "F:\\MagisV2\\lib\\main\\CMSIS\\CM3\\CoreSupport\\core_cm3.h": {
-    "mtime": 1777868741.0,
-    "hash": "094c050808bb452162323a7423e33fcb"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_adc.h": {
-    "mtime": 1777868741.0,
-    "hash": "84d446150acbda385dae68b73b7bf5b3"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_can.h": {
-    "mtime": 1777868741.0,
-    "hash": "2b49813280b6f715314d158c311955e5"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_comp.h": {
-    "mtime": 1777868741.0,
-    "hash": "8e0c82630b0ecda7ab1bc68378c3093e"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_crc.h": {
-    "mtime": 1777868741.0,
-    "hash": "27f8786faa9e9179349792483d3bb8ef"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dac.h": {
-    "mtime": 1777868741.0,
-    "hash": "a4cb7c98095d157c5d93023a6e351ad2"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dbgmcu.h": {
-    "mtime": 1777868741.0,
-    "hash": "ce649363d86e8f036479f68e1a679186"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_dma.h": {
-    "mtime": 1777868741.0,
-    "hash": "1034baefdd9627897488bf2d17342064"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_exti.h": {
-    "mtime": 1777868741.0,
-    "hash": "b8bc22dcb2fe177851be407e93a17187"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_flash.h": {
-    "mtime": 1777868741.0,
-    "hash": "ee648f0292539299682df0e9e0dcc432"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_gpio.h": {
-    "mtime": 1777868741.0,
-    "hash": "0d0fc00e25770df4bac7d28251ae3669"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_hrtim.h": {
-    "mtime": 1777868741.0,
-    "hash": "0cbb7120e449fb40fcd44ab046c8d3a4"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_i2c.h": {
-    "mtime": 1777868741.0,
-    "hash": "af5bb912c65b878ce821c73fbd05b5a8"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_iwdg.h": {
-    "mtime": 1777868741.0,
-    "hash": "4fceee6445eb93bdde2c710478608322"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_misc.h": {
-    "mtime": 1777868741.0,
-    "hash": "c7062d24b0aea7837a3a662da1808400"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_opamp.h": {
-    "mtime": 1777868741.0,
-    "hash": "2801cabe104b79897be5c3dc93b0227a"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_pwr.h": {
-    "mtime": 1777868741.0,
-    "hash": "0a035c832094d180ec0db648e93c0c3b"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_rcc.h": {
-    "mtime": 1777868741.0,
-    "hash": "cc6471d07240a6f9004067b8dcf1b584"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_rtc.h": {
-    "mtime": 1777868741.0,
-    "hash": "f20f6dc005ddaf6b1317551de0b79c78"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_spi.h": {
-    "mtime": 1777868741.0,
-    "hash": "41cf714e09438a7a841c1aca39ff221a"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_syscfg.h": {
-    "mtime": 1777868741.0,
-    "hash": "bb112637fe06076b99ebe473f490e8d9"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_tim.h": {
-    "mtime": 1777868741.0,
-    "hash": "c611201031b56913aede5448055b0f4c"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_usart.h": {
-    "mtime": 1777868741.0,
-    "hash": "c9ef71df66d44c3e2621990260151567"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\inc\\stm32f30x_wwdg.h": {
-    "mtime": 1777868741.0,
-    "hash": "5d3eda2b9ca51922c54100cc302070fe"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_adc.c": {
-    "mtime": 1777868741.0,
-    "hash": "5f7b899de09a9b0648282970a0b314a9"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_can.c": {
-    "mtime": 1777868741.0,
-    "hash": "8f38862b2e06cd9cadca5169e72c67e7"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_comp.c": {
-    "mtime": 1777868741.0,
-    "hash": "47b33807e6c6a87cb9899a5e2719fb5b"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_crc.c": {
-    "mtime": 1777868741.0,
-    "hash": "a2b5d7d8edbb789a524b73241c0c44eb"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dac.c": {
-    "mtime": 1777868741.0,
-    "hash": "51c22d9da46e9f0a7fa639b2d4241a53"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dbgmcu.c": {
-    "mtime": 1777868741.0,
-    "hash": "09c0c26a4a189a97890409d5f44cffd0"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_dma.c": {
-    "mtime": 1777868741.0,
-    "hash": "5fae2702e97b5fb37f34d38d6af251c7"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_exti.c": {
-    "mtime": 1777868741.0,
-    "hash": "e9b6d0275f586fb4872f8cfef3db6e33"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_flash.c": {
-    "mtime": 1777868741.0,
-    "hash": "5f97bbe04681b4df289f57874e1856a7"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_gpio.c": {
-    "mtime": 1777868741.0,
-    "hash": "78a28d1bee3ec111fbe4a918218353d4"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_hrtim.c": {
-    "mtime": 1777868741.0,
-    "hash": "a9972922200ad9cd60b09d9bf9af5f4d"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_i2c.c": {
-    "mtime": 1777868741.0,
-    "hash": "be9e031e5fd08fb5486c304d5140c032"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_iwdg.c": {
-    "mtime": 1777868741.0,
-    "hash": "102cd476039db287e9951a6ec5ed9f5e"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_misc.c": {
-    "mtime": 1777868741.0,
-    "hash": "dc5a3b7ca87aa99249b42f06446aaba3"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_opamp.c": {
-    "mtime": 1777868741.0,
-    "hash": "d681c42299e1d6cce1bd35c7db97cc8e"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_pwr.c": {
-    "mtime": 1777868741.0,
-    "hash": "ab81a5ecea13b94cebfea16eda19ce7d"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_rcc.c": {
-    "mtime": 1777868741.0,
-    "hash": "4794bed924e82762514f668f6496fedc"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_rtc.c": {
-    "mtime": 1777868741.0,
-    "hash": "b20d255b9688abe93ff7635caaf4e16f"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_spi.c": {
-    "mtime": 1777868741.0,
-    "hash": "2c22d0ad49f0ce0f81d57ab1dccdf53c"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_syscfg.c": {
-    "mtime": 1777868741.0,
-    "hash": "c3487f3a0c0228115bb02107005d52e0"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_tim.c": {
-    "mtime": 1777868741.0,
-    "hash": "6f29bfc3a21fd14a2e31e526f4494d62"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_usart.c": {
-    "mtime": 1777868741.0,
-    "hash": "81e1e885babbb2f27319c506a3d4661c"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\src\\stm32f30x_wwdg.c": {
-    "mtime": 1777868741.0,
-    "hash": "1ce00b8e246420d5fd89db8ba6a590e5"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_core.h": {
-    "mtime": 1777868741.0,
-    "hash": "355cee2bd9d0e0ea17f7816a1ced6076"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_def.h": {
-    "mtime": 1777868741.0,
-    "hash": "1d3b219fb8b30d5f4d53be8f8f9bc2ee"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_init.h": {
-    "mtime": 1777868741.0,
-    "hash": "812e3c1f9b378353576780dc713d6b02"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_int.h": {
-    "mtime": 1777868741.0,
-    "hash": "59094d6d1bdf6930bc8b515c29e00f87"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_lib.h": {
-    "mtime": 1777868741.0,
-    "hash": "3cda276c95d127f67c3005ba77f08264"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_mem.h": {
-    "mtime": 1777868741.0,
-    "hash": "72a2c5252229d0833053da372bcef468"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_regs.h": {
-    "mtime": 1777868741.0,
-    "hash": "95930d3d6ab26b476bac3f130e9515da"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_sil.h": {
-    "mtime": 1777868741.0,
-    "hash": "e0b873d4d3f6e2a0c3ed6207448dbec3"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\inc\\usb_type.h": {
-    "mtime": 1777868741.0,
-    "hash": "19a339998eef77b326ce6f01400df25a"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_core.c": {
-    "mtime": 1777868741.0,
-    "hash": "39d4f7a5726d72b032c7c07c01b7f1bd"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_init.c": {
-    "mtime": 1777868741.0,
-    "hash": "fcbe2c62695761646ad7e2e6f045fac6"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_int.c": {
-    "mtime": 1777868741.0,
-    "hash": "1defe4205da885b5ee84894ea0e14405"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_mem.c": {
-    "mtime": 1777868741.0,
-    "hash": "418dbb36fc9a5f84df6a7169de4a6704"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_regs.c": {
-    "mtime": 1777868741.0,
-    "hash": "01d6309fecaf0c7ea0dafa5c79dd752f"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\src\\usb_sil.c": {
-    "mtime": 1777868741.0,
-    "hash": "d62297a59bdf72a98c5d80fcfc9e0014"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api.h": {
-    "mtime": 1777868741.0,
-    "hash": "caa6c06b9f94d60d51e8f38d43100c6c"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_calibration.h": {
-    "mtime": 1777868741.0,
-    "hash": "c00924042cacba9d69fa624518ffb2a5"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_core.h": {
-    "mtime": 1777868741.0,
-    "hash": "e77b4ec5d8d07717c7b37c4bc4a27506"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_ranging.h": {
-    "mtime": 1777868741.0,
-    "hash": "b35e780fe1aeb8365b358548e5abadee"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_api_strings.h": {
-    "mtime": 1777868741.0,
-    "hash": "4c18f890577b3d59030665b1316c8989"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_def.h": {
-    "mtime": 1777868741.0,
-    "hash": "90a500b45697542a88f43f8420761daa"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_device.h": {
-    "mtime": 1777868741.0,
-    "hash": "b45eabeb8ac4f8b285798d5471e2ab21"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_interrupt_threshold_settings.h": {
-    "mtime": 1777868741.0,
-    "hash": "570cc1dfcc5907c215222a60e2dc79fe"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\inc\\vl53l0x_tuning.h": {
-    "mtime": 1777868741.0,
-    "hash": "f02d7d9eb3ea70820d93279c9d7cf7ba"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api.c": {
-    "mtime": 1777868741.0,
-    "hash": "ce27d7fce3176ec256d06d663000feee"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_calibration.c": {
-    "mtime": 1777868741.0,
-    "hash": "498ba7234ea8339d9a5b8c9c0e849aad"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_core.c": {
-    "mtime": 1777868741.0,
-    "hash": "c4d1c8b1ff636a38092ab969f4048c3a"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_ranging.c": {
-    "mtime": 1777868741.0,
-    "hash": "8fc152fe0df3dc17b547e98e004d06fa"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\core\\src\\vl53l0x_api_strings.c": {
-    "mtime": 1777868741.0,
-    "hash": "a972bc1abed866d09865ea6a0fcb153c"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_i2c_platform.h": {
-    "mtime": 1777868741.0,
-    "hash": "c8b238c5e31b750f8b9ceace470a21ad"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_platform.h": {
-    "mtime": 1777868741.0,
-    "hash": "3f70472c2633b4e1c4069b18f6a177d1"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_platform_log.h": {
-    "mtime": 1777868741.0,
-    "hash": "020c98ea59f4134ec2705d49fea01115"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\inc\\vl53l0x_types.h": {
-    "mtime": 1777868741.0,
-    "hash": "4ed21f0fdb3fc2b52c6d6d8ea5aa8f24"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_i2c_platform.c": {
-    "mtime": 1777868741.0,
-    "hash": "3309b4501285484c403b440d968999a6"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_platform.c": {
-    "mtime": 1777868741.0,
-    "hash": "f6f09d7aec0658a8d661cfaa7795fa70"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L0X_API\\platform\\src\\vl53l0x_platform_log.c": {
-    "mtime": 1777868741.0,
-    "hash": "dbf955657427ff82a30e0a59859ecc12"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api.h": {
-    "mtime": 1777868741.0,
-    "hash": "766e7c6942b5c05c08793c5a6143bdba"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_calibration.h": {
-    "mtime": 1777868741.0,
-    "hash": "aa5080360a93564e1f2b4f160c1fb6f1"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_core.h": {
-    "mtime": 1777868741.0,
-    "hash": "b0b49030963e5196a4e9129fec80d16b"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_debug.h": {
-    "mtime": 1777868741.0,
-    "hash": "680f2d610ed087b0820a4606a6166a54"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_preset_modes.h": {
-    "mtime": 1777868741.0,
-    "hash": "a796e0ae969620811c3dc9c3de906ba6"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_api_strings.h": {
-    "mtime": 1777868741.0,
-    "hash": "ad1f04ec9ac10ce90b034f13a6fb1bce"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_core.h": {
-    "mtime": 1777868741.0,
-    "hash": "9fe2e7fab192230723fb1cf35e3e1282"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_core_support.h": {
-    "mtime": 1777868741.0,
-    "hash": "fcd33042e19a4393b1fd47dd7c0782c2"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_def.h": {
-    "mtime": 1777868741.0,
-    "hash": "34c28e336aa1e017a66ce7de1628bd1c"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_codes.h": {
-    "mtime": 1777868741.0,
-    "hash": "38b820caaf1b48cc4dec0a99f10a1b00"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_exceptions.h": {
-    "mtime": 1777868741.0,
-    "hash": "8e8e710f0077224f2b0fcb507385528f"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_error_strings.h": {
-    "mtime": 1777868741.0,
-    "hash": "ab3ce8de0c4e958b75dd3e89a0e58cb6"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_ll_def.h": {
-    "mtime": 1777868741.0,
-    "hash": "198ee08c111c80b6464e0be554993578"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_ll_device.h": {
-    "mtime": 1777868741.0,
-    "hash": "0f67ea4b729aa4f29f88bf0d6a7134f2"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_nvm_map.h": {
-    "mtime": 1777868741.0,
-    "hash": "40da973b49c9ab22f77874bef65b2c0b"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_preset_setup.h": {
-    "mtime": 1777868741.0,
-    "hash": "23c469246a369f5ada0d7a5c55214243"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_funcs.h": {
-    "mtime": 1777868741.0,
-    "hash": "7e71ba40e5fc167012ecbb1b9d1b6112"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_map.h": {
-    "mtime": 1777868741.0,
-    "hash": "15725821438aad2d137ec9ceeb303a0d"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_settings.h": {
-    "mtime": 1777868741.0,
-    "hash": "27b71ab681f96fe2374e5fbf8c7f311a"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_register_structs.h": {
-    "mtime": 1777868741.0,
-    "hash": "8ae3a358a606caa662700ce94f54a4cb"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_silicon_core.h": {
-    "mtime": 1777868741.0,
-    "hash": "89a1f56d49f320e4ce58c7cda3afef1f"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_tuning_parm_defaults.h": {
-    "mtime": 1777868741.0,
-    "hash": "c76757b9a257c289eeab8e94ce2b487a"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\inc\\vl53l1_wait.h": {
-    "mtime": 1777868741.0,
-    "hash": "653d181a5da941d68bad1c1c07b159fa"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api.c": {
-    "mtime": 1777868741.0,
-    "hash": "d982c1cea8c9749c485e2edd76efbe66"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_calibration.c": {
-    "mtime": 1777868741.0,
-    "hash": "302d38a2469fcf7248dda207652d0b34"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_core.c": {
-    "mtime": 1777868741.0,
-    "hash": "5967d49fe526b608af38c05d51f91486"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_debug.c": {
-    "mtime": 1777868741.0,
-    "hash": "acbafb53f73142b9ef7f83ae4feefee3"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_preset_modes.c": {
-    "mtime": 1777868741.0,
-    "hash": "1b7e169419c8b6c5f76eae5761fc3601"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_api_strings.c": {
-    "mtime": 1777868741.0,
-    "hash": "a1f5a72b71d28716a81e241602ba5728"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_core.c": {
-    "mtime": 1777868741.0,
-    "hash": "7035e6ab7b29e3ea2a05c49f0f4b093d"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_core_support.c": {
-    "mtime": 1777868741.0,
-    "hash": "f765912aa6789ec2e89113256bbde150"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_error_strings.c": {
-    "mtime": 1777868741.0,
-    "hash": "951443e9e97a808e3f8c1345311934f3"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_register_funcs.c": {
-    "mtime": 1777868741.0,
-    "hash": "30e56af455717c7f7e4c66aac0d35f52"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_silicon_core.c": {
-    "mtime": 1777868741.0,
-    "hash": "13544c0a62e470a7773bda60d1012988"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\core\\src\\vl53l1_wait.c": {
-    "mtime": 1777868741.0,
-    "hash": "4c3faf11dc29f9fb97a4ec7ef5bac905"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform.h": {
-    "mtime": 1777868741.0,
-    "hash": "94b9cc426ed2f7f37bef94687237731a"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_log.h": {
-    "mtime": 1777868741.0,
-    "hash": "2567d5937061b115b536c8360d249b89"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_config.h": {
-    "mtime": 1777868741.0,
-    "hash": "068b59544532ad720d15f117dde99a55"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_data.h": {
-    "mtime": 1777868741.0,
-    "hash": "f00c2900d69826282efa8569914b5f65"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_platform_user_defines.h": {
-    "mtime": 1777868741.0,
-    "hash": "56671cfc7ebdaac23dab60a1883647be"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\inc\\vl53l1_types.h": {
-    "mtime": 1777868741.0,
-    "hash": "733b017b733344fdb5870eded5c116be"
-  },
-  "F:\\MagisV2\\lib\\main\\VL53L1X_API\\platform\\src\\vl53l1_platform.c": {
-    "mtime": 1777868741.0,
-    "hash": "cab6441c5a22ca2cbe1969686b8be21c"
-  },
-  "F:\\MagisV2\\lib\\test\\gtest\\inc\\gtest\\gtest.h": {
-    "mtime": 1777868741.0,
-    "hash": "40f7ea90e9789d73de007262b281040d"
-  },
-  "F:\\MagisV2\\lib\\test\\gtest\\src\\gtest-all.cc": {
-    "mtime": 1777868741.0,
-    "hash": "0683cb8530830a7193b6233b43728822"
-  },
-  "F:\\MagisV2\\lib\\test\\gtest\\src\\gtest_main.cc": {
-    "mtime": 1777868741.0,
-    "hash": "07a3aacf2bd5874d39e727a7f0d5325b"
-  },
-  "F:\\MagisV2\\src\\main\\build_config.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "b028347acba275f3fc8fc2d34d337fd4"
-  },
-  "F:\\MagisV2\\src\\main\\build_config.h": {
-    "mtime": 1777868741.0,
-    "hash": "3079dfcf2474b329b72bf2b3d6ebfe8c"
-  },
-  "F:\\MagisV2\\src\\main\\debug.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "e5f6ed8f96feec188e619b664d6d9d54"
-  },
-  "F:\\MagisV2\\src\\main\\debug.h": {
-    "mtime": 1777868741.0,
-    "hash": "33025783bd1a763c3f73ea5842e060d0"
-  },
-  "F:\\MagisV2\\src\\main\\main.cpp": {
-    "mtime": 1792385856.2203438,
-    "hash": "abd232c1f80994d5916dbe78759cd0a1"
-  },
-  "F:\\MagisV2\\src\\main\\mw.cpp": {
-    "mtime": 1792385856.2203438,
-    "hash": "2d7c8cff3084a236359fee7eaff70646"
-  },
-  "F:\\MagisV2\\src\\main\\mw.h": {
-    "mtime": 1777868741.0,
-    "hash": "2a832bfcb4a46b688bf04ca6c6649f9d"
-  },
-  "F:\\MagisV2\\src\\main\\platform.h": {
-    "mtime": 1785830612.0,
-    "hash": "2031b5f8748f741e8a662ff0cda32772"
-  },
-  "F:\\MagisV2\\src\\main\\version.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "9a4904d8e7f15470b0ec9f1d50d9a157"
-  },
-  "F:\\MagisV2\\src\\main\\version.h": {
-    "mtime": 1777868741.0,
-    "hash": "ed82759c9f6a13e40298243a982e8645"
-  },
-  "F:\\MagisV2\\src\\main\\API\\API-Utils.h": {
-    "mtime": 1792385667.4456317,
-    "hash": "54d86cdadf58b0057f3e169ad520bc23"
-  },
-  "F:\\MagisV2\\src\\main\\API\\BMS.h": {
-    "mtime": 1790653748.8783174,
-    "hash": "dfbfb864f982fcbbb0644328a62ad9c3"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Debugging.h": {
-    "mtime": 1780643709.0,
-    "hash": "7b319f2f91ce5468bbc8d277132c93e2"
-  },
-  "F:\\MagisV2\\src\\main\\API\\FC-Config.h": {
-    "mtime": 1792061102.412309,
-    "hash": "98d71dd113f75a818f4e98a7153d409a"
-  },
-  "F:\\MagisV2\\src\\main\\API\\FC-Control.h": {
-    "mtime": 1792140140.1385767,
-    "hash": "c45d901822414099331c9d97367075b7"
-  },
-  "F:\\MagisV2\\src\\main\\API\\FC-Data.h": {
-    "mtime": 1785830612.0,
-    "hash": "94080c643f9d1d88224a381fedd259eb"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Localisation.h": {
-    "mtime": 1777868741.0,
-    "hash": "113517d447f32e9f2fdfea06745458e9"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Motor.h": {
-    "mtime": 1777868741.0,
-    "hash": "9ae0aea2f4c4250172158da2e956a6ad"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Oled.h": {
-    "mtime": 1791953679.5887213,
-    "hash": "5b45c8464bf0b39c14c1e9ded26693f7"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Peripherals.h": {
-    "mtime": 1777868741.0,
-    "hash": "8d755db34f7a7f5e0980db7ad8d9ba7f"
-  },
-  "F:\\MagisV2\\src\\main\\API\\RC-Interface.h": {
-    "mtime": 1785830612.0,
-    "hash": "da3747f40b8045b10f61e862c909a4a8"
-  },
-  "F:\\MagisV2\\src\\main\\API\\RGB-LED.h": {
-    "mtime": 1785830612.0,
-    "hash": "2731c50d3ad04d6cb696a6d3a7fb924b"
-  },
-  "F:\\MagisV2\\src\\main\\API\\RxConfig.h": {
-    "mtime": 1780643709.0,
-    "hash": "aed349b2a8eaafd859d65d571876bb8a"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Scheduler-Timer.h": {
-    "mtime": 1785830612.0,
-    "hash": "8ae2c457f34e9187925162a3f18a4671"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Serial-IO.h": {
-    "mtime": 1780643709.0,
-    "hash": "5e30795f72a1d65075f06be94f5ef41c"
-  },
-  "F:\\MagisV2\\src\\main\\API\\Status-LED.h": {
-    "mtime": 1777868741.0,
-    "hash": "6658a2e1041dbe644dbc34a7a4dab093"
-  },
-  "F:\\MagisV2\\src\\main\\API\\X1Ranging.h": {
-    "mtime": 1792385785.1153207,
-    "hash": "c91b3a5b633303191b626c5b58c9918e"
-  },
-  "F:\\MagisV2\\src\\main\\API\\XRanging.h": {
-    "mtime": 1792385808.9438145,
-    "hash": "ce6f2869fbaa3d261bc8c78bf902a4fd"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\API-Utils.cpp": {
-    "mtime": 1792057197.5406237,
-    "hash": "894c0f13d6da4f170bfbe28520bb3f4e"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\BMS.cpp": {
-    "mtime": 1790653748.8723154,
-    "hash": "d521814acb342b9c9a1eaf70a8e0b1f8"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Debugging.cpp": {
-    "mtime": 1780643709.0,
-    "hash": "5e5d9c4b9b043ddd7f57fb2144ebb58e"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Config-PID.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "b6818957e0303986ab7e94bbc155adb8"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Config-Setpoints.cpp": {
-    "mtime": 1792060545.3523595,
-    "hash": "1d20aec1b83f3975301ae234ebe2ae33"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Control-Command.cpp": {
-    "mtime": 1792135166.4113922,
-    "hash": "375adefa63c1f7bfa2fc8b81b5ab2231"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Control-Status.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "a8df0f3bf76b02574cd3e57c2b050f30"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Data-Estimate.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "73597dfecddac98e373d691ddfd12e0d"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\FC-Data-Sensors.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "baabdfb4cdfa458801fb338d26148e4b"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Localisation.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "94ff24b07e61d464dbf3f5b2afbab67e"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Motor.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "030350a7dc338accfa593f401c810a40"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\ObjectAvoidanceCore.h": {
-    "mtime": 1792383794.9659674,
-    "hash": "974ee82fe92e429b3c0cf0738674a1c7"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Oled.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "e17020670890990c70ea2c3220ce9364"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Peripheral-ADC.cpp": {
-    "mtime": 1791965613.9215095,
-    "hash": "fbd964a08f0fbe789d4717f21ecd34d0"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Peripheral-GPIO.cpp": {
-    "mtime": 1791965575.417019,
-    "hash": "95e2e73d715cc6cb46ee7f8682e1676a"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Peripheral-PWM.cpp": {
-    "mtime": 1791965575.423898,
-    "hash": "fb315acf4fbde11564e2b91f41a59156"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\RC-Interface.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "150f8a6353732a5ee58be540ac0c1a5d"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\RGB-LED.cpp": {
-    "mtime": 1788998628.0,
-    "hash": "05d7af760b134f46f911fe86692c4e4d"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\RxConfig.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "22a1e7e5be03e1e71f79b64df24e5621"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Scheduler-Timer.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "17336e16be9302cd60d3acd7debd5013"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Serial-IO-I2C.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "0e8d7b82cce16885d185d9595d040982"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Serial-IO-SPI.cpp": {
-    "mtime": 1791977038.4679854,
-    "hash": "861bb50490bff3242798f8ed344836e6"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Serial-IO-Uart.cpp": {
-    "mtime": 1780643709.0,
-    "hash": "a2123c9c3d852a49ec2a8b12f976e1b1"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\Status-LED.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "f05972967d282c553bcb7fb340af9c58"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\X1Ranging.cpp": {
-    "mtime": 1792387192.3143432,
-    "hash": "830c2343ebe0c27d75657d0edb0c9032"
-  },
-  "F:\\MagisV2\\src\\main\\API-Src\\XRanging.cpp": {
-    "mtime": 1792387205.1509867,
-    "hash": "9e76360b98e21b989186ba0d93e8103b"
-  },
-  "F:\\MagisV2\\src\\main\\blackbox\\blackbox.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "06d5cf13e05629db554024c5b06114b4"
-  },
-  "F:\\MagisV2\\src\\main\\blackbox\\blackbox.h": {
-    "mtime": 1777868741.0,
-    "hash": "547fcfc57c347eef2d5e1557e09e2981"
-  },
-  "F:\\MagisV2\\src\\main\\blackbox\\blackbox_fielddefs.h": {
-    "mtime": 1777868741.0,
-    "hash": "afe73e3cbffa9c3f29d4205fc4b0d1f7"
-  },
-  "F:\\MagisV2\\src\\main\\blackbox\\blackbox_io.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "40da7973e498eb19fab918fd5d37fe40"
-  },
-  "F:\\MagisV2\\src\\main\\blackbox\\blackbox_io.h": {
-    "mtime": 1777868741.0,
-    "hash": "80419392bdeeeed49aeb48cb3ea76fd2"
-  },
-  "F:\\MagisV2\\src\\main\\command\\command.cpp": {
-    "mtime": 1792140140.1385767,
-    "hash": "ad4b2e85e768b36f82c0e8fa90b00736"
-  },
-  "F:\\MagisV2\\src\\main\\command\\command.h": {
-    "mtime": 1792130814.7750776,
-    "hash": "5c248bff043efce85ce014f68af197e4"
-  },
-  "F:\\MagisV2\\src\\main\\command\\localisationCommand.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "5f97917836c692a5463f6fbc36c62b89"
-  },
-  "F:\\MagisV2\\src\\main\\command\\localisationCommand.h": {
-    "mtime": 1777868741.0,
-    "hash": "fd4cf856fc17d41605a1555ea5f388d3"
-  },
-  "F:\\MagisV2\\src\\main\\common\\atomic.h": {
-    "mtime": 1777868741.0,
-    "hash": "02923fb35e46bf877aadcf7faf27eeab"
-  },
-  "F:\\MagisV2\\src\\main\\common\\axis.h": {
-    "mtime": 1777868741.0,
-    "hash": "dfe515aeea1659c1a2ed3398d99f849a"
-  },
-  "F:\\MagisV2\\src\\main\\common\\color.h": {
-    "mtime": 1777868741.0,
-    "hash": "182038732dcd435bdd606af0cd96eb2f"
-  },
-  "F:\\MagisV2\\src\\main\\common\\colorconversion.c": {
-    "mtime": 1777868741.0,
-    "hash": "54705918b6c0527d4a04659eafa74b2f"
-  },
-  "F:\\MagisV2\\src\\main\\common\\colorconversion.h": {
-    "mtime": 1777868741.0,
-    "hash": "aa15d87667715895f1a856499f32ff67"
-  },
-  "F:\\MagisV2\\src\\main\\common\\encoding.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "194a49d8873438d63abd81e339be2a76"
-  },
-  "F:\\MagisV2\\src\\main\\common\\encoding.h": {
-    "mtime": 1777868741.0,
-    "hash": "110d518dd3d4f2a7332c73b8d6cfebf1"
-  },
-  "F:\\MagisV2\\src\\main\\common\\maths.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "9365988d0909430b35fd9567195f235c"
-  },
-  "F:\\MagisV2\\src\\main\\common\\maths.h": {
-    "mtime": 1780643709.0,
-    "hash": "79c3599023719fbb4c0d0c86a278890c"
-  },
-  "F:\\MagisV2\\src\\main\\common\\printf.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "b0024fb1596362ef01641a2af23f748e"
-  },
-  "F:\\MagisV2\\src\\main\\common\\printf.h": {
-    "mtime": 1777868741.0,
-    "hash": "7fe02f10966416859191c11095410761"
-  },
-  "F:\\MagisV2\\src\\main\\common\\typeconversion.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "2a441ed500562d59166d0542a2e97dfd"
-  },
-  "F:\\MagisV2\\src\\main\\common\\typeconversion.h": {
-    "mtime": 1777868741.0,
-    "hash": "c25f2becea614dc7899f117d25064264"
-  },
-  "F:\\MagisV2\\src\\main\\common\\utils.h": {
-    "mtime": 1792150285.702679,
-    "hash": "0627a1ce5331a71d00898cc41f389403"
-  },
-  "F:\\MagisV2\\src\\main\\config\\config.cpp": {
-    "mtime": 1791949827.6484334,
-    "hash": "e0d8d5cb84201e95e5c4db3128f9ac3e"
-  },
-  "F:\\MagisV2\\src\\main\\config\\config.h": {
-    "mtime": 1785830612.0,
-    "hash": "998337010a8e94349764885b229a3688"
-  },
-  "F:\\MagisV2\\src\\main\\config\\config_master.h": {
-    "mtime": 1777868741.0,
-    "hash": "15022f852e3961cdd18ed3e440e88323"
-  },
-  "F:\\MagisV2\\src\\main\\config\\config_profile.h": {
-    "mtime": 1777868741.0,
-    "hash": "5922d118a10be08921afaa43e14f5552"
-  },
-  "F:\\MagisV2\\src\\main\\config\\runtime_config.cpp": {
-    "mtime": 1788998628.0,
-    "hash": "e51cf63babaf85b92e7a204b64d8aac3"
-  },
-  "F:\\MagisV2\\src\\main\\config\\runtime_config.h": {
-    "mtime": 1777868741.0,
-    "hash": "f13691d6ee2b5c6f0372f676d34d2ecb"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\accgyro.h": {
-    "mtime": 1777868741.0,
-    "hash": "768cf6cc12033a885dc063beccece7ad"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\accgyro_icm20948.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "bbc88f1b391358230a5c3bc80add927c"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\accgyro_icm20948.h": {
-    "mtime": 1777868741.0,
-    "hash": "3706ac6c89a82a5a9f678ce1a2d96c1c"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\accgyro_mpu.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "fa653819d67f304526ee7c1ea1ceb192"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\accgyro_mpu.h": {
-    "mtime": 1777868741.0,
-    "hash": "7d4ba9b88f9c5fa9b9cf443d801c44f5"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\adc.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "b9b6b6eb99a5bd1190ec152a2c6d4bf5"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\adc.h": {
-    "mtime": 1777868741.0,
-    "hash": "947155881dc919f01d5a897b012f5e41"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\adc_impl.h": {
-    "mtime": 1777868741.0,
-    "hash": "c6af85048557447530867997f89d9833"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\adc_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "e8fe19413b9a6c5cdaf57d083093fdff"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\barometer.h": {
-    "mtime": 1777868741.0,
-    "hash": "76386cd0f629d81a410d34e205643b8a"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.cpp": {
-    "mtime": 1789707445.1365006,
-    "hash": "c2380e1de5f69d90e753bb6687cf0939"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\barometer_icp10111.h": {
-    "mtime": 1777868741.0,
-    "hash": "bc8b40be69968cf36d1dbe426cdf1aaa"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bridge_sc18is602b.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "0dcd5d533b81cb19811bc4fee5c09295"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bridge_sc18is602b.h": {
-    "mtime": 1777868741.0,
-    "hash": "8456238f3d90edfd1d0164ec7b934458"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bus_i2c.h": {
-    "mtime": 1777868741.0,
-    "hash": "5e74dbc7ce701b218fa2d9ec85191221"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bus_i2c_soft.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "b3a1492a55d368bd911a4667838dc517"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bus_i2c_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "39fcaa6010e5d352cc903e2437b2a611"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bus_spi.c": {
-    "mtime": 1791977530.8549225,
-    "hash": "9d12c8b43da94557dd1056e7eb314d89"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\bus_spi.h": {
-    "mtime": 1791977532.4691057,
-    "hash": "d9ed9ee5f38dc6f58a3c448574da3028"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\compass.h": {
-    "mtime": 1777868741.0,
-    "hash": "e539e4ee7921e478ca62d28a52df6731"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\compass_ak09916.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "061c37e6dfe1bb8c7307b2ff2eced540"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\compass_ak09916.h": {
-    "mtime": 1777868741.0,
-    "hash": "23b7e237df36df4577124fc3e2dc7c60"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.c": {
-    "mtime": 1791950660.3356857,
-    "hash": "4ca3e240690d4a25d3058d9488f3d626"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\display_ug2864hsweg01.h": {
-    "mtime": 1791950665.5722184,
-    "hash": "b97a880f8815a35cfe3ea5a0c67419cd"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\dma_registry.c": {
-    "mtime": 1785830612.0,
-    "hash": "ab92149a0cde9e899f01785982205ec9"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\dma_registry.h": {
-    "mtime": 1785830612.0,
-    "hash": "2c4942f9d5e09cd8e46606bf2f28b5b0"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\exti.h": {
-    "mtime": 1785830612.0,
-    "hash": "4f96721bec9c47bb270f8a7f93abdb8e"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\flash.h": {
-    "mtime": 1777868741.0,
-    "hash": "ba839c20fa25b95b4e30f1b2982e9ad4"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\flash_m25p16.cpp": {
-    "mtime": 1791977038.4282365,
-    "hash": "0e952b43182aff1199b2017253d45ccd"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\flash_m25p16.h": {
-    "mtime": 1791977038.3421693,
-    "hash": "df97d2b8f07fa382a302a68ca44a43ea"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\gpio.h": {
-    "mtime": 1785830612.0,
-    "hash": "0aa3afc858b0e9708a156820e58a17ca"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\gpio_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "be36c846b38eb36a22c5db06810d8c17"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\ina219.c": {
-    "mtime": 1791002931.6983097,
-    "hash": "c7aa4c1a5aaa5a65ec6f0a54c155c93f"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\ina219.h": {
-    "mtime": 1790653748.890315,
-    "hash": "4dbc73ff0e4b88a44cb53f5ff7d279fb"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\inverter.c": {
-    "mtime": 1777868741.0,
-    "hash": "6b8e7ba12684da70ce8de17b80bb6751"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\inverter.h": {
-    "mtime": 1777868741.0,
-    "hash": "5eb754dc78a4427e2633ce4b5c4f4760"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_led.c": {
-    "mtime": 1777868741.0,
-    "hash": "20dffd2dcd477141a977db9ef124352d"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_led.h": {
-    "mtime": 1777868741.0,
-    "hash": "b5a4b335268d9a8ac0d22a4ae12ca075"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_led_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "394994b50028911483329541ab2f49dc"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_ws2811strip.c": {
-    "mtime": 1777868741.0,
-    "hash": "56315a487922cd234b6d01d9c6480b7d"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_ws2811strip.h": {
-    "mtime": 1785830612.0,
-    "hash": "7cac4a205824f1fc5a16e4ecd0d16b27"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\light_ws2811strip_stm32f30x.c": {
-    "mtime": 1785830612.0,
-    "hash": "95593ec05646b38714d6c1ba866bca0d"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\nvic.h": {
-    "mtime": 1777868741.0,
-    "hash": "ba5894beae91776e8424f87cd3f516a3"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\opticflow_paw3903.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "64847891c9109a242c33eee77b0ee8b0"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\opticflow_paw3903.h": {
-    "mtime": 1777868741.0,
-    "hash": "da9f639f0e5e31f409d2d63f813ad48c"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\paw3903_opticflow.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "7e2d5af6dc4a08c74cbb82c921c8a3f9"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\paw3903_opticflow.h": {
-    "mtime": 1777868741.0,
-    "hash": "b48c4c31a899a478b12eac045a2c249b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_mapping.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "c51297fa069f8da2410ded9f8d17b305"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_mapping.h": {
-    "mtime": 1785830612.0,
-    "hash": "2d866d1abba01958274731ebb12af0fc"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_output.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "909e276bbaff65ccc832f6896c248ed1"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_output.h": {
-    "mtime": 1777868741.0,
-    "hash": "393672fe236ff71461cab5c08618a206"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_rx.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "42dba17cfebe420250836a28de08ea67"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\pwm_rx.h": {
-    "mtime": 1777868741.0,
-    "hash": "0399670188642aabef232c88eeb2c994"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.cpp": {
-    "mtime": 1792039156.965582,
-    "hash": "1705503b7160b9e4c1f6d6b6c832d642"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\ranging_vl53l0x.h": {
-    "mtime": 1791970840.9649372,
-    "hash": "1ec0cf549c077b910b4739e6f2ec062c"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sc18is602b.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "cb650e69a93f2fc1ec3ec4799e07798b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sc18is602b.h": {
-    "mtime": 1777868741.0,
-    "hash": "c8416ac173b3b0f134baf56ed4c64338"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sensor.h": {
-    "mtime": 1777868741.0,
-    "hash": "92741ee6ea56454f3bc8fb8c33d0f2a1"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "b20406985625021a34354563a95e7f54"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial.h": {
-    "mtime": 1777868741.0,
-    "hash": "0b8f02f62997dda29d6bb184bbf9321f"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_softserial.c": {
-    "mtime": 1777868741.0,
-    "hash": "0a2a3f364117b2f3710a3ff4c6cb4cfd"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_softserial.h": {
-    "mtime": 1777868741.0,
-    "hash": "a1695cc88457f11a75c0e040ccb46238"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_uart.c": {
-    "mtime": 1777868741.0,
-    "hash": "42d2d1aa2a1d65ae279d0985680780c9"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_uart.h": {
-    "mtime": 1777868741.0,
-    "hash": "c2ea70bd4dc3f11124c9aa3088114cd2"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_uart_impl.h": {
-    "mtime": 1777868741.0,
-    "hash": "2c90c7eadaff68d1c0d845b41c6766d3"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_uart_stm32f30x.c": {
-    "mtime": 1785830612.0,
-    "hash": "037e53b5120dcaea9a3036e315a23bf9"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_usb_vcp.c": {
-    "mtime": 1777868741.0,
-    "hash": "80f218daa7a7a6ad24e82b607ac7e9ef"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\serial_usb_vcp.h": {
-    "mtime": 1777868741.0,
-    "hash": "9c52e8b6605095fd5b0e3ffff9b89b9b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sound_beeper.c": {
-    "mtime": 1777868741.0,
-    "hash": "0a37e881e7c754bd9b86e7ac09570a6b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sound_beeper.h": {
-    "mtime": 1777868741.0,
-    "hash": "d973589d7e392705c82c26404f53ac09"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\sound_beeper_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "f0b2f9c379bbce0652328077e561869b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\system.c": {
-    "mtime": 1785830612.0,
-    "hash": "5ccbb93aa6579affe7dd402c3aca1377"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\system.h": {
-    "mtime": 1777868741.0,
-    "hash": "39b247cba74343bcaf4db6299296d544"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\system_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "c2acc19afdc0e6df72e699e6da218d85"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\timer.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "2e915231f4c9080a6aab43ee289fae3b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\timer.h": {
-    "mtime": 1785830612.0,
-    "hash": "89acbde4cf6d891f6bc160b17c6bd273"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\timer_impl.h": {
-    "mtime": 1777868741.0,
-    "hash": "d0645281bc44c1923dfc4c2a53bda932"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\timer_stm32f30x.c": {
-    "mtime": 1777868741.0,
-    "hash": "3bb55ac18d5772333238a86a4d9537ce"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\timer_stm32f30x.h": {
-    "mtime": 1777868741.0,
-    "hash": "b0c5ec41fa69d760c108e43aae01d63e"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_dev_area.cpp": {
-    "mtime": 1792388915.1609945,
-    "hash": "e2264c4385feb8e3c96ba9b990faef8b"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_dev_area.h": {
-    "mtime": 1792388882.3058121,
-    "hash": "0c5ecf9668f2a8b98658887a15c944e7"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_manager.cpp": {
-    "mtime": 1792388456.4768925,
-    "hash": "6dbcf227372852257de0e300f8d21904"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_manager.h": {
-    "mtime": 1792039156.8982198,
-    "hash": "ea5b0a31ffb686a2fd15c50258630dcb"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_manager_l1x.cpp": {
-    "mtime": 1792395431.3046527,
-    "hash": "7e1841e1555aea1a6f17b4ede4b96642"
-  },
-  "F:\\MagisV2\\src\\main\\drivers\\tof_manager_l1x.h": {
-    "mtime": 1792395432.3530738,
-    "hash": "2dffeff7ba16ddfc83f6dc6cd1e36e33"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\acrobats.cpp": {
-    "mtime": 1792137117.2246516,
-    "hash": "8be3a07f7d33aad311b10c8794cf5d17"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\acrobats.h": {
-    "mtime": 1777868741.0,
-    "hash": "5ad5fab4c6288f5d324d83f90d6eb6e1"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\altitudehold.cpp": {
-    "mtime": 1792387907.5906458,
-    "hash": "558dc2e0d238efb56e1040b003a9b69b"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\altitudehold.h": {
-    "mtime": 1792387177.5955856,
-    "hash": "c8fa764586f23858012901825e4ba15c"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\failsafe.cpp": {
-    "mtime": 1791890829.6769772,
-    "hash": "3459979c4ea0bc371bddc76aa281d131"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\failsafe.h": {
-    "mtime": 1791890828.6305802,
-    "hash": "8d5a679f1ea656928165285e86974c2e"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\filter.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "7b66c3ffed5a30d7b39cdf2057efb989"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\filter.h": {
-    "mtime": 1777868741.0,
-    "hash": "601516f6298a818d83956d022202ed0a"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\gps_conversion.c": {
-    "mtime": 1777868741.0,
-    "hash": "25973c39a42d629216326e863488bc60"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\gps_conversion.h": {
-    "mtime": 1777868741.0,
-    "hash": "fef59a4b8abc0b5b5afb134940bd08ed"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\gtune.c": {
-    "mtime": 1777868741.0,
-    "hash": "5d60c9ee502fea218c28bfe6ba046102"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\gtune.h": {
-    "mtime": 1777868741.0,
-    "hash": "dccc20d7ba71c13e97bf0860724ba165"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\imu.cpp": {
-    "mtime": 1791966457.7818651,
-    "hash": "32cff692791df0025dd6ca7880f42661"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\imu.h": {
-    "mtime": 1777868741.0,
-    "hash": "2d90f87203f356d2e175cf3cffeb6cab"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\lowpass.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "a8e425f19454843812d72baf9ad578c0"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\lowpass.h": {
-    "mtime": 1777868741.0,
-    "hash": "94e67144dc6db0f328d9fdab1e31bbfa"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\mixer.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "3b92c0bbea336c6c7069c192361b2073"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\mixer.h": {
-    "mtime": 1777868741.0,
-    "hash": "e70369a5fbe199d906faea0bef213005"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\motor.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "e729b6a62b3668897bf64247d5466d2a"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\motor.h": {
-    "mtime": 1777868741.0,
-    "hash": "d033265258648415312a859bfc964ab5"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\navigation.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "6a29a5c4a2842bd399d3fa3f0ccaa025"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\navigation.h": {
-    "mtime": 1777868741.0,
-    "hash": "fcc80ef8b177267002aca95e6027c589"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\opticflow.cpp": {
-    "mtime": 1791966457.7885063,
-    "hash": "fa14f171d17bfaa65cc86929e21853a4"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\opticflow.h": {
-    "mtime": 1777868741.0,
-    "hash": "11619eb4d878e0ebec1f71b31e26dff2"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\pid.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "3ea1435bcc167c93e8a261f3013721e6"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\pid.h": {
-    "mtime": 1777868741.0,
-    "hash": "05dc210547335465f4a98141a6b7ff63"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\posControl.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "5064d4e037097fe23f25df1bb2166067"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\posControl.h": {
-    "mtime": 1777868741.0,
-    "hash": "f8057a1054c48752e4d69e65dea51f65"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\posEstimate.cpp": {
-    "mtime": 1785830605.0,
-    "hash": "814340d444559096adf58e34376d9f7f"
-  },
-  "F:\\MagisV2\\src\\main\\flight\\posEstimate.h": {
-    "mtime": 1777868741.0,
-    "hash": "723e06195e12a49ce240651c315d090c"
-  },
-  "F:\\MagisV2\\src\\main\\io\\beeper.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "6aa159be06c5a8982856958f7e123ce9"
-  },
-  "F:\\MagisV2\\src\\main\\io\\beeper.h": {
-    "mtime": 1777868741.0,
-    "hash": "e494cacf0690d83f8a77913b43dfcce5"
-  },
-  "F:\\MagisV2\\src\\main\\io\\display.c": {
-    "mtime": 1777868741.0,
-    "hash": "2176e2ec041c34c7c79cb4aa7bbd6668"
-  },
-  "F:\\MagisV2\\src\\main\\io\\display.h": {
-    "mtime": 1777868741.0,
-    "hash": "731ca3ce629075647a699aff31dae8ff"
-  },
-  "F:\\MagisV2\\src\\main\\io\\escservo.h": {
-    "mtime": 1777868741.0,
-    "hash": "2c81241d0204a337679e72ee9068fd8c"
-  },
-  "F:\\MagisV2\\src\\main\\io\\flashfs.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "7fcbf7f4a8e27a171ddd877a12452d8b"
-  },
-  "F:\\MagisV2\\src\\main\\io\\flashfs.h": {
-    "mtime": 1777868741.0,
-    "hash": "06ae1bec467db095f280b9adb99f77a2"
-  },
-  "F:\\MagisV2\\src\\main\\io\\gimbal.h": {
-    "mtime": 1777868741.0,
-    "hash": "a9fde0a1d2b986750261cd8d134fda72"
-  },
-  "F:\\MagisV2\\src\\main\\io\\gps.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "f4122d96b20d8ef569eaba5a34c799f9"
-  },
-  "F:\\MagisV2\\src\\main\\io\\gps.h": {
-    "mtime": 1777868741.0,
-    "hash": "10ef6f540d8629beac68563628c391d3"
-  },
-  "F:\\MagisV2\\src\\main\\io\\ledstrip.c": {
-    "mtime": 1785830612.0,
-    "hash": "a65003bd85fd86da33c77b2be11288ec"
-  },
-  "F:\\MagisV2\\src\\main\\io\\ledstrip.h": {
-    "mtime": 1785830612.0,
-    "hash": "f4e15eaf6bc564fa5491ff7d5b303a6e"
-  },
-  "F:\\MagisV2\\src\\main\\io\\oled_display.c": {
-    "mtime": 1791953679.5887213,
-    "hash": "b08958617a5183b6497cbe19c297a340"
-  },
-  "F:\\MagisV2\\src\\main\\io\\oled_display.h": {
-    "mtime": 1791950675.0893512,
-    "hash": "d4e277aae1927e5d19bf210cd4c31d44"
-  },
-  "F:\\MagisV2\\src\\main\\io\\rc_controls.cpp": {
-    "mtime": 1780647229.0,
-    "hash": "2b1c1494adf8bcb8d8de0adb71fcec35"
-  },
-  "F:\\MagisV2\\src\\main\\io\\rc_controls.h": {
-    "mtime": 1785830612.0,
-    "hash": "3014c5b4dba2b90badda6fdb6f5ce9dd"
-  },
-  "F:\\MagisV2\\src\\main\\io\\rc_curves.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "be635dfe8bb4d6cac23a588f3f77188e"
-  },
-  "F:\\MagisV2\\src\\main\\io\\rc_curves.h": {
-    "mtime": 1777868741.0,
-    "hash": "74b815f2935da3e5ed06e862d7012ab5"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "9e88b47191b630e16e19f633f29d375c"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial.h": {
-    "mtime": 1777868741.0,
-    "hash": "88d7358f8d4fe069f3ca8a037b623110"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_1wire.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "e761182ae45c88e72a3c0e7adf1515a8"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_1wire.h": {
-    "mtime": 1777868741.0,
-    "hash": "7313c5c0c4711ca48df031545ca213ba"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_cli.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "55603baaad816baa28a899466463a410"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_cli.h": {
-    "mtime": 1777868741.0,
-    "hash": "1f6cdcf331ed82312f71581417f50a00"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_msp.cpp": {
-    "mtime": 1792139503.3519006,
-    "hash": "81ae1f2a5e57c9eab9290cd7f9a2b45d"
-  },
-  "F:\\MagisV2\\src\\main\\io\\serial_msp.h": {
-    "mtime": 1777868741.0,
-    "hash": "55eded7c54bd45faaaffa3a4a1fa8bf4"
-  },
-  "F:\\MagisV2\\src\\main\\io\\statusindicator.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "76aef8294c728957bdac3f7098703379"
-  },
-  "F:\\MagisV2\\src\\main\\io\\statusindicator.h": {
-    "mtime": 1777868741.0,
-    "hash": "dd5a2077e7475f67b3d3946bedc69a22"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\crsf.c": {
-    "mtime": 1780643709.0,
-    "hash": "dbe7d0b958b4b7f0c59dc98d15fba50a"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\crsf.h": {
-    "mtime": 1780643709.0,
-    "hash": "af0385078d653ca93315e7f0df886607"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\msp.c": {
-    "mtime": 1777868741.0,
-    "hash": "9efb726e66a09da48352b8812727d46b"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\msp.h": {
-    "mtime": 1777868741.0,
-    "hash": "4b111705ab947ef5806aa05e1487b24e"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\pwm.c": {
-    "mtime": 1777868741.0,
-    "hash": "38836d225f9e78014fd6093941f3f8eb"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\pwm.h": {
-    "mtime": 1777868741.0,
-    "hash": "f6e1887359fba6a0805ddd24abaeb27b"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\rx.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "f604d46e023ef1a88f66392bd0bb068a"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\rx.h": {
-    "mtime": 1785830612.0,
-    "hash": "06811e2c30f7f6a6d7db711547429f30"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sbus.c": {
-    "mtime": 1777868741.0,
-    "hash": "f475f0d379d43970d2331610ce9f0aec"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sbus.h": {
-    "mtime": 1777868741.0,
-    "hash": "7d2b9c18997b9f64a6db14cbee146995"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\spektrum.c": {
-    "mtime": 1777868741.0,
-    "hash": "897a3b0e4d954b324776dfb6c6779d57"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\spektrum.h": {
-    "mtime": 1777868741.0,
-    "hash": "719de7c62476bdf73f493340c0feae29"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sumd.c": {
-    "mtime": 1777868741.0,
-    "hash": "6f25b2996fca540e5e1dcb170b6e383d"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sumd.h": {
-    "mtime": 1777868741.0,
-    "hash": "1a3ff98dd76dc0a0410e776b48dad0be"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sumh.c": {
-    "mtime": 1777868741.0,
-    "hash": "998edd5485ccad370a990275c4ed5295"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\sumh.h": {
-    "mtime": 1777868741.0,
-    "hash": "d310041dffc71e5c31d15cec7c7c743d"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\xbus.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "9ff7bf46730d1593387dd5ba1b745702"
-  },
-  "F:\\MagisV2\\src\\main\\rx\\xbus.h": {
-    "mtime": 1777868741.0,
-    "hash": "cfe6bf78e48cdac4f452eac969794524"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\acceleration.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "ccc5dffd4031da9a7e434be92e20b29b"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\acceleration.h": {
-    "mtime": 1785830612.0,
-    "hash": "e1d20b0d4e4897cbb615a5b7d6b685ab"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\barometer.cpp": {
-    "mtime": 1789707597.0044591,
-    "hash": "7449246a60004f3b03ace296e90789bb"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\barometer.h": {
-    "mtime": 1788998638.0,
-    "hash": "9cf33767f8d58949f368ffdcdaa870b8"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\battery.cpp": {
-    "mtime": 1791002931.7003098,
-    "hash": "53e4ddb13418f7e35cb173fe65df0fef"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\battery.h": {
-    "mtime": 1791002931.7003098,
-    "hash": "e91306274cf3aae58cd6d552996fab8e"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\boardalignment.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "bdaea414b8170d46150267cfaf3eabe0"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\boardalignment.h": {
-    "mtime": 1777868741.0,
-    "hash": "52f8fdc74d3dc4b2ed2c473079c3efbf"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\compass.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "484f8d7753cd7aa458de781fa147602e"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\compass.h": {
-    "mtime": 1785830612.0,
-    "hash": "ec23b182d462a5a74ae406d192bc4188"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\gyro.cpp": {
-    "mtime": 1777868741.0,
-    "hash": "565299a6957499db691e3da77c4a544f"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\gyro.h": {
-    "mtime": 1785830612.0,
-    "hash": "40c7dcdbc4f8f6e55e767729a83bfb05"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\initialisation.cpp": {
-    "mtime": 1785830612.0,
-    "hash": "448691617548cb6534cb2349529bea96"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\initialisation.h": {
-    "mtime": 1777868741.0,
-    "hash": "24977fd3692ce3b8ab09292813fbcafb"
-  },
-  "F:\\MagisV2\\src\\main\\sensors\\sensors.h": {
-    "mtime": 1785830612.0,
-    "hash": "749d9cea9412602a0a819f7527489982"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\frsky.c": {
-    "mtime": 1777868741.0,
-    "hash": "419ca0a2d962629c7e5dbe3a7e694a41"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\frsky.h": {
-    "mtime": 1777868741.0,
-    "hash": "a60cc2462d507ab2e8678501fa4ecd7a"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\hott.c": {
-    "mtime": 1777868741.0,
-    "hash": "2af44b494db2f6a0a086f48f914ee895"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\hott.h": {
-    "mtime": 1777868741.0,
-    "hash": "76e4e2295ca705b85fa601b4b61d5410"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\msp.c": {
-    "mtime": 1777868741.0,
-    "hash": "70c916068040a6380853bb98a355e8f5"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\msp.h": {
-    "mtime": 1777868741.0,
-    "hash": "e64907a6a6367b6fe936d04a9b1763c0"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\smartport.c": {
-    "mtime": 1777868741.0,
-    "hash": "6c3683dd83c3c230b46991c812beb662"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\smartport.h": {
-    "mtime": 1777868741.0,
-    "hash": "9adba0a59ff16802961c0233ea5beda0"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\telemetry.c": {
-    "mtime": 1777868741.0,
-    "hash": "f2f87f1e28379e6e3130c073f2051e23"
-  },
-  "F:\\MagisV2\\src\\main\\telemetry\\telemetry.h": {
-    "mtime": 1777868741.0,
-    "hash": "c81db93711641198d51a1ea2287916be"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\hw_config.c": {
-    "mtime": 1785830612.0,
-    "hash": "522797358a02bfaf0e6cdafc2a3d29c4"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\hw_config.h": {
-    "mtime": 1785830612.0,
-    "hash": "118f206de22628b700c37ae20b82f556"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\platform_config.h": {
-    "mtime": 1777868741.0,
-    "hash": "b36251b7f09f3f8828f342b5b08bb472"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\stm32_it.c": {
-    "mtime": 1777868741.0,
-    "hash": "e832ab2048e38bd4b91142fb030eea45"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\stm32_it.h": {
-    "mtime": 1777868741.0,
-    "hash": "0165303db36420b7506ed8cd790f2b8e"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_conf.h": {
-    "mtime": 1777868741.0,
-    "hash": "00797329fdfb3b30916504a1e7a5a663"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_desc.c": {
-    "mtime": 1777868741.0,
-    "hash": "483ce9e894275cc97bde87ecbd7579e6"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_desc.h": {
-    "mtime": 1777868741.0,
-    "hash": "c2fa321d8c7d7f834240791e905cb6b4"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_endp.c": {
-    "mtime": 1777868741.0,
-    "hash": "462b25a44de556bc439ea6c1773bd3c1"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_istr.c": {
-    "mtime": 1777868741.0,
-    "hash": "42d1fd992402e0ccf7fe986d36eede17"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_istr.h": {
-    "mtime": 1777868741.0,
-    "hash": "980ccd56a78542897f19ec423bb65f1d"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_prop.c": {
-    "mtime": 1777868741.0,
-    "hash": "0c8ccfbb23dbd38f00d705bce4ad2124"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_prop.h": {
-    "mtime": 1777868741.0,
-    "hash": "2252fa7f2866f2fcd517f0691b4562ae"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_pwr.c": {
-    "mtime": 1777868741.0,
-    "hash": "14af9dd2771443728b12d4a55b1e7bfd"
-  },
-  "F:\\MagisV2\\src\\main\\vcp\\usb_pwr.h": {
-    "mtime": 1777868741.0,
-    "hash": "838b21c5a705f40e8114cc55f8e4ed87"
-  },
-  "F:\\MagisV2\\tools\\flightlog.py": {
-    "mtime": 1789702379.2947032,
-    "hash": "79a56fcf35444122bdd04c73eed7956a"
-  },
-  "F:\\MagisV2\\tools\\graph_labels.py": {
-    "mtime": 1789705228.2147949,
-    "hash": "0b4a49df5235113ee6197f1005315fe9"
-  },
-  "F:\\MagisV2\\tools\\warnings.py": {
-    "mtime": 1789966447.2663162,
-    "hash": "d5fa9ea2256bdef8809cccb66f3fa75e"
-  },
-  "F:\\MagisV2\\CHANGELOG.md": {
-    "mtime": 1792140744.5948062,
-    "hash": "a2fe696990199a391c14ffc96c96b385"
-  },
-  "F:\\MagisV2\\CLAUDE.md": {
-    "mtime": 1792393867.19507,
-    "hash": "198d5f0f5406892fa01779fdcfde4ab3"
-  },
-  "F:\\MagisV2\\README.md": {
-    "mtime": 1785830612.0,
-    "hash": "cb5c200f528fb9560689805626302c8d"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32F30x_StdPeriph_Driver\\Release_Notes.html": {
-    "mtime": 1777868741.0,
-    "hash": "317858df9c98a0b98032392957f7ddd3"
-  },
-  "F:\\MagisV2\\lib\\main\\STM32_USB-FS-Device_Driver\\Release_Notes.html": {
-    "mtime": 1777868741.0,
-    "hash": "c2f799c31fc1fb3bf7874a4a7226fe92"
+  "PlutoPilot.cpp": {
+    "mtime": 1793093699.490576,
+    "seen": 1793095354.847382,
+    "ast_hash": "f20fbb6a69b6610c64bca0b776ee708e",
+    "semantic_hash": ""
+  },
+  "PlutoPilot.h": {
+    "mtime": 1793083694.6533377,
+    "seen": 1793095354.847382,
+    "ast_hash": "2706ed05d39d83f1e084625e1277fcef",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/arm_common_tables.h": {
+    "mtime": 1747314557.3222723,
+    "seen": 1793095354.847382,
+    "ast_hash": "455b6e12f245573eb84dddca6654fb99",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/arm_const_structs.h": {
+    "mtime": 1747314557.3222723,
+    "seen": 1793095354.847382,
+    "ast_hash": "b52a459ba01fa73587946aba9aafcde9",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/arm_math.h": {
+    "mtime": 1747314557.3233087,
+    "seen": 1793095354.847382,
+    "ast_hash": "1d8ef0a9ea3321a84f35df38afe7aef3",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cm0.h": {
+    "mtime": 1747314557.3238134,
+    "seen": 1793095354.847382,
+    "ast_hash": "dc2262d942c744f5bc01edc97320bbbe",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cm0plus.h": {
+    "mtime": 1747314557.3238134,
+    "seen": 1793095354.847382,
+    "ast_hash": "392275c580ea7d029338555daacddc5f",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cm3.h": {
+    "mtime": 1747314557.3238134,
+    "seen": 1793095354.847382,
+    "ast_hash": "66670b49a91a44665ae3d6bbaf55430f",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cm4.h": {
+    "mtime": 1747314557.3238134,
+    "seen": 1793095354.847382,
+    "ast_hash": "0090ac54a11bd24c007c8e0a20283c40",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cm4_simd.h": {
+    "mtime": 1747314557.324818,
+    "seen": 1793095354.847382,
+    "ast_hash": "307e421aa5abc33b42efdf5a57dde1ab",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cmFunc.h": {
+    "mtime": 1747314557.324818,
+    "seen": 1793095354.847382,
+    "ast_hash": "c6a92edad399be2a4b2e5ab55f0671df",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_cmInstr.h": {
+    "mtime": 1747314557.324818,
+    "seen": 1793095354.847382,
+    "ast_hash": "554f02258e0b76a7d8f415a5f0de5df4",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_sc000.h": {
+    "mtime": 1747314557.3253224,
+    "seen": 1793095354.847382,
+    "ast_hash": "1c62c0df7bfb0e8036d74c8323c8b127",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/CoreSupport/core_sc300.h": {
+    "mtime": 1747314557.3253224,
+    "seen": 1793095354.847382,
+    "ast_hash": "e4bac36a9f878c9dd1a1d262c13be73e",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x.h": {
+    "mtime": 1747314557.3268352,
+    "seen": 1793095354.847382,
+    "ast_hash": "50b16376c13aefe629acf89af6afc022",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x_conf.h": {
+    "mtime": 1747314557.3268352,
+    "seen": 1793095354.847382,
+    "ast_hash": "d2f4f9dc169656e1221d3d2674a22be9",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x_gpio.c": {
+    "mtime": 1747314557.3278406,
+    "seen": 1793095354.847382,
+    "ast_hash": "0e1b9384bfd55e5c24d2836d9b624282",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x_gpio.h": {
+    "mtime": 1747314557.3278406,
+    "seen": 1793095354.847382,
+    "ast_hash": "847fae58ff5e0124a688dd78c74fb7e9",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x_rcc.c": {
+    "mtime": 1747314557.3283463,
+    "seen": 1793095354.847382,
+    "ast_hash": "6b90b5bccd93df65ee8dae21abaf143a",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM1/DeviceSupport/ST/STM32F30x/stm32f30x_rcc.h": {
+    "mtime": 1747314557.3283463,
+    "seen": 1793095354.847382,
+    "ast_hash": "53b0c8ab1b1e936a1695a2d793de2d92",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM3/CoreSupport/core_cm3.c": {
+    "mtime": 1747314557.3283463,
+    "seen": 1793095354.847382,
+    "ast_hash": "cb4c332f507f7e74c49b1afceb5cb252",
+    "semantic_hash": ""
+  },
+  "lib/main/CMSIS/CM3/CoreSupport/core_cm3.h": {
+    "mtime": 1747314557.3293493,
+    "seen": 1793095354.847382,
+    "ast_hash": "d4e168c9c0f3535810374a9fd648c108",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_adc.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "e0e38a60961aa765ef3c9955a51d3b06",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_can.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "8a383c6e8c0e6c23b4a324e10e1988f5",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_comp.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "a3bff0e0fe7ae96a099c3449af192444",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_crc.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "5cf81520e7e52bb2bf2f79d5c52298c8",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_dac.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "db3bd7b47ee96eb5573132ad0305ff9d",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_dbgmcu.h": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847382,
+    "ast_hash": "86fe78d7745c68fc90c9b12e1dded85e",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_dma.h": {
+    "mtime": 1747314557.343655,
+    "seen": 1793095354.847382,
+    "ast_hash": "7ee08bd3b0268e972f31231c25dcf477",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_exti.h": {
+    "mtime": 1747314557.343655,
+    "seen": 1793095354.847382,
+    "ast_hash": "fcbbcebc1b0d30ccf8849f405da10c09",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_flash.h": {
+    "mtime": 1747314557.343655,
+    "seen": 1793095354.847382,
+    "ast_hash": "1301fe548fea61a24231d6525e1a0523",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_gpio.h": {
+    "mtime": 1747314557.3441598,
+    "seen": 1793095354.847382,
+    "ast_hash": "847fae58ff5e0124a688dd78c74fb7e9",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_hrtim.h": {
+    "mtime": 1747314557.3441598,
+    "seen": 1793095354.847382,
+    "ast_hash": "78e53e85e0a917e58d55d74491466f91",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_i2c.h": {
+    "mtime": 1747314557.3441598,
+    "seen": 1793095354.847382,
+    "ast_hash": "ef41ca0e21122b4a8a5d2f70a05f6f33",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_iwdg.h": {
+    "mtime": 1747314557.3441598,
+    "seen": 1793095354.847382,
+    "ast_hash": "9dc6a944535e5f5b2884037c25974163",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_misc.h": {
+    "mtime": 1747314557.3441598,
+    "seen": 1793095354.847382,
+    "ast_hash": "9fbbe384196f0ab6b5e9d0e4bbaf30cb",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_opamp.h": {
+    "mtime": 1747314557.3451717,
+    "seen": 1793095354.847382,
+    "ast_hash": "548dda0beb92aeba0cbfbff9ea143782",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_pwr.h": {
+    "mtime": 1747314557.3451717,
+    "seen": 1793095354.847382,
+    "ast_hash": "6ee8bf9af928e7dbd240709373d1ccfc",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_rcc.h": {
+    "mtime": 1747314557.3451717,
+    "seen": 1793095354.847382,
+    "ast_hash": "53b0c8ab1b1e936a1695a2d793de2d92",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_rtc.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "7fcceadebd83e692a4f04f3ce3a8b644",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_spi.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "89d3be1a57e06db3c765822289304d50",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_syscfg.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "fafd6bad87cb0872a6e5aeb520201188",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_tim.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "f5eb8a44b13b061b3c773751fdfdf3d4",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_usart.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "b01675555e4a9e934af54faca4e7e588",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/inc/stm32f30x_wwdg.h": {
+    "mtime": 1747314557.345676,
+    "seen": 1793095354.847382,
+    "ast_hash": "3b669f2cb077e38b4913eb09bad4e250",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_adc.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "f5b9d3ff73d3d113e0271eead86a8015",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_can.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "7859d456d9392ff3b55a689330bf4be0",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_comp.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "af6da968d2a6c10ae05f0cfaeb1b14e3",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_crc.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "81bfd1b5a5a624af523f7e103017b630",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_dac.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "3faadb63c55a4b887e8e79f7d93cc93e",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_dbgmcu.c": {
+    "mtime": 1747314557.3466794,
+    "seen": 1793095354.847382,
+    "ast_hash": "f64c243b65af7eee6d888b8a6bb3573b",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_dma.c": {
+    "mtime": 1747314557.3476999,
+    "seen": 1793095354.847382,
+    "ast_hash": "0b681c70d28232c24104ce2e61263237",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_exti.c": {
+    "mtime": 1747314557.3476999,
+    "seen": 1793095354.847382,
+    "ast_hash": "7eca7de711c0c60f9d7684556406bf09",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_flash.c": {
+    "mtime": 1747314557.3476999,
+    "seen": 1793095354.847382,
+    "ast_hash": "9c482a33da3f2f11e54955fd17ac4aeb",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_gpio.c": {
+    "mtime": 1747314557.3482046,
+    "seen": 1793095354.847382,
+    "ast_hash": "0e1b9384bfd55e5c24d2836d9b624282",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_hrtim.c": {
+    "mtime": 1747314557.3482046,
+    "seen": 1793095354.847382,
+    "ast_hash": "83ce71d5938ebec8bb1d1f3967005b3b",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_i2c.c": {
+    "mtime": 1747314557.349208,
+    "seen": 1793095354.847382,
+    "ast_hash": "0fbe8756e6094b9d66cc85d210d85fd1",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_iwdg.c": {
+    "mtime": 1747314557.349208,
+    "seen": 1793095354.847382,
+    "ast_hash": "0fd4cce0c7c3cc8ce458cda344ca67f8",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_misc.c": {
+    "mtime": 1747314557.3497145,
+    "seen": 1793095354.847382,
+    "ast_hash": "6f0e939f53f74123079a191653aa251a",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_opamp.c": {
+    "mtime": 1747314557.3497145,
+    "seen": 1793095354.847382,
+    "ast_hash": "56a21c95602b900d3c4f74919825a91d",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_pwr.c": {
+    "mtime": 1747314557.3497145,
+    "seen": 1793095354.847382,
+    "ast_hash": "cbf29f4383767a1b8c6c6e96c3eeab74",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_rcc.c": {
+    "mtime": 1747314557.3497145,
+    "seen": 1793095354.847382,
+    "ast_hash": "6b90b5bccd93df65ee8dae21abaf143a",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_rtc.c": {
+    "mtime": 1747314557.350722,
+    "seen": 1793095354.847382,
+    "ast_hash": "2848d492b760f01d276fcd75ca5eb7f5",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_spi.c": {
+    "mtime": 1747314557.350722,
+    "seen": 1793095354.847382,
+    "ast_hash": "2d971c5093c487e4df8c0a2def3190a4",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_syscfg.c": {
+    "mtime": 1747314557.3512273,
+    "seen": 1793095354.847382,
+    "ast_hash": "5062feb705238da45377fdd48278e75b",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_tim.c": {
+    "mtime": 1747314557.3512273,
+    "seen": 1793095354.847382,
+    "ast_hash": "137c02ef1630e733a8f16f9bf83b3d7d",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_usart.c": {
+    "mtime": 1747314557.3512273,
+    "seen": 1793095354.847382,
+    "ast_hash": "d382c42b43477ffa8d330eaae5b722d2",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_wwdg.c": {
+    "mtime": 1747314557.3512273,
+    "seen": 1793095354.847382,
+    "ast_hash": "f2d4734066a8aa27cbbc82f980cc21e2",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_core.h": {
+    "mtime": 1747314557.3522325,
+    "seen": 1793095354.847382,
+    "ast_hash": "7642eee4a85f18d5f3fbdd435aba7c32",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_def.h": {
+    "mtime": 1747314557.3522325,
+    "seen": 1793095354.847382,
+    "ast_hash": "f29aa810f090d21431ae4823d6d73f84",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_init.h": {
+    "mtime": 1747314557.3522325,
+    "seen": 1793095354.847382,
+    "ast_hash": "e69cbaf47e62d843c5d6ca6c781b6eae",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_int.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "f49ca940361f3fec56a146a6195f80bb",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_lib.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "1e55d31e96613ec94141c48c1e22ffeb",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_mem.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "0f0987bb5c421963c470837f9995511d",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_regs.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "4a9e058cf03cf9ffa655787b4f313ca1",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_sil.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "65c36f9fb28512a936d38bf8be1b3e36",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/inc/usb_type.h": {
+    "mtime": 1747314557.352739,
+    "seen": 1793095354.847382,
+    "ast_hash": "50bc1303ce5bb50eb5ad06c963140758",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_core.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "3bf1903976b517dab061f97e54349521",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_init.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "94a5c744ba4a8ec7a655a4d8c9eb2369",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_int.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "8d7baafee5b01a5ed4a271b135214d8f",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_mem.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "f957c7130f8072bf435424d2664757e4",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_regs.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "a4df5a35bf10a477ece3861790c680ef",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/src/usb_sil.c": {
+    "mtime": 1747314557.3537438,
+    "seen": 1793095354.847382,
+    "ast_hash": "5d677c1a5520f1d49fc447060390a26e",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_api.h": {
+    "mtime": 1747314557.3547933,
+    "seen": 1793095354.847382,
+    "ast_hash": "14ff9e6c56ce3f05e9942244dc248c8b",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_api_calibration.h": {
+    "mtime": 1747314557.3547933,
+    "seen": 1793095354.847382,
+    "ast_hash": "74dba72574bf33afaa6852f746e85a2a",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_api_core.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "f2aa046dafd07ad0ee8c53769baf08ae",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_api_ranging.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "8bd11856a7919aadb0663b175b68875c",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_api_strings.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "d5527ad3af1d23758fc0402b99577e41",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_def.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "36e070fe246d776a2f26e5c7022283d5",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_device.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "71110fbf62d1ff0b108d7ffc2f9f3084",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_interrupt_threshold_settings.h": {
+    "mtime": 1747314557.3552985,
+    "seen": 1793095354.847382,
+    "ast_hash": "8e75b389b01a05f5c07a35a7d9309135",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/inc/vl53l0x_tuning.h": {
+    "mtime": 1747314557.3563032,
+    "seen": 1793095354.847382,
+    "ast_hash": "455ff30237196aa796b60a036f8146fb",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/src/vl53l0x_api.c": {
+    "mtime": 1747315472.9485643,
+    "seen": 1793095354.847382,
+    "ast_hash": "dc9f8d58111ff6f53dbea7c5344ef18c",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/src/vl53l0x_api_calibration.c": {
+    "mtime": 1747315472.9495661,
+    "seen": 1793095354.847382,
+    "ast_hash": "6abd223b29933605ed35d328a48a4443",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/src/vl53l0x_api_core.c": {
+    "mtime": 1747315472.950069,
+    "seen": 1793095354.847382,
+    "ast_hash": "413399b7cc4dc45c3bfc3c14bb95077f",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/src/vl53l0x_api_ranging.c": {
+    "mtime": 1747315472.950069,
+    "seen": 1793095354.847382,
+    "ast_hash": "451e6ef4d2c6b809cb24c45449ac7bcb",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/core/src/vl53l0x_api_strings.c": {
+    "mtime": 1747315472.950069,
+    "seen": 1793095354.847382,
+    "ast_hash": "35de30ca0b022fcdfdba7f287c4f9fec",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/inc/vl53l0x_i2c_platform.h": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "22805718925c43f4cbaf538b3782b2aa",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/inc/vl53l0x_platform.h": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "821c2564141cb4006b949f2625170f14",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/inc/vl53l0x_platform_log.h": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "ab9d49ed76180e7a87b3817fdbb1e711",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/inc/vl53l0x_types.h": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "5392baedba09ab86dafba0d8414aef38",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/src/vl53l0x_i2c_platform.c": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "08646f80addc5d7f713b92311596e832",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/src/vl53l0x_platform.c": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "1a80a395be70203f5d5f9e833a8082a5",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L0X_API/platform/src/vl53l0x_platform_log.c": {
+    "mtime": 1747314557.3583088,
+    "seen": 1793095354.847382,
+    "ast_hash": "ff821386a6e8525ed290298dc5443cbf",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api.h": {
+    "mtime": 1782249088.7521448,
+    "seen": 1793095354.847382,
+    "ast_hash": "21d2c7f49bcb7c122bef643db9932e43",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api_calibration.h": {
+    "mtime": 1782249088.7521448,
+    "seen": 1793095354.847382,
+    "ast_hash": "db7d30385a4e863e94cb155d73b47ca3",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api_core.h": {
+    "mtime": 1782249088.7531562,
+    "seen": 1793095354.847382,
+    "ast_hash": "d64a435ec3e4f1f6b944c22e83736c8f",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api_debug.h": {
+    "mtime": 1782249088.7531562,
+    "seen": 1793095354.847382,
+    "ast_hash": "9eb8ed84cd5d39b49713b271383cc1a1",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api_preset_modes.h": {
+    "mtime": 1782249088.7531562,
+    "seen": 1793095354.847382,
+    "ast_hash": "45b5c1f8c47e9a8ba4d580049c6febe9",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_api_strings.h": {
+    "mtime": 1782249088.7536645,
+    "seen": 1793095354.847382,
+    "ast_hash": "81af05c5c2cf4c1f727202be3c7e14ee",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_core.h": {
+    "mtime": 1782249088.7536645,
+    "seen": 1793095354.847382,
+    "ast_hash": "c0151f3dc8bb48bff2766cb13056fdee",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_core_support.h": {
+    "mtime": 1782249088.7536645,
+    "seen": 1793095354.847382,
+    "ast_hash": "742536958e3e455feb4beffc8dc44dc5",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_def.h": {
+    "mtime": 1782249088.7536645,
+    "seen": 1793095354.847382,
+    "ast_hash": "a5f5ed5a6760ec61fba6fc97206399aa",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_error_codes.h": {
+    "mtime": 1782249088.7536645,
+    "seen": 1793095354.847382,
+    "ast_hash": "1739b6326481070005675c48e704f3b8",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_error_exceptions.h": {
+    "mtime": 1782249088.754676,
+    "seen": 1793095354.847382,
+    "ast_hash": "ae9c56564c2bddcb57bbe8cad09b5946",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_error_strings.h": {
+    "mtime": 1782249088.754676,
+    "seen": 1793095354.847382,
+    "ast_hash": "eab31c5629537dfea13597f46febfee2",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_ll_def.h": {
+    "mtime": 1782249088.754676,
+    "seen": 1793095354.847382,
+    "ast_hash": "c250126d36a4d4ef0702cf3dc6a98141",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_ll_device.h": {
+    "mtime": 1782249088.755185,
+    "seen": 1793095354.847382,
+    "ast_hash": "7e8d6c90bf816e466969e9d711327d75",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_nvm_map.h": {
+    "mtime": 1782249088.755185,
+    "seen": 1793095354.847382,
+    "ast_hash": "d3f5f3266502140194477cf48d92705c",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_preset_setup.h": {
+    "mtime": 1782249088.755185,
+    "seen": 1793095354.847382,
+    "ast_hash": "e9ca98c0b9cdfafd69e90b1ac7f75f10",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_register_funcs.h": {
+    "mtime": 1782249088.755185,
+    "seen": 1793095354.847382,
+    "ast_hash": "ab94ee42eaeac105ec051061580526c2",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_register_map.h": {
+    "mtime": 1782249088.756196,
+    "seen": 1793095354.847382,
+    "ast_hash": "0738fdd051c67c490be768f974729d94",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_register_settings.h": {
+    "mtime": 1782249088.7567046,
+    "seen": 1793095354.847382,
+    "ast_hash": "90f7a343ee74ac1c256fe291eabb41de",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_register_structs.h": {
+    "mtime": 1782249088.7567046,
+    "seen": 1793095354.847382,
+    "ast_hash": "20c4c006a5e4a2867ddb9b630c70e173",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_silicon_core.h": {
+    "mtime": 1782249088.7567046,
+    "seen": 1793095354.847382,
+    "ast_hash": "b80b185438a0e9060835c5eb5025acc9",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_tuning_parm_defaults.h": {
+    "mtime": 1782249088.7567046,
+    "seen": 1793095354.847382,
+    "ast_hash": "f1d391a4092782712966e1310b7fa10f",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/inc/vl53l1_wait.h": {
+    "mtime": 1782249088.7567046,
+    "seen": 1793095354.847382,
+    "ast_hash": "1488d3de84935ce055ae8552ace0552a",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api.c": {
+    "mtime": 1782249088.7577157,
+    "seen": 1793095354.847382,
+    "ast_hash": "1d44db42a20b3d1e21620c46ba5c13f8",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api_calibration.c": {
+    "mtime": 1782249088.7577157,
+    "seen": 1793095354.847382,
+    "ast_hash": "0e954122dfb182713e75a5429485e976",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api_core.c": {
+    "mtime": 1782249088.7582245,
+    "seen": 1793095354.847382,
+    "ast_hash": "944d1af95c86f58dae954ac0451e0cb1",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api_debug.c": {
+    "mtime": 1782249088.7582245,
+    "seen": 1793095354.847382,
+    "ast_hash": "78ea1a6fdadf7291cf7935f314b22080",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api_preset_modes.c": {
+    "mtime": 1782249088.7582245,
+    "seen": 1793095354.847382,
+    "ast_hash": "c661a73a25a0c3144b4d7222288296ed",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_api_strings.c": {
+    "mtime": 1782249088.7592354,
+    "seen": 1793095354.847382,
+    "ast_hash": "9834e07f1cf8a3cfd4d9d37d235eb3fa",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_core.c": {
+    "mtime": 1782249088.7592354,
+    "seen": 1793095354.847382,
+    "ast_hash": "64d78f602d75512033b3b5dd01e9ee04",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_core_support.c": {
+    "mtime": 1782249088.7592354,
+    "seen": 1793095354.847382,
+    "ast_hash": "841a7b7d29acbb5979fb315efda316ba",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_error_strings.c": {
+    "mtime": 1782249088.7597437,
+    "seen": 1793095354.847382,
+    "ast_hash": "12eccc669d78bd87b18e0d7d7b4d2d7f",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_register_funcs.c": {
+    "mtime": 1782249088.7597437,
+    "seen": 1793095354.847382,
+    "ast_hash": "cc1991350b2b37d4bf60690cbad86a88",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_silicon_core.c": {
+    "mtime": 1782249088.7597437,
+    "seen": 1793095354.847382,
+    "ast_hash": "bd95dc3ba8f11561f842e5b8b0345194",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/core/src/vl53l1_wait.c": {
+    "mtime": 1782249088.7597437,
+    "seen": 1793095354.847382,
+    "ast_hash": "d69aa20d702c24c2e13d78899d5dea53",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_platform.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "d479e2a77ac4ff3499dbd5afa9f8d7bf",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_platform_log.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "b6df03020146d3daeb858119c4faba53",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_platform_user_config.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "1183787cbf8c84386373fccb20c76f99",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_platform_user_data.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "da786cfd6ead933734fefc5792916935",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_platform_user_defines.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "9d7fed7544f08efe78147e8972fbd450",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/inc/vl53l1_types.h": {
+    "mtime": 1782249088.760755,
+    "seen": 1793095354.847382,
+    "ast_hash": "4a1d88fc3f0d047a1c325b9492f069f1",
+    "semantic_hash": ""
+  },
+  "lib/main/VL53L1X_API/platform/src/vl53l1_platform.c": {
+    "mtime": 1782249088.761811,
+    "seen": 1793095354.847382,
+    "ast_hash": "a2e66619f420a82d7b366eb645101634",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/API-Utils.cpp": {
+    "mtime": 1793083694.7053747,
+    "seen": 1793095354.847382,
+    "ast_hash": "7c9fc0a1ec7694d1fd04f93ca463e557",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/BMS.cpp": {
+    "mtime": 1790623591.8666966,
+    "seen": 1793095354.847382,
+    "ast_hash": "d521814acb342b9c9a1eaf70a8e0b1f8",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Debugging.cpp": {
+    "mtime": 1782249088.7623198,
+    "seen": 1793095354.847382,
+    "ast_hash": "3b30052d88b88feedbad2b2e47ae532b",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Config-PID.cpp": {
+    "mtime": 1782249088.7623198,
+    "seen": 1793095354.847382,
+    "ast_hash": "d349c996eaae982a4e0c0769f9e5f7ef",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Config-Setpoints.cpp": {
+    "mtime": 1793083694.7053747,
+    "seen": 1793095354.847382,
+    "ast_hash": "1d20aec1b83f3975301ae234ebe2ae33",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Control-Command.cpp": {
+    "mtime": 1793083694.7053747,
+    "seen": 1793095354.847382,
+    "ast_hash": "b375f38a48eb5be24f3d55cd4d519ceb",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Control-Status.cpp": {
+    "mtime": 1782249080.3932986,
+    "seen": 1793095354.847382,
+    "ast_hash": "8f0c4c712753bcbfee9829c1c6da3981",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Data-Estimate.cpp": {
+    "mtime": 1782249088.7633314,
+    "seen": 1793095354.847382,
+    "ast_hash": "aa6885712aaed4271a132aad92c26710",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/FC-Data-Sensors.cpp": {
+    "mtime": 1784616560.704851,
+    "seen": 1793095354.847382,
+    "ast_hash": "186c362e909636eadf863aa54830be70",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Localisation.cpp": {
+    "mtime": 1782249080.3932986,
+    "seen": 1793095354.847382,
+    "ast_hash": "71759a269ec80fb4a6e1edd8f321c180",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Motor.cpp": {
+    "mtime": 1782249088.7633314,
+    "seen": 1793095354.847382,
+    "ast_hash": "752bfb588012d86c867994e37e8d67aa",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/ObjectAvoidanceCore.h": {
+    "mtime": 1793083694.7053747,
+    "seen": 1793095354.847382,
+    "ast_hash": "83020baea851dd5c0fb771f3cdace4ed",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Oled.cpp": {
+    "mtime": 1782249485.974118,
+    "seen": 1793095354.847382,
+    "ast_hash": "ddac0b028d6f87d538b246ed10389b97",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Peripheral-ADC.cpp": {
+    "mtime": 1793083694.7063773,
+    "seen": 1793095354.847382,
+    "ast_hash": "f7a75431183b22214541fe67f7aa01f1",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Peripheral-GPIO.cpp": {
+    "mtime": 1793083694.7063773,
+    "seen": 1793095354.847382,
+    "ast_hash": "1cc58b6c1b7f58bb2d67543aee7eae54",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Peripheral-PWM.cpp": {
+    "mtime": 1793083694.7063773,
+    "seen": 1793095354.847382,
+    "ast_hash": "beef8bc80a520ab780d44e83dd55914b",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/RC-Interface.cpp": {
+    "mtime": 1790087349.3766491,
+    "seen": 1793095354.847382,
+    "ast_hash": "61b2004729ac74ff7ae88fb575453f1c",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/RGB-LED.cpp": {
+    "mtime": 1784616560.704851,
+    "seen": 1793095354.847382,
+    "ast_hash": "7e25edb2cf17d2ec742f1888272eeadd",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/RxConfig.cpp": {
+    "mtime": 1782249088.7643812,
+    "seen": 1793095354.847382,
+    "ast_hash": "5049713bde006d62dfbde3f32d128853",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Scheduler-Timer.cpp": {
+    "mtime": 1782249080.3948114,
+    "seen": 1793095354.847382,
+    "ast_hash": "6b2279791528347789dc544c953a8975",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Serial-IO-I2C.cpp": {
+    "mtime": 1782249080.3948114,
+    "seen": 1793095354.847382,
+    "ast_hash": "8fa5d6705df5e7e92f07d3109f74a999",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Serial-IO-SPI.cpp": {
+    "mtime": 1793083694.7068799,
+    "seen": 1793095354.847382,
+    "ast_hash": "1ae8c3293ca57f1453fc320325ee8da5",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Serial-IO-Uart.cpp": {
+    "mtime": 1782249088.7648897,
+    "seen": 1793095354.847382,
+    "ast_hash": "108235a355d2c2d6be89ea5f2aa709ca",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/Status-LED.cpp": {
+    "mtime": 1782249080.3948114,
+    "seen": 1793095354.847382,
+    "ast_hash": "91bae762436b96ebcbc0fdf8b35760d2",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/X1Ranging.cpp": {
+    "mtime": 1793083694.7068799,
+    "seen": 1793095354.847382,
+    "ast_hash": "5ec6ce345fe31884658a2ad9f1886ab4",
+    "semantic_hash": ""
+  },
+  "src/main/API-Src/XRanging.cpp": {
+    "mtime": 1793083694.707883,
+    "seen": 1793095354.847382,
+    "ast_hash": "ededdb55394803bdd7cfc519ef32ba34",
+    "semantic_hash": ""
+  },
+  "src/main/API/API-Utils.h": {
+    "mtime": 1793083694.707883,
+    "seen": 1793095354.847382,
+    "ast_hash": "30cb93d9fb19890dad752c86df20f82f",
+    "semantic_hash": ""
+  },
+  "src/main/API/BMS.h": {
+    "mtime": 1790624100.147898,
+    "seen": 1793095354.847382,
+    "ast_hash": "dfbfb864f982fcbbb0644328a62ad9c3",
+    "semantic_hash": ""
+  },
+  "src/main/API/Debugging.h": {
+    "mtime": 1782249088.7648897,
+    "seen": 1793095354.847382,
+    "ast_hash": "eb54e57e43905cf64d24bf01644bcd51",
+    "semantic_hash": ""
+  },
+  "src/main/API/FC-Config.h": {
+    "mtime": 1793083694.707883,
+    "seen": 1793095354.847382,
+    "ast_hash": "98d71dd113f75a818f4e98a7153d409a",
+    "semantic_hash": ""
+  },
+  "src/main/API/FC-Control.h": {
+    "mtime": 1793083694.707883,
+    "seen": 1793095354.847382,
+    "ast_hash": "f3b795d61e0fda75d3c92667785516f2",
+    "semantic_hash": ""
+  },
+  "src/main/API/FC-Data.h": {
+    "mtime": 1784616560.705351,
+    "seen": 1793095354.847382,
+    "ast_hash": "903784114158697c1b3089ad903f87ce",
+    "semantic_hash": ""
+  },
+  "src/main/API/Localisation.h": {
+    "mtime": 1747314557.365383,
+    "seen": 1793095354.847382,
+    "ast_hash": "3fe349de3ded1be72659ea6fbf8b9b0e",
+    "semantic_hash": ""
+  },
+  "src/main/API/Motor.h": {
+    "mtime": 1782249080.3958132,
+    "seen": 1793095354.847382,
+    "ast_hash": "3a3898f2d683882a86f2c3768c9d3262",
+    "semantic_hash": ""
+  },
+  "src/main/API/Oled.h": {
+    "mtime": 1793083694.708899,
+    "seen": 1793095354.847382,
+    "ast_hash": "5b45c8464bf0b39c14c1e9ded26693f7",
+    "semantic_hash": ""
+  },
+  "src/main/API/Peripherals.h": {
+    "mtime": 1782249088.7659009,
+    "seen": 1793095354.847382,
+    "ast_hash": "7442da58cf1d4b6bbc4ae7327bf41e72",
+    "semantic_hash": ""
+  },
+  "src/main/API/RC-Interface.h": {
+    "mtime": 1790087349.377152,
+    "seen": 1793095354.847382,
+    "ast_hash": "385bda0c1fe5a3c11476d65b00738f6c",
+    "semantic_hash": ""
+  },
+  "src/main/API/RGB-LED.h": {
+    "mtime": 1784616560.7058518,
+    "seen": 1793095354.847382,
+    "ast_hash": "cf4c08ccfbd22fbd7293e6766351a7f8",
+    "semantic_hash": ""
+  },
+  "src/main/API/RxConfig.h": {
+    "mtime": 1782249088.7709796,
+    "seen": 1793095354.847382,
+    "ast_hash": "329f1ce8f004be072450d8ae93ee1868",
+    "semantic_hash": ""
+  },
+  "src/main/API/Scheduler-Timer.h": {
+    "mtime": 1782249088.7709796,
+    "seen": 1793095354.847382,
+    "ast_hash": "aafcc0583d9544beeae041e43ff3df89",
+    "semantic_hash": ""
+  },
+  "src/main/API/Serial-IO.h": {
+    "mtime": 1782249088.7709796,
+    "seen": 1793095354.847382,
+    "ast_hash": "da85dd1c89c12b2962923d3b17f6a149",
+    "semantic_hash": ""
+  },
+  "src/main/API/Status-LED.h": {
+    "mtime": 1782249080.397328,
+    "seen": 1793095354.847382,
+    "ast_hash": "ae8e962743fa7abff539fb2567b97b24",
+    "semantic_hash": ""
+  },
+  "src/main/API/X1Ranging.h": {
+    "mtime": 1793083694.708899,
+    "seen": 1793095354.847382,
+    "ast_hash": "46963cc275a2540c8e964532f7f2018b",
+    "semantic_hash": ""
+  },
+  "src/main/API/XRanging.h": {
+    "mtime": 1793083694.708899,
+    "seen": 1793095354.847382,
+    "ast_hash": "1354a90098df526df59d0be609e58144",
+    "semantic_hash": ""
+  },
+  "src/main/blackbox/blackbox.cpp": {
+    "mtime": 1782249088.772503,
+    "seen": 1793095354.847382,
+    "ast_hash": "0a44adba9ed0810a5b618e71907a81ef",
+    "semantic_hash": ""
+  },
+  "src/main/blackbox/blackbox.h": {
+    "mtime": 1747314557.369598,
+    "seen": 1793095354.847382,
+    "ast_hash": "2bf2a15ae271c0436f7e4b751157a649",
+    "semantic_hash": ""
+  },
+  "src/main/blackbox/blackbox_fielddefs.h": {
+    "mtime": 1747314557.369598,
+    "seen": 1793095354.847382,
+    "ast_hash": "6b29a17f830eb4c8f4a041a028a0b564",
+    "semantic_hash": ""
+  },
+  "src/main/blackbox/blackbox_io.cpp": {
+    "mtime": 1747314557.369598,
+    "seen": 1793095354.847382,
+    "ast_hash": "7a388f7c3b6bc6fd6053d8f5814f4934",
+    "semantic_hash": ""
+  },
+  "src/main/blackbox/blackbox_io.h": {
+    "mtime": 1747314557.370104,
+    "seen": 1793095354.847382,
+    "ast_hash": "3a0af2a0772c6220033e26650aad75f2",
+    "semantic_hash": ""
+  },
+  "src/main/build_config.cpp": {
+    "mtime": 1747314557.370104,
+    "seen": 1793095354.847382,
+    "ast_hash": "d6458ad3d2f0c76051bcb4c3c6439495",
+    "semantic_hash": ""
+  },
+  "src/main/build_config.h": {
+    "mtime": 1747314557.370104,
+    "seen": 1793095354.847382,
+    "ast_hash": "78cf15ee112139daf29536476178bafd",
+    "semantic_hash": ""
+  },
+  "src/main/command/command.cpp": {
+    "mtime": 1793083694.7094028,
+    "seen": 1793095354.847382,
+    "ast_hash": "cf6424606801691c97ca8ae8dc35e780",
+    "semantic_hash": ""
+  },
+  "src/main/command/command.h": {
+    "mtime": 1793083694.7094028,
+    "seen": 1793095354.847382,
+    "ast_hash": "0ba881e5f7fe45fe8f04c4ea8566415c",
+    "semantic_hash": ""
+  },
+  "src/main/command/localisationCommand.cpp": {
+    "mtime": 1782249088.772503,
+    "seen": 1793095354.847382,
+    "ast_hash": "257366549d8af34e629ccfdf19927306",
+    "semantic_hash": ""
+  },
+  "src/main/command/localisationCommand.h": {
+    "mtime": 1747314557.3711095,
+    "seen": 1793095354.847382,
+    "ast_hash": "c94795334554c3406cd7a72020050467",
+    "semantic_hash": ""
+  },
+  "src/main/common/atomic.h": {
+    "mtime": 1747314557.3711095,
+    "seen": 1793095354.847382,
+    "ast_hash": "fcae1aa7a6277cfe38d8efea04d535f0",
+    "semantic_hash": ""
+  },
+  "src/main/common/axis.h": {
+    "mtime": 1782249080.398834,
+    "seen": 1793095354.847382,
+    "ast_hash": "5d51300e26e2e3bb6877785cc5158cd1",
+    "semantic_hash": ""
+  },
+  "src/main/common/color.h": {
+    "mtime": 1747314557.3716154,
+    "seen": 1793095354.847382,
+    "ast_hash": "3dc207cc91d60207039cbc7c0a97ae90",
+    "semantic_hash": ""
+  },
+  "src/main/common/colorconversion.c": {
+    "mtime": 1747314557.3716154,
+    "seen": 1793095354.847382,
+    "ast_hash": "8a2484e00d52197c2bffeefd0b473ce6",
+    "semantic_hash": ""
+  },
+  "src/main/common/colorconversion.h": {
+    "mtime": 1747314557.3716154,
+    "seen": 1793095354.847382,
+    "ast_hash": "b162156cabc13c664af2265b497ff61f",
+    "semantic_hash": ""
+  },
+  "src/main/common/encoding.cpp": {
+    "mtime": 1747314557.3716154,
+    "seen": 1793095354.847382,
+    "ast_hash": "96f983be95ff3d533d2960e5b1c2a31e",
+    "semantic_hash": ""
+  },
+  "src/main/common/encoding.h": {
+    "mtime": 1747314557.3721142,
+    "seen": 1793095354.847382,
+    "ast_hash": "03ca423110b2ab9865ebdee567cbd11e",
+    "semantic_hash": ""
+  },
+  "src/main/common/maths.cpp": {
+    "mtime": 1782249088.772503,
+    "seen": 1793095354.847382,
+    "ast_hash": "bfe31cab9d37dae8f806a1348d96edf9",
+    "semantic_hash": ""
+  },
+  "src/main/common/maths.h": {
+    "mtime": 1782249088.772503,
+    "seen": 1793095354.847382,
+    "ast_hash": "a3cce2f2c3075f70ca5456e14b1d86d0",
+    "semantic_hash": ""
+  },
+  "src/main/common/printf.cpp": {
+    "mtime": 1747314557.3726175,
+    "seen": 1793095354.847382,
+    "ast_hash": "29572b39758c49ff4c5234810cf27d45",
+    "semantic_hash": ""
+  },
+  "src/main/common/printf.h": {
+    "mtime": 1747314557.3726175,
+    "seen": 1793095354.847382,
+    "ast_hash": "d57e22461babdd1002b3c9a9915de25f",
+    "semantic_hash": ""
+  },
+  "src/main/common/typeconversion.cpp": {
+    "mtime": 1747314557.3726175,
+    "seen": 1793095354.847382,
+    "ast_hash": "448fc33fe57606782aa63cb99d394bbc",
+    "semantic_hash": ""
+  },
+  "src/main/common/typeconversion.h": {
+    "mtime": 1747314557.3726175,
+    "seen": 1793095354.847382,
+    "ast_hash": "e3f0c224c0c95f54b2a06ec9a89b333e",
+    "semantic_hash": ""
+  },
+  "src/main/common/utils.h": {
+    "mtime": 1793083694.7094028,
+    "seen": 1793095354.847382,
+    "ast_hash": "9cef22ffd934a0d8004ca20bd303a5e9",
+    "semantic_hash": ""
+  },
+  "src/main/config/config.cpp": {
+    "mtime": 1793083694.7094028,
+    "seen": 1793095354.847382,
+    "ast_hash": "53ba616f00140964db4d6e510eb491b8",
+    "semantic_hash": ""
+  },
+  "src/main/config/config.h": {
+    "mtime": 1782249088.7735145,
+    "seen": 1793095354.847382,
+    "ast_hash": "c9e48d876732adfdd46cdcef5f51ed2d",
+    "semantic_hash": ""
+  },
+  "src/main/config/config_master.h": {
+    "mtime": 1747314557.373644,
+    "seen": 1793095354.847382,
+    "ast_hash": "263f7d1f484d7efa001a091bd7ae70d1",
+    "semantic_hash": ""
+  },
+  "src/main/config/config_profile.h": {
+    "mtime": 1747314557.373644,
+    "seen": 1793095354.847382,
+    "ast_hash": "bafe67f24b1d3a29f2ac93554707851b",
+    "semantic_hash": ""
+  },
+  "src/main/config/runtime_config.cpp": {
+    "mtime": 1784616560.7058518,
+    "seen": 1793095354.847382,
+    "ast_hash": "52e9bf922598cbd984cb4be755fbfa57",
+    "semantic_hash": ""
+  },
+  "src/main/config/runtime_config.h": {
+    "mtime": 1782249088.7735145,
+    "seen": 1793095354.847382,
+    "ast_hash": "40ecff76aa8c2d55d02f1f3693a208ba",
+    "semantic_hash": ""
+  },
+  "src/main/debug.cpp": {
+    "mtime": 1747314557.3741508,
+    "seen": 1793095354.847382,
+    "ast_hash": "6ae635ca35dda6513ae35c9c727d0523",
+    "semantic_hash": ""
+  },
+  "src/main/debug.h": {
+    "mtime": 1747314557.3741508,
+    "seen": 1793095354.847382,
+    "ast_hash": "201b054f58617c11ccdcd61863f7caeb",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/accgyro.h": {
+    "mtime": 1747314557.3741508,
+    "seen": 1793095354.847382,
+    "ast_hash": "9a2bc9d543da352d90629462fb029c53",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/accgyro_icm20948.cpp": {
+    "mtime": 1782249088.7735145,
+    "seen": 1793095354.847382,
+    "ast_hash": "35aac7551657200eb24e5c3a4ad69d97",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/accgyro_icm20948.h": {
+    "mtime": 1782249088.7735145,
+    "seen": 1793095354.847382,
+    "ast_hash": "2ae36e6fa1cd82b3c1645af06f134291",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/accgyro_mpu.cpp": {
+    "mtime": 1782249088.7745707,
+    "seen": 1793095354.847382,
+    "ast_hash": "7077330b48c972533ca57d0a17c9c0e5",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/accgyro_mpu.h": {
+    "mtime": 1747314557.377175,
+    "seen": 1793095354.847382,
+    "ast_hash": "07ef333cc546fedb81009560c0cc6adf",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/adc.cpp": {
+    "mtime": 1747314557.3786888,
+    "seen": 1793095354.847382,
+    "ast_hash": "fd78369e7915ce9bc30f6fd33facc6cd",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/adc.h": {
+    "mtime": 1747314557.3786888,
+    "seen": 1793095354.847382,
+    "ast_hash": "fee49468722f795175f1741963c4259c",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/adc_impl.h": {
+    "mtime": 1747314557.3796947,
+    "seen": 1793095354.847382,
+    "ast_hash": "23ff57a8ce41a5d42179ae58171d0ff6",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/adc_stm32f30x.c": {
+    "mtime": 1775248138.1096554,
+    "seen": 1793095354.847382,
+    "ast_hash": "da4da2338886ae266089cdd7cdf24840",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/barometer.h": {
+    "mtime": 1747314557.3796947,
+    "seen": 1793095354.847382,
+    "ast_hash": "80ab69dd7bb791fc71f40df3eb7d4706",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/barometer_icp10111.cpp": {
+    "mtime": 1790087349.3776546,
+    "seen": 1793095354.847382,
+    "ast_hash": "11dd9af7bf58d1ddc1f10288d6675210",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/barometer_icp10111.h": {
+    "mtime": 1747314557.380202,
+    "seen": 1793095354.847382,
+    "ast_hash": "71540a8671b758938b4210ce7b8c48e8",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bridge_sc18is602b.cpp": {
+    "mtime": 1782249088.7745707,
+    "seen": 1793095354.847382,
+    "ast_hash": "d17b275a9f3f21ed36cd0ac25a6d6231",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bridge_sc18is602b.h": {
+    "mtime": 1782249088.7750793,
+    "seen": 1793095354.847382,
+    "ast_hash": "0a9a3f7c16d7218103f0a4f366c197c7",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bus_i2c.h": {
+    "mtime": 1782249088.7750793,
+    "seen": 1793095354.847382,
+    "ast_hash": "719ca30980c06f8a0cc080cfe3542cbd",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bus_i2c_soft.cpp": {
+    "mtime": 1747314557.3812068,
+    "seen": 1793095354.847382,
+    "ast_hash": "2fa65630989dddab4269b53c3f336ef0",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bus_i2c_stm32f30x.c": {
+    "mtime": 1782249088.7750793,
+    "seen": 1793095354.847382,
+    "ast_hash": "ca1ef86702cfb116140b3c0af9be23c7",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bus_spi.c": {
+    "mtime": 1793083694.7094028,
+    "seen": 1793095354.847382,
+    "ast_hash": "2949e5f6013d57c8195248bf2ee01dc6",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/bus_spi.h": {
+    "mtime": 1793083694.7104058,
+    "seen": 1793095354.847382,
+    "ast_hash": "d256b6499a2800115050988e0f9edcef",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/compass.h": {
+    "mtime": 1747314557.3822317,
+    "seen": 1793095354.847382,
+    "ast_hash": "39d0a8a77f3a0428eaf86a2602a3a6d1",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/compass_ak09916.cpp": {
+    "mtime": 1782249088.7750793,
+    "seen": 1793095354.847382,
+    "ast_hash": "98c52138a264138adca255c2b2d2b4a9",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/compass_ak09916.h": {
+    "mtime": 1747314557.3827372,
+    "seen": 1793095354.847382,
+    "ast_hash": "ac705c2902c39cb445cf2dc29f42acc8",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/display_ug2864hsweg01.c": {
+    "mtime": 1793083694.7104058,
+    "seen": 1793095354.847382,
+    "ast_hash": "4ca3e240690d4a25d3058d9488f3d626",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/display_ug2864hsweg01.h": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "b97a880f8815a35cfe3ea5a0c67419cd",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/dma_registry.c": {
+    "mtime": 1782249088.7765994,
+    "seen": 1793095354.847382,
+    "ast_hash": "a7ab423233e61b7d0d79f02e856d9990",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/dma_registry.h": {
+    "mtime": 1782249088.7765994,
+    "seen": 1793095354.847382,
+    "ast_hash": "f9df9bbc1b65b73ed61f52900510c785",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/exti.h": {
+    "mtime": 1782249088.7765994,
+    "seen": 1793095354.847382,
+    "ast_hash": "ae53cbbe03380c65cdb6373976b19d14",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/flash.h": {
+    "mtime": 1747314557.3837416,
+    "seen": 1793095354.847382,
+    "ast_hash": "d387c61a65249194c13147de6d5d952f",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/flash_m25p16.cpp": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "a4c679af789b41e3d2964a790b450466",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/flash_m25p16.h": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "51c8f8f1356de096a31aac67583635af",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/gpio.h": {
+    "mtime": 1782249088.7765994,
+    "seen": 1793095354.847382,
+    "ast_hash": "ec394c0cda5c6b4f430e28fd550611a1",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/gpio_stm32f30x.c": {
+    "mtime": 1747314557.385274,
+    "seen": 1793095354.847382,
+    "ast_hash": "c6819e86358b2fdc15c104513a14c001",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/ina219.c": {
+    "mtime": 1791207061.3547437,
+    "seen": 1793095354.847382,
+    "ast_hash": "c7aa4c1a5aaa5a65ec6f0a54c155c93f",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/ina219.h": {
+    "mtime": 1790613873.5014102,
+    "seen": 1793095354.847382,
+    "ast_hash": "4dbc73ff0e4b88a44cb53f5ff7d279fb",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/inverter.c": {
+    "mtime": 1747314557.385274,
+    "seen": 1793095354.847382,
+    "ast_hash": "d0ac8e8245a9928a4ccb1d002a8d007b",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/inverter.h": {
+    "mtime": 1747314557.386279,
+    "seen": 1793095354.847382,
+    "ast_hash": "af387964090f93dba24eab3cfc2c4b78",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_led.c": {
+    "mtime": 1782249088.777611,
+    "seen": 1793095354.847382,
+    "ast_hash": "0ad63a8bc6673215ff02a9c04e98de26",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_led.h": {
+    "mtime": 1782249088.777611,
+    "seen": 1793095354.847382,
+    "ast_hash": "64ef5cfbf5f817d9dd42ed180a5438b0",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_led_stm32f30x.c": {
+    "mtime": 1747314557.3867862,
+    "seen": 1793095354.847382,
+    "ast_hash": "8511d0e24a64e18ba4737008c336b60f",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_ws2811strip.c": {
+    "mtime": 1747314557.3867862,
+    "seen": 1793095354.847382,
+    "ast_hash": "f97df3221b24bd70de5f1b1d964e3ff9",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_ws2811strip.h": {
+    "mtime": 1784616560.7063513,
+    "seen": 1793095354.847382,
+    "ast_hash": "7efafec10dad6097cbd5b1670b1570eb",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/light_ws2811strip_stm32f30x.c": {
+    "mtime": 1784616560.7063513,
+    "seen": 1793095354.847382,
+    "ast_hash": "94e5e8c2c44f2be2edcb2e8e9425cca8",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/nvic.h": {
+    "mtime": 1747314557.3878517,
+    "seen": 1793095354.847382,
+    "ast_hash": "bd82a6750f8743e244b8f1ce03f9bcb0",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/opticflow_paw3903.cpp": {
+    "mtime": 1782249088.777611,
+    "seen": 1793095354.847382,
+    "ast_hash": "78d3ab889290f5a3f9c7170dc232fe05",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/opticflow_paw3903.h": {
+    "mtime": 1747314557.3878517,
+    "seen": 1793095354.847382,
+    "ast_hash": "d2a16881d15d61407a2f59d604091754",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/paw3903_opticflow.cpp": {
+    "mtime": 1782249088.7786674,
+    "seen": 1793095354.847382,
+    "ast_hash": "79d34f0c5ce5b6e48df65f6c274766e8",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/paw3903_opticflow.h": {
+    "mtime": 1782249088.7786674,
+    "seen": 1793095354.847382,
+    "ast_hash": "99cafd59dc57f6da5891468d6e53a3af",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_mapping.cpp": {
+    "mtime": 1782249088.7786674,
+    "seen": 1793095354.847382,
+    "ast_hash": "05358f39e149dd4735439019e7cabc77",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_mapping.h": {
+    "mtime": 1784618276.2680936,
+    "seen": 1793095354.847382,
+    "ast_hash": "11df64b9b51831dbe47c176f7f02aaab",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_output.cpp": {
+    "mtime": 1747314557.3878517,
+    "seen": 1793095354.847382,
+    "ast_hash": "436f407ec94274a309826050d44c723d",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_output.h": {
+    "mtime": 1747314557.3878517,
+    "seen": 1793095354.847382,
+    "ast_hash": "32e5c017bd6b54c2f41792d00dedd843",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_rx.cpp": {
+    "mtime": 1782249088.779176,
+    "seen": 1793095354.847382,
+    "ast_hash": "68f2a51e1020bf7193579592aa85315b",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/pwm_rx.h": {
+    "mtime": 1747314557.3888762,
+    "seen": 1793095354.847382,
+    "ast_hash": "8491bfb1ed3e3203e443962e8e8fc342",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/ranging_vl53l0x.cpp": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "fc0a56f89abaea5ad257b3088a854773",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/ranging_vl53l0x.h": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "f03fe355359d3e9c3f48f103550596b2",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sc18is602b.cpp": {
+    "mtime": 1782249080.4008362,
+    "seen": 1793095354.847382,
+    "ast_hash": "808cb07cfc5f7ea9447b086e3fcbda71",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sc18is602b.h": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "dd94ab4c07b857dfadf40a847d79e2ae",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sensor.h": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "1f875c7c2c644faed5190d993d4a8927",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial.cpp": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "1ede708e48678ab96e44052f037b36fd",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial.h": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "d5086afc95fffdee970c868198027d30",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_softserial.c": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "0aa4f2f410f7b6f86ed0a529c7ee4cf5",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_softserial.h": {
+    "mtime": 1747314557.3893814,
+    "seen": 1793095354.847382,
+    "ast_hash": "02f75b7c4148b694641a21b273dad633",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_uart.c": {
+    "mtime": 1747314557.3903859,
+    "seen": 1793095354.847382,
+    "ast_hash": "217472372a7bb3b85119498e51ce80b7",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_uart.h": {
+    "mtime": 1747314557.3903859,
+    "seen": 1793095354.847382,
+    "ast_hash": "a834da869478f8bb40b6d472989f29d4",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_uart_impl.h": {
+    "mtime": 1747314557.3908913,
+    "seen": 1793095354.847382,
+    "ast_hash": "915ebba7d00b55601fdd711cad965057",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_uart_stm32f30x.c": {
+    "mtime": 1782249088.780187,
+    "seen": 1793095354.847382,
+    "ast_hash": "1b3f2015cebcf6b4bbcacb9ac690e17e",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_usb_vcp.c": {
+    "mtime": 1747314557.3908913,
+    "seen": 1793095354.847382,
+    "ast_hash": "f56b9a96645344ee456c11c227b8929f",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/serial_usb_vcp.h": {
+    "mtime": 1747314557.3908913,
+    "seen": 1793095354.847382,
+    "ast_hash": "9cf724b5c1bea3e3e5d22ae1d3b35b23",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sound_beeper.c": {
+    "mtime": 1747314557.391897,
+    "seen": 1793095354.847382,
+    "ast_hash": "d28620ba72e2cd1e3efefd9dcce5f9c4",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sound_beeper.h": {
+    "mtime": 1747314557.3924046,
+    "seen": 1793095354.847382,
+    "ast_hash": "cbdd7a0c5d51a2fa836a42579c5603c8",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/sound_beeper_stm32f30x.c": {
+    "mtime": 1747314557.3929043,
+    "seen": 1793095354.847382,
+    "ast_hash": "e4b697a7fbfa9a3c0b604c5303bfe1e3",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/system.c": {
+    "mtime": 1782249088.780187,
+    "seen": 1793095354.847382,
+    "ast_hash": "d7e6ede083ad007d9f5c1411cc61c3b0",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/system.h": {
+    "mtime": 1782249088.7806954,
+    "seen": 1793095354.847382,
+    "ast_hash": "21b8d65f11c82374762645ba9aaf106a",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/system_stm32f30x.c": {
+    "mtime": 1747314557.3939126,
+    "seen": 1793095354.847382,
+    "ast_hash": "6039cb41798ae887cb761d833c7c5d51",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/timer.cpp": {
+    "mtime": 1782249088.7806954,
+    "seen": 1793095354.847382,
+    "ast_hash": "cb614879289af9078af5671ccdd1cb69",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/timer.h": {
+    "mtime": 1782249088.7806954,
+    "seen": 1793095354.847382,
+    "ast_hash": "bbbc3d4d533489826c63bd12f8489077",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/timer_impl.h": {
+    "mtime": 1747314557.3939126,
+    "seen": 1793095354.847382,
+    "ast_hash": "665c52a2eb3ccc89f21e25d8c8530c23",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/timer_stm32f30x.c": {
+    "mtime": 1747314557.3949418,
+    "seen": 1793095354.847382,
+    "ast_hash": "5b351cb58db5f85115926b0fb8604a35",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/timer_stm32f30x.h": {
+    "mtime": 1747314557.3949418,
+    "seen": 1793095354.847382,
+    "ast_hash": "7eb4990b72ffa5d723e06011a57f988e",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_dev_area.cpp": {
+    "mtime": 1793083694.7109103,
+    "seen": 1793095354.847382,
+    "ast_hash": "dde0a94f3b739a8cddaf64b380f18f21",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_dev_area.h": {
+    "mtime": 1793083694.7119133,
+    "seen": 1793095354.847382,
+    "ast_hash": "5a53ece52e6f917f39d9558183732035",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_manager.cpp": {
+    "mtime": 1793083694.7119133,
+    "seen": 1793095354.847382,
+    "ast_hash": "95f495512cd20a76565ceea37e66163a",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_manager.h": {
+    "mtime": 1793083694.7119133,
+    "seen": 1793095354.847382,
+    "ast_hash": "e477134a4b3fe42641edd6e0a449aebd",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_manager_l1x.cpp": {
+    "mtime": 1793083694.7124166,
+    "seen": 1793095354.847382,
+    "ast_hash": "1bdbae5511cb428f7fd820ba72e8f9d2",
+    "semantic_hash": ""
+  },
+  "src/main/drivers/tof_manager_l1x.h": {
+    "mtime": 1793083694.7124166,
+    "seen": 1793095354.847382,
+    "ast_hash": "fc684edefcc0b948cff6654207011c84",
+    "semantic_hash": ""
+  },
+  "src/main/flight/acrobats.cpp": {
+    "mtime": 1793083694.7124166,
+    "seen": 1793095354.847382,
+    "ast_hash": "9fb82c5c75be91b64fe1c36aef5f789c",
+    "semantic_hash": ""
+  },
+  "src/main/flight/acrobats.h": {
+    "mtime": 1747314557.3954477,
+    "seen": 1793095354.847382,
+    "ast_hash": "f00e56e5b3e58ba644fa2926df1b1906",
+    "semantic_hash": ""
+  },
+  "src/main/flight/altitudehold.cpp": {
+    "mtime": 1793083694.7124166,
+    "seen": 1793095354.847382,
+    "ast_hash": "b9bf226c15c4e8ac2df3e19bd3e7f707",
+    "semantic_hash": ""
+  },
+  "src/main/flight/altitudehold.h": {
+    "mtime": 1793083694.7134192,
+    "seen": 1793095354.847382,
+    "ast_hash": "b59f33f60b92917cd6bf168bf905e4ed",
+    "semantic_hash": ""
+  },
+  "src/main/flight/failsafe.cpp": {
+    "mtime": 1793083694.7134192,
+    "seen": 1793095354.847382,
+    "ast_hash": "42e8138e151dd855c603e73ec164aa82",
+    "semantic_hash": ""
+  },
+  "src/main/flight/failsafe.h": {
+    "mtime": 1793083694.7134192,
+    "seen": 1793095354.847382,
+    "ast_hash": "3dfc20d0df60ea95fa3a4ca63ce1f3f0",
+    "semantic_hash": ""
+  },
+  "src/main/flight/filter.cpp": {
+    "mtime": 1747314557.3969595,
+    "seen": 1793095354.847382,
+    "ast_hash": "cefa7b97b13bd3b63cd9eb21ea71e1a5",
+    "semantic_hash": ""
+  },
+  "src/main/flight/filter.h": {
+    "mtime": 1747314557.3969595,
+    "seen": 1793095354.847382,
+    "ast_hash": "22fd2e6a745717b5b9dff8d41c838086",
+    "semantic_hash": ""
+  },
+  "src/main/flight/gps_conversion.c": {
+    "mtime": 1747314557.3969595,
+    "seen": 1793095354.847382,
+    "ast_hash": "3b7a78f4f74e7695cddf1e38b3860202",
+    "semantic_hash": ""
+  },
+  "src/main/flight/gps_conversion.h": {
+    "mtime": 1747314557.3969595,
+    "seen": 1793095354.847382,
+    "ast_hash": "e0082d727f14e204a6228170d58c3ef8",
+    "semantic_hash": ""
+  },
+  "src/main/flight/gtune.c": {
+    "mtime": 1747314557.397966,
+    "seen": 1793095354.847382,
+    "ast_hash": "9c3542e0856796ae9985289b38562bd1",
+    "semantic_hash": ""
+  },
+  "src/main/flight/gtune.h": {
+    "mtime": 1747314557.397966,
+    "seen": 1793095354.847382,
+    "ast_hash": "c3f8307ebc27b88bf93dcbd875666401",
+    "semantic_hash": ""
+  },
+  "src/main/flight/imu.cpp": {
+    "mtime": 1793083694.7134192,
+    "seen": 1793095354.847382,
+    "ast_hash": "d1beede6a4e25bbd73fe1814de76f378",
+    "semantic_hash": ""
+  },
+  "src/main/flight/imu.h": {
+    "mtime": 1747314557.3984728,
+    "seen": 1793095354.847382,
+    "ast_hash": "e59f7317baf1b90578f8b4af7cd210ba",
+    "semantic_hash": ""
+  },
+  "src/main/flight/lowpass.cpp": {
+    "mtime": 1747314557.3984728,
+    "seen": 1793095354.847382,
+    "ast_hash": "4b12997dff2821678409a08c5ceb284e",
+    "semantic_hash": ""
+  },
+  "src/main/flight/lowpass.h": {
+    "mtime": 1747314557.3984728,
+    "seen": 1793095354.847382,
+    "ast_hash": "38c33fa93c0f33354823bb341239920c",
+    "semantic_hash": ""
+  },
+  "src/main/flight/mixer.cpp": {
+    "mtime": 1747314557.3984728,
+    "seen": 1793095354.847382,
+    "ast_hash": "0114dabb5b6c5a2df3a44dfc96b3a59b",
+    "semantic_hash": ""
+  },
+  "src/main/flight/mixer.h": {
+    "mtime": 1747314557.3984728,
+    "seen": 1793095354.847382,
+    "ast_hash": "cb9a18e1a32f495315102ed34e00d4d3",
+    "semantic_hash": ""
+  },
+  "src/main/flight/motor.cpp": {
+    "mtime": 1782249088.7822196,
+    "seen": 1793095354.847382,
+    "ast_hash": "fb80d45ba2398758284e28d53fd811e3",
+    "semantic_hash": ""
+  },
+  "src/main/flight/motor.h": {
+    "mtime": 1782249080.403359,
+    "seen": 1793095354.847382,
+    "ast_hash": "f09de3fc6296d05f559a8cf2da1c1249",
+    "semantic_hash": ""
+  },
+  "src/main/flight/navigation.cpp": {
+    "mtime": 1747314557.3999813,
+    "seen": 1793095354.847382,
+    "ast_hash": "00b23d3936ac5a330d9c0e91da7d69fe",
+    "semantic_hash": ""
+  },
+  "src/main/flight/navigation.h": {
+    "mtime": 1747314557.3999813,
+    "seen": 1793095354.847382,
+    "ast_hash": "cf97ffae24d76dfb2e5c22e13d2c561e",
+    "semantic_hash": ""
+  },
+  "src/main/flight/opticflow.cpp": {
+    "mtime": 1793083694.7144337,
+    "seen": 1793095354.847382,
+    "ast_hash": "a6cab31b4da97f14c6b31e0ae2c30312",
+    "semantic_hash": ""
+  },
+  "src/main/flight/opticflow.h": {
+    "mtime": 1747314557.3999813,
+    "seen": 1793095354.847382,
+    "ast_hash": "b528edc1ed26ade9b00fa35f39656fad",
+    "semantic_hash": ""
+  },
+  "src/main/flight/pid.cpp": {
+    "mtime": 1793093699.5291736,
+    "seen": 1793095354.847382,
+    "ast_hash": "515ddc7765cd368f3b22ecef94e540de",
+    "semantic_hash": ""
+  },
+  "src/main/flight/pid.h": {
+    "mtime": 1793093699.5291736,
+    "seen": 1793095354.847382,
+    "ast_hash": "4cc8bafb60e6ee4724bcff98b5f5d348",
+    "semantic_hash": ""
+  },
+  "src/main/flight/posControl.cpp": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "e8105b82b57690e8c433132f1a867bdf",
+    "semantic_hash": ""
+  },
+  "src/main/flight/posControl.h": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "e3fd23640acca79e6335c29704d379f5",
+    "semantic_hash": ""
+  },
+  "src/main/flight/posEstimate.cpp": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "cd1ada2337c4aa44067109046212fae1",
+    "semantic_hash": ""
+  },
+  "src/main/flight/posEstimate.h": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "4b9c862cc062e0418729b8740b1c9e2e",
+    "semantic_hash": ""
+  },
+  "src/main/io/beeper.cpp": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "5052a11663f7bafbdc7489aa6a7c0aad",
+    "semantic_hash": ""
+  },
+  "src/main/io/beeper.h": {
+    "mtime": 1747314557.4014907,
+    "seen": 1793095354.847382,
+    "ast_hash": "5ec5fe33d7a21b772994ad39ccbe8f05",
+    "semantic_hash": ""
+  },
+  "src/main/io/display.c": {
+    "mtime": 1782249088.7822196,
+    "seen": 1793095354.847382,
+    "ast_hash": "e278657dac0f6285856c24eaae28771d",
+    "semantic_hash": ""
+  },
+  "src/main/io/display.h": {
+    "mtime": 1747314557.4024968,
+    "seen": 1793095354.847382,
+    "ast_hash": "e529b417b7b3918a23d336b1b10cae71",
+    "semantic_hash": ""
+  },
+  "src/main/io/escservo.h": {
+    "mtime": 1747314557.4024968,
+    "seen": 1793095354.847382,
+    "ast_hash": "bb92f35c17f98f170a8878690797e4dd",
+    "semantic_hash": ""
+  },
+  "src/main/io/flashfs.cpp": {
+    "mtime": 1747314557.4030044,
+    "seen": 1793095354.847382,
+    "ast_hash": "5427251be2516f913b9afbe737b1d2ee",
+    "semantic_hash": ""
+  },
+  "src/main/io/flashfs.h": {
+    "mtime": 1747314557.4030044,
+    "seen": 1793095354.847382,
+    "ast_hash": "2e4f07521d1edacc03e4aaff332ef2b6",
+    "semantic_hash": ""
+  },
+  "src/main/io/gimbal.h": {
+    "mtime": 1747314557.4035087,
+    "seen": 1793095354.847382,
+    "ast_hash": "37d3605ff274029272d9eb260c6f3d1d",
+    "semantic_hash": ""
+  },
+  "src/main/io/gps.cpp": {
+    "mtime": 1747314557.4035087,
+    "seen": 1793095354.847382,
+    "ast_hash": "498202d98f559242ccf02d28fca0ef02",
+    "semantic_hash": ""
+  },
+  "src/main/io/gps.h": {
+    "mtime": 1747314557.4040172,
+    "seen": 1793095354.847382,
+    "ast_hash": "d343519e83fddc20f16e1dcd986ae041",
+    "semantic_hash": ""
+  },
+  "src/main/io/ledstrip.c": {
+    "mtime": 1782249088.7832358,
+    "seen": 1793095354.847382,
+    "ast_hash": "5d4920c3fd527f49c0ecf14d3e99e337",
+    "semantic_hash": ""
+  },
+  "src/main/io/ledstrip.h": {
+    "mtime": 1784616560.7068517,
+    "seen": 1793095354.847382,
+    "ast_hash": "b82d828f2c626d9d0b671f1fe61457e5",
+    "semantic_hash": ""
+  },
+  "src/main/io/oled_display.c": {
+    "mtime": 1793083694.7144337,
+    "seen": 1793095354.847382,
+    "ast_hash": "b08958617a5183b6497cbe19c297a340",
+    "semantic_hash": ""
+  },
+  "src/main/io/oled_display.h": {
+    "mtime": 1793083694.7149367,
+    "seen": 1793095354.847382,
+    "ast_hash": "d4e277aae1927e5d19bf210cd4c31d44",
+    "semantic_hash": ""
+  },
+  "src/main/io/rc_controls.cpp": {
+    "mtime": 1782249088.7837455,
+    "seen": 1793095354.847382,
+    "ast_hash": "5faaa5ab2b7bba6cfa51371fa3c81b1f",
+    "semantic_hash": ""
+  },
+  "src/main/io/rc_controls.h": {
+    "mtime": 1782249088.7837455,
+    "seen": 1793095354.847382,
+    "ast_hash": "7c14cd934ba4c99053e6532c1f4acfc4",
+    "semantic_hash": ""
+  },
+  "src/main/io/rc_curves.cpp": {
+    "mtime": 1747314557.4040172,
+    "seen": 1793095354.847382,
+    "ast_hash": "6bbfb497686bbdfe730b27364dddfad1",
+    "semantic_hash": ""
+  },
+  "src/main/io/rc_curves.h": {
+    "mtime": 1747314557.4054322,
+    "seen": 1793095354.847382,
+    "ast_hash": "658096314f3c5d7be284af4bff91baea",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial.cpp": {
+    "mtime": 1747314557.4054322,
+    "seen": 1793095354.847382,
+    "ast_hash": "6f1022a0a4dd56db39c2e9035d1fe209",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial.h": {
+    "mtime": 1747314557.4054322,
+    "seen": 1793095354.847382,
+    "ast_hash": "31cfeb8043f6f85aef26666f4f10e235",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_1wire.cpp": {
+    "mtime": 1782249088.7847571,
+    "seen": 1793095354.847382,
+    "ast_hash": "3d0f9f3a717697e05e2d814de45a0b80",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_1wire.h": {
+    "mtime": 1747314557.4059377,
+    "seen": 1793095354.847382,
+    "ast_hash": "ac73d1bde3f25aa072a9de38bd49a984",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_cli.cpp": {
+    "mtime": 1782249088.7852669,
+    "seen": 1793095354.847382,
+    "ast_hash": "42ebd5f0aa2483b473f36a5ee12d068d",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_cli.h": {
+    "mtime": 1747314557.4059377,
+    "seen": 1793095354.847382,
+    "ast_hash": "db7b6f95629a8689b965c21e668e8521",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_msp.cpp": {
+    "mtime": 1793083694.7149367,
+    "seen": 1793095354.847382,
+    "ast_hash": "27a3384d50d17d935ac2b7e716481478",
+    "semantic_hash": ""
+  },
+  "src/main/io/serial_msp.h": {
+    "mtime": 1747314557.406941,
+    "seen": 1793095354.847382,
+    "ast_hash": "8053cb0b0fa939ad8913d29bf9b76c2d",
+    "semantic_hash": ""
+  },
+  "src/main/io/statusindicator.cpp": {
+    "mtime": 1747314557.406941,
+    "seen": 1793095354.847382,
+    "ast_hash": "1ec7f77d83bd04197cfef20d5e0f597a",
+    "semantic_hash": ""
+  },
+  "src/main/io/statusindicator.h": {
+    "mtime": 1747314557.406941,
+    "seen": 1793095354.847382,
+    "ast_hash": "135a05dde40eaddf235f1a1c4dc30d62",
+    "semantic_hash": ""
+  },
+  "src/main/main.cpp": {
+    "mtime": 1793083694.7149367,
+    "seen": 1793095354.847382,
+    "ast_hash": "2c49c90ae35d710be3d2b339bdb5b7e8",
+    "semantic_hash": ""
+  },
+  "src/main/mw.cpp": {
+    "mtime": 1793092222.333672,
+    "seen": 1793095354.847382,
+    "ast_hash": "e41d42a8f39331c318ba87e9ac28710a",
+    "semantic_hash": ""
+  },
+  "src/main/mw.h": {
+    "mtime": 1747314557.4084659,
+    "seen": 1793095354.847382,
+    "ast_hash": "91f999a28956160d91c779fa56449a9a",
+    "semantic_hash": ""
+  },
+  "src/main/platform.h": {
+    "mtime": 1782249088.7862782,
+    "seen": 1793095354.847382,
+    "ast_hash": "d27052f63714e95780311b164e28ae39",
+    "semantic_hash": ""
+  },
+  "src/main/rx/crsf.c": {
+    "mtime": 1782249088.786787,
+    "seen": 1793095354.847382,
+    "ast_hash": "535d84b3714be1de353971f4aedd261a",
+    "semantic_hash": ""
+  },
+  "src/main/rx/crsf.h": {
+    "mtime": 1782249088.786787,
+    "seen": 1793095354.847382,
+    "ast_hash": "777cae8448c9f8fe261a47f86f0fd05d",
+    "semantic_hash": ""
+  },
+  "src/main/rx/msp.c": {
+    "mtime": 1747314557.4084659,
+    "seen": 1793095354.847382,
+    "ast_hash": "178ccfec1d8bcd569b08b6021ab5b842",
+    "semantic_hash": ""
+  },
+  "src/main/rx/msp.h": {
+    "mtime": 1747314557.4084659,
+    "seen": 1793095354.847382,
+    "ast_hash": "b6cccbb4c2fcb57de090839dc0e15f6d",
+    "semantic_hash": ""
+  },
+  "src/main/rx/pwm.c": {
+    "mtime": 1747314557.4084659,
+    "seen": 1793095354.847382,
+    "ast_hash": "42455d1151f324ce2f9cb08c3246411d",
+    "semantic_hash": ""
+  },
+  "src/main/rx/pwm.h": {
+    "mtime": 1747314557.4084659,
+    "seen": 1793095354.847382,
+    "ast_hash": "b0aad97e7492393a5f5079ddbcfc3eea",
+    "semantic_hash": ""
+  },
+  "src/main/rx/rx.cpp": {
+    "mtime": 1790087349.379672,
+    "seen": 1793095354.847382,
+    "ast_hash": "9d7ce628fed8ca17b31ddbb054d44d06",
+    "semantic_hash": ""
+  },
+  "src/main/rx/rx.h": {
+    "mtime": 1790087349.379672,
+    "seen": 1793095354.847382,
+    "ast_hash": "86f11ef85bf6b4980a1d57418da331f0",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sbus.c": {
+    "mtime": 1747314557.4094708,
+    "seen": 1793095354.847382,
+    "ast_hash": "2dc34d36e7816a38361d639a2632ee40",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sbus.h": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "e87961afac32439e4906224e25ddaf53",
+    "semantic_hash": ""
+  },
+  "src/main/rx/spektrum.c": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "6d835bca8dcafc6c0bc0659f661123e8",
+    "semantic_hash": ""
+  },
+  "src/main/rx/spektrum.h": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "0e9351a2f63219a4d1ffc1fcdb53ceb7",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sumd.c": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "74ae006107135fc881845eda44dc8568",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sumd.h": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "7376f3572cbea2b389296d65c9a03ff6",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sumh.c": {
+    "mtime": 1747314557.4099777,
+    "seen": 1793095354.847382,
+    "ast_hash": "d427b34c8fe602054fc18345e8c1814f",
+    "semantic_hash": ""
+  },
+  "src/main/rx/sumh.h": {
+    "mtime": 1747314557.4109814,
+    "seen": 1793095354.847382,
+    "ast_hash": "8e5c90c8627f2998e3e635debdb2dc38",
+    "semantic_hash": ""
+  },
+  "src/main/rx/xbus.cpp": {
+    "mtime": 1747314557.4109814,
+    "seen": 1793095354.847382,
+    "ast_hash": "9dbc159b2977590bfd38c04e854a8d77",
+    "semantic_hash": ""
+  },
+  "src/main/rx/xbus.h": {
+    "mtime": 1747314557.4109814,
+    "seen": 1793095354.847382,
+    "ast_hash": "a800ae5fec14baec34e4923699138124",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/acceleration.cpp": {
+    "mtime": 1782249080.4058704,
+    "seen": 1793095354.847382,
+    "ast_hash": "f66c0bb9540396e7d90a9ed7a89328f5",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/acceleration.h": {
+    "mtime": 1782249088.786787,
+    "seen": 1793095354.847382,
+    "ast_hash": "0b065aa3018d853c7021807429b9d1ae",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/barometer.cpp": {
+    "mtime": 1790087349.3801744,
+    "seen": 1793095354.847382,
+    "ast_hash": "201947eae6e99311b1d9a3685957a6bd",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/barometer.h": {
+    "mtime": 1790087349.3801744,
+    "seen": 1793095354.847382,
+    "ast_hash": "82dd54d4fe2bb942de93c0e43f16e430",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/battery.cpp": {
+    "mtime": 1791207061.3557434,
+    "seen": 1793095354.847382,
+    "ast_hash": "53e4ddb13418f7e35cb173fe65df0fef",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/battery.h": {
+    "mtime": 1791207061.3557434,
+    "seen": 1793095354.847382,
+    "ast_hash": "e91306274cf3aae58cd6d552996fab8e",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/boardalignment.cpp": {
+    "mtime": 1747314557.412491,
+    "seen": 1793095354.847382,
+    "ast_hash": "305908579cc8f2211b23c99b7b38d448",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/boardalignment.h": {
+    "mtime": 1747314557.412491,
+    "seen": 1793095354.847382,
+    "ast_hash": "1864d9dff8f465027a3c4449b57cf007",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/compass.cpp": {
+    "mtime": 1784616560.7073565,
+    "seen": 1793095354.847382,
+    "ast_hash": "db7d9cbabe06e6ac9c8f3b53b35427cf",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/compass.h": {
+    "mtime": 1784616560.707852,
+    "seen": 1793095354.847382,
+    "ast_hash": "e6d7952ff562123ebb99db9ce17a3e47",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/gyro.cpp": {
+    "mtime": 1747314557.4129965,
+    "seen": 1793095354.847382,
+    "ast_hash": "8dc6034b3b1fd763c3f37d1ced830b1c",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/gyro.h": {
+    "mtime": 1782249088.788854,
+    "seen": 1793095354.847382,
+    "ast_hash": "63ad17202872dba396d9a4a412d09346",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/initialisation.cpp": {
+    "mtime": 1782249088.788854,
+    "seen": 1793095354.847382,
+    "ast_hash": "42e9299f40bdf5fb23f8a8996f5c3e13",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/initialisation.h": {
+    "mtime": 1747314557.4129965,
+    "seen": 1793095354.847382,
+    "ast_hash": "f08b26dd55937bfe427efb7337f474f0",
+    "semantic_hash": ""
+  },
+  "src/main/sensors/sensors.h": {
+    "mtime": 1782249088.789363,
+    "seen": 1793095354.847382,
+    "ast_hash": "2d4750296dce34c074ef624ab8fae9de",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/frsky.c": {
+    "mtime": 1782249088.789363,
+    "seen": 1793095354.847382,
+    "ast_hash": "fb1f2620b9fd8e05054a8e88a84d5301",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/frsky.h": {
+    "mtime": 1747314557.4230695,
+    "seen": 1793095354.847382,
+    "ast_hash": "63145ea36e749d0059cece38230070dd",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/hott.c": {
+    "mtime": 1782249088.7903745,
+    "seen": 1793095354.847885,
+    "ast_hash": "735e7ae5a40970237619edaf38cba866",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/hott.h": {
+    "mtime": 1747314557.4240737,
+    "seen": 1793095354.847885,
+    "ast_hash": "f8796d98c191b63b4713e467a969e3a4",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/msp.c": {
+    "mtime": 1747314557.4240737,
+    "seen": 1793095354.847885,
+    "ast_hash": "f1beb40f7022f79b67657af67d142bec",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/msp.h": {
+    "mtime": 1747314557.4240737,
+    "seen": 1793095354.847885,
+    "ast_hash": "4cd844c932e7194ca508466562895cc2",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/smartport.c": {
+    "mtime": 1782249088.7903745,
+    "seen": 1793095354.847885,
+    "ast_hash": "9f7118dbcf5c5f4fb1c43caf259ddc7c",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/smartport.h": {
+    "mtime": 1747314557.4245791,
+    "seen": 1793095354.847885,
+    "ast_hash": "2da15ecfe15c25f4e910332d80f809ae",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/telemetry.c": {
+    "mtime": 1747314557.4250786,
+    "seen": 1793095354.847885,
+    "ast_hash": "e8210fc7c105865dc5541802603c26ca",
+    "semantic_hash": ""
+  },
+  "src/main/telemetry/telemetry.h": {
+    "mtime": 1747314557.4250786,
+    "seen": 1793095354.847885,
+    "ast_hash": "a71559236f70d105e8f3a45ca2d5cd92",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/hw_config.c": {
+    "mtime": 1782249088.7908833,
+    "seen": 1793095354.847885,
+    "ast_hash": "d12c6b67dabf13edf2cdedf57396a9e1",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/hw_config.h": {
+    "mtime": 1782249088.7908833,
+    "seen": 1793095354.847885,
+    "ast_hash": "d76244c88033b2641f966f65f3679fe9",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/platform_config.h": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "6025ae83abfea151cb2fd4a143301d1f",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/stm32_it.c": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "49a0ee68235d737cdb1631407352502b",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/stm32_it.h": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "88702a8725bb34be8e7aa314081f561a",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_conf.h": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "3f0dc4550fb5f8feea37029702ede5df",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_desc.c": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "15aabfdf405e0cfd8463c8a6ee434315",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_desc.h": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "49f5e77506d2249941335f196e79491f",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_endp.c": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "deb339f7a332a9e0fe3a1b70ad1db60d",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_istr.c": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "6f84157f8b83b147fd35702c95effb64",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_istr.h": {
+    "mtime": 1747314557.4255793,
+    "seen": 1793095354.847885,
+    "ast_hash": "1162b9d8faf062c5eca9279c80aa88a8",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_prop.c": {
+    "mtime": 1747314557.4267528,
+    "seen": 1793095354.847885,
+    "ast_hash": "ba5cd6860ee599e0571b7a5cb675fc2f",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_prop.h": {
+    "mtime": 1747314557.4267528,
+    "seen": 1793095354.847885,
+    "ast_hash": "4c90fdb8db50d3b0c16b799df9b65bb0",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_pwr.c": {
+    "mtime": 1747314557.4267528,
+    "seen": 1793095354.847885,
+    "ast_hash": "54c0f076bb91eeb0b595e012e684d934",
+    "semantic_hash": ""
+  },
+  "src/main/vcp/usb_pwr.h": {
+    "mtime": 1747314557.4267528,
+    "seen": 1793095354.847885,
+    "ast_hash": "60fde139da79dc413913871e12eb8a61",
+    "semantic_hash": ""
+  },
+  "src/main/version.cpp": {
+    "mtime": 1782249088.7908833,
+    "seen": 1793095354.847885,
+    "ast_hash": "2daa72f7f758e398ec2b2b966531dc8a",
+    "semantic_hash": ""
+  },
+  "src/main/version.h": {
+    "mtime": 1793083691.1592324,
+    "seen": 1793095354.847885,
+    "ast_hash": "eafe1016e6e2c06f33f06c2d450f1590",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32F30x_StdPeriph_Driver/Release_Notes.html": {
+    "mtime": 1747314557.342624,
+    "seen": 1793095354.847885,
+    "ast_hash": "d748e48f10425c9de56d270029162b3c",
+    "semantic_hash": ""
+  },
+  "lib/main/STM32_USB-FS-Device_Driver/Release_Notes.html": {
+    "mtime": 1747314557.3512273,
+    "seen": 1793095354.847885,
+    "ast_hash": "0f4248fb0de597b043136fa096273c5b",
+    "semantic_hash": ""
   }
 }

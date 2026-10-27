@@ -165,6 +165,10 @@ Each of these has cost a flight. Full mechanism and numbers:
   or at a real Dev Mode off. With the battery OK, arming is allowed again right after a landing
   ( `docs/API/FC_CONTROL_API_WIKI.md`, `active-development/takeoff-land-command-fix/` ).
 - **RC link loss lands ~2.5 s after the last frame** ( Wi-Fi / MSP; ~2.4 s on ELRS / PPM; `failsafe_delay` 15, capped at 22 ): Wi-Fi stalls of 1-2 s are normal. Extend tolerance only through `failsafe_delay`, never through the 600 ms stick hold ( `MAX_INVALID_PULS_TIME` ) or `DELAY_5_HZ` ( `FLIGHT_INVARIANTS.md` ).
+- **A full stick-down in flight does not zero the attitude I-term**: below `mincheck` 1100 the `pidRewrite` rate I-term
+  is frozen while airborne ( `ARMED && throttleRaisedSinceArm && !isThrottleStickArmed`: app take-off, or ALT_HOLD after
+  an ARM-switch arm ) and reset otherwise ( ground, arming, ground idle, THROTTLE mode after an ARM-switch arm ).
+  Zeroing it in flight leaned the craft 2-7 deg toward a payload ( `FLIGHT_INVARIANTS.md` ).
 - **User yaw ( `setDesiredAngle` / `DesiredAngle_setRelative` on `AG_YAW` ) is heading hold, which `userCode ( )`
   engages itself while a target is held** ( MAG mode forced unless HEADFREE or no magnetometer ). Without MAG or HEADFREE,
   `updateMagHold ( )` overwrites `magHold` every loop and the target is lost. The target is dropped only at a real

@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.1 (API 1.8.0) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.2 (API 1.8.0) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -160,7 +160,7 @@ that removes all legacy STM32F10x support.
   3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
   command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
-  laser / baro handover at 190 / 170 cm.
+  laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -238,6 +238,12 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
+  `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
+  ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
+  after an ARM-switch arm. The reset shipped since at least v3.0.0 and leaned the craft 2-7 deg toward an off-centre
+  payload ( 2-3 deg toward its own trim ) for as long as the stick stayed down; the 30 cm/s shaped descent made it
+  visible. Flight-validated on PRIMUS_X2_v1 ( `active-development/payload-tilt-on-descent/` ). No public API change.
 - **Object avoidance ( XRanging and X1Ranging )**: a side laser that went out of range kept its last near
   distance, so a removed obstacle stayed "seen" and the push / brake repeated until a valid far sample came. It
   now counts as "no obstacle" after 3 out-of-range ticks ( ~0.3 s; a shorter dropout keeps the push, because the

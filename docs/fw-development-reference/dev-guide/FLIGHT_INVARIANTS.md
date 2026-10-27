@@ -171,3 +171,23 @@ See [`Failsafe_Subsystem.md`](../fw-architecture-pipeline/subsystems/Failsafe_Su
 
 See [`../active-development/takeoff-land-command-fix/`](../active-development/takeoff-land-command-fix/) and
 [`docs/API/FC_CONTROL_API_WIKI.md`](../../API/FC_CONTROL_API_WIKI.md).
+
+## A stick-down in flight does not zero the attitude I-term ( app flights and ALT_HOLD )
+
+- **Mechanism.** In ANGLE mode under `pidRewrite` the rate I-term `errorGyroI` is the only integrator holding a CG
+  offset; the angle loop is P only. With the throttle stick below `mincheck` 1100, `processRx ( )` used to call
+  `pidResetErrorAngle ( )` / `pidResetErrorGyro ( )` on every RX frame, armed or not.
+- **What broke.** A full app stick-down ( about 1004 ) zeroed the trim in flight, and the craft leaned 2-7 deg toward a
+  payload ( 2-3 deg with none ) until the stick came back above 1100. It shipped in every release since at least
+  `v3.0.0`; the 100 cm/s unramped descent hid it until `2a8d59a` slowed it to 30 cm/s
+  ( [`../active-development/payload-tilt-on-descent/`](../active-development/payload-tilt-on-descent/) ).
+- **Rules.**
+  - Airborne ( `ARMED && throttleRaisedSinceArm && !isThrottleStickArmed` ), a low stick **freezes** the `pidRewrite`
+    rate I-term ( `pidSetGyroITermFreeze ( )` ). Airborne means: after an app take-off or `Command_Arm`, or after an
+    ARM-switch arm once altitude hold has seen the stick above 1500 or a take-off goal ran. Everywhere else the reset
+    runs as before: disarmed, at arming, in ARM-switch ground idle, **in THROTTLE mode after an ARM-switch arm** ( no
+    altitude hold to clear `isThrottleStickArmed`, so a radio pilot there still gets the reset and the lean ), and with
+    a controller other than `pidRewrite`.
+  - Do not change `calculateThrottleStatus ( )` or `throttleStatus` to fix a stick-low behaviour: stick-arm, switch
+    disarm and the beeper read it.
+  - A new reason to reset the attitude I-terms must say why the craft cannot be airborne at that point.

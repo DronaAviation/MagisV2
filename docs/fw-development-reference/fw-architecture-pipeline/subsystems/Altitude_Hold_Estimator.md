@@ -86,6 +86,11 @@ runs at the top of the loop, before `applyAltHold ( )` recomputes the idle. A st
 wipe the goal. The goal is set only while `altHoldStickCentred ( )` holds ( `:1476` ), the same test as the stick-rate
 branch, so a stick request cannot cancel it on the next cycle.
 
+A full stick-down in flight ( raw throttle below `mincheck` 1100 ) only sets the descent rate here; it does not touch
+the attitude trim. Before the payload-tilt fix, the stick-low reset in `processRx ( )` zeroed the rate I-term during it,
+and the 30 cm/s shaped descent gave the resulting lean time to show. The I-term is now frozen while airborne
+( Core_PID_Controller.md, *Stick-low I-term reset and freeze* ).
+
 Each 10 ms tick:
 1. `altRate` ramps toward the source rate at `ALT_STICK_ACCEL_CMSS` (100 cm/s²). Moving the stick cancels a goal.
 2. `AltHold += altRate · dt`. It stops advancing when it is `ALT_TARGET_LEASH_CM` (50) ahead of `EstAlt` in the direction of travel, e.g. while still on the ground.

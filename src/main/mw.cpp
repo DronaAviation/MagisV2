@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 19th Oct 2026                                          #
+ #  Last Modified: Tue, 27th Oct 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -25,6 +25,7 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-10-19	AJ	VL53L1X polls via tof_manager_l1x ( X1Ranging )           #
  #  2026-10-19	AJ	Object avoidance: X1Ranging's core in a VL53L1X build     #
  #  2026-10-19	AJ	OA and laser polls by run-time laser family ( t15 )       #
+ #  2026-10-27	AJ	Stick-low I-term reset: frozen instead while airborne     #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -569,6 +570,7 @@ void mwDisarm ( void ) {
   isTookOff          = false;
   isTakeOffHeightSet = false;
   throttleRaisedSinceArm = false;
+  pidSetGyroITermFreeze ( false );
   takeOffThrottle    = 950;
   takeOffHeight      = 120;
   landThrottle       = 1300;    //! new change
@@ -892,7 +894,16 @@ void processRx ( void ) {
   throttleStatus_e throttleStatus = calculateThrottleStatus (
             &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
 
-  if ( throttleStatus == THROTTLE_LOW ) {
+  // Stick at the bottom ( raw throttle below mincheck ): on the ground, at arming and in ground idle the
+  // attitude I-terms are reset ( anti wind-up ). Airborne, that reset drops the trim that holds an off-centre
+  // CG and the craft leans toward it, so pidRewrite freezes its rate I-term instead
+  // ( active-development/payload-tilt-on-descent ). throttleStatus itself is unchanged.
+  const bool freezeGyroITerm = throttleStatus == THROTTLE_LOW && ARMING_FLAG ( ARMED ) && throttleRaisedSinceArm
+                               && ! isThrottleStickArmed
+                               && ( pidControllerType_e ) currentProfile->pidProfile.pidController == PID_CONTROLLER_REWRITE;
+  pidSetGyroITermFreeze ( freezeGyroITerm );
+
+  if ( throttleStatus == THROTTLE_LOW && ! freezeGyroITerm ) {
     pidResetErrorAngle ( );
     pidResetErrorGyro ( );
   }
