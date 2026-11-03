@@ -5,7 +5,7 @@ All notable changes to MagisV2 firmware are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v4.0.0] - 2026-07-21
+## [v3.9.0] - 2026-11-03
 
 Consolidates all work merged into `main` since `v3.0.0`. Highlights: a unified
 non-blocking OLED subsystem, a WS2812B RGB LED API on a selectable data pin,
@@ -150,10 +150,11 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.1 (API 1.8.0) over this release: 3.5.0 for
+- **Firmware version** released as 3.9.0 (API 1.8.0). The development builds of this release were
+  numbered up to 3.15.1 and are superseded by it: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
-  shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
+  shaping, 3.8.1 for the flip fix under setpoint shaping, development 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
@@ -560,7 +561,7 @@ Initial tagged baseline of the MagisV2 fork from the PrimusX2 codebase.
 - **Motor**: Resolved DRV8212 sleep/wakeup issue: arm-motor boost (1650) for
   100 ms then idle (1100).
 
-[v4.0.0]: https://github.com/DronaAviation/MagisV2/compare/v3.0.0...v4.0.0
+[v3.9.0]: https://github.com/DronaAviation/MagisV2/compare/v3.0.0...v3.9.0
 [v3.0.0]: https://github.com/DronaAviation/MagisV2/compare/v2.2.0...v3.0.0
 [v2.2.0]: https://github.com/DronaAviation/MagisV2/compare/v2.0.0...v2.2.0
 [v2.0.0]: https://github.com/DronaAviation/MagisV2/compare/v1.1.2...v2.0.0
