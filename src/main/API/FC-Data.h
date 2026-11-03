@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 8th Jul 2026                                           #
+ #  Last Modified: Tue, 3rd Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -76,8 +76,9 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis );
  *
  * @param _sensor The sensor type, which should be Barometer for valid data retrieval.
  * @param _data The type of barometric data to retrieve (Pressure or Temperature).
- * @return Signed (int32_t) The retrieved barometric pressure in units of 100*millibar,
- *         temperature in units of 100*degreeCelsius, or 0 for unsupported types.
+ * @return Signed (int32_t) The retrieved barometric pressure in Pa ( = mbar x100, e.g. 100470 ),
+ *         temperature in deg C x100 ( e.g. 3270 = 32.70 C ), both rounded to nearest,
+ *         or 0 for unsupported types.
  */
 int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
 

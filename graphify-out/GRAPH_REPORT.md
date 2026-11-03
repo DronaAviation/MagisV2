@@ -1,33 +1,32 @@
-# Graph Report - MagisV2  (2026-10-27)
+# Graph Report - MagisV2  (2026-11-03)
 
 ## Corpus Check
-- 430 files · ~827,973 words
+- 430 files · ~828,067 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5110 nodes · 13985 edges · 251 communities (233 shown, 18 thin omitted)
+- 5111 nodes · 13987 edges · 244 communities (230 shown, 14 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 2133 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a81c180d`
+- Built from commit: `a7f398d1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - USB-FS/core: DEVICE_INFO
 - drivers/sc18is602b: SC18IS602B
-- io/serial: serialPortFunction_e
+- io/serial: findSerialPortConfig()
 - drivers/serial: serialPort_s
 - flight/mixer: mixerMode
 - io/serial_msp: mspPort_s
 - flight/altitudehold: AltTofL1x
 - flight/altitudehold: AltTofL0x
 - io/rc_controls: adjustmentRange_s
-- USB-FS/core: RESULT
 - rx/rx: rxConfig_s
+- API: XRanging, Motor
 - drivers/barometer: baro_s
-- StdPeriph/crc: IRQn
 - blackbox/blackbox_fielddefs: flightLogEventData_u
 - flight/failsafe: failsafeState_s
 - flight/pid: pidProfile_s
@@ -36,7 +35,7 @@
 - blackbox/blackbox: blackboxSlowState_s
 - blackbox/blackbox: blackboxMainState_s
 - flight/lowpass: lowpass_s
-- drivers + API: serial, system
+- drivers + io: serial, system
 - io/rc_controls: rc_alias
 - drivers/accgyro: gyro_s
 - blackbox/blackbox_io: BlackboxDevice
@@ -48,22 +47,21 @@
 - rx/rx: rxChannelRangeConfiguration_s
 - blackbox/blackbox_fielddefs: FlightLogEvent
 - API/X1Ranging: X1Ranging_P
-- API/XRanging: XRanging_P
 - blackbox/blackbox_fielddefs: blackboxDeltaFieldDefinition_s
+- rx + io: rx, ledstrip
 - flight/mixer: servoParam_s
 - io/rc_controls: controlRateConfig_s
+- drivers + VL53L0X: api, tof_dev_area
 - API/ObjectAvoidanceCore: oaCoreState
 - blackbox/blackbox_fielddefs: FlightLogFieldEncoding
 - flight/mixer: servoMixer_s
 - flight/navigation: gpsProfile_s
 - sensors/battery: batteryConfig_s
-- API/Motor: bidirectional_motor
 - API/Scheduler-Timer: Interval
 - API/XRanging: laser_sensors
 - blackbox/blackbox_fielddefs: blackboxConditionalFieldDefinit…
 - flight/imu: imuRuntimeConfig_s
 - io/gps: gpsDataNmea_s
-- API/XRanging: laser_status
 - blackbox/blackbox_fielddefs: blackboxSimpleFieldDefinition_s
 - common/maths: stdev_s
 - drivers/sound_beeper: beeperConfig_s
@@ -71,7 +69,6 @@
 - blackbox/blackbox_fielddefs: flightLogEvent_inflightAdjustme…
 - drivers/adc: adc_config_s
 - drivers/adc: drv_adc_config_s
-- drivers/tof_dev_area: tofDevArea_u
 - flight/mixer: flight3DConfig_s
 - flight/mixer: mixer_s
 - flight/mixer: motorMixer_s
@@ -91,12 +88,11 @@
 - flight/mixer: mixerConfig_s
 - io/beeper: beeperTableEntry_s
 - io/ledstrip: ledConfig_s
-- flight + io: pid, rc_controls
+- io + flight: rc_controls, blackbox
 - io/serial_msp: box_e
 - sensors/sensors: int16_flightDynamicsTrims_s
 - blackbox/blackbox_fielddefs: flightLogEvent_loggingResume_s
 - blackbox/blackbox_fielddefs: FlightLogFieldSign
-- drivers/pwm_mapping: pwmOutputConfiguration_s
 - flight/imu: accDeadband_s
 - flight/imu: rollAndPitchInclination_s
 - io/rc_controls: channelRange_s
@@ -106,164 +102,162 @@
 - io/rc_controls: adjustmentSelectConfig_s
 - io/rc_controls: adjustmentStepConfig_s
 - sensors/gyro: gyroConfig_s
-- drivers + StdPeriph: dma, serial
-- API/Peripheral-ADC: APIAdcInit()
-- drivers/timer: timerCCHandlerRec_t
-- io + rx: gps, rx
+- drivers: serial, misc
+- API/Peripheral-ADC: _AdcInitGeneric()
+- io/gps: gpsInitUblox()
+- vcp/prop: RESULT
+- drivers/sc18is602b: SC18IS601B_GPIOPinMode
+- API/XRanging: laser_e
+- io/gps: gpsConfig_s
 - API/Motor: Rev_Motor_Gpio
-- drivers/pwm_mapping: sonarGPIOConfig_s
 - flight/motor: Rev_Motor_Gpio
 - API/Localisation: Localisation_P
-- API + command: Scheduler-Timer, command
+- API/Scheduler-Timer: ScheduledFn
 - drivers/accgyro_mpu: lpf_e
 - API/Motor: motor_direction
 - io/gps: gpsCoordinateDDDMMmmmm_s
+- CMSIS/stm32f30x: IRQn
+- drivers/timer: timerOvrHandlerRec_s
 - drivers/pwm_rx: ppmDevice_s
-- API/XRanging: LaserMap
-- io + flight: beeper, failsafe
-- rx: rx, gps
+- API/XRanging: GpioAlias
+- drivers/timer: timerCCHandlerRec_s
+- rx/rx: rxRuntimeConfig_s
+- flight + io: mixer, failsafe
+- rx: crsf, rx
 - telemetry: frsky, hott
-- sensors/battery: BMS_Update()
-- rx/rx: detectAndApplySignalLossBehavio…
-- io: flashfs, serial_msp
+- sensors/battery: annexCode()
+- rx/rx: applyRxChannelRangeConfiguraton…
+- io/flashfs: flashfsWriteBuffers()
 - CMSIS/arm_math: __INLINE
 - StdPeriph/flash: FLASH_WaitForLastOperation()
 - telemetry/frsky: handleFrSkyTelemetry()
-- API + flight: altitudehold, FC-Config-Setpoints
-- io/ledstrip: updateLedStrip()
+- io/serial_msp: processInCommand()
+- io/ledstrip: setLedHsv()
 - drivers/serial_softserial: openSoftSerial()
-- telemetry + io: hott, smartport
+- drivers + telemetry: serial, smartport
 - API/FC-Control-Command: Command_Flip()
 - VL53L1X/api_preset_modes: VL53L1_set_preset_mode()
-- VL53L0X/api: VL53L0X_DEV
+- VL53L0X/api: FixPoint1616_t
 - VL53L0X/api_calibration: VL53L0X_WrByte()
 - CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()
 - drivers/paw3903_opticflow: paw3903_read_reg()
-- API: X1Ranging, XRanging
-- API: Motor, RxConfig
+- drivers/flash_m25p16: m25p16_waitForReady()
+- API + drivers: Motor, RxConfig
 - CMSIS/cmFunc: __STATIC_INLINE
 - CMSIS/cm0: __STATIC_INLINE
 - CMSIS/cmInstr: __STATIC_INLINE
-- drivers: serial_uart, serial
+- drivers: serial_uart, serial_uart_stm32f30x
 - StdPeriph/dac: DAC_TypeDef
 - CMSIS + StdPeriph: gpio, rcc
-- vcp/pwr: USB_Istr()
 - drivers + StdPeriph: bus_spi, spi
-- telemetry/hott: hottPrepareEAMResponse()
+- telemetry/hott: handleHoTTTelemetry()
 - CMSIS: sc000, cm0plus
 - VL53L0X/api: VL53L0X_Error
-- vcp/hw_config: usbVcpOpen()
-- StdPeriph/exti: configureMPUDataReadyInterruptH…
+- USB-FS/core: NoData_Setup0()
+- StdPeriph + drivers: exti, accgyro_mpu
 - StdPeriph/hrtim: HRTIM_ADCTriggerConfig()
 - StdPeriph/tim: ws2811LedStripHardwareInit()
 - API + drivers: Serial-IO-Uart, opticflow_paw3903
 - StdPeriph/opamp: OPAMP_InitTypeDef
 - StdPeriph/adc: ADC_TypeDef
-- sensors + common: gyro, maths
-- API: Localisation, BMS
 - drivers/bridge_sc18is602b: sc18_i2c_write()
 - drivers/tof_manager_l1x: tofId_e
-- drivers: pwm_output, tim
+- StdPeriph/tim: TIM_Cmd()
 - drivers/light_ws2811strip_stm32f30x: ws2811DmaIsr()
-- StdPeriph + config: flash, config
+- config + StdPeriph: config, flash
 - drivers: compass_ak09916, opticflow_paw3903
-- io/oled_display: Oled_DrawLine()
-- io + drivers: display, printf
+- StdPeriph/crc: CRC_ReverseOutputDataCmd()
+- io + sensors: display, blackbox
 - VL53L1X/register_funcs: VL53L1_init_and_start_range()
-- io/oled_display: sysText()
-- flight + core: mw, FC-Control-Status
-- API/Peripheral-GPIO: Peripheral_Init()
+- io + user: oled_display, PlutoPilot
+- API + common: FC-Control-Status, Status-LED
+- drivers: Peripheral-GPIO, gpio
 - StdPeriph/hrtim: HRTIM_OutputConfig()
-- drivers/tof_manager: xRangingInit()
-- common/typeconversion: tfp_format()
+- common/printf: tfp_format()
 - drivers/bus_i2c_soft: I2C_delay()
-- sensors/acceleration: rollAndPitchTrims_t
+- sensors/acceleration: calibrate_accel()
 - drivers/display_ug2864hsweg01: i2c_OLED_send_cmd()
-- sensors/acceleration: flightAccelCalData_T
 - CMSIS/arm_math: float32_t
 - StdPeriph/hrtim: HRTIM_TimingUnitBase_Config()
-- user + API: PlutoPilot, mw
 - VL53L1X/core: VL53L1_WrByte()
 - StdPeriph/comp: COMP_InitTypeDef
 - VL53L1X: api_core, core
-- StdPeriph/tim: TIM_ICInit()
+- drivers/bus_i2c_stm32f30x: i2cRead_v2()
 - flight/failsafe: useFailsafeConfig()
-- common + flight: maths, imu
 - CMSIS/arm_math: __QADD()
 - CMSIS/arm_math: arm_pid_q15()
-- VL53L0X/api: VL53L0X_PerformSingleRangingMea…
 - API/RGB-LED: RGB_UpdateAnimation()
-- flight/altitudehold: constrainf()
+- flight + API: altitudehold, FC-Config-Setpoints
 - CMSIS/arm_math: q15_t
 - StdPeriph/hrtim: HRTIM_ExternalEventConfig()
 - flight/mixer: mixerInit()
-- StdPeriph/rcc: RCC_AHBPeriphResetCmd()
+- StdPeriph/rcc: RCC_GetFlagStatus()
 - API + blackbox: Debugging, blackbox
-- flight + drivers: filter, pwm_output
 - flight/imu: imuConfigure()
-- common/maths: ring_avg_u16_t
-- sensors + drivers: initialisation, accgyro_icm20948
-- io + API: oled_display, Oled
-- flight/mixer: feature()
+- common + flight: maths, imu
+- sensors/initialisation: sensorsAutodetectmpu()
+- io/oled_display: Oled_DrawHLine()
 - StdPeriph/rtc: ErrorStatus
 - API/FC-Config-Setpoints: Failsafe_disable()
 - drivers/light_led: void()
 - CMSIS/arm_math: arm_bilinear_interp_q15()
 - CMSIS/arm_math: arm_bilinear_interp_q31()
-- rx: crsf, xbus
+- rx/xbus: xBusDataReceive()
 - CMSIS/arm_math: arm_bilinear_interp_q7()
-- StdPeriph/i2c: I2C_TypeDef
-- StdPeriph/usart: FunctionalState
-- USB-FS: regs, sil
+- StdPeriph/i2c: FunctionalState
+- StdPeriph/usart: USART_TypeDef
+- USB-FS: sil, mem
 - CMSIS/cm3: __INLINE
 - USB-FS/regs: Virtual_Com_Port_Reset()
 - VL53L1X: ll_def, api_debug
 - VL53L1X: api, api_core
-- sensors/barometer: apmBaroCalibrate()
+- sensors/barometer: micros()
 - flight/navigation: onGpsNewData()
-- drivers: serial_1wire, system
+- io/serial_1wire: gpio_set_mode()
 - CMSIS/cm4_simd: __STATIC_INLINE
 - StdPeriph: pwr, wwdg
 - config/config: resetConf()
-- config + flight: config, runtime_config
+- config + io: config, rc_controls
+- io/serial_cli: cliDump()
 - io/serial_cli: cliPrint()
-- flight/altitudehold: apmCalculateEstimatedAltitude()
 - VL53L1X/register_funcs: VL53L1_ReadMulti()
-- config + API: config, RxConfig
-- flight/posEstimate: imuResetAccelerationSum()
-- io/oled_display: Oled_FillRoundedRect()
-- flight + io: pid, posControl
-- telemetry: serial, frsky
+- API + config: RxConfig, config
+- StdPeriph + drivers: dma, dma_registry
+- flight: altitudehold, posEstimate
+- command + flight: command, altitudehold
+- flight + io: acceleration, pid
 - StdPeriph/hrtim: HRTIM_TypeDef
-- flight/imu: drift_correction_yaw()
-- flight/imu: imuUpdate()
-- API/X1Ranging: laser_e
-- API/RxConfig: Receiver_Aux_Config()
+- VL53L0X/i2c_platform: VL53L0X_UpdateByte()
+- API/X1Ranging: x1RangingInit()
+- StdPeriph/syscfg: SYSCFG_DMAChannelRemapConfig()
 - common/atomic: __basepriSetMemRetVal()
-- flight/posControl: resetPosIntegral()
-- API/FC-Config-Setpoints: angle_e
-- sensors + config: barometer, config
-- flight/navigation: navigationInit()
+- flight: filter, posControl
+- rx: rx, pwm_rx
+- io/ledstrip: updateLedStrip()
 - drivers + common: light_ws2811strip, colorconversion
+- rx/rx: detectAndApplySignalLossBehavio…
 - VL53L0X/api: VL53L0X_RdByte()
 - CMSIS/rcc: RCC_GetFlagStatus()
 - VL53L1X: wait, platform
 - StdPeriph/can: CAN_TypeDef
 - VL53L1X/def: ConvertModeFromLLD()
 - StdPeriph/tim: TIM_TypeDef
-- drivers/timer_stm32f30x: TIM_SelectOCxM_NoDisable()
+- io/oled_display: Oled_Is_Mode()
 - StdPeriph/spi: SPI_TypeDef
 - VL53L0X/api_core: get_sequence_step_timeout()
-- blackbox/blackbox: blackboxWrite()
+- common/typeconversion: a2i()
+- API/Debugging: debugPrint()
+- API/RGB-LED: RGB_Init()
+- blackbox: blackbox, blackbox_io
+- API/XRanging: xRangingInit()
 - CMSIS/cm4: __STATIC_INLINE
 - CMSIS/cm3: __STATIC_INLINE
 - CMSIS/sc300: __STATIC_INLINE
-- vcp: prop, int
-- VL53L0X: i2c_platform, platform
+- vcp: stm32_it, pwr
+- VL53L0X: def, api_strings
+- config + io: runtime_config, serial_cli
 - io/display: updateDisplay()
 - StdPeriph/gpio: BitAction
-- io/serial_1wire: escHardware_t
-- CMSIS/gpio: BitAction
 
 ## God Nodes (most connected - your core abstractions)
 1. `VL53L1_Error` - 284 edges
@@ -278,33 +272,33 @@
 10. `ADC_TypeDef` - 61 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `ws2811DmaIsr()` --calls--> `DMA_ClearFlag()`  [INFERRED]
+  src/main/drivers/light_ws2811strip_stm32f30x.c → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_dma.c
 - `init()` --calls--> `plutoInit()`  [INFERRED]
   src/main/main.cpp → PlutoPilot.cpp
-- `ws2811LedStripDMAEnable()` --calls--> `TIM_SetCounter()`  [INFERRED]
-  src/main/drivers/light_ws2811strip_stm32f30x.c → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_tim.c
-- `serialICConfig()` --calls--> `TIM_ICInit()`  [INFERRED]
+- `writeEEPROM()` --calls--> `FLASH_ErasePage()`  [INFERRED]
+  src/main/config/config.cpp → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_flash.c
+- `writeEEPROM()` --calls--> `FLASH_ProgramWord()`  [INFERRED]
+  src/main/config/config.cpp → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_flash.c
+- `onSerialRxPinChange()` --calls--> `TIM_SetCounter()`  [INFERRED]
   src/main/drivers/serial_softserial.c → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_tim.c
-- `serialICConfig()` --calls--> `TIM_ICStructInit()`  [INFERRED]
-  src/main/drivers/serial_softserial.c → lib/main/STM32F30x_StdPeriph_Driver/src/stm32f30x_tim.c
-- `vl53l0xConfigure()` --calls--> `VL53L0X_SetGpioConfig()`  [INFERRED]
-  src/main/drivers/ranging_vl53l0x.cpp → lib/main/VL53L0X_API/core/src/vl53l0x_api.c
 
 ## Import Cycles
 - None detected.
 
-## Communities (251 total, 18 thin omitted)
+## Communities (244 total, 14 thin omitted)
 
 ### Community 105 - "USB-FS/core: DEVICE_INFO"
 Cohesion: 0.05
 Nodes (39): CONTROL_STATE, DEVICE, DEVICE_INFO, DEVICE_PROP, ENDPOINT_INFO, OneDescriptor, USER_STANDARD_REQUESTS, IN_DATA (+31 more)
 
 ### Community 115 - "drivers/sc18is602b: SC18IS602B"
-Cohesion: 0.07
-Nodes (23): SC18IS601B_GPIOPinMode, SC18IS601B_SPI_Mode, SC18IS601B_SPI_Speed, SC18IS602B, SC18IS601B_GPIO_MODE_INPUT_ONLY, SC18IS601B_GPIO_MODE_OPEN_DRAIN, SC18IS601B_GPIO_MODE_PUSH_PULL, SC18IS601B_GPIO_MODE_QUASI_BIDIRECTIONAL (+15 more)
+Cohesion: 0.16
+Nodes (8): SC18IS602B, address, gpioConfig, gpioEnable, gpioWrite, resetPin, slaveNumber, slaveSelect
 
-### Community 12 - "io/serial: serialPortFunction_e"
-Cohesion: 0.09
-Nodes (31): serialConfig_s, serialPortConfig_s, serialPortUsage_s, doesConfigurationUsePort(), findNextSerialPortConfig(), findNextSharedSerialPort(), findSerialPortUsageByIdentifier(), findSerialPortUsageByPort() (+23 more)
+### Community 12 - "io/serial: findSerialPortConfig()"
+Cohesion: 0.06
+Nodes (42): serialConfig_s, serialPortConfig_s, serialPortUsage_s, gcd(), blackboxDeviceOpen(), startBlackbox(), validateBlackboxConfig(), determinePortSharing() (+34 more)
 
 ### Community 120 - "drivers/serial: serialPort_s"
 Cohesion: 0.12
@@ -315,8 +309,8 @@ Cohesion: 0.08
 Nodes (26): mixerMode, MIXER_AIRPLANE, MIXER_ATAIL4, MIXER_BICOPTER, MIXER_CUSTOM, MIXER_CUSTOM_AIRPLANE, MIXER_CUSTOM_TRI, MIXER_DUALCOPTER (+18 more)
 
 ### Community 122 - "io/serial_msp: mspPort_s"
-Cohesion: 0.10
-Nodes (18): mspPort_s, systemReset(), systemResetToBootloader(), evaluateOtherData(), handleSerial(), mspProcess(), mspProcessReceivedData(), resetMspPort() (+10 more)
+Cohesion: 0.12
+Nodes (13): mspPort_s, mspSetTelemetryPort(), resetMspPort(), configureMSPTelemetryPort(), c_state, checksum, cmdMSP, dataSize (+5 more)
 
 ### Community 124 - "flight/altitudehold: AltTofL1x"
 Cohesion: 0.11
@@ -330,21 +324,17 @@ Nodes (16): AltTofL0x, tofDownClearNew(), tofDownFiltMm(), tofDownNew(), tofDown
 Cohesion: 0.08
 Nodes (25): adjustmentRange_s, adjustmentState_s, modeActivationCondition_s, configureAdjustment(), isModeActivationConditionPresent(), isRangeActive(), updateActivatedModes(), updateAdjustmentStates() (+17 more)
 
-### Community 150 - "USB-FS/core: RESULT"
-Cohesion: 0.10
-Nodes (26): RESULT, Data_Setup0(), In0_Process(), NoData_Setup0(), Out0_Process(), Post0_Process(), SetDeviceAddress(), Setup0_Process() (+18 more)
-
 ### Community 161 - "rx/rx: rxConfig_s"
 Cohesion: 0.12
 Nodes (16): rxConfig_s, channelRanges, failsafe_channel_configurations, maxcheck, midrc, mincheck, rcmap, rcSmoothing (+8 more)
 
+### Community 163 - "API: XRanging, Motor"
+Cohesion: 0.05
+Nodes (17): bidirectional_motor, laser_status, XRanging_P, Bms_Get(), M1, M2, M5, M6 (+9 more)
+
 ### Community 167 - "drivers/barometer: baro_s"
 Cohesion: 0.15
 Nodes (16): baro_s, calculate, get_up, get_ut, measurment_start, read, start_up, start_ut (+8 more)
-
-### Community 173 - "StdPeriph/crc: IRQn"
-Cohesion: 0.08
-Nodes (10): IRQn, CRC_ReverseOutputDataCmd(), BusFault_IRQn, DebugMonitor_IRQn, MemoryManagement_IRQn, NonMaskableInt_IRQn, PendSV_IRQn, SVCall_IRQn (+2 more)
 
 ### Community 176 - "blackbox/blackbox_fielddefs: flightLogEventData_u"
 Cohesion: 0.16
@@ -359,12 +349,12 @@ Cohesion: 0.12
 Nodes (16): pidProfile_s, A_level, D8, D_f, dterm_cut_hz, gyro_cut_hz, H_level, H_sensitivity (+8 more)
 
 ### Community 18 - "drivers/timer: timerHardware_t"
-Cohesion: 0.08
-Nodes (46): timerCCHandlerRec_s, timerOvrHandlerRec_s, TIM_ClearFlag(), TIM_ICStructInit(), TIM_ITConfig(), ppmAvoidPWMTimerClash(), ppmInConfig(), ppmInit() (+38 more)
+Cohesion: 0.07
+Nodes (55): timerConfig_s, TIM_ClearFlag(), TIM_ICStructInit(), TIM_ITConfig(), pwmInit(), isMotorBrushed(), pwmBrushedMotorConfig(), pwmBrushlessMotorConfig() (+47 more)
 
 ### Community 188 - "drivers/pwm_mapping: drv_pwm_config_s"
-Cohesion: 0.13
-Nodes (15): drv_pwm_config_s, airplane, idlePulse, motorPwmRate, sonarGPIOConfig, useCurrentMeterADC, useLEDStrip, useOneshot (+7 more)
+Cohesion: 0.08
+Nodes (24): drv_pwm_config_s, pwmOutputConfiguration_s, sonarGPIOConfig_s, airplane, idlePulse, motorPwmRate, sonarGPIOConfig, useCurrentMeterADC (+16 more)
 
 ### Community 189 - "blackbox/blackbox: blackboxSlowState_s"
 Cohesion: 0.20
@@ -375,12 +365,12 @@ Cohesion: 0.14
 Nodes (14): blackboxMainState_s, accSmooth, amperageLatest, axisPID_D, axisPID_I, axisPID_P, gyroADC, logVar (+6 more)
 
 ### Community 193 - "flight/lowpass: lowpass_s"
-Cohesion: 0.14
-Nodes (14): lowpass_s, a, af, b, bf, coeff_shift, freq, init (+6 more)
+Cohesion: 0.12
+Nodes (18): lowpass_s, generateLowpassCoeffs2(), lowpassFixed(), filterServos(), a, af, b, bf (+10 more)
 
-### Community 2 - "drivers + API: serial, system"
+### Community 2 - "drivers + io: serial, system"
 Cohesion: 0.05
-Nodes (36): serialPortVTable, findSerialPortConfigState_s, findSharedSerialPortState_s, debugPrint(), Monitor_Print(), Monitor_Println(), serializeString(), command_add() (+28 more)
+Nodes (30): serialPortVTable, findSerialPortConfigState_s, findSharedSerialPortState_s, command_add(), icp10111_calculate(), icp10111_read(), INA219_Config(), INA219_Init() (+22 more)
 
 ### Community 201 - "io/rc_controls: rc_alias"
 Cohesion: 0.15
@@ -426,6 +416,10 @@ Nodes (10): FlightLogEvent, flightLogEvent_s, FLIGHT_LOG_EVENT_GTUNE_RESULT, FLI
 Cohesion: 0.22
 Nodes (9): blackboxDeltaFieldDefinition_s, condition, fieldNameIndex, Iencode, Ipredict, isSigned, name, Pencode (+1 more)
 
+### Community 23 - "rx + io: rx, ledstrip"
+Cohesion: 0.11
+Nodes (14): rxFailsafeChannelConfiguration_s, ws2811LedStripInit(), determineLedStripDimensions(), determineOrientationLimits(), ledStripEnable(), parseLedStripConfig(), reevalulateLedConfig(), updateLedCount() (+6 more)
+
 ### Community 230 - "flight/mixer: servoParam_s"
 Cohesion: 0.22
 Nodes (9): servoParam_s, angleAtMax, angleAtMin, forwardFromChannel, max, middle, min, rate (+1 more)
@@ -434,9 +428,13 @@ Nodes (9): servoParam_s, angleAtMax, angleAtMin, forwardFromChannel, max, middle
 Cohesion: 0.22
 Nodes (9): controlRateConfig_s, dynThrPID, rates, rcExpo8, rcRate8, rcYawExpo8, thrExpo8, thrMid8 (+1 more)
 
+### Community 234 - "drivers + VL53L0X: api, tof_dev_area"
+Cohesion: 0.24
+Nodes (12): tofDevArea_u, VL53L0X_ClearInterruptMask(), VL53L0X_GetRangingMeasurementData(), VL53L0X_PerformSingleRangingMeasurement(), VL53L0X_SetDeviceAddress(), vl53l0xReadIfReady(), vl53l0xSetAddress(), vl53l0xStartAndRead() (+4 more)
+
 ### Community 237 - "API/ObjectAvoidanceCore: oaCoreState"
-Cohesion: 0.15
-Nodes (12): oaCoreState, oaCoreDistance(), oaCoreMap(), oaCoreRun(), filtMm, lastPitchOA, lastRollOA, lastRunMs (+4 more)
+Cohesion: 0.11
+Nodes (16): oaCoreState, userRCassert(), oaCoreDistance(), oaCoreMap(), oaCoreRun(), RcCommand_get(), RcCommand_Set(), RcData_Get() (+8 more)
 
 ### Community 238 - "blackbox/blackbox_fielddefs: FlightLogFieldEncoding"
 Cohesion: 0.25
@@ -453,10 +451,6 @@ Nodes (8): gpsProfile_s, ap_mode, gps_lpf, gps_wp_radius, nav_controls_heading, 
 ### Community 241 - "sensors/battery: batteryConfig_s"
 Cohesion: 0.25
 Nodes (8): batteryConfig_s, BatteryCapacity, currentMeterType, multiwiiCurrentMeterOutput, vBatMaxVoltage, vBatMinVoltage, vBatWarningVoltage, currentSensor_e
-
-### Community 245 - "API/Motor: bidirectional_motor"
-Cohesion: 0.29
-Nodes (7): bidirectional_motor, M1, M2, M5, M6, M7, M8
 
 ### Community 246 - "API/Scheduler-Timer: Interval"
 Cohesion: 0.29
@@ -475,12 +469,8 @@ Cohesion: 0.29
 Nodes (7): imuRuntimeConfig_s, acc_lpf_factor, acc_unarmedcal, gyro_cmpf_factor, gyro_cmpfm_factor, gyro_lpf_factor, small_angle
 
 ### Community 250 - "io/gps: gpsDataNmea_s"
-Cohesion: 0.10
-Nodes (19): gpsDataNmea_s, gpsInitData_s, GPS_coord_to_degrees(), gpsNewFrame(), gpsNewFrameNMEA(), gpsNewFrameUBLOX(), grab_fields(), shiftPacketLog() (+11 more)
-
-### Community 255 - "API/XRanging: laser_status"
-Cohesion: 0.33
-Nodes (6): laser_status, LASER_BOOT_FAILED, LASER_I2C_ERROR, LASER_NOT_ENABLED, LASER_OK, LASER_OUT_OF_RANGE
+Cohesion: 0.29
+Nodes (7): gpsDataNmea_s, altitude, ground_course, latitude, longitude, numSat, speed
 
 ### Community 256 - "blackbox/blackbox_fielddefs: blackboxSimpleFieldDefinition_s"
 Cohesion: 0.33
@@ -509,10 +499,6 @@ Nodes (5): adc_config_s, adcChannel, dmaIndex, enabled, sampleTime
 ### Community 265 - "drivers/adc: drv_adc_config_s"
 Cohesion: 0.40
 Nodes (5): drv_adc_config_s, enableCurrentMeter, enableExternal1, enableRSSI, enableVBat
-
-### Community 266 - "drivers/tof_dev_area: tofDevArea_u"
-Cohesion: 0.50
-Nodes (3): tofDevArea_u, l0x, l1x
 
 ### Community 269 - "flight/mixer: flight3DConfig_s"
 Cohesion: 0.40
@@ -590,9 +576,9 @@ Nodes (4): beeperTableEntry_s, mode, priority, sequence
 Cohesion: 0.50
 Nodes (4): ledConfig_s, color, flags, xy
 
-### Community 3 - "flight + io: pid, rc_controls"
+### Community 3 - "io + flight: rc_controls, blackbox"
 Cohesion: 0.10
-Nodes (36): escAndServoConfig_s, gimbalConfig_s, rxConfig_s, pidSetController(), useGyroConfig(), blackboxFieldDefinition_t, blackboxGpsState_t, blackboxMainState_t (+28 more)
+Nodes (38): escAndServoConfig_s, gimbalConfig_s, rxConfig_s, useGyroConfig(), blackboxFieldDefinition_t, blackboxGpsState_t, blackboxMainState_t, userBlackboxMainState_t (+30 more)
 
 ### Community 300 - "io/serial_msp: box_e"
 Cohesion: 0.50
@@ -610,10 +596,6 @@ Nodes (3): flightLogEvent_loggingResume_s, currentTime, logIteration
 Cohesion: 0.67
 Nodes (3): FlightLogFieldSign, FLIGHT_LOG_FIELD_SIGNED, FLIGHT_LOG_FIELD_UNSIGNED
 
-### Community 312 - "drivers/pwm_mapping: pwmOutputConfiguration_s"
-Cohesion: 0.67
-Nodes (3): pwmOutputConfiguration_s, motorCount, servoCount
-
 ### Community 313 - "flight/imu: accDeadband_s"
 Cohesion: 0.67
 Nodes (3): accDeadband_s, xy, z
@@ -630,41 +612,53 @@ Nodes (3): channelRange_s, endStep, startStep
 Cohesion: 0.67
 Nodes (3): rollAndPitchTrims_s, pitch, roll
 
-### Community 37 - "drivers + StdPeriph: dma, serial"
-Cohesion: 0.08
-Nodes (40): portOptions_t, DMA_ClearITPendingBit(), DMA_Cmd(), DMA_DeInit(), DMA_GetCurrDataCounter(), DMA_Init(), DMA_ITConfig(), DMA_SetCurrDataCounter() (+32 more)
+### Community 37 - "drivers: serial, misc"
+Cohesion: 0.10
+Nodes (20): portOptions_t, NVIC_Init(), NVIC_PriorityGroupConfig(), NVIC_SystemLPConfig(), serialUSART1(), serialUSART2(), serialUSART3(), cycleCounterInit() (+12 more)
 
-### Community 44 - "API/Peripheral-ADC: APIAdcInit()"
-Cohesion: 0.20
-Nodes (12): ADC_PinMapping, _Adc1init(), _Adc2init(), _Adc3init(), _Adc4init(), APIAdcInit(), Peripheral_Init(), Peripheral_Read() (+4 more)
-
-### Community 51 - "drivers/timer: timerCCHandlerRec_t"
+### Community 44 - "API/Peripheral-ADC: _AdcInitGeneric()"
 Cohesion: 0.21
-Nodes (12): timerConfig_s, ppmEdgeCallback(), ppmOverflowCallback(), pwmEdgeCallback(), pwmOverflowCallback(), captureCompare_t, timerCCHandlerRec_t, edgeCallback (+4 more)
+Nodes (14): ADC_PinMapping, _Adc1init(), _Adc2init(), _Adc3init(), _Adc4init(), _AdcInitGeneric(), adcPinEnabled(), APIAdcInit() (+6 more)
 
-### Community 55 - "io + rx: gps, rx"
-Cohesion: 0.04
-Nodes (39): gpsConfig_s, ubloxSbas_s, rxFailsafeChannelConfiguration_s, rxRuntimeConfig_s, hottSendEAMResponse(), hottSendGPSResponse(), hottSendResponse(), processBinaryModeRequest() (+31 more)
+### Community 55 - "io/gps: gpsInitUblox()"
+Cohesion: 0.08
+Nodes (32): gpsInitData_s, sensorsClear(), serialGetBaudRate(), serialSetBaudRate(), GPS_coord_to_degrees(), gpsInitHardware(), gpsInitNmea(), gpsInitUblox() (+24 more)
+
+### Community 56 - "vcp/prop: RESULT"
+Cohesion: 0.12
+Nodes (13): RESULT, Standard_GetDescriptorData(), Virtual_Com_Port_Data_Setup(), Virtual_Com_Port_Get_Interface_Setting(), Virtual_Com_Port_GetConfigDescriptor(), Virtual_Com_Port_GetDeviceDescriptor(), Virtual_Com_Port_GetStringDescriptor(), Virtual_Com_Port_NoData_Setup() (+5 more)
+
+### Community 59 - "drivers/sc18is602b: SC18IS601B_GPIOPinMode"
+Cohesion: 0.12
+Nodes (15): SC18IS601B_GPIOPinMode, SC18IS601B_SPI_Mode, SC18IS601B_SPI_Speed, SC18IS601B_GPIO_MODE_INPUT_ONLY, SC18IS601B_GPIO_MODE_OPEN_DRAIN, SC18IS601B_GPIO_MODE_PUSH_PULL, SC18IS601B_GPIO_MODE_QUASI_BIDIRECTIONAL, SC18IS601B_SPIMODE_0 (+7 more)
+
+### Community 61 - "API/XRanging: laser_e"
+Cohesion: 0.15
+Nodes (14): LaserMap, X1Ranging_P::getRange(), X1Ranging_P::getStatus(), X1Ranging_P::init(), X1Ranging_P::initObjectAvoidance(), XRanging_P::getRange(), XRanging_P::getStatus(), XRanging_P::init() (+6 more)
+
+### Community 65 - "io/gps: gpsConfig_s"
+Cohesion: 0.17
+Nodes (12): gpsConfig_s, ubloxSbas_s, gpsAutoBaud_e, gpsAutoConfig_e, autoBaud, autoConfig, provider, sbasMode (+4 more)
 
 ### Community 68 - "API/Motor: Rev_Motor_Gpio"
 Cohesion: 0.50
 Nodes (4): Rev_Motor_Gpio, gpio, pin, RCC_AHBPeriph
 
-### Community 69 - "drivers/pwm_mapping: sonarGPIOConfig_s"
-Cohesion: 0.50
-Nodes (4): sonarGPIOConfig_s, echoPin, gpio, triggerPin
-
 ### Community 70 - "flight/motor: Rev_Motor_Gpio"
 Cohesion: 0.50
 Nodes (4): Rev_Motor_Gpio, gpio, pin, RCC_AHBPeriph
 
-### Community 74 - "API + command: Scheduler-Timer, command"
-Cohesion: 0.07
-Nodes (41): ScheduledFn, Command_Arm(), ensure_task_init(), Execute_Scheduled(), Interval::check(), Scheduler_Add(), Scheduler_Cancel(), Scheduler_Clear() (+33 more)
+### Community 73 - "API/Localisation: Localisation_P"
+Cohesion: 0.29
+Nodes (3): Localisation_P, Localisation_P::init(), localisation_type
+
+### Community 74 - "API/Scheduler-Timer: ScheduledFn"
+Cohesion: 0.23
+Nodes (13): ScheduledFn, ensure_task_init(), Execute_Scheduled(), Scheduler_Add(), Scheduler_Cancel(), Scheduler_Clear(), interval_ms, last_run_ms (+5 more)
 
 ### Community 75 - "drivers/accgyro_mpu: lpf_e"
-Cohesion: 0.06
-Nodes (39): accel_fsr_e, clock_sel_e, gyro_fsr_e, lpf_e, mpuConfiguration_s, mpuDetectionResult_s, INV_FSR_16G, INV_FSR_2G (+31 more)
+Cohesion: 0.05
+Nodes (43): accel_fsr_e, clock_sel_e, gyro_fsr_e, lpf_e, mpuConfiguration_s, mpuDetectionResult_s, detectMpu(), mpuReadRegisterI2C() (+35 more)
 
 ### Community 76 - "API/Motor: motor_direction"
 Cohesion: 0.67
@@ -674,65 +668,81 @@ Nodes (3): motor_direction, ANTICLOCK_WISE, CLOCK_WISE
 Cohesion: 0.67
 Nodes (3): gpsCoordinateDDDMMmmmm_s, dddmm, mmmm
 
+### Community 80 - "CMSIS/stm32f30x: IRQn"
+Cohesion: 0.22
+Nodes (9): IRQn, BusFault_IRQn, DebugMonitor_IRQn, MemoryManagement_IRQn, NonMaskableInt_IRQn, PendSV_IRQn, SVCall_IRQn, SysTick_IRQn (+1 more)
+
+### Community 86 - "drivers/timer: timerOvrHandlerRec_s"
+Cohesion: 0.50
+Nodes (4): timerOvrHandlerRec_s, timerOvrHandlerCallback, fn, next
+
 ### Community 88 - "drivers/pwm_rx: ppmDevice_s"
-Cohesion: 0.18
-Nodes (11): ppmDevice_s, captures, currentTime, deltaTime, largeCounter, numChannels, numChannelsPrevFrame, previousTime (+3 more)
+Cohesion: 0.10
+Nodes (20): ppmDevice_s, ppmAvoidPWMTimerClash(), ppmEdgeCallback(), ppmInit(), ppmOverflowCallback(), pwmOverflowCallback(), captures, currentTime (+12 more)
 
-### Community 90 - "API/XRanging: LaserMap"
+### Community 89 - "API/XRanging: GpioAlias"
+Cohesion: 0.67
+Nodes (3): GpioAlias, adc, pwm
+
+### Community 92 - "drivers/timer: timerCCHandlerRec_s"
+Cohesion: 0.67
+Nodes (3): timerCCHandlerRec_s, timerCCHandlerCallback, fn
+
+### Community 93 - "rx/rx: rxRuntimeConfig_s"
+Cohesion: 0.67
+Nodes (3): rxRuntimeConfig_s, auxChannelCount, channelCount
+
+### Community 0 - "flight + io: mixer, failsafe"
+Cohesion: 0.04
+Nodes (69): Command_Arm(), Command_DisArm(), blackboxBuildConditionCache(), testBlackboxConditionUncached(), command_jump(), command_next(), command_previous(), command_run() (+61 more)
+
+### Community 1 - "rx: crsf, rx"
 Cohesion: 0.11
-Nodes (26): GpioAlias, LaserMap, adcPinEnabled(), Peripheral_Init(), x1RangingAltLatch(), x1RangingAltXshut(), altPinConflict(), altRequest() (+18 more)
-
-### Community 0 - "io + flight: beeper, failsafe"
-Cohesion: 0.07
-Nodes (42): Command_DisArm(), applyObjectAvoidance(), cmp32(), reset_FSI(), set_FSI(), status_FSI(), limitAltitude(), failsafeApplyControlInput() (+34 more)
-
-### Community 1 - "rx: rx, gps"
-Cohesion: 0.16
-Nodes (28): blackboxDeviceOpen(), featureClear(), gpsInit(), findSerialPortConfig(), openSerialPort(), crsfInit(), crsfReadRawRC(), rxMspInit() (+20 more)
+Nodes (34): ppmRead(), pwmRead(), failsafeInit(), openSerialPort(), crsfCrc8(), crsfFrameStatus(), crsfGenerateCrc8Table(), crsfInit() (+26 more)
 
 ### Community 10 - "telemetry: frsky, hott"
+Cohesion: 0.18
+Nodes (15): closeSerialPort(), mspReleasePortIfAllocated(), checkFrSkyTelemetryState(), configureFrSkyTelemetryPort(), freeFrSkyTelemetryPort(), checkHoTTTelemetryState(), configureHoTTTelemetryPort(), freeHoTTTelemetryPort() (+7 more)
+
+### Community 100 - "sensors/battery: annexCode()"
+Cohesion: 0.09
+Nodes (44): x1RangingApplyObjectAvoidance(), applyObjectAvoidance(), cmp32(), reset_FSI(), set_FSI(), INA219_ReadBus_mV(), INA219_ReadShunt_10uV(), ina219ReadReg() (+36 more)
+
+### Community 102 - "rx/rx: applyRxChannelRangeConfiguraton…"
 Cohesion: 0.16
-Nodes (17): closeSerialPort(), mspReleasePortIfAllocated(), mspSetTelemetryPort(), checkFrSkyTelemetryState(), configureFrSkyTelemetryPort(), freeFrSkyTelemetryPort(), checkHoTTTelemetryState(), configureHoTTTelemetryPort() (+9 more)
+Nodes (11): adcGetChannel(), applyRxChannelRangeConfiguraton(), calculateChannelRemapping(), calculateRxChannelsAndUpdateFailsafe(), nullReadRawRC(), readRxChannelsApplyRanges(), resetAllRxChannelRangeConfigurations(), updateRSSI() (+3 more)
 
-### Community 100 - "sensors/battery: BMS_Update()"
-Cohesion: 0.11
-Nodes (32): INA219_Config(), INA219_Init(), INA219_ReadBus_mV(), INA219_ReadShunt_10uV(), INA219_RegWrite(), ina219ReadReg(), addSatU32(), batteryCountAvailable() (+24 more)
-
-### Community 102 - "rx/rx: detectAndApplySignalLossBehavio…"
-Cohesion: 0.11
-Nodes (24): adcGetChannel(), isPPMDataBeingReceived(), isPWMDataBeingReceived(), resetPPMDataReceivedState(), rxMspFrameComplete(), applyRxChannelRangeConfiguraton(), calculateChannelRemapping(), calculateNonDataDrivenChannel() (+16 more)
-
-### Community 103 - "io: flashfs, serial_msp"
-Cohesion: 0.06
-Nodes (69): Set_LED(), blackboxDeviceReserveBufferSpace(), FC_Reboot_Led(), m25p16_eraseCompletely(), m25p16_eraseSector(), m25p16_getGeometry(), m25p16_isReady(), m25p16_pageProgram() (+61 more)
+### Community 103 - "io/flashfs: flashfsWriteBuffers()"
+Cohesion: 0.18
+Nodes (27): blackboxDeviceReserveBufferSpace(), flashfsAdvanceTailInBuffer(), flashfsBufferIsEmpty(), flashfsClearBuffer(), flashfsEraseCompletely(), flashfsFlushAsync(), flashfsFlushSync(), flashfsGetDirtyDataBuffers() (+19 more)
 
 ### Community 104 - "CMSIS/arm_math: __INLINE"
 Cohesion: 0.14
 Nodes (28): arm_circularRead_f32(), arm_circularRead_q7(), arm_circularWrite_f32(), arm_circularWrite_q7(), arm_linear_interp_q31(), arm_linear_interp_q7(), clip_q31_to_q15(), clip_q31_to_q7() (+20 more)
 
 ### Community 106 - "StdPeriph/flash: FLASH_WaitForLastOperation()"
-Cohesion: 0.15
-Nodes (19): FLASH_EraseAllPages(), FLASH_GetFlagStatus(), FLASH_GetStatus(), FLASH_HalfCycleAccessCmd(), FLASH_ITConfig(), FLASH_OB_BOOTConfig(), FLASH_OB_EnableWRP(), FLASH_OB_Erase() (+11 more)
+Cohesion: 0.14
+Nodes (21): FLASH_EraseAllPages(), FLASH_ErasePage(), FLASH_GetFlagStatus(), FLASH_GetStatus(), FLASH_HalfCycleAccessCmd(), FLASH_ITConfig(), FLASH_OB_BOOTConfig(), FLASH_OB_EnableWRP() (+13 more)
 
 ### Community 109 - "telemetry/frsky: handleFrSkyTelemetry()"
 Cohesion: 0.23
 Nodes (26): GPStoDDDMM_MMMM(), handleFrSkyTelemetry(), hasEnoughTimeLapsedSinceLastTelemetryTransmission(), sendAccel(), sendAmperage(), sendBaro(), sendDataHead(), sendFakeLatLong() (+18 more)
 
-### Community 11 - "API + flight: altitudehold, FC-Config-Setpoints"
-Cohesion: 0.12
-Nodes (14): DesiredPosition_setRelative(), getDesiredPositions(), setDesiredPosition(), Estimate_Get(), Sensor_Get(), Localisation_P::get(), setTakeOffGoal(), altHoldReleaseGroundIdle() (+6 more)
+### Community 11 - "io/serial_msp: processInCommand()"
+Cohesion: 0.15
+Nodes (26): findBoxByActiveBoxId(), findBoxByPermenantId(), headSerialError(), headSerialReply(), headSerialResponse(), mspProcess(), mspProcessReceivedCommand(), mspProcessReceivedData() (+18 more)
 
-### Community 110 - "io/ledstrip: updateLedStrip()"
-Cohesion: 0.10
-Nodes (32): scaleRange(), getLedHsv(), isWS2811LedStripReady(), scaleLedValue(), setLedHsv(), setStripColor(), setStripColors(), applyDefaultColors() (+24 more)
+### Community 110 - "io/ledstrip: setLedHsv()"
+Cohesion: 0.23
+Nodes (11): setLedHsv(), setStripColor(), setStripColors(), applyDefaultColors(), applyDefaultLedStripConfig(), applyDirectionalModeColor(), applyLedModeLayer(), applyQuadrantColor() (+3 more)
 
 ### Community 112 - "drivers/serial_softserial: openSoftSerial()"
-Cohesion: 0.14
-Nodes (25): TIM_SetCounter(), applyChangedBits(), extractAndStoreRxByte(), isSoftSerialTransmitBufferEmpty(), onSerialRxPinChange(), onSerialTimer(), openSoftSerial(), prepareForNextRxByte() (+17 more)
+Cohesion: 0.21
+Nodes (19): applyChangedBits(), extractAndStoreRxByte(), isSoftSerialTransmitBufferEmpty(), isTimerPeriodTooLarge(), onSerialRxPinChange(), onSerialTimer(), openSoftSerial(), prepareForNextRxByte() (+11 more)
 
-### Community 116 - "telemetry + io: hott, smartport"
-Cohesion: 0.10
-Nodes (26): sensorsClear(), serialRead(), serialRxBytesWaiting(), serialSetMode(), gpsEnablePassthrough(), gpsNewData(), gpsThread(), cliGpsPassthrough() (+18 more)
+### Community 116 - "drivers + telemetry: serial, smartport"
+Cohesion: 0.16
+Nodes (16): Uart_Write(), serialPrint(), serialRead(), serialRxBytesWaiting(), serialSetMode(), serialWrite(), gpsEnablePassthrough(), cliGpsPassthrough() (+8 more)
 
 ### Community 117 - "API/FC-Control-Command: Command_Flip()"
 Cohesion: 0.50
@@ -742,29 +752,29 @@ Nodes (3): Command_Flip(), Command_TakeOff(), landingInProgress()
 Cohesion: 0.39
 Nodes (18): VL53L1_set_preset_mode(), VL53L1_init_tuning_parm_storage_struct(), VL53L1_preset_mode_low_power_auto_long_ranging(), VL53L1_preset_mode_low_power_auto_ranging(), VL53L1_preset_mode_low_power_auto_short_ranging(), VL53L1_preset_mode_olt(), VL53L1_preset_mode_singleshot_ranging(), VL53L1_preset_mode_standard_ranging() (+10 more)
 
-### Community 127 - "VL53L0X/api: VL53L0X_DEV"
+### Community 127 - "VL53L0X/api: FixPoint1616_t"
 Cohesion: 0.11
-Nodes (47): VL53L0X_apply_offset_adjustment(), VL53L0X_get_offset_calibration_data_micro_meter(), VL53L0X_perform_offset_calibration(), VL53L0X_perform_xtalk_calibration(), VL53L0X_set_offset_calibration_data_micro_meter(), VL53L0X_get_pal_range_status(), VL53L0X_get_total_signal_rate(), VL53L0X_get_total_xtalk_rate() (+39 more)
+Nodes (32): VL53L0X_perform_offset_calibration(), VL53L0X_perform_xtalk_calibration(), VL53L0X_calc_dmax(), VL53L0X_calc_sigma_estimate(), VL53L0X_get_total_signal_rate(), VL53L0X_get_total_xtalk_rate(), VL53L0X_isqrt(), VL53L0X_quadrature_sum() (+24 more)
 
 ### Community 128 - "VL53L0X/api_calibration: VL53L0X_WrByte()"
-Cohesion: 0.26
-Nodes (19): count_enabled_spads(), enable_ref_spads(), enable_spad_bit(), get_next_good_spad(), get_ref_spad_map(), is_aperture(), perform_ref_signal_measurement(), set_ref_spad_map() (+11 more)
+Cohesion: 0.27
+Nodes (19): enable_ref_spads(), enable_spad_bit(), get_next_good_spad(), is_aperture(), perform_ref_signal_measurement(), set_ref_spad_map(), VL53L0X_get_ref_calibration(), VL53L0X_perform_phase_calibration() (+11 more)
 
 ### Community 13 - "CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()"
-Cohesion: 0.04
-Nodes (40): DBGMCU_APB1PeriphConfig(), DBGMCU_APB2PeriphConfig(), DBGMCU_Config(), IWDG_GetFlagStatus(), ADC_Common_TypeDef, CAN_FIFOMailBox_TypeDef, CAN_FilterRegister_TypeDef, CAN_TxMailBox_TypeDef (+32 more)
+Cohesion: 0.03
+Nodes (47): DBGMCU_APB1PeriphConfig(), DBGMCU_APB2PeriphConfig(), DBGMCU_Config(), IWDG_GetFlagStatus(), TIM_SelectOCxM_NoDisable(), ADC_Common_TypeDef, CAN_FIFOMailBox_TypeDef, CAN_FilterRegister_TypeDef (+39 more)
 
 ### Community 130 - "drivers/paw3903_opticflow: paw3903_read_reg()"
 Cohesion: 0.15
 Nodes (19): paw3903_check_id(), paw3903_get_mode(), paw3903_get_orientation(), paw3903_get_resolution(), paw3903_init(), paw3903_power_up_reset(), paw3903_read_motion(), paw3903_read_motion_burst() (+11 more)
 
-### Community 132 - "API: X1Ranging, XRanging"
-Cohesion: 0.25
-Nodes (8): xshutPinInit(), x1RangingInit(), x1RangingRequested(), rangingFamilyLatch(), xRangingSideXshut(), m25p16_release(), tofL1xReset(), tofL1xStartSides()
+### Community 132 - "drivers/flash_m25p16: m25p16_waitForReady()"
+Cohesion: 0.16
+Nodes (19): m25p16_eraseCompletely(), m25p16_eraseSector(), m25p16_getGeometry(), m25p16_init(), m25p16_isReady(), m25p16_pageProgram(), m25p16_pageProgramBegin(), m25p16_pageProgramContinue() (+11 more)
 
-### Community 135 - "API: Motor, RxConfig"
-Cohesion: 0.22
-Nodes (14): Motor_Init(), Motor_Set(), Motor_SetDir(), xshutPinWrite(), ESP_WiFi_OFF(), ESP_WiFi_ON(), STM_PB3_ESP_IO14_Init(), digitalHi() (+6 more)
+### Community 135 - "API + drivers: Motor, RxConfig"
+Cohesion: 0.18
+Nodes (16): Motor_Init(), Motor_Set(), Motor_SetDir(), xshutPinWrite(), ESP_WiFi_OFF(), ESP_WiFi_ON(), STM_PB3_ESP_IO14_Init(), digitalHi() (+8 more)
 
 ### Community 137 - "CMSIS/cmFunc: __STATIC_INLINE"
 Cohesion: 0.17
@@ -778,9 +788,9 @@ Nodes (22): NVIC_ClearPendingIRQ(), NVIC_DisableIRQ(), NVIC_EnableIRQ(), NVIC_Ge
 Cohesion: 0.18
 Nodes (19): __CLREX(), __CLZ(), __DMB(), __ISB(), __LDREXB(), __LDREXH(), __LDREXW(), __NOP() (+11 more)
 
-### Community 14 - "drivers: serial_uart, serial"
-Cohesion: 0.10
-Nodes (27): fputc(), _putc(), setPrintfSerialPort(), tfp_printf(), isSerialTransmitBufferEmpty(), serialGetBaudRate(), serialPrint(), serialSetBaudRate() (+19 more)
+### Community 14 - "drivers: serial_uart, serial_uart_stm32f30x"
+Cohesion: 0.09
+Nodes (33): DMA_ClearITPendingBit(), DMA_Cmd(), USART_Cmd(), USART_ITConfig(), softSerialReadByte(), softSerialRxBytesWaiting(), softSerialSetMode(), softSerialTxBytesFree() (+25 more)
 
 ### Community 140 - "StdPeriph/dac: DAC_TypeDef"
 Cohesion: 0.18
@@ -788,47 +798,43 @@ Nodes (19): DAC_ClearFlag(), DAC_ClearITPendingBit(), DAC_Cmd(), DAC_DeInit(), D
 
 ### Community 143 - "CMSIS + StdPeriph: gpio, rcc"
 Cohesion: 0.09
-Nodes (30): GPIO_DeInit(), GPIO_Init(), GPIO_PinAFConfig(), GPIO_PinLockConfig(), GPIO_ReadInputData(), GPIO_ReadInputDataBit(), GPIO_ReadOutputData(), GPIO_ReadOutputDataBit() (+22 more)
-
-### Community 144 - "vcp/pwr: USB_Istr()"
-Cohesion: 0.24
-Nodes (9): Leave_LowPowerMode(), USB_Cable_Config(), USB_LP_CAN1_RX0_IRQHandler(), USB_Istr(), PowerOff(), PowerOn(), Resume(), Resume_Init() (+1 more)
+Nodes (31): GPIO_DeInit(), GPIO_Init(), GPIO_PinAFConfig(), GPIO_PinLockConfig(), GPIO_ReadInputData(), GPIO_ReadInputDataBit(), GPIO_ReadOutputData(), GPIO_ReadOutputDataBit() (+23 more)
 
 ### Community 147 - "drivers + StdPeriph: bus_spi, spi"
 Cohesion: 0.15
 Nodes (24): SPI_Cmd(), SPI_I2S_DeInit(), SPI_I2S_GetFlagStatus(), SPI_Init(), SPI_ReceiveData8(), SPI_RxFIFOThresholdConfig(), SPI_SendData8(), getPrescaler() (+16 more)
 
-### Community 148 - "telemetry/hott: hottPrepareEAMResponse()"
-Cohesion: 0.21
-Nodes (12): addGPSCoordinates(), hottEAMUpdateBattery(), hottEAMUpdateBatteryDrawnCapacity(), hottEAMUpdateCurrentMeter(), hottPrepareEAMResponse(), hottPrepareGPSResponse(), hottPrepareMessages(), initialiseEAMMessage() (+4 more)
+### Community 148 - "telemetry/hott: handleHoTTTelemetry()"
+Cohesion: 0.15
+Nodes (24): addGPSCoordinates(), flushHottRxBuffer(), handleHoTTTelemetry(), hottCheckSerialData(), hottEAMUpdateBattery(), hottEAMUpdateBatteryDrawnCapacity(), hottEAMUpdateCurrentMeter(), hottPrepareEAMResponse() (+16 more)
 
 ### Community 149 - "CMSIS: sc000, cm0plus"
 Cohesion: 0.08
 Nodes (37): NVIC_ClearPendingIRQ(), NVIC_DisableIRQ(), NVIC_EnableIRQ(), NVIC_GetPendingIRQ(), NVIC_GetPriority(), NVIC_SetPendingIRQ(), NVIC_SetPriority(), SysTick_Config() (+29 more)
 
 ### Community 15 - "VL53L0X/api: VL53L0X_Error"
-Cohesion: 0.07
-Nodes (56): VL53L0X_get_device_error_string(), VL53L0X_get_limit_check_info(), VL53L0X_get_pal_error_string(), VL53L0X_get_pal_state_string(), VL53L0X_get_range_status_string(), VL53L0X_get_sequence_steps_info(), VL53L0X_CheckAndLoadInterruptSettings(), VL53L0X_EnableInterruptMask() (+48 more)
+Cohesion: 0.08
+Nodes (73): count_enabled_spads(), get_ref_spad_map(), VL53L0X_apply_offset_adjustment(), VL53L0X_get_offset_calibration_data_micro_meter(), VL53L0X_get_reference_spads(), VL53L0X_set_offset_calibration_data_micro_meter(), VL53L0X_get_pal_range_status(), VL53L0X_get_limit_check_info() (+65 more)
 
-### Community 151 - "vcp/hw_config: usbVcpOpen()"
-Cohesion: 0.19
-Nodes (11): USB_Init(), SetEPTxValid(), usbVcpOpen(), usbVcpWrite(), CDC_Send_DATA(), Get_SerialNum(), IntToUnicode(), Set_System() (+3 more)
+### Community 150 - "USB-FS/core: NoData_Setup0()"
+Cohesion: 0.12
+Nodes (24): Data_Setup0(), DataStageIn(), DataStageOut(), In0_Process(), NoData_Setup0(), Out0_Process(), Post0_Process(), SetDeviceAddress() (+16 more)
 
-### Community 152 - "StdPeriph/exti: configureMPUDataReadyInterruptH…"
-Cohesion: 0.14
-Nodes (13): EXTI_ClearITPendingBit(), EXTI_GetFlagStatus(), EXTI_GetITStatus(), EXTI_Init(), EXTI_StructInit(), SYSCFG_EXTILineConfig(), configureMPUDataReadyInterruptHandling(), MPU_DATA_READY_EXTI_Handler() (+5 more)
+### Community 152 - "StdPeriph + drivers: exti, accgyro_mpu"
+Cohesion: 0.10
+Nodes (19): USB_Init(), EXTI_ClearITPendingBit(), EXTI_GetFlagStatus(), EXTI_GetITStatus(), EXTI_Init(), EXTI_StructInit(), SYSCFG_EXTILineConfig(), icm20948AccInit() (+11 more)
 
 ### Community 153 - "StdPeriph/hrtim: HRTIM_ADCTriggerConfig()"
 Cohesion: 0.11
 Nodes (18): HRTIM_ADCTriggerConfig(), HRTIM_BurstModeConfig(), HRTIM_ChopperModeConfig(), HRTIM_DeadTimeConfig(), HRTIM_FaultConfig(), HRTIM_SynchronizationConfig(), HRTIM_TimerEventFilteringConfig(), HRTIM_WaveformCaptureConfig() (+10 more)
 
 ### Community 154 - "StdPeriph/tim: ws2811LedStripHardwareInit()"
-Cohesion: 0.29
-Nodes (16): TIM_DMACmd(), TIM_OC1Init(), TIM_OC1PreloadConfig(), TIM_OC2Init(), TIM_OC2PreloadConfig(), TIM_OC3Init(), TIM_OC3PreloadConfig(), TIM_OC4Init() (+8 more)
+Cohesion: 0.26
+Nodes (17): TIM_CtrlPWMOutputs(), TIM_DMACmd(), TIM_OC1Init(), TIM_OC1PreloadConfig(), TIM_OC2Init(), TIM_OC2PreloadConfig(), TIM_OC3Init(), TIM_OC3PreloadConfig() (+9 more)
 
 ### Community 158 - "API + drivers: Serial-IO-Uart, opticflow_paw3903"
 Cohesion: 0.16
-Nodes (16): getBaud(), Uart_Init(), Uart_Read16(), Uart_Read32(), Uart_Read8(), Uart_rxBytesWaiting(), Uart_txBytesFree(), Uart_Write() (+8 more)
+Nodes (15): getBaud(), Uart_Init(), Uart_Read16(), Uart_Read32(), Uart_Read8(), Uart_rxBytesWaiting(), Uart_txBytesFree(), blackboxReplenishHeaderBudget() (+7 more)
 
 ### Community 159 - "StdPeriph/opamp: OPAMP_InitTypeDef"
 Cohesion: 0.13
@@ -838,89 +844,69 @@ Nodes (9): OPAMP_Cmd(), OPAMP_Init(), OPAMP_StartCalibration(), OPAMP_StructInit
 Cohesion: 0.06
 Nodes (71): ADC_AnalogWatchdog1SingleChannelConfig(), ADC_AnalogWatchdog1ThresholdsConfig(), ADC_AnalogWatchdog2SingleChannelConfig(), ADC_AnalogWatchdog2ThresholdsConfig(), ADC_AnalogWatchdog3SingleChannelConfig(), ADC_AnalogWatchdog3ThresholdsConfig(), ADC_AnalogWatchdogCmd(), ADC_AutoDelayCmd() (+63 more)
 
-### Community 162 - "sensors + common: gyro, maths"
-Cohesion: 0.21
-Nodes (12): devClear(), devPush(), devStandardDeviation(), devVariance(), applyGyroZero(), gyroSetCalibrationCycles(), gyroUpdate(), isGyroCalibrationComplete() (+4 more)
-
-### Community 163 - "API: Localisation, BMS"
-Cohesion: 0.09
-Nodes (4): Bms_Get(), Localisation_P::init(), localisation_type, oled_mode_e
-
 ### Community 168 - "drivers/bridge_sc18is602b: sc18_i2c_write()"
 Cohesion: 0.22
 Nodes (12): sc18_address_cfg(), sc18_clearInterrupt(), sc18_configureSPI(), sc18_enableGPIO(), sc18_i2c_read(), sc18_i2c_write(), sc18_readGPIO(), sc18_setLowPowerMode() (+4 more)
 
 ### Community 169 - "drivers/tof_manager_l1x: tofId_e"
-Cohesion: 0.26
-Nodes (16): l1xBe16(), l1xDecodeResult(), l1xRangeStatus(), tofIdValid(), tofL1xBusError(), tofL1xCheckStale(), tofL1xEntry(), tofL1xLastSampleMs() (+8 more)
+Cohesion: 0.20
+Nodes (21): l1xBe16(), l1xDecodeResult(), l1xRangeStatus(), tofIdValid(), tofL1xBusError(), tofL1xCheckStale(), tofL1xEntry(), tofL1xLastSampleMs() (+13 more)
 
-### Community 17 - "drivers: pwm_output, tim"
-Cohesion: 0.15
-Nodes (17): TIM_Cmd(), TIM_CtrlPWMOutputs(), TIM_TimeBaseInit(), TIM_TimeBaseStructInit(), ws2811LedStripDMAEnable(), pwmInit(), isMotorBrushed(), pwmBrushedMotorConfig() (+9 more)
+### Community 17 - "StdPeriph/tim: TIM_Cmd()"
+Cohesion: 0.29
+Nodes (8): TIM_Cmd(), TIM_SetCounter(), TIM_TimeBaseInit(), TIM_TimeBaseStructInit(), ws2811LedStripDMAEnable(), configTimeBase(), timerStart(), TIM_TimeBaseInitTypeDef
 
 ### Community 170 - "drivers/light_ws2811strip_stm32f30x: ws2811DmaIsr()"
-Cohesion: 0.26
-Nodes (10): DMA_ClearFlag(), DMA_GetFlagStatus(), DMA1_Channel1_IRQHandler(), DMA1_Channel2_IRQHandler(), DMA1_Channel5_IRQHandler(), DMA1_Channel6_IRQHandler(), DMA2_Channel3_IRQHandler(), DMA2_Channel5_IRQHandler() (+2 more)
+Cohesion: 0.33
+Nodes (8): DMA1_Channel1_IRQHandler(), DMA1_Channel2_IRQHandler(), DMA1_Channel5_IRQHandler(), DMA1_Channel6_IRQHandler(), DMA2_Channel3_IRQHandler(), DMA2_Channel5_IRQHandler(), ws2811CcrAddr(), ws2811DmaIsr()
 
-### Community 171 - "StdPeriph + config: flash, config"
-Cohesion: 0.24
-Nodes (10): FLASH_ClearFlag(), FLASH_ErasePage(), FLASH_Lock(), FLASH_ProgramWord(), FLASH_Unlock(), calculateChecksum(), ensureEEPROMContainsValidData(), isEEPROMContentValid() (+2 more)
+### Community 171 - "config + StdPeriph: config, flash"
+Cohesion: 0.18
+Nodes (13): FLASH_ClearFlag(), FLASH_Lock(), FLASH_Unlock(), calculateChecksum(), ensureEEPROMContainsValidData(), isEEPROMContentValid(), resetEEPROM(), writeEEPROM() (+5 more)
 
 ### Community 172 - "drivers: compass_ak09916, opticflow_paw3903"
 Cohesion: 0.13
-Nodes (22): SPI_Write(), sc18_reset(), ak09916Detect(), ak09916Init(), ak09916Read(), ak09916SensorMagRead(), ak09916SensorMagWrite(), ak09916SensorRead() (+14 more)
+Nodes (21): SPI_Write(), FC_Reboot_Led(), icm20948GyroInit(), icmSelectBank(), sc18_reset(), ak09916Detect(), ak09916Init(), ak09916Read() (+13 more)
 
-### Community 174 - "io/oled_display: Oled_DrawLine()"
-Cohesion: 0.18
-Nodes (11): Oled_DeadEyes(), Oled_Line(), Oled_PitchLine(), Oled_RollLine(), Oled_DrawArrow(), Oled_DrawBoxyXEye(), Oled_DrawLine(), Oled_DrawPitchIndicator() (+3 more)
-
-### Community 180 - "io + drivers: display, printf"
+### Community 180 - "io + sensors: display, blackbox"
 Cohesion: 0.08
-Nodes (31): resetUser(), init_printf(), printfSupportInit(), initEEPROM(), latchActiveFeatures(), sensors(), m25p16_init(), m25p16_readIdentification() (+23 more)
+Nodes (29): resetUser(), canUseBlackboxWithCurrentConfiguration(), initBlackbox(), degreesToRadians(), initEEPROM(), latchActiveFeatures(), pwmRxInit(), timerDataConfiguration() (+21 more)
 
 ### Community 183 - "VL53L1X/register_funcs: VL53L1_init_and_start_range()"
 Cohesion: 0.16
 Nodes (12): VL53L1_init_and_start_range(), VL53L1_i2c_decode_int16_t(), VL53L1_i2c_encode_int16_t(), VL53L1_update_ll_driver_cfg_state(), VL53L1_update_ll_driver_rd_state(), VL53L1_get_customer_nvm_managed(), VL53L1_get_system_control(), VL53L1_i2c_decode_customer_nvm_managed() (+4 more)
 
-### Community 186 - "io/oled_display: sysText()"
-Cohesion: 0.17
-Nodes (22): Oled_Is_Mode(), Oled_Mode(), dispArmData(), dispDevMode(), dispFlightStatus(), dispRxConnection(), dispStopWatch(), dispVoltage() (+14 more)
+### Community 186 - "io + user: oled_display, PlutoPilot"
+Cohesion: 0.13
+Nodes (22): onLoopFinish(), onLoopStart(), plutoInit(), plutoLoop(), FlightMode_Check(), FlightMode_Set(), status_FSI(), dispArmData() (+14 more)
 
-### Community 19 - "flight + core: mw, FC-Control-Status"
-Cohesion: 0.12
-Nodes (16): FlightStatus_Check(), FlightStatus_Get(), leastSignificantBit(), flightStatusIndicator(), init_Gtune(), updateDelayCycles(), calculateThrottleAngleCorrection(), MotroWakeUp() (+8 more)
+### Community 19 - "API + common: FC-Control-Status, Status-LED"
+Cohesion: 0.20
+Nodes (7): FlightStatus_Check(), FlightStatus_Get(), Set_LED(), leastSignificantBit(), flightStatusIndicator(), ledOperator(), ledStripFlightStatus()
 
-### Community 194 - "API/Peripheral-GPIO: Peripheral_Init()"
-Cohesion: 0.29
-Nodes (4): Peripheral_Init(), Peripheral_Read(), Peripheral_Write(), digitalIn()
+### Community 194 - "drivers: Peripheral-GPIO, gpio"
+Cohesion: 0.13
+Nodes (17): Peripheral_Init(), Peripheral_Read(), Peripheral_Write(), xshutPinInit(), i2cInit(), digitalIn(), gpioInit(), initInverter() (+9 more)
 
 ### Community 195 - "StdPeriph/hrtim: HRTIM_OutputConfig()"
 Cohesion: 0.19
 Nodes (13): HRTIM_CompareUnitConfig(), HRTIM_OutputConfig(), HRTIM_SimpleOCChannelConfig(), HRTIM_SimpleOnePulseChannelConfig(), HRTIM_SimplePWMChannelConfig(), HRTIM_TIM_ResetConfig(), HRTIM_WaveformCompareConfig(), HRTIM_WaveformOutputConfig() (+5 more)
 
-### Community 197 - "drivers/tof_manager: xRangingInit()"
-Cohesion: 0.19
-Nodes (16): rangingFamily(), xRangingInit(), updateSpiOpticFlow(), vl53l0xProbe(), tofIdValid(), tofManagerBringUp(), tofManagerEntry(), tofManagerMarkFailed() (+8 more)
-
-### Community 198 - "common/typeconversion: tfp_format()"
-Cohesion: 0.27
-Nodes (9): putchw(), tfp_format(), a2d(), a2i(), i2a(), li2a(), ui2a(), uli2a() (+1 more)
+### Community 198 - "common/printf: tfp_format()"
+Cohesion: 0.17
+Nodes (14): fputc(), init_printf(), printfSupportInit(), _putc(), putchw(), putcp(), setPrintfSerialPort(), tfp_format() (+6 more)
 
 ### Community 199 - "drivers/bus_i2c_soft: I2C_delay()"
 Cohesion: 0.44
 Nodes (11): I2C_Ack(), I2C_delay(), I2C_NoAck(), I2C_ReceiveByte(), I2C_SendByte(), I2C_Start(), I2C_Stop(), I2C_WaitAck() (+3 more)
 
-### Community 20 - "sensors/acceleration: rollAndPitchTrims_t"
-Cohesion: 0.14
-Nodes (21): readEEPROMAndNotify(), resetAccelerometerTrims(), saveConfigAndNotify(), applyAndSaveAccelerometerTrimsDelta(), applyAccelerationTrims(), calibrate_accel(), calibrate_find_delta(), calibrate_reset_matrices() (+13 more)
+### Community 20 - "sensors/acceleration: calibrate_accel()"
+Cohesion: 0.17
+Nodes (15): resetAccelerometerCalibration(), resetAccelerometerTrims(), applyAccelerationTrims(), calibrate_accel(), calibrate_find_delta(), calibrate_reset_matrices(), calibrate_update_matrices(), getAccelerationCalibration() (+7 more)
 
 ### Community 200 - "drivers/display_ug2864hsweg01: i2c_OLED_send_cmd()"
-Cohesion: 0.32
-Nodes (13): bitreverse8(), i2c_OLED_clear_display(), i2c_OLED_clear_display_quick(), i2c_OLED_draw_bitmap(), i2c_OLED_draw_rect(), i2c_OLED_send_byte(), i2c_OLED_send_bytes(), i2c_OLED_send_changed_bytes() (+5 more)
-
-### Community 202 - "sensors/acceleration: flightAccelCalData_T"
-Cohesion: 0.50
-Nodes (4): resetAccelerometerCalibration(), getAccelerationCalibration(), setAccelerationCalibration(), flightAccelCalData_T
+Cohesion: 0.26
+Nodes (15): bitreverse8(), i2c_OLED_clear_display(), i2c_OLED_clear_display_quick(), i2c_OLED_draw_bitmap(), i2c_OLED_draw_rect(), i2c_OLED_send_byte(), i2c_OLED_send_bytes(), i2c_OLED_send_changed_bytes() (+7 more)
 
 ### Community 203 - "CMSIS/arm_math: float32_t"
 Cohesion: 0.17
@@ -929,10 +915,6 @@ Nodes (12): arm_bilinear_interp_f32(), arm_clarke_f32(), arm_inv_clarke_f32(), a
 ### Community 204 - "StdPeriph/hrtim: HRTIM_TimingUnitBase_Config()"
 Cohesion: 0.32
 Nodes (12): HRTIM_MasterBase_Config(), HRTIM_MasterWaveform_Config(), HRTIM_SimpleBase_Init(), HRTIM_SimpleCapture_Init(), HRTIM_SimpleOC_Init(), HRTIM_SimpleOnePulse_Init(), HRTIM_SimplePWM_Init(), HRTIM_TimingUnitBase_Config() (+4 more)
-
-### Community 206 - "user + API: PlutoPilot, mw"
-Cohesion: 0.18
-Nodes (11): onLoopFinish(), onLoopStart(), plutoInit(), plutoLoop(), resetUserRCflag(), userRCrelease(), FlightMode_Check(), FlightMode_Set() (+3 more)
 
 ### Community 21 - "VL53L1X/core: VL53L1_WrByte()"
 Cohesion: 0.05
@@ -946,17 +928,13 @@ Nodes (6): COMP_Cmd(), COMP_Init(), COMP_StructInit(), COMP_SwitchCmd(), COMP_Wi
 Cohesion: 0.24
 Nodes (8): VL53L1_copy_sys_and_core_results_to_range_results(), VL53L1_get_device_results(), VL53L1_get_measurement_results(), VL53L1_print_range_results(), VL53L1_check_ll_driver_rd_state(), VL53L1_low_power_auto_setup_manual_calibration(), VL53L1_low_power_auto_update_DSS(), VL53L1_range_results_t
 
-### Community 22 - "StdPeriph/tim: TIM_ICInit()"
-Cohesion: 0.17
-Nodes (15): TI1_Config(), TI2_Config(), TI3_Config(), TI4_Config(), TIM_BDTRConfig(), TIM_BDTRStructInit(), TIM_ICInit(), TIM_PWMIConfig() (+7 more)
+### Community 22 - "drivers/bus_i2c_stm32f30x: i2cRead_v2()"
+Cohesion: 0.22
+Nodes (20): I2C_ClearFlag(), I2C_GetFlagStatus(), I2C_ReceiveData(), I2C_SendData(), I2C_TransferHandling(), icp10111_measureStart(), icp10111Detect(), i2cInit() (+12 more)
 
 ### Community 222 - "flight/failsafe: useFailsafeConfig()"
 Cohesion: 0.67
 Nodes (3): failsafeReset(), useFailsafeConfig(), failsafeConfig_t
-
-### Community 23 - "common + flight: maths, imu"
-Cohesion: 0.20
-Nodes (14): buildRotationMatrix(), cos_approx(), degreesToRadians(), normalizeV(), rotateV(), sin_approx(), imuCalculateEstimatedAttitude(), imuCalculateHeading() (+6 more)
 
 ### Community 232 - "CMSIS/arm_math: __QADD()"
 Cohesion: 0.32
@@ -966,17 +944,13 @@ Nodes (8): arm_clarke_q31(), arm_inv_clarke_q31(), arm_inv_park_q31(), arm_park_
 Cohesion: 0.25
 Nodes (8): arm_pid_q15(), clip_q63_to_q15(), mult32x64(), __SMLALD(), __SMLALDX(), __SMUAD(), arm_pid_instance_q15, q63_t
 
-### Community 234 - "VL53L0X/api: VL53L0X_PerformSingleRangingMea…"
-Cohesion: 0.24
-Nodes (14): VL53L0X_ClearInterruptMask(), VL53L0X_GetDeviceMode(), VL53L0X_GetGpioConfig(), VL53L0X_GetRangingMeasurementData(), VL53L0X_PerformSingleMeasurement(), VL53L0X_PerformSingleRangingMeasurement(), VL53L0X_SetGpioConfig(), VL53L0X_StartMeasurement() (+6 more)
-
 ### Community 24 - "API/RGB-LED: RGB_UpdateAnimation()"
 Cohesion: 0.14
 Nodes (21): hsvToRgb(), mapIndex(), RGB_Clear(), RGB_Control(), RGB_FillColor(), RGB_Release(), RGB_SetColor(), RGB_SetColorAll() (+13 more)
 
-### Community 25 - "flight/altitudehold: constrainf()"
-Cohesion: 0.10
-Nodes (24): setUserLoopFrequency(), constrainf(), altLaserFusionLatch(), applyAltHold(), applyFixedWingAltHold(), applyMultirotorAltHold(), calculateAltHoldThrottleAdjustment(), calculateTiltAngle() (+16 more)
+### Community 25 - "flight + API: altitudehold, FC-Config-Setpoints"
+Cohesion: 0.06
+Nodes (34): DesiredAngle_setRelative(), DesiredPosition_setRelative(), getDesiredAngle(), getDesiredPositions(), getDesiredRate(), setDesiredAngle(), setDesiredPosition(), setDesiredRate() (+26 more)
 
 ### Community 251 - "CMSIS/arm_math: q15_t"
 Cohesion: 0.33
@@ -987,36 +961,28 @@ Cohesion: 0.40
 Nodes (6): HRTIM_CaptureUnitConfig(), HRTIM_EventConfig(), HRTIM_ExternalEventConfig(), HRTIM_SimpleCaptureChannelConfig(), HRTIM_BasicCaptureChannelCfgTypeDef, HRTIM_EventCfgTypeDef
 
 ### Community 254 - "flight/mixer: mixerInit()"
-Cohesion: 0.33
-Nodes (3): mixerInit(), mixerLoadMix(), servoMixerLoadMix()
+Cohesion: 0.29
+Nodes (4): mixerInit(), mixerLoadMix(), servoMixerLoadMix(), cliServoMix()
 
-### Community 26 - "StdPeriph/rcc: RCC_AHBPeriphResetCmd()"
-Cohesion: 0.05
-Nodes (14): RCC_AHBPeriphClockCmd(), RCC_AHBPeriphResetCmd(), RCC_APB1PeriphClockCmd(), RCC_APB2PeriphClockCmd(), RCC_BackupResetCmd(), RCC_ClockSecuritySystemCmd(), RCC_GetClocksFreq(), RCC_GetFlagStatus() (+6 more)
-
-### Community 267 - "flight + drivers: filter, pwm_output"
-Cohesion: 0.12
-Nodes (12): biquadApply(), biquadInitLPF(), initIMUFilters(), generateLowpassCoeffs2(), lowpassFixed(), filterServos(), pwmWriteFuncPtr, timCCER_t (+4 more)
+### Community 26 - "StdPeriph/rcc: RCC_GetFlagStatus()"
+Cohesion: 0.06
+Nodes (12): RCC_AHBPeriphClockCmd(), RCC_APB1PeriphClockCmd(), RCC_APB2PeriphClockCmd(), RCC_BackupResetCmd(), RCC_ClockSecuritySystemCmd(), RCC_GetFlagStatus(), RCC_HSICmd(), RCC_ITConfig() (+4 more)
 
 ### Community 268 - "flight/imu: imuConfigure()"
-Cohesion: 0.38
-Nodes (5): calculateAccZLowPassFilterRCTimeConstant(), calculateThrottleAngleScale(), imuConfigure(), accDeadband_t, imuRuntimeConfig_t
+Cohesion: 0.31
+Nodes (7): calculateAccZLowPassFilterRCTimeConstant(), calculateThrottleAngleScale(), dcmMulXY(), imuConfigure(), yaw_error_compass(), accDeadband_t, imuRuntimeConfig_t
 
-### Community 27 - "common/maths: ring_avg_u16_t"
-Cohesion: 0.17
-Nodes (9): arraySubInt32(), ring_avg_u16_get(), ring_avg_u16_init(), ring_avg_u16_push(), ring_avg_u16_reset(), resetBatteryConfig(), batteryInit(), ring_avg_u16_t (+1 more)
+### Community 27 - "common + flight: maths, imu"
+Cohesion: 0.06
+Nodes (43): applyDeadband(), arraySubInt32(), buildRotationMatrix(), devClear(), devPush(), devStandardDeviation(), devVariance(), normalizeV() (+35 more)
 
-### Community 28 - "sensors + drivers: initialisation, accgyro_icm20948"
-Cohesion: 0.07
-Nodes (28): resetSensorAlignment(), sensorsSet(), icm20948AccDetect(), icm20948AccInit(), icm20948GyroDetect(), icm20948GyroInit(), icmSelectBank(), detectMpu() (+20 more)
+### Community 28 - "sensors/initialisation: sensorsAutodetectmpu()"
+Cohesion: 0.09
+Nodes (20): resetSensorAlignment(), sensorsSet(), icm20948AccDetect(), icm20948GyroDetect(), detectAcc(), detectBaro(), detectGyro(), detectMag() (+12 more)
 
-### Community 29 - "io + API: oled_display, Oled"
-Cohesion: 0.10
-Nodes (27): Oled_Circle(), Oled_CircleOutline(), Oled_Erase(), Oled_Joysticks(), Oled_Number(), Oled_Pixel(), Oled_Rect(), Oled_RectOutline() (+19 more)
-
-### Community 293 - "flight/mixer: feature()"
-Cohesion: 0.11
-Nodes (22): canUseBlackboxWithCurrentConfiguration(), initBlackbox(), feature(), pwmCompleteOneshotMotorUpdate(), pwmWriteMotor(), pwmWriteServo(), failsafeIsActive(), determineServoMiddleOrForwardFromChannel() (+14 more)
+### Community 29 - "io/oled_display: Oled_DrawHLine()"
+Cohesion: 0.08
+Nodes (49): Oled_Circle(), Oled_CircleOutline(), Oled_DeadEyes(), Oled_Erase(), Oled_Joysticks(), Oled_Line(), Oled_Number(), Oled_PitchLine() (+41 more)
 
 ### Community 30 - "StdPeriph/rtc: ErrorStatus"
 Cohesion: 0.06
@@ -1026,21 +992,21 @@ Nodes (37): RTC_AlarmCmd(), RTC_AlarmStructInit(), RTC_Bcd2ToByte(), RTC_BypassS
 Cohesion: 0.04
 Nodes (54): arm_bilinear_interp_q15(), arm_pid_q31(), arm_bilinear_interp_instance_q15, arm_biquad_cas_df1_32x64_ins_q31, arm_biquad_cascade_df2T_instance_f32, arm_biquad_casd_df1_inst_f32, arm_biquad_casd_df1_inst_q15, arm_biquad_casd_df1_inst_q31 (+46 more)
 
-### Community 32 - "rx: crsf, xbus"
-Cohesion: 0.08
-Nodes (30): userRCassert(), RcCommand_get(), RcCommand_Set(), RcData_Get(), micros(), warningLedRefresh(), warningLedUpdate(), crsfCrc8() (+22 more)
+### Community 32 - "rx/xbus: xBusDataReceive()"
+Cohesion: 0.43
+Nodes (6): xBusCRC16(), xBusDataReceive(), xBusReadRawRC(), xBusRj01CRC8(), xBusUnpackModeBFrame(), xBusUnpackRJ01Frame()
 
-### Community 33 - "StdPeriph/i2c: I2C_TypeDef"
+### Community 33 - "StdPeriph/i2c: FunctionalState"
+Cohesion: 0.11
+Nodes (42): I2C_10BitAddressHeaderCmd(), I2C_10BitAddressingModeCmd(), I2C_AcknowledgeConfig(), I2C_AutoEndCmd(), I2C_CalculatePEC(), I2C_ClearITPendingBit(), I2C_ClockTimeoutCmd(), I2C_Cmd() (+34 more)
+
+### Community 34 - "StdPeriph/usart: USART_TypeDef"
 Cohesion: 0.07
-Nodes (65): RCC_GetITStatus(), DMA_GetITStatus(), I2C_10BitAddressHeaderCmd(), I2C_10BitAddressingModeCmd(), I2C_AcknowledgeConfig(), I2C_AutoEndCmd(), I2C_CalculatePEC(), I2C_ClearFlag() (+57 more)
+Nodes (51): RCC_APB2PeriphResetCmd(), RCC_GetClocksFreq(), USART_AddressDetectionConfig(), USART_AutoBaudRateCmd(), USART_AutoBaudRateConfig(), USART_ClearFlag(), USART_ClearITPendingBit(), USART_ClockInit() (+43 more)
 
-### Community 34 - "StdPeriph/usart: FunctionalState"
-Cohesion: 0.05
-Nodes (66): RCC_APB2PeriphResetCmd(), SYSCFG_DMAChannelRemapConfig(), SYSCFG_GetFlagStatus(), SYSCFG_I2CFastModePlusConfig(), SYSCFG_ITConfig(), SYSCFG_TriggerRemapConfig(), SYSCFG_USBInterruptLineRemapCmd(), USART_AddressDetectionConfig() (+58 more)
-
-### Community 35 - "USB-FS: regs, sil"
-Cohesion: 0.19
-Nodes (13): DataStageIn(), DataStageOut(), PMAToUserBufferCopy(), UserToPMABufferCopy(), GetEPRxAddr(), GetEPRxCount(), GetEPTxAddr(), SetEPTxCount() (+5 more)
+### Community 35 - "USB-FS: sil, mem"
+Cohesion: 0.20
+Nodes (9): PMAToUserBufferCopy(), GetEPRxAddr(), GetEPRxCount(), USB_SIL_Init(), USB_SIL_Read(), Get_SerialNum(), IntToUnicode(), EP3_OUT_Callback() (+1 more)
 
 ### Community 36 - "CMSIS/cm3: __INLINE"
 Cohesion: 0.08
@@ -1048,7 +1014,7 @@ Nodes (41): __CLREX(), __get_BASEPRI(), __set_BASEPRI(), __get_PRIMASK(), __set_
 
 ### Community 38 - "USB-FS/regs: Virtual_Com_Port_Reset()"
 Cohesion: 0.04
-Nodes (13): Clear_Status_Out(), GetENDPOINT(), GetEPDblBufDir(), SetBTABLE(), SetDouBleBuffEPStall(), SetEPRxAddr(), SetEPRxStatus(), SetEPRxValid() (+5 more)
+Nodes (18): Standard_ClearFeature(), Clear_Status_Out(), ClearDTOG_RX(), ClearDTOG_TX(), GetENDPOINT(), GetEPDblBufDir(), SetBTABLE(), SetDouBleBuffEPStall() (+10 more)
 
 ### Community 39 - "VL53L1X: ll_def, api_debug"
 Cohesion: 0.06
@@ -1058,109 +1024,109 @@ Nodes (44): VL53L1_run_offset_calibration(), ComputeRQL(), VL53L1_data_init(), V
 Cohesion: 0.05
 Nodes (119): ChangePresetMode(), CheckValidRectRoi(), ComputeDevicePresetMode(), ConvertStatusLite(), VL53L1_clear_interrupt_and_enable_next_range(), VL53L1_disable_xtalk_compensation(), VL53L1_enable_xtalk_compensation(), VL53L1_get_calibration_repeat_period() (+111 more)
 
-### Community 40 - "sensors/barometer: apmBaroCalibrate()"
-Cohesion: 0.17
-Nodes (22): apmBaroCalculateAltitude(), apmBaroCalibrate(), apmBaroCalibrationRead(), apmBaroRead(), apmBaroUpdate(), baroCalculateAltitude(), baroCalibrate(), baroCompensationPa() (+14 more)
+### Community 40 - "sensors/barometer: micros()"
+Cohesion: 0.09
+Nodes (35): resetUserRCflag(), userRCrelease(), roundToInt32(), Sensor_Get(), micros(), warningLedRefresh(), warningLedUpdate(), crsfDataReceive() (+27 more)
 
 ### Community 41 - "flight/navigation: onGpsNewData()"
-Cohesion: 0.16
-Nodes (27): get_PIDProfile(), set_PIDProfile(), check_missed_wp(), get_D(), get_I(), get_P(), GPS_calc_desired_speed(), GPS_calc_location_error() (+19 more)
+Cohesion: 0.12
+Nodes (35): get_PIDProfile(), set_PIDProfile(), cos_approx(), sin_approx(), resetGpsProfile(), imuCalculateHeading(), check_missed_wp(), get_D() (+27 more)
 
-### Community 42 - "drivers: serial_1wire, system"
-Cohesion: 0.16
-Nodes (15): i2cInit(), gpioInit(), initInverter(), ledInit(), pwmGPIOConfig(), pwmGPIOConfig(), cycleCounterInit(), enableGPIOPowerUsageAndNoiseReductions() (+7 more)
+### Community 42 - "io/serial_1wire: gpio_set_mode()"
+Cohesion: 0.60
+Nodes (4): gpio_set_mode(), usb1WireInitialize(), usb1WirePassthrough(), cliUSB1Wire()
 
 ### Community 43 - "CMSIS/cm4_simd: __STATIC_INLINE"
 Cohesion: 0.08
 Nodes (49): __QADD(), __QADD16(), __QADD8(), __QASX(), __QSAX(), __QSUB(), __QSUB16(), __QSUB8() (+41 more)
 
 ### Community 45 - "StdPeriph: pwr, wwdg"
-Cohesion: 0.08
-Nodes (10): I2C_DeInit(), PWR_BackupAccessCmd(), PWR_DeInit(), PWR_GetFlagStatus(), PWR_PVDCmd(), PWR_WakeUpPinCmd(), RCC_APB1PeriphResetCmd(), WWDG_DeInit() (+2 more)
+Cohesion: 0.09
+Nodes (9): PWR_BackupAccessCmd(), PWR_DeInit(), PWR_GetFlagStatus(), PWR_PVDCmd(), PWR_WakeUpPinCmd(), RCC_APB1PeriphResetCmd(), WWDG_DeInit(), WWDG_GetFlagStatus() (+1 more)
 
 ### Community 46 - "config/config: resetConf()"
-Cohesion: 0.12
-Nodes (12): featureClearAll(), resetConf(), resetControlRateConfig(), resetEscAndServoConfig(), resetFlight3DConfig(), resetMixerConfig(), resetPidProfile(), resetRcControlsConfig() (+4 more)
+Cohesion: 0.07
+Nodes (29): changeProfile(), featureClearAll(), readEEPROM(), readEEPROMAndNotify(), resetBarometerConfig(), resetBatteryConfig(), resetConf(), resetEscAndServoConfig() (+21 more)
 
-### Community 47 - "config + flight: config, runtime_config"
-Cohesion: 0.16
-Nodes (14): changeControlRateProfile(), changeProfile(), readEEPROM(), setControlRateProfile(), setProfile(), disableFlightMode(), enableFlightMode(), failsafeOnRxResume() (+6 more)
+### Community 47 - "config + io: config, rc_controls"
+Cohesion: 0.67
+Nodes (4): changeControlRateProfile(), getCurrentControlRateProfile(), applySelectAdjustment(), cliRateProfile()
 
-### Community 48 - "io/serial_cli: cliPrint()"
-Cohesion: 0.11
-Nodes (51): fastA2F(), ftoa(), itoa(), featureMask(), getCurrentControlRateProfile(), sensorsMask(), cliAdjustmentRange(), cliAux() (+43 more)
-
-### Community 49 - "flight/altitudehold: apmCalculateEstimatedAltitude()"
+### Community 48 - "io/serial_cli: cliDump()"
 Cohesion: 0.19
-Nodes (13): applyDeadband(), addHistPositionBaseEstZ(), altLaserFusion(), AltRst(), apmCalculateEstimatedAltitude(), calculateEstimatedAltitude(), checkReading(), kalmanFilterInit() (+5 more)
+Nodes (23): ftoa(), itoa(), generateLedConfig(), parseColor(), cliAdjustmentRange(), cliAux(), cliColor(), cliDump() (+15 more)
+
+### Community 49 - "io/serial_cli: cliPrint()"
+Cohesion: 0.13
+Nodes (22): fastA2F(), systemReset(), systemResetToBootloader(), cliEnter(), cliExit(), cliGet(), cliHelp(), cliMap() (+14 more)
 
 ### Community 5 - "VL53L1X/register_funcs: VL53L1_ReadMulti()"
 Cohesion: 0.06
 Nodes (86): VL53L1_disable_firmware(), VL53L1_enable_firmware(), VL53L1_i2c_decode_int32_t(), VL53L1_i2c_decode_uint16_t(), VL53L1_i2c_decode_uint32_t(), VL53L1_i2c_encode_int32_t(), VL53L1_i2c_encode_uint16_t(), VL53L1_i2c_encode_uint32_t() (+78 more)
 
-### Community 50 - "config + API: config, RxConfig"
-Cohesion: 0.18
-Nodes (12): plutoRxConfig(), Receiver_Config_Mode_Dev(), Receiver_Mode(), featureConfigured(), featureSet(), handleOneshotFeatureChangeOnRestart(), resetSerialConfig(), validateAndFixConfig() (+4 more)
+### Community 50 - "API + config: RxConfig, config"
+Cohesion: 0.12
+Nodes (23): plutoRxConfig(), Receiver_Aux_Config(), Receiver_Config_Arm(), Receiver_Config_Mode_Angle(), Receiver_Config_Mode_Baro(), Receiver_Config_Mode_Dev(), Receiver_Config_Mode_HeadFree(), Receiver_Config_Mode_Mag() (+15 more)
 
-### Community 52 - "flight/posEstimate: imuResetAccelerationSum()"
+### Community 51 - "StdPeriph + drivers: dma, dma_registry"
 Cohesion: 0.20
-Nodes (12): altitudeHoldGetEstimatedAltitude(), dcmBodyToEarth3D(), imuResetAccelerationSum(), calculateSensorFlow(), runFlowHold(), updateHeightEstimate(), addHistPositionBaseEstXY(), checkPosition() (+4 more)
+Nodes (17): DMA_ClearFlag(), DMA_DeInit(), DMA_GetCurrDataCounter(), DMA_Init(), DMA_ITConfig(), DMA_SetCurrDataCounter(), DMA_StructInit(), dmaClaim() (+9 more)
 
-### Community 53 - "io/oled_display: Oled_FillRoundedRect()"
-Cohesion: 0.24
-Nodes (11): Oled_RobotEyes(), Oled_RoundEyes(), Oled_RoundRect(), clampPupil(), Oled_DrawBoxyEye(), Oled_DrawBoxyEyeFilled(), Oled_DrawBoxyEyeOutline(), Oled_DrawEye() (+3 more)
+### Community 52 - "flight: altitudehold, posEstimate"
+Cohesion: 0.08
+Nodes (32): setUserLoopFrequency(), constrainf(), updateSpiOpticFlow(), tofManagerPollDown(), tofManagerPollSides(), addHistPositionBaseEstZ(), altitudeHoldGetEstimatedAltitude(), AltRst() (+24 more)
 
-### Community 54 - "flight + io: pid, posControl"
+### Community 53 - "command + flight: command, altitudehold"
 Cohesion: 0.14
-Nodes (28): Peripheral_Write(), Servo_Write(), Interval::set(), constrain(), map_i32(), activateControlRateConfig(), filterApplyPt1(), calculate_Gtune() (+20 more)
+Nodes (19): Interval::check(), Interval::set(), dropUserTakeOff(), endTakeOff(), executeCommand(), finishLanding(), land(), takeOff() (+11 more)
 
-### Community 56 - "telemetry: serial, frsky"
-Cohesion: 0.24
-Nodes (6): determinePortSharing(), initFrSkyTelemetry(), initHoTTTelemetry(), initMSPTelemetry(), initSmartPortTelemetry(), telemetryInit()
+### Community 54 - "flight + io: acceleration, pid"
+Cohesion: 0.07
+Nodes (51): Peripheral_Init(), Peripheral_Write(), Servo_Write(), constrain(), map_i32(), activateControlRateConfig(), getControlRateConfig(), resetControlRateConfig() (+43 more)
 
 ### Community 57 - "StdPeriph/hrtim: HRTIM_TypeDef"
 Cohesion: 0.08
 Nodes (46): HRTIM_BurstDMAConfig(), HRTIM_BurstModeCtl(), HRTIM_ClearCommonFlag(), HRTIM_ClearCommonITPendingBit(), HRTIM_ClearFlag(), HRTIM_ClearITPendingBit(), HRTIM_DeInit(), HRTIM_DLLCalibrationStart() (+38 more)
 
-### Community 58 - "flight/imu: drift_correction_yaw()"
-Cohesion: 0.27
-Nodes (10): radians(), calculate_heading(), dcmFromEuler(), dcmMulTranspose(), dcmMulXY(), drift_correction(), drift_correction_yaw(), pGain() (+2 more)
+### Community 58 - "VL53L0X/i2c_platform: VL53L0X_UpdateByte()"
+Cohesion: 0.12
+Nodes (16): VL53L0X_load_tuning_settings(), VL53L0X_SetInterMeasurementPeriodMilliSeconds(), VL53L0X_read_byte(), VL53L0X_read_dword(), VL53L0X_read_multi(), VL53L0X_read_word(), VL53L0X_write_byte(), VL53L0X_write_dword() (+8 more)
 
-### Community 59 - "flight/imu: imuUpdate()"
-Cohesion: 0.24
-Nodes (10): safe_asin(), bodyDcmToEuler(), check_matrix(), euler_angles(), imuUpdate(), matrix_update(), normalize(), renorm() (+2 more)
+### Community 6 - "API/X1Ranging: x1RangingInit()"
+Cohesion: 0.16
+Nodes (16): altRequest(), isLedUsable(), isValidGpio(), ledInit(), ledWrite(), X1Ranging_P::disableOA(), X1Ranging_P::initAlt(), X1Ranging_P::isTriggered() (+8 more)
 
-### Community 6 - "API/X1Ranging: laser_e"
-Cohesion: 0.13
-Nodes (20): altRequest(), isLedUsable(), isValidGpio(), ledInit(), ledWrite(), X1Ranging_P::disableOA(), X1Ranging_P::getRange(), X1Ranging_P::getStatus() (+12 more)
-
-### Community 60 - "API/RxConfig: Receiver_Aux_Config()"
-Cohesion: 0.43
-Nodes (8): Receiver_Aux_Config(), Receiver_Config_Arm(), Receiver_Config_Mode_Angle(), Receiver_Config_Mode_Baro(), Receiver_Config_Mode_HeadFree(), Receiver_Config_Mode_Mag(), flight_mode, rx_channel_e
+### Community 60 - "StdPeriph/syscfg: SYSCFG_DMAChannelRemapConfig()"
+Cohesion: 0.14
+Nodes (6): SYSCFG_DMAChannelRemapConfig(), SYSCFG_GetFlagStatus(), SYSCFG_I2CFastModePlusConfig(), SYSCFG_ITConfig(), SYSCFG_TriggerRemapConfig(), SYSCFG_USBInterruptLineRemapCmd()
 
 ### Community 62 - "common/atomic: __basepriSetMemRetVal()"
 Cohesion: 0.38
 Nodes (4): __basepriSetMemRetVal(), __basepriSetRetVal(), __set_BASEPRI_MAX(), __set_BASEPRI_MAX_nb()
 
-### Community 64 - "API/FC-Config-Setpoints: angle_e"
-Cohesion: 0.33
-Nodes (6): DesiredAngle_setRelative(), getDesiredAngle(), getDesiredRate(), setDesiredAngle(), setDesiredRate(), angle_e
+### Community 63 - "flight: filter, posControl"
+Cohesion: 0.09
+Nodes (12): biquadApply(), biquadInitLPF(), initIMUFilters(), pidSetController(), resetPosIntegral(), resetPosition(), AppFlightStatus_e, armingFlag_e (+4 more)
 
-### Community 65 - "sensors + config: barometer, config"
-Cohesion: 0.40
-Nodes (4): resetBarometerConfig(), configureAltitudeHold(), useBarometerConfig(), barometerConfig_t
+### Community 64 - "rx: rx, pwm_rx"
+Cohesion: 0.15
+Nodes (13): isPPMDataBeingReceived(), isPWMDataBeingReceived(), resetPPMDataReceivedState(), rxMspFrameComplete(), isRxDataDriven(), resetRxSignalReceivedFlagIfNeeded(), serialRxFrameStatus(), updateRx() (+5 more)
 
-### Community 66 - "flight/navigation: navigationInit()"
-Cohesion: 0.50
-Nodes (5): resetGpsProfile(), gpsUsePIDs(), gpsUseProfile(), navigationInit(), gpsProfile_t
+### Community 66 - "io/ledstrip: updateLedStrip()"
+Cohesion: 0.22
+Nodes (10): scaleRange(), getLedHsv(), isWS2811LedStripReady(), scaleLedValue(), applyLedAnimationLayer(), applyLedIndicatorLayer(), applyLedThrottleLayer(), applyLedThrustRingLayer() (+2 more)
 
 ### Community 67 - "drivers + common: light_ws2811strip, colorconversion"
-Cohesion: 0.18
-Nodes (10): RGB_Init(), hsvToRgb24(), fastUpdateLEDDMABuffer(), ws2811LedStripSetPin(), updateLEDDMABuffer(), ws2811LedStripInit(), ws2811UpdateStrip(), ledStripEnable() (+2 more)
+Cohesion: 0.38
+Nodes (6): hsvToRgb24(), fastUpdateLEDDMABuffer(), updateLEDDMABuffer(), ws2811UpdateStrip(), ledStripDisable(), rgbColor24bpp_t
+
+### Community 69 - "rx/rx: detectAndApplySignalLossBehavio…"
+Cohesion: 0.27
+Nodes (9): failsafeOnValidDataFailed(), failsafeOnValidDataReceived(), calculateNonDataDrivenChannel(), detectAndApplySignalLossBehaviour(), getRxfailValue(), isPulseValid(), rxHaveValidFlightChannels(), rxResetFlightChannelStatus() (+1 more)
 
 ### Community 7 - "VL53L0X/api: VL53L0X_RdByte()"
-Cohesion: 0.17
-Nodes (19): VL53L0X_device_read_strobe(), VL53L0X_get_info_from_device(), VL53L0X_measurement_poll_for_completion(), VL53L0X_check_part_used(), VL53L0X_get_device_info(), VL53L0X_GetDeviceInfo(), VL53L0X_GetFractionEnable(), VL53L0X_GetInterruptMaskStatus() (+11 more)
+Cohesion: 0.16
+Nodes (14): VL53L0X_device_read_strobe(), VL53L0X_get_info_from_device(), VL53L0X_measurement_poll_for_completion(), VL53L0X_get_device_error_string(), VL53L0X_GetDeviceErrorStatus(), VL53L0X_GetDeviceErrorString(), VL53L0X_GetInterruptMaskStatus(), VL53L0X_GetMeasurementDataReady() (+6 more)
 
 ### Community 71 - "CMSIS/rcc: RCC_GetFlagStatus()"
 Cohesion: 0.05
@@ -1171,16 +1137,20 @@ Cohesion: 0.10
 Nodes (22): VL53L1_software_reset(), VL53L1_init_ll_driver_state(), VL53L1_is_firmware_ready_silicon(), VL53L1_is_boot_complete(), VL53L1_is_firmware_ready(), VL53L1_is_new_data_ready(), VL53L1_poll_for_boot_completion(), VL53L1_poll_for_firmware_ready() (+14 more)
 
 ### Community 77 - "StdPeriph/can: CAN_TypeDef"
-Cohesion: 0.11
-Nodes (29): CAN_CancelTransmit(), CAN_ClearFlag(), CAN_ClearITPendingBit(), CAN_DBGFreeze(), CAN_DeInit(), CAN_FIFORelease(), CAN_FilterInit(), CAN_GetFlagStatus() (+21 more)
+Cohesion: 0.09
+Nodes (35): RCC_GetITStatus(), CAN_CancelTransmit(), CAN_ClearFlag(), CAN_ClearITPendingBit(), CAN_DBGFreeze(), CAN_DeInit(), CAN_FIFORelease(), CAN_FilterInit() (+27 more)
 
 ### Community 78 - "VL53L1X/def: ConvertModeFromLLD()"
 Cohesion: 0.06
 Nodes (30): ConvertModeFromLLD(), ConvertModeToLLD(), VL53L1_get_limit_check_info(), VL53L1_get_pal_state_string(), VL53L1_get_range_status_string(), VL53L1_get_sequence_steps_info(), VL53L1_GetLimitCheckInfo(), VL53L1_GetPalErrorString() (+22 more)
 
 ### Community 8 - "StdPeriph/tim: TIM_TypeDef"
-Cohesion: 0.05
-Nodes (82): TIM_ARRPreloadConfig(), TIM_Break1Cmd(), TIM_Break1Config(), TIM_Break2Cmd(), TIM_Break2Config(), TIM_CCPreloadControl(), TIM_CCxCmd(), TIM_CCxNCmd() (+74 more)
+Cohesion: 0.04
+Nodes (97): TI1_Config(), TI2_Config(), TI3_Config(), TI4_Config(), TIM_ARRPreloadConfig(), TIM_BDTRConfig(), TIM_BDTRStructInit(), TIM_Break1Cmd() (+89 more)
+
+### Community 81 - "io/oled_display: Oled_Is_Mode()"
+Cohesion: 0.29
+Nodes (6): Oled_Is_Mode(), Oled_Mode(), Oled_IsSystemMode(), Oled_IsUserMode(), Oled_SystemMode(), Oled_UserMode()
 
 ### Community 82 - "StdPeriph/spi: SPI_TypeDef"
 Cohesion: 0.13
@@ -1188,11 +1158,27 @@ Nodes (28): I2S_Cmd(), I2S_FullDuplexConfig(), I2S_Init(), I2S_StructInit(), SPI
 
 ### Community 83 - "VL53L0X/api_core: get_sequence_step_timeout()"
 Cohesion: 0.16
-Nodes (28): get_sequence_step_timeout(), set_sequence_step_timeout(), VL53L0X_calc_dmax(), VL53L0X_calc_macro_period_ps(), VL53L0X_calc_sigma_estimate(), VL53L0X_calc_timeout_mclks(), VL53L0X_calc_timeout_us(), VL53L0X_decode_timeout() (+20 more)
+Nodes (26): get_sequence_step_timeout(), set_sequence_step_timeout(), VL53L0X_calc_macro_period_ps(), VL53L0X_calc_timeout_mclks(), VL53L0X_calc_timeout_us(), VL53L0X_decode_timeout(), VL53L0X_decode_vcsel_period(), VL53L0X_encode_timeout() (+18 more)
 
-### Community 9 - "blackbox/blackbox: blackboxWrite()"
-Cohesion: 0.07
-Nodes (52): blackboxAdvanceIterationTimers(), blackboxBuildConditionCache(), blackboxCheckAndLogArmingBeep(), blackboxIsOnlyLoggingIntraframes(), blackboxLogEvent(), blackboxLogIteration(), blackboxSetState(), blackboxShouldLogIFrame() (+44 more)
+### Community 84 - "common/typeconversion: a2i()"
+Cohesion: 0.47
+Nodes (4): a2d(), a2i(), i2a(), ui2a()
+
+### Community 85 - "API/Debugging: debugPrint()"
+Cohesion: 0.50
+Nodes (5): debugPrint(), Monitor_Print(), Monitor_Println(), serializeString(), serialize8Debug()
+
+### Community 87 - "API/RGB-LED: RGB_Init()"
+Cohesion: 0.67
+Nodes (3): RGB_Init(), ws2811LedStripSetPin(), peripheral_rgb_pin_e
+
+### Community 9 - "blackbox: blackbox, blackbox_io"
+Cohesion: 0.09
+Nodes (44): blackboxAdvanceIterationTimers(), blackboxCheckAndLogArmingBeep(), blackboxIsOnlyLoggingIntraframes(), blackboxLogEvent(), blackboxLogIteration(), blackboxSetState(), blackboxShouldLogIFrame(), blackboxShouldLogPFrame() (+36 more)
+
+### Community 90 - "API/XRanging: xRangingInit()"
+Cohesion: 0.14
+Nodes (22): x1RangingAltXshut(), altPinConflict(), altRequest(), isLedUsable(), isValidGpio(), ledInit(), ledWrite(), rangingFamily() (+14 more)
 
 ### Community 91 - "CMSIS/cm4: __STATIC_INLINE"
 Cohesion: 0.09
@@ -1206,45 +1192,41 @@ Nodes (29): ITM_CheckChar(), ITM_ReceiveChar(), ITM_SendChar(), NVIC_ClearPendin
 Cohesion: 0.10
 Nodes (29): ITM_CheckChar(), ITM_ReceiveChar(), ITM_SendChar(), NVIC_ClearPendingIRQ(), NVIC_DecodePriority(), NVIC_DisableIRQ(), NVIC_EnableIRQ(), NVIC_EncodePriority() (+21 more)
 
-### Community 96 - "vcp: prop, int"
-Cohesion: 0.09
-Nodes (5): Standard_GetDescriptorData(), Virtual_Com_Port_GetConfigDescriptor(), Virtual_Com_Port_GetDeviceDescriptor(), Virtual_Com_Port_GetStringDescriptor(), ONE_DESCRIPTOR
+### Community 96 - "vcp: stm32_it, pwr"
+Cohesion: 0.07
+Nodes (9): Leave_LowPowerMode(), USB_Cable_Config(), USB_LP_CAN1_RX0_IRQHandler(), USB_Istr(), PowerOff(), PowerOn(), Resume(), Resume_Init() (+1 more)
 
-### Community 97 - "VL53L0X: i2c_platform, platform"
-Cohesion: 0.08
-Nodes (20): VL53L0X_load_tuning_settings(), VL53L0X_read_byte(), VL53L0X_read_multi(), VL53L0X_read_word(), VL53L0X_write_byte(), VL53L0X_write_dword(), VL53L0X_write_multi(), VL53L0X_write_word() (+12 more)
+### Community 97 - "VL53L0X: def, api_strings"
+Cohesion: 0.13
+Nodes (14): VL53L0X_check_part_used(), VL53L0X_get_device_info(), VL53L0X_get_pal_state_string(), VL53L0X_GetDeviceInfo(), VL53L0X_GetPalStateString(), VL53L0X_DevData_t, VL53L0X_DeviceInfo_t, VL53L0X_DeviceSpecificParameters_t (+6 more)
 
 ### Community 99 - "io/display: updateDisplay()"
-Cohesion: 0.14
-Nodes (32): putcp(), tfp_sprintf(), getControlRateConfig(), getCurrentProfile(), i2c_OLED_send_char(), i2c_OLED_send_string(), i2c_OLED_set_line(), i2c_OLED_set_xy() (+24 more)
+Cohesion: 0.15
+Nodes (30): tfp_sprintf(), getCurrentProfile(), i2c_OLED_send_char(), i2c_OLED_send_string(), i2c_OLED_set_line(), i2c_OLED_set_xy(), displayInit(), displaySetNextPageChangeAt() (+22 more)
 
 ### Community 243 - "StdPeriph/gpio: BitAction"
-Cohesion: 0.29
-Nodes (6): BitAction, GPIO_InitTypeDef, GPIOMode_TypeDef, GPIOOType_TypeDef, GPIOPuPd_TypeDef, GPIOSpeed_TypeDef
-
-### Community 61 - "CMSIS/gpio: BitAction"
 Cohesion: 0.29
 Nodes (6): BitAction, GPIO_InitTypeDef, GPIOMode_TypeDef, GPIOOType_TypeDef, GPIOPuPd_TypeDef, GPIOSpeed_TypeDef
 
 ## Knowledge Gaps
 - **631 isolated node(s):** `IN_DATA`, `LAST_IN_DATA`, `LAST_OUT_DATA`, `OUT_DATA`, `PAUSE` (+626 more)
   These have ≤1 connection - possible missing edges. (Counts symbols only; 1300 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `FunctionalState` connect `StdPeriph/usart: FunctionalState` to `StdPeriph/tim: TIM_TypeDef`, `StdPeriph/dac: DAC_TypeDef`, `CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()`, `CMSIS + StdPeriph: gpio, rcc`, `StdPeriph/adc: ADC_TypeDef`, `drivers: pwm_output, tim`, `drivers/timer: timerHardware_t`, `drivers + StdPeriph: bus_spi, spi`, `vcp/pwr: USB_Istr()`, `StdPeriph/rcc: RCC_AHBPeriphResetCmd()`, `StdPeriph/tim: ws2811LedStripHardwareInit()`, `StdPeriph/rtc: ErrorStatus`, `StdPeriph/opamp: OPAMP_InitTypeDef`, `StdPeriph/i2c: I2C_TypeDef`, `drivers + StdPeriph: dma, serial`, `StdPeriph/crc: IRQn`, `StdPeriph: pwr, wwdg`, `StdPeriph/hrtim: HRTIM_TypeDef`, `CMSIS/rcc: RCC_GetFlagStatus()`, `StdPeriph/can: CAN_TypeDef`, `StdPeriph/spi: SPI_TypeDef`, `StdPeriph/comp: COMP_InitTypeDef`, `StdPeriph/flash: FLASH_WaitForLastOperation()`?**
+- **Why does `FunctionalState` connect `StdPeriph/i2c: FunctionalState` to `StdPeriph/tim: TIM_TypeDef`, `StdPeriph/dac: DAC_TypeDef`, `CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()`, `drivers: serial_uart, serial_uart_stm32f30x`, `CMSIS + StdPeriph: gpio, rcc`, `StdPeriph/adc: ADC_TypeDef`, `StdPeriph/tim: TIM_Cmd()`, `drivers/timer: timerHardware_t`, `drivers + StdPeriph: bus_spi, spi`, `StdPeriph/rcc: RCC_GetFlagStatus()`, `StdPeriph/tim: ws2811LedStripHardwareInit()`, `StdPeriph/rtc: ErrorStatus`, `StdPeriph/opamp: OPAMP_InitTypeDef`, `StdPeriph/usart: USART_TypeDef`, `drivers: serial, misc`, `StdPeriph/crc: CRC_ReverseOutputDataCmd()`, `StdPeriph: pwr, wwdg`, `StdPeriph + drivers: dma, dma_registry`, `StdPeriph/hrtim: HRTIM_TypeDef`, `StdPeriph/syscfg: SYSCFG_DMAChannelRemapConfig()`, `CMSIS/rcc: RCC_GetFlagStatus()`, `StdPeriph/can: CAN_TypeDef`, `StdPeriph/spi: SPI_TypeDef`, `StdPeriph/comp: COMP_InitTypeDef`, `vcp: stm32_it, pwr`, `StdPeriph/flash: FLASH_WaitForLastOperation()`?**
   _High betweenness centrality (0.066) - this node is a cross-community bridge._
 - **What connects `IN_DATA`, `LAST_IN_DATA`, `LAST_OUT_DATA` to the rest of the system?**
   _631 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `USB-FS/core: DEVICE_INFO` be split into smaller, more focused modules?**
   _Cohesion score 0.052564102564102565 - nodes in this community are weakly interconnected._
 - **Why does `VL53L1_Error` connect `VL53L1X: api, api_core` to `VL53L1X/register_funcs: VL53L1_ReadMulti()`, `VL53L1X: ll_def, api_debug`, `VL53L1X: wait, platform`, `drivers/tof_manager_l1x: tofId_e`, `VL53L1X/def: ConvertModeFromLLD()`, `VL53L1X/core: VL53L1_WrByte()`, `VL53L1X/api_preset_modes: VL53L1_set_preset_mode()`, `VL53L1X/register_funcs: VL53L1_init_and_start_range()`, `VL53L1X: api_core, core`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
-- **Should `drivers/sc18is602b: SC18IS602B` be split into smaller, more focused modules?**
-  _Cohesion score 0.06747638326585695 - nodes in this community are weakly interconnected._
-- **Why does `SPI_TypeDef` connect `StdPeriph/spi: SPI_TypeDef` to `drivers + StdPeriph: bus_spi, spi`, `CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Should `io/serial: serialPortFunction_e` be split into smaller, more focused modules?**
-  _Cohesion score 0.08870967741935484 - nodes in this community are weakly interconnected._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Should `io/serial: findSerialPortConfig()` be split into smaller, more focused modules?**
+  _Cohesion score 0.06294326241134751 - nodes in this community are weakly interconnected._
+- **Why does `GPIO_TypeDef` connect `CMSIS + StdPeriph: gpio, rcc` to `drivers: Peripheral-GPIO, gpio`, `drivers/sound_beeper: beeperConfig_s`, `API/Motor: Rev_Motor_Gpio`, `flight/motor: Rev_Motor_Gpio`, `API + drivers: Motor, RxConfig`, `io/serial_1wire: gpio_set_mode()`, `CMSIS/stm32f30x: DBGMCU_APB1PeriphConfig()`, `drivers/serial_softserial: openSoftSerial()`, `drivers/timer: timerHardware_t`, `drivers/pwm_mapping: drv_pwm_config_s`?**
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+- **Should `drivers/serial: serialPort_s` be split into smaller, more focused modules?**
+  _Cohesion score 0.125 - nodes in this community are weakly interconnected._

@@ -26,6 +26,11 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.7.0 ).
 - `Estimate_Get ( Position | Velocity | Angle | Rate, axis )` ( `API/FC-Data.h` ): `EstAlt` in cm, the Z velocity in
   cm/s, and the angles.
+- `Sensor_Get ( Barometer, Pressure | Temperature )` ( `API/FC-Data.h` ): pressure in Pa ( = mbar x100 ), temperature
+  in deg C x100 ( `3270` = 32.70 C ), both rounded to nearest ( `FC-Data-Sensors.cpp:84-100` ). The same
+  `getBaroPressure ( )` / `getBaroTemperature ( )` values altitude hold reads; only the API layer scales them.
+  `Sensor_Get ( Accelerometer | Gyroscope | Magnetometer, axis )`: accelerometer axes in cm/s^2, `Net_Acc` the squared
+  magnitude in ( g^2 ) x100. Wiki `docs/API/FC_DATA_API_WIKI.md` ( API 1.8.1 ).
 
 ## Data Flow & Boundaries
 - **Time Slice Strictness**: Because `plutoLoop()` executes within the high-frequency control loop, user code *must not block*. The use of `delay()` is explicitly forbidden, as it would cause the drone to instantly crash by halting the PID calculations.
