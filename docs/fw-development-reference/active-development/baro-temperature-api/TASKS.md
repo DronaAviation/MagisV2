@@ -8,8 +8,8 @@ Read this block first in a new session; read only the task it points to.
 
 | | |
 |---|---|
-| **Current task** | none: **Closed - pending commit** ( 3 Nov 2026 ) |
-| **Next step** | The user commits with `.git/MAGISV2_COMMIT_MSG.txt`; the next pluto-commit / pluto-grill run fills in the hash |
+| **Current task** | none: **Closed** in `7a41a37` ( 3 Nov 2026 ) |
+| **Next step** | none: committed in `7a41a37` |
 | **Open questions** | Defaults taken unattended: x100 rounded half away from zero, API 1.8.1, new `FC_DATA_API_WIKI.md`. Confirm or correct. |
 | **Blocked on** | nothing |
 | **Last updated** | 2026-11-03 |

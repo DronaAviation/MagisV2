@@ -13,7 +13,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 23rd Mar 2026                                          #
+ #  Last Modified: Wed, 4th Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -71,18 +71,23 @@
 #include "API/FC-Data.h"
 
 
+// Gyro counts per deg/s x10: the flown DCM attitude integrates gyroADC at 16.4 counts per deg/s ( imu.cpp matrix_update,
+// GYRO_CONFIG_1 +/-2000 dps ), so gyroADC / 1.64 is deg/s x10, the same scale as Sensor_Get ( Gyroscope ).
+static const float GYRO_COUNTS_PER_DPS_X10 = 1.64f;
+
+// Round a float to the nearest int16_t, away from zero at .5, clamped to the int16_t range
+// ( no <math.h>: flight/pid.h re-defines its M_PI )
+static int16_t roundToInt16 ( float value ) {
+  if ( value >= 32767.0f ) return INT16_MAX;
+  if ( value <= -32768.0f ) return INT16_MIN;
+  return ( int16_t ) ( value + ( value >= 0.0f ? 0.5f : -0.5f ) );
+}
+
 int16_t Estimate_Get ( FC_Estimate_e _estimateOf, axis_e _axis ) {
   // Use a switch statement to handle different types of estimates.
   switch ( _estimateOf ) {
-    case Rate:    // Handle Rate estimates.
-      // Return the roll rate if the axis is X.
-      if ( _axis == X ) return currentControlRateProfile->rates [ FD_ROLL ];
-      // Return the pitch rate if the axis is Y.
-      else if ( _axis == Y )
-        return currentControlRateProfile->rates [ FD_PITCH ];
-      // Return the yaw rate if the axis is Z.
-      else if ( _axis == Z )
-        return currentControlRateProfile->rates [ FD_YAW ];
+    case Rate:    // Measured rotation rate in deg/s x10: X = roll, Y = pitch, Z = yaw ( gyroADC index order )
+      if ( _axis == X || _axis == Y || _axis == Z ) return roundToInt16 ( ( float ) gyroADC [ _axis ] / GYRO_COUNTS_PER_DPS_X10 );
       break;
 
     case Position:    // Handle Position estimates.

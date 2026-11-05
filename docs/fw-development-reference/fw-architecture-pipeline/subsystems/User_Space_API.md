@@ -24,13 +24,18 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - `Command_Arm ( )`, `Command_TakeOff ( cm )`, `Command_Land ( speed )`, `Command_Flip ( BACK_FLIP )`,
   `Command_DisArm ( )` ( `API/FC-Control.h` ): arm and fly the drone from user code. Wiki
   `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.7.0 ).
-- `Estimate_Get ( Position | Velocity | Angle | Rate, axis )` ( `API/FC-Data.h` ): `EstAlt` in cm, the Z velocity in
-  cm/s, and the angles.
+- `Estimate_Get ( Rate | Position | Velocity, axis )` ( `API/FC-Data.h`, `int16_t` ): `Rate` is the measured gyro rate
+  in deg/s x10, `gyroADC [ axis ] / 1.64` rounded ( 16.4 counts per deg/s, the scale the DCM attitude integrates;
+  `FC-Data-Estimate.cpp:74-91` ); X > 0 rolling right, Y > 0 nose down, Z > 0 turning left ( opposite to the heading ).
+  `Position Z` is `EstAlt` in cm, `Velocity Z` is `VelocityZ` in cm/s ( climbing positive ); X / Y are the UWB
+  position ( cm ) and velocity ( cm/s ), 0 without UWB. `Estimate_Get ( Angle, AG_ROLL | AG_PITCH | AG_YAW )`: roll and
+  pitch in deci-degrees ( right side down / nose down positive ), heading in whole degrees 0-359, clockwise.
 - `Sensor_Get ( Barometer, Pressure | Temperature )` ( `API/FC-Data.h` ): pressure in Pa ( = mbar x100 ), temperature
   in deg C x100 ( `3270` = 32.70 C ), both rounded to nearest ( `FC-Data-Sensors.cpp:84-100` ). The same
   `getBaroPressure ( )` / `getBaroTemperature ( )` values altitude hold reads; only the API layer scales them.
   `Sensor_Get ( Accelerometer | Gyroscope | Magnetometer, axis )`: accelerometer axes in cm/s^2, `Net_Acc` the squared
-  magnitude in ( g^2 ) x100. Wiki `docs/API/FC_DATA_API_WIKI.md` ( API 1.8.1 ).
+  magnitude in ( g^2 ) x100, gyro axes in deg/s x10 ( truncated; the same rate as `Estimate_Get ( Rate )` ). Wiki
+  `docs/API/FC_DATA_API_WIKI.md` ( API 1.8.2 ).
 
 ## Data Flow & Boundaries
 - **Time Slice Strictness**: Because `plutoLoop()` executes within the high-frequency control loop, user code *must not block*. The use of `delay()` is explicitly forbidden, as it would cause the drone to instantly crash by halting the PID calculations.

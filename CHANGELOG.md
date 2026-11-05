@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.3 (API 1.8.1) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.4 (API 1.8.2) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -161,13 +161,14 @@ that removes all legacy STM32F10x support.
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
   command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
-  temperature in `Sensor_Get`.
+  temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
   API 1.8.0 adds `X1Ranging`; using XRanging and X1Ranging together refuses both; object avoidance releases an
   out-of-range side after ~0.3 s ( both APIs ); the `initObjectAvoidance` unused-laser default is `DOWN`.
   API 1.8.1 is behaviour only: `Sensor_Get ( Barometer, Temperature )` returns deg C x100 ( see Fixed ).
+  API 1.8.2 is behaviour only: `Estimate_Get ( Rate, axis )` returns the measured rotation rate ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -246,6 +247,12 @@ that removes all legacy STM32F10x support.
   `Sensor_Get ( Barometer, Pressure )` keeps its unit, Pa ( = mbar x100 ), and is rounded instead of truncated.
   **User code that expected whole degrees must divide by 100.** Bench-validated on PRIMUS_X2_v1
   ( `active-development/baro-temperature-api/` ). API 1.8.1.
+- **Rotation rate in the user API**: `Estimate_Get ( Rate, X | Y | Z )` returned the stored stick-rate setting of the
+  rate profile ( `75` on every axis, whatever the drone did ) instead of a measurement. It now returns the measured
+  rotation rate in deg/s x10 from the gyro, rounded ( `gyroADC / 1.64`, 16.4 counts per deg/s ), the value the rate
+  loop uses. Rolling right and pitching nose down read positive; **turning right reads negative**, opposite to the
+  heading. Bench-validated on PRIMUS_X2_v1: one hand turn per axis integrated to 354-387 deg, rest within 0.5 deg/s
+  ( `active-development/estimate-get-rate-api/` ). API 1.8.2.
 - **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
   `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
   ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
@@ -433,7 +440,9 @@ that removes all legacy STM32F10x support.
 
 - New `docs/API/FC_DATA_API_WIKI.md` ( `Sensor_Get`: barometer units, accelerometer axes in cm/s^2, `Net_Acc` as the
   squared magnitude, the gyro / magnetometer gaps ). `FC-Data.h` documents the barometer units; the User_Space_API
-  pipeline doc lists `Sensor_Get`.
+  pipeline doc lists `Sensor_Get`. In 1.8.2 the wiki adds `Estimate_Get` ( rate, position, velocity and angle units,
+  the sign of each axis, examples ) and documents `Sensor_Get ( Gyroscope )` as deg/s x10; `FC-Data.h` gives every
+  `Estimate_Get` unit and sign and its `int16_t` return.
 - New `docs/API/FC_CONTROL_API_WIKI.md` ( arm, take-off, land, flip; the `onLoopStart ( )` restart pitfall; after a
   landing a re-sent take-off re-arms at once ). `FC-Control.h` comments rewritten. The pipeline docs
   ( User_Space_API, Power_BMS_Pipeline, Altitude_Hold_Estimator ) and the dev-guide describe the command rules.

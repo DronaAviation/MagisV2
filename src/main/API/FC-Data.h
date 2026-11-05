@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 3rd Nov 2026                                           #
+ #  Last Modified: Wed, 4th Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -93,13 +93,18 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
  * @param _estimateOf The type of estimate requested (Rate, Position, Velocity).
  * @param _axis The specific axis for which the estimate is required (X, Y, Z).
  *
- * @return uint16_t The estimated value:
- *         - For `Rate` estimates: roll rate if X, pitch rate if Y, yaw rate if Z.
- *         - For `Position` estimates: position along X-axis, Y-axis, altitude for Z-axis.
- *         - For `Velocity` estimates: velocity along X-axis, Y-axis, estimated velocity for Z-axis.
+ * @return int16_t The estimated value:
+ *         - For `Rate` estimates: the measured rotation rate in deg/s x10 ( e.g. 900 = 90 deg/s ), from the gyro:
+ *           roll rate if X, pitch rate if Y, yaw rate if Z. Rounded to nearest.
+ *           Signs: X > 0 rolling right ( right side down ), Y > 0 pitching nose down, both the same way as
+ *           the roll and pitch angles; Z < 0 turning right ( clockwise seen from above ), the opposite way
+ *           to the heading ( Angle AG_YAW ), which counts up clockwise.
+ *         - For `Position` estimates: position along X and Y in cm, estimated altitude for Z in cm.
+ *         - For `Velocity` estimates: velocity along X and Y in cm/s, estimated vertical velocity for Z in cm/s.
  *         Returns 0 for any unrecognized estimate types or axes.
+ *         Position and Velocity on X and Y stay 0 unless a positioning sensor ( UWB ) feeds the estimator.
  *
- * @warning `Velocity` should be accessed only when additional localization sensors(GPS, opticflow, UWB, etc) are used.
+ * @warning `Position` and `Velocity` on X and Y need UWB ( the only X / Y source in this firmware ); Z is always valid.
  */
 int16_t Estimate_Get ( FC_Estimate_e _estimateOf, axis_e _axis );
 
@@ -113,10 +118,11 @@ int16_t Estimate_Get ( FC_Estimate_e _estimateOf, axis_e _axis );
  * @param _estimateOf Specifies the type of estimate, expected to be Angle for this function.
  * @param _angle The specific angle measurement requested (AG_ROLL, AG_PITCH, AG_YAW).
  *
- * @return uint16_t The estimated angle measurement:
+ * @return int16_t The estimated angle measurement:
  *         - Roll in deciDegrees if _angle is AG_ROLL.
  *         - Pitch in deciDegrees if _angle is AG_PITCH.
  *         - Heading in degrees if _angle is AG_YAW.
+ *         Roll > 0 is right side down, pitch > 0 is nose down; the heading is 0 to 359, rising clockwise.
  *         Returns 0 if the estimate type is not Angle or if the angle is unrecognized.
  */
 int16_t Estimate_Get ( FC_Estimate_e _estimateOf, angle_e _angle );

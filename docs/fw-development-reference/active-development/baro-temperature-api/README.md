@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 3 Nov 2026, FW 3.15.3, API 1.8.1 ) |
+| **Status** | **Closed** in `7a41a37` ( 3 Nov 2026, FW 3.15.3, API 1.8.1 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( `PRIMUS_V5` must stay correct; both use the ICP-10111 ) |
