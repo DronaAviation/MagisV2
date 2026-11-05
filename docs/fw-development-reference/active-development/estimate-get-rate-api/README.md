@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 5 Nov 2026, FW 3.15.4, API 1.8.2 ) |
+| **Status** | **Closed** in `1b43fbe` ( 5 Nov 2026, FW 3.15.4, API 1.8.2 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( `PRIMUS_V5` must stay correct ) |
@@ -36,4 +36,4 @@ Correct the `FC-Data.h` doc ( `int16_t` return, units per case ). API 1.8.2, FW 
 
 ## Next action
 
-None: staged with `.git/MAGISV2_COMMIT_MSG.txt`; the user commits, and the next `pluto-commit` / `pluto-grill` run fills in the hash.
+None: committed in `1b43fbe`.

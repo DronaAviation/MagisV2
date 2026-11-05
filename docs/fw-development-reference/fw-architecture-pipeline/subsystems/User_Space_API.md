@@ -36,6 +36,14 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   `Sensor_Get ( Accelerometer | Gyroscope | Magnetometer, axis )`: accelerometer axes in cm/s^2, `Net_Acc` the squared
   magnitude in ( g^2 ) x100, gyro axes in deg/s x10 ( truncated; the same rate as `Estimate_Get ( Rate )` ). Wiki
   `docs/API/FC_DATA_API_WIKI.md` ( API 1.8.2 ).
+- `RcCommand_Get ( )` ( `API/RC-Interface.h` ): a pointer to a file-static `int16_t [ 4 ]` refreshed on each call
+  ( `RC-Interface.cpp` `rcCommandSnapshot` ): roll / pitch / yaw as `1500 + rcCommand` ( the same as
+  `RcCommand_Get ( channel )` ), throttle as `rcCommand [ THROTTLE ]`, 1100-2000. User code runs after `annexCode ( )`
+  and before `applyUserRcOverride ( )` and `applyAltHold ( )`: roll / pitch / yaw are the pilot's command, not its own
+  `RcCommand_Set` override; throttle is the curve of `rcData [ THROTTLE ]` ( the stick, or the landing throttle, the
+  altitude-limit cap, failsafe 1200 or a throttle override written there ), never the altitude-hold throttle. Yaw is inverted ( `yaw_control_direction` 1: yaw right
+  reads below 1500 ). `RcData_Get ( )` ( array ) still returns NULL and `RcCommand_Get ( RC_THROTTLE )` reads 2600-3500
+  ( known gaps ). Wiki `docs/API/RC_INTERFACE_API_WIKI.md` ( API 1.8.3 ).
 
 ## Data Flow & Boundaries
 - **Time Slice Strictness**: Because `plutoLoop()` executes within the high-frequency control loop, user code *must not block*. The use of `delay()` is explicitly forbidden, as it would cause the drone to instantly crash by halting the PID calculations.

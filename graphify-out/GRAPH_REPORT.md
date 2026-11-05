@@ -1,7 +1,7 @@
 # Graph Report - MagisV2  (2026-11-05)
 
 ## Corpus Check
-- 430 files · ~828,301 words
+- 430 files · ~828,584 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7a41a372`
+- Built from commit: `1b43fbea`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -444,7 +444,7 @@ Nodes (9): controlRateConfig_s, dynThrPID, rates, rcExpo8, rcRate8, rcYawExpo8, 
 
 ### Community 237 - "API/ObjectAvoidanceCore: oaCoreState"
 Cohesion: 0.11
-Nodes (16): oaCoreState, userRCassert(), oaCoreDistance(), oaCoreMap(), oaCoreRun(), RcCommand_get(), RcCommand_Set(), RcData_Get() (+8 more)
+Nodes (16): oaCoreState, userRCassert(), oaCoreDistance(), oaCoreMap(), oaCoreRun(), RcCommand_Get(), RcCommand_Set(), RcData_Get() (+8 more)
 
 ### Community 238 - "blackbox/blackbox_fielddefs: FlightLogFieldEncoding"
 Cohesion: 0.25
