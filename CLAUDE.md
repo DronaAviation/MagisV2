@@ -178,6 +178,11 @@ Each of these has cost a flight. Full mechanism and numbers:
   but not flown until the craft is airborne ( throttle raised and >= 20 cm up ), nor outside ANGLE mode, in a flip or
   landing, or after 0.6 s without Developer Mode; it is dropped at a real dev-off and on the disarm edge. Never write `inclination` from user
   code: it is the measured attitude, and the crash detector reads it ( `active-development/set-desired-angle-roll-pitch/` ).
+- **User stick rates ( `setDesiredRate` ) hold until reboot; roll / pitch default to 75, not the stored 0**: `flip ( false )`
+  writes `userRollPitchRate ( )` on every disarmed loop and the flip's normal exits restore it, so a value set from
+  user code survives disarm, Dev Mode off and flips. A roll / pitch call during a flip is held and applied at the
+  flip's exit, never mid-flip: a low rate there stalls the flip into its 2 s timeout, which disarms in the air
+  ( `active-development/set-desired-rate-api/` ).
 
 ## Conventions
 

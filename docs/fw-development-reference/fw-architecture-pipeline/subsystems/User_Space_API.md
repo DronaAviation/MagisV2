@@ -63,7 +63,7 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   throttle `RcCommand_Set` has no effect. `Command_TakeOff` and `Command_Flip` are refused until the landing has
   disarmed ( `landingInProgress ( )`, `FC-Control-Command.cpp:131` ). The battery auto-land also re-asserts `LAND` as
   a backstop. `Command_Land` is refused while a flip runs ( `FC-Control-Command.cpp:158` ), and a flip ends after at
-  most 8 s ( `acrobats.cpp:84` ).
+  most 8 s ( `acrobats.cpp:94` ).
 - **Take-off**: `Command_TakeOff` is queued. From disarmed it arms once the ARM switch is on and the throttle is
   centred ( `altHoldStickCentred ( )`, alt-hold deadband ), and sets the climb goal. On a drone that is already armed
   it sets the goal once per arm, within 3 s of `arm_time` or at the ARM-switch ground idle, which it releases first
@@ -78,6 +78,9 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   that `pidRewrite ( )` adds to the pilot's stick target. It is held until replaced and is not flown on the ground,
   outside ANGLE mode, in a flip, in a landing or in an RC stall. See **Roll / pitch setpoints** below; wiki
   `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.8.6 ).
+- **User stick rates hold until reboot**: `setDesiredRate ( axis, rate )` writes the live rate profile and keeps a copy
+  that the flip code restores, so it survives disarm, Developer Mode off and flips. It is never dropped by the
+  firmware. See **Stick rates** below; wiki `docs/API/FC_CONFIG_API_WIKI.md` ( API 1.8.7 ).
 - **Battery**: `Bms_Get` has `SoC`, `Warning_Level` and `Resistance` ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 - **Link drop stops user code**: `plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true. With `Rx_ESP`
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
@@ -191,7 +194,7 @@ next call replaces it. Full reference: [YAW_HEADING_API_WIKI.md](../../../API/YA
 and pitch tilt" ( API 1.8.6 ).
 
 - **Stored, not flown, by the setter.** The setter writes `userDesiredAngle [ axis ]`, bounded to ±1800, and sets
-  `isUserDesiredAngle [ axis ]` ( `FC-Config-Setpoints.cpp:90-98` ). Before FW 3.15.8 it wrote the measured attitude
+  `isUserDesiredAngle [ axis ]` ( `FC-Config-Setpoints.cpp:91-99` ). Before FW 3.15.8 it wrote the measured attitude
   `inclination` instead: `Estimate_Get ( Angle )` read the value back once, the next `imuUpdate ( )` overwrote it, the
   craft never tilted, and a value above 700 could trip the crash detector in the air ( API test T11 / B4,
   `active-development/set-desired-angle-roll-pitch/` ). User code must never write `inclination`.
@@ -216,11 +219,11 @@ and pitch tilt" ( API 1.8.6 ).
 - **Frame.** The tilt is added after the HEADFREE rotation of `rcCommand` in `annexCode ( )` ( `mw.cpp:430` ), so it is
   relative to the craft's nose, not to the headfree heading.
 - **`getDesiredAngle ( AG_ROLL | AG_PITCH )`** returns `desiredAngle [ axis ]`, the stick plus the flown tilt **before**
-  the clamp ( `FC-Config-Setpoints.cpp:84` ). `desiredAngle [ YAW ]` is never written, so yaw reads 0.
+  the clamp ( `FC-Config-Setpoints.cpp:85` ). `desiredAngle [ YAW ]` is never written, so yaw reads 0.
 
 ```mermaid
 flowchart TD
-    UC([plutoLoop]) --> SA["setDesiredAngle ( AG_ROLL / AG_PITCH )<br/>FC-Config-Setpoints.cpp:90-98"]
+    UC([plutoLoop]) --> SA["setDesiredAngle ( AG_ROLL / AG_PITCH )<br/>FC-Config-Setpoints.cpp:91-99"]
     SA --> T[("userDesiredAngle [ axis ]<br/>isUserDesiredAngle [ axis ]")]
     T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:209"]
     DM["devmode<br/>userCode ( ), mw.cpp:1179 / 1183"] --> G
@@ -232,6 +235,82 @@ flowchart TD
     PR --> CL["clamp to ±max_angle_inclination<br/>errorAngle, pid.cpp:808"]
     Off([dev switch-off / disarm edge]) --> Clr["clear flag and value<br/>mw.cpp:1269"]
     Clr --> T
+```
+
+## Stick rates ( `setDesiredRate` / `getDesiredRate` )
+
+`rates [ FD_ROLL / FD_PITCH / FD_YAW ]` in the live rate profile ( `currentControlRateProfile`, `uint8_t`, Cleanflight
+rate units ) scale the stick into a turn rate in `pidRewrite ( )`. User code sets them with
+`setDesiredRate ( axis, rate )` ( `FC-Config.h:228` ). Wiki: `docs/API/FC_CONFIG_API_WIKI.md`.
+
+- **Setter.** `setDesiredRate ( )` ( `FC-Config-Setpoints.cpp:158` ) clamps with `constrain` to
+  `CONTROL_RATE_CONFIG_ROLL_PITCH_RATE_MAX` 100 / `CONTROL_RATE_CONFIG_YAW_RATE_MAX` 255 ( `rc_controls.h:116 / 119`,
+  the limits MSP_SET_RC_TUNING uses ), stores the value in `userDesiredRate [ axis ]` and sets
+  `isUserDesiredRate [ axis ]` ( `API-Utils.cpp:140 / 145` ), then writes it into `rates [ axis ]` so it acts at once,
+  except for roll / pitch while `flipState != 0` ( `FC-Config-Setpoints.cpp:183` ): see **A running flip keeps its
+  rates** below.
+  An unknown `angle_e` is ignored. `AG_*` and `FD_*` share their index ( `common/axis.h` ).
+- **The flip sets its own roll / pitch rates and hands them back.** On all three targets ( `ENABLE_ACROBAT` ) `mw.cpp`
+  calls `flip ( false )` on every disarmed loop ( `mw.cpp:1411` ) and `flip ( true )` while armed with a flip running
+  ( `:1407` ), both before `userCode ( )` ( `:1436` ). The flip flies its own rates: 75 / 75 in ASCEND, HOLD and HOLDPOS
+  ( `acrobats.cpp:126-127`, `:250-251`, `:340-341` ) and 110 on the flip axis ( `:135-150` ). Where it hands roll /
+  pitch back to normal flight it calls `restoreRestRates ( )` ( `acrobats.cpp:83` ), which writes
+  `userRollPitchRate ( axis )` ( `API-Utils.cpp:230` ): the held user value, or `STOCK_ROLL_PITCH_RATE` 75
+  ( `API-Utils.h:83` ) when none is held. Callers: the 8 s watchdog ( `:97` ), the ASCEND 2.2 s timeout ( `:121` ), the
+  HOLD end ( `:264` ), the HOLDPOS end ( `:350` ) and `flip ( false )` ( `:359` ).
+- **A running flip keeps its rates.** `userCode ( )` ( `mw.cpp:1436` ) runs after `flip ( true )` ( `:1407` ) and
+  before `pid_controller ( )` ( `:1507` ), and the flip writes 110 only once, at the ASCEND transition
+  ( `acrobats.cpp:135-150` ); PITCHING and SLOWDOWNANDEXIT never rewrite it. A live write from user code during a flip
+  would therefore replace the flip's spin rate, and a low one could trip the PITCHING 2 s timeout, which calls
+  `mwDisarm ( )` in the air ( `acrobats.cpp:182-185` ) on `BACK_FLIP`, the API's only direction. So the setter holds a
+  roll / pitch value but returns before the live write while `flipState != 0` ( `FC-Config-Setpoints.cpp:183` ); the
+  flip's exit `restoreRestRates ( )` applies it, and `getDesiredRate ( )` already returns it. Yaw is not guarded: the
+  flip never touches it. Before API 1.8.7 the setter wrote through unguarded.
+- **Only `pidRewrite` ignores the rates in ANGLE mode.** `annexCode ( )` scales `dynP8 / dynI8 / dynD8` by
+  `100 - rates [ axis ] * stick / 500` ( `mw.cpp:359 / 372 / 376-378` ) in every mode, and `pidMultiWii`,
+  `pidMultiWii23`, `pidMultiWiiHybrid` and `pidHarakiri` read those ( `pid.cpp:299 / 317`, `:396 / 414`, `:525 / 542`,
+  `:656 / 667` ). Under a non-default `pidController` ( CLI `serial_cli.cpp:487`, `MSP_SET_PID_CONTROLLER`
+  `serial_msp.cpp:1437` ) a user rate therefore weakens the gains at full stick even in ANGLE mode.
+- **Stock roll / pitch rate is 75, not the stored profile.** The config default is 0 ( `config.cpp:319` ), but
+  `flip ( false )` writes 75 from the first disarmed loop, so 75 is the effective rate on every craft unless user code
+  sets one. The app's MSP_SET_RC_TUNING roll / pitch is overwritten the same way.
+- **Not restored by four abnormal flip timeouts, none of them reachable today.** SLOWDOWNANDEXIT ( left ),
+  PITCHINGPOS and SLOWDOWNANDEXITPOS ( both ) set `flipState = 0` after 2 s without disarming or resetting the rates:
+  the flip axis would keep 110 with ANGLE mode off until the next disarm, whose `flip ( false )` restores it. They sit
+  on the LEFT / FRONT / RIGHT branches only, and `flipDirection` is only ever written 0 ( `FLIP_BACK`,
+  `command.cpp:342`; the initialiser at `acrobats.cpp:63` is the same ), so every flip the firmware can start today
+  ends at the watchdog or the ASCEND timeout ( both restore ) or at the PITCHING / SLOWDOWNANDEXIT 2 s timeouts
+  ( both disarm, and the next `flip ( false )` restores ).
+- **Never dropped.** Nothing clears `isUserDesiredRate [ ]`: a set rate holds through arm, disarm, Developer Mode off
+  and Wi-Fi restarts, until reboot or the next call. Yaw is never touched by the flip.
+- **Not saved by the API, but saved with the settings.** The setter writes `masterConfig`, so any later
+  `saveConfigAndNotify ( )` stores it ( stick trim `mw.cpp:262`, accelerometer / compass calibration, the app's
+  MSP_EEPROM_WRITE ). A profile change ( `MSP_SELECT_SETTING`, `serial_msp.cpp:1399` ) calls `writeEEPROM ( )` **before**
+  `readEEPROM ( )` ( `:1405-1406` ), so it stores the user rate in the old profile too. A reload ( that, or
+  `MSP_RESET_CONF`, `:1624` ) replaces the live value while `getDesiredRate ( )` keeps returning the user one; the flip
+  code re-applies roll / pitch at the next disarmed loop, and yaw stays at the reloaded value.
+- **Getter.** `getDesiredRate ( )` ( `FC-Config-Setpoints.cpp:150` ) returns `userDesiredRate [ axis ]` when held, else
+  `rates [ axis ]`, and 0 for an unknown axis. Before API 1.8.7 it returned the PID's rate setpoint `desiredRate [ ]`.
+- **Safe from `plutoInit ( )`.** `readEEPROM ( )` sets the profile pointer at `main.cpp:177`, before `plutoInit ( )`
+  ( `:524` ), and nothing reloads it later in start-up.
+
+```mermaid
+flowchart TD
+    UC([user code]) --> SR["setDesiredRate ( axis, rate )<br/>clamp 0-100 / 0-255<br/>FC-Config-Setpoints.cpp:158"]
+    FST["flipState<br/>acrobats.h:44"] --> SR
+    SR --> UR[("userDesiredRate [ axis ]<br/>isUserDesiredRate [ axis ]<br/>API-Utils.cpp:140 / 145")]
+    SR -->|"yaw always; roll / pitch only if flipState == 0<br/>FC-Config-Setpoints.cpp:183-184"| RT[("rates [ axis ]<br/>currentControlRateProfile")]
+    UR --> URP["userRollPitchRate ( axis )<br/>user value or 75<br/>API-Utils.cpp:230"]
+    URP --> RR["restoreRestRates ( )<br/>acrobats.cpp:83"]
+    FF["flip ( false ), every disarmed loop<br/>mw.cpp:1411, acrobats.cpp:359"] --> RR
+    FX["flip exits: watchdog :97, ASCEND timeout :121<br/>HOLD end :264, HOLDPOS end :350"] --> RR
+    RR --> RT
+    FS["flip states: 75 / 75, flip axis 110<br/>acrobats.cpp:126-150, :250, :340"] --> RT
+    RT --> PR["pidRewrite ( )<br/>pid.cpp:788"]
+    PR --> YW["yaw, every mode<br/>pid.cpp:793"]
+    PR --> RP["roll / pitch outside ANGLE<br/>pid.cpp:812-813"]
+    UR --> GR["getDesiredRate ( axis )<br/>FC-Config-Setpoints.cpp:150"]
+    RT --> GR
 ```
 
 ## Laser ranging ( XRanging, X1Ranging ) and object avoidance

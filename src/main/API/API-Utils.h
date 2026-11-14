@@ -77,6 +77,11 @@ extern "C" {
  * at the arm instant ), and a commanded tilt would pivot the take-off on a leg. */
 #define USER_ANGLE_MIN_ALT_CM     20
 
+/* Roll / pitch rate the firmware rests at when user code has not called setDesiredRate ( ): the
+ * value flip ( false ) has always written on every disarmed loop, and every flip exit restores.
+ * The config default is 0, so this, not the stored profile, is the stock rate on every craft. */
+#define STOCK_ROLL_PITCH_RATE     75
+
 extern uint8_t resetCounter;
 extern uint8_t intLogCounter;
 extern uint8_t floatLogCounter;
@@ -140,6 +145,11 @@ bool landingInProgress ( void );    // FC-Control-Command.cpp: user, RC-loss or 
 // than USER_ANGLE_LINK_GRACE_MS. axis is FD_ROLL / FD_PITCH; anything else returns 0. Full rules at the
 // definition ( API-Utils.cpp ).
 int32_t userAngleTarget ( uint8_t axis );
+
+// Roll / pitch rate the flip code restores outside a flip ( flip ( false ) on every disarmed loop and the
+// flip exits in acrobats.cpp ): the held setDesiredRate value ( clamped to 0-100 by the setter ), or
+// STOCK_ROLL_PITCH_RATE when none is held. axis is FD_ROLL / FD_PITCH; anything else returns the stock rate.
+uint8_t userRollPitchRate ( uint8_t axis );
 
 void resetUserRCflag ( void );
 void userRCassert ( uint8_t channel, float pilotAuthority );

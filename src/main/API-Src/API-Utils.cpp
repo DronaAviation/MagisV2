@@ -220,6 +220,19 @@ int32_t userAngleTarget ( uint8_t axis ) {
 }
 
 /**
+ * @brief Roll / pitch rate to rest at outside a flip.
+ *
+ * setDesiredRate ( ) holds its value in userDesiredRate [ ] until reboot or the next call. flip ( false )
+ * runs on every disarmed loop and the flip exits hand roll / pitch back to normal flight; both wrote a
+ * fixed 75 and so wiped the user value ( API test T16 / B30 ), and call this instead. The flip's own
+ * 75 / 110 while flipping are not affected.
+ */
+uint8_t userRollPitchRate ( uint8_t axis ) {
+  if ( axis > FD_PITCH || ! isUserDesiredRate [ axis ] ) return STOCK_ROLL_PITCH_RATE;
+  return ( uint8_t ) userDesiredRate [ axis ];    // 0-100, clamped by setDesiredRate ( )
+}
+
+/**
  * @brief Watchdog: drops overrides that are no longer being re-asserted.
  *
  * User code must keep calling RcCommand_Set() (once per plutoLoop() is

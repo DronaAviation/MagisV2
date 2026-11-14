@@ -113,7 +113,7 @@ land the craft.
 - It cannot be cancelled. `MSP_SET_COMMAND` is ignored while landing. `Command_TakeOff` and `Command_Flip` are
   refused while a landing runs ( `landingInProgress ( )`, `FC-Control-Command.cpp:131` ). This function also
   re-asserts `LAND` before `executeCommand ( )` as a backstop. It does not start during a flip: the flip finishes
-  first, and a flip ends after at most 8 s ( watchdog, `acrobats.cpp:84` ).
+  first, and a flip ends after at most 8 s ( watchdog, `acrobats.cpp:94` ).
 - After the disarm, critical is still latched and `mwArm ( )` refuses to arm until the pack is changed.
 
 ## What the app is told

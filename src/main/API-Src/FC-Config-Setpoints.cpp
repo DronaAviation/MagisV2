@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 14th Nov 2026                                          #
+ #  Last Modified: Sun, 15th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -78,6 +78,7 @@
 
 #include "API/API-Utils.h"
 #include "API/FC-Config.h"
+#include "flight/acrobats.h"    // flipState: setDesiredRate ( ) leaves a running flip's rates alone
 
 int32_t getDesiredAngle ( angle_e ANGLE ) {
   // Return the desired angle value from the desiredAngle array based on the specified angle type
@@ -147,29 +148,40 @@ void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle ) {
 }
 
 int32_t getDesiredRate ( angle_e ANGLE ) {
-  // Return the desired rate value from the desiredRate array based on the specified angle type
-  return desiredRate [ ANGLE ];
+  // The rate setDesiredRate ( ) holds, or the rate in use when none was set ( roll / pitch 75 in practice ).
+  // AG_ROLL / AG_PITCH / AG_YAW share their index with FD_ROLL / FD_PITCH / FD_YAW.
+  if ( ANGLE > AG_YAW ) return 0;
+  if ( isUserDesiredRate [ ANGLE ] ) return userDesiredRate [ ANGLE ];
+  return currentControlRateProfile->rates [ ANGLE ];
 }
 
 void setDesiredRate ( angle_e ANGLE, int32_t rate ) {
-  // Use a switch statement to determine which control rate should be set based on the specified angle
+  // Cleanflight rate ( 0-100 roll / pitch, 0-255 yaw ), clamped to the limits MSP_SET_RC_TUNING uses. Held in
+  // userDesiredRate [ ] until reboot or the next call, so the flip code restores it instead of the stock 75
+  // ( userRollPitchRate ( ) ), and written to the live profile so it acts at once. Never saved to EEPROM here.
+  // Exception: roll / pitch during a flip are held but not applied. userCode ( ) runs after flip ( true ) and before
+  // the PID, and the flip sets its spin rate only once, so a live write would replace it; a low rate could stall the
+  // flip into its 2 s PITCHING timeout, which disarms in the air. The flip's exit ( restoreRestRates ( ) ) applies the
+  // held value instead. Yaw is never touched by the flip and always applies at once.
+  int maxRate;
   switch ( ANGLE ) {
     case AG_ROLL:
-      // If the angle is roll, set the roll rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_ROLL ] = rate;
-      break;
     case AG_PITCH:
-      // If the angle is pitch, set the pitch rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_PITCH ] = rate;
+      maxRate = CONTROL_RATE_CONFIG_ROLL_PITCH_RATE_MAX;
       break;
     case AG_YAW:
-      // If the angle is yaw, set the yaw rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_YAW ] = rate;
+      maxRate = CONTROL_RATE_CONFIG_YAW_RATE_MAX;
       break;
     default:
-      // Default case to handle any unspecified angles; no action needed
-      break;
+      return;
   }
+
+  int clamped                 = constrain ( ( int ) rate, 0, maxRate );
+  userDesiredRate [ ANGLE ]   = clamped;
+  isUserDesiredRate [ ANGLE ] = true;
+
+  if ( ANGLE != AG_YAW && flipState != 0 ) return;    // held; the flip's exit applies it
+  currentControlRateProfile->rates [ ANGLE ] = ( uint8_t ) clamped;
 }
 
 int32_t getDesiredPositions ( axis_e AXIS ) {

@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Sat, 14th Nov 2026                                          #
+ #  Last Modified: Sun, 15th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -19,6 +19,8 @@
  #  ----------	---	---------------------------------------------------------  #
  #  14-11-2026	AJ	setDefault_PIDProfile ( ): documented the five restored    #
  #              	profiles, RAM only, armed and LuxFloat caveats.            #
+ #  15-11-2026	AJ	setDesiredRate / getDesiredRate: range, clamp, hold,       #
+ #              	where the rate acts, flip and save caveats ( T16 ).        #
 *******************************************************************************/
 #ifndef FC_CONFIG_H
 #define FC_CONFIG_H
@@ -178,18 +180,52 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle );
 void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle );
 
 /**
- * @brief Retrieves the desired rate for a given angle type.
+ * @brief Retrieves the stick rate setting of an axis ( see setDesiredRate ).
  *
- * @param ANGLE An enumerated type specifying the angle type.
- * @return The desired rate value for the specified angle type.
+ * Returns the value the last setDesiredRate ( ) call on that axis holds, after
+ * its clamp. If it was never called: the rate in use, which outside a flip is 75
+ * for AG_ROLL and AG_PITCH and the stored profile value for AG_YAW ( 0 by
+ * default ), and during a flip is the flip's own roll / pitch rate. It is the
+ * setting, not how fast the drone turns: for the measured rotation use
+ * Estimate_Get ( Rate, ... ).
+ *
+ * @param ANGLE AG_ROLL, AG_PITCH or AG_YAW; anything else returns 0.
+ * @return int32_t The rate setting: 0-100 roll / pitch, 0-255 yaw.
  */
 int32_t getDesiredRate ( angle_e ANGLE );
 
 /**
- * @brief Sets the desired control rate for a specific angle.
+ * @brief Sets the stick rate of an axis: how fast the drone turns at full stick.
  *
- * @param ANGLE An enumerated type specifying the angle type (e.g., roll, pitch, yaw).
- * @param rate The desired rate value to set for the specified angle type.
+ * `rate` is the Cleanflight rate setting, 0-100 for AG_ROLL / AG_PITCH and
+ * 0-255 for AG_YAW; a value outside the range is clamped to it. It acts at once
+ * and holds until the next call or a reboot, through arming, disarming and
+ * flips. With no call, roll / pitch run at 75 and yaw at the stored profile
+ * value ( 0 by default ). With the default PID controller:
+ *
+ * - AG_YAW scales the yaw stick in every flight mode: the full-stick turn rate
+ *   grows with rate + 20, so 20 doubles the default yaw stick.
+ * - AG_ROLL / AG_PITCH act only outside ANGLE mode, e.g. after
+ *   FlightMode_Set ( RATE ): the full-stick spin rate grows with rate + 20,
+ *   so 30 spins at about half the default 75. In ANGLE mode, the default, they
+ *   have no effect.
+ * - A flip sets its own rates at its start and returns to this value when it
+ *   ends. A roll / pitch call during a flip is kept ( getDesiredRate returns it )
+ *   but applied only when the flip ends, so it cannot change the flip's spin
+ *   rate. A flip that does not finish in time either hands the value back at
+ *   once or disarms the drone, and the value is applied then.
+ * - Under a non-default pidController ( app / CLI ) the rates also scale that
+ *   controller's dynamic P / I / D gains in every mode, ANGLE included.
+ *
+ * This call does not save anything. It writes the live settings, so if they are
+ * saved while it is set ( a settings save or profile change from the app, a stick
+ * trim or a calibration ) the value is stored and survives a reboot. If the app
+ * then loads other settings, AG_YAW takes the loaded value, while roll and pitch
+ * are written back from the held value on the next disarmed loop; in both cases
+ * getDesiredRate ( ) keeps returning the value set here.
+ *
+ * @param ANGLE AG_ROLL, AG_PITCH or AG_YAW; anything else is ignored.
+ * @param rate  The rate setting; see above for the range.
  */
 void setDesiredRate ( angle_e ANGLE, int32_t rate );
 

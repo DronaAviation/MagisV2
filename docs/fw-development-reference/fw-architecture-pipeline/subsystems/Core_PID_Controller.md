@@ -24,7 +24,7 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
   `apiSlot [] = { PIDROLL, PIDPITCH, PIDYAW, PIDALT, PIDUSER }` ( `FC-Config-PID.cpp:157` ), from a stack copy filled
   by `pidProfileDefaultGains ( )`. `PIDPOS`, `PIDPOSR`, `PIDNAVR`, `PIDLEVEL`, `PIDMAG` and `PIDVEL` are never
   written. The change is RAM only, and gains are read live every loop, so a call while armed steps the tuning in flight
-  ( header comment, `FC-Config.h:95` ). Before FW 3.15.7 the function looped over all eleven slots with five-entry
+  ( header comment, `FC-Config.h:97` ). Before FW 3.15.7 the function looped over all eleven slots with five-entry
   tables: it set ALT P8 to a stale 100 and overwrote the hidden gains, `PIDLEVEL` and `PIDVEL` included
   ( `active-development/set-default-pid-profile/` ).
 
@@ -37,6 +37,9 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
   In every mode the roll / pitch target is `desiredAngle = 2 * rcCommand + userAngleTarget ( axis )` ( `pid.cpp:807` ),
   clamped to ±`max_angle_inclination` before the error is taken ( `pid.cpp:808` ); `userAngleTarget ( )` is 0 outside
   ANGLE mode, so only ANGLE flies the user tilt. See **User roll / pitch tilt** below.
+  The stick-to-rate scale is `rates [ axis ]` of the live rate profile ( `pid.cpp:788` ): yaw always uses it
+  ( `desiredRate = ( rate + 20 ) * rcCommand >> 5`, `pid.cpp:793` ), roll / pitch only outside ANGLE mode
+  ( `( rate + 20 ) * rcCommand >> 4`, `pid.cpp:812-813` ). See **Stick rates and the flip** below.
 - `pidResetErrorAngle()` / `pidResetErrorGyro()` ( `pid.cpp:88` / `:97` ): zero the angle and rate I-terms. Called
   by the stick-low reset in `processRx ( )` whenever the craft is not counted as airborne ( see below ), and by
   every arming path ( take-off, `Command_Arm`, chuck ).
@@ -83,7 +86,7 @@ flowchart TD
 
 ## User roll / pitch tilt ( `userAngleTarget`, API-Utils.cpp )
 - `setDesiredAngle ( AG_ROLL | AG_PITCH, x )` stores a held tilt in `userDesiredAngle [ ]` ( deci-degrees, ±1800 ) and
-  `isUserDesiredAngle [ ]` ( `FC-Config-Setpoints.cpp:90-98` ). `pidRewrite` adds `userAngleTarget ( axis )`
+  `isUserDesiredAngle [ ]` ( `FC-Config-Setpoints.cpp:91-99` ). `pidRewrite` adds `userAngleTarget ( axis )`
   ( `API-Utils.cpp:209` ) to its stick target ( `pid.cpp:807` ), before the clamp, so the pilot's stick adds on top and
   the sum keeps `max_angle_inclination`. The helper returns 0, keeping the tilt held, unless: Developer Mode ran within
   the last 0.6 s, ANGLE mode is on, `flipState == 0`, no landing runs ( `landingInProgress ( )` ), and the craft is
@@ -92,6 +95,24 @@ flowchart TD
   ( `mw.cpp:1436` / `:1507` ). Only `pidRewrite` reads it. The ANGLE loop is P only, so the tilt is reached with no
   integrator wind-up: flown at 5° it settled within 0.2-0.3 s and 1° ( log-2 of
   `active-development/set-desired-angle-roll-pitch/` ).
+
+## Stick rates and the flip ( `rates [ ]`, acrobats.cpp )
+- `rates [ FD_ROLL / FD_PITCH / FD_YAW ]` ( `uint8_t`, `rc_controls.h:145` ) are read by `pidRewrite` every loop
+  ( `pid.cpp:788` ). Yaw scales the stick in every mode; roll / pitch only in ACRO / HORIZON and the flip's
+  non-ANGLE states, so in ANGLE mode, the default, roll / pitch rates have no effect on `pidRewrite`. The other
+  controllers also scale their dynamic P / I / D gains with the rates in every mode ( `annexCode ( )`,
+  `mw.cpp:359-378` ); see `User_Space_API.md`, **Stick rates**.
+- Writers: the flip ( `acrobats.cpp`, its own 75 / 110 while `flipState != 0`, then `restoreRestRates ( )` at its
+  normal exits and on every disarmed loop ), `setDesiredRate ( )` ( `FC-Config-Setpoints.cpp:158`, roll / pitch not
+  while a flip runs ), the app
+  ( MSP_SET_RC_TUNING, `serial_msp.cpp:1516` ), in-flight adjustments ( `rc_controls.cpp:445-459` ) and the CLI
+  ( `serial_cli.cpp:450-452` ).
+- `restoreRestRates ( )` ( `acrobats.cpp:83` ) writes `userRollPitchRate ( )` ( `API-Utils.cpp:230` ): the
+  `setDesiredRate` value when one is held, else 75 ( `STOCK_ROLL_PITCH_RATE`, `API-Utils.h:83` ). With no user rate
+  this is the same 75 the flip code always wrote, so the effective roll / pitch rate is 75 on every craft ( the config
+  default of 0, `config.cpp:319`, never survives the first disarmed loop ). Four abnormal 2 s flip timeouts would
+  leave the flip axis at 110 until disarm, but none is reachable today ( only `FLIP_BACK` is ever commanded ); see
+  `User_Space_API.md`, **Stick rates**.
 
 ## Stick-low I-term reset and freeze ( `processRx ( )`, mw.cpp )
 

@@ -28,8 +28,8 @@ FORKNAME	=	MAGISV2
 TARGET	?=	
 BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
-FW_Version	=	3.15.8
-API_Version	=	1.8.6
+FW_Version	=	3.15.9
+API_Version	=	1.8.7
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
