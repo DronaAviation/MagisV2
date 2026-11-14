@@ -85,7 +85,10 @@ holds the voltage values, a stale current is treated as 0 A in the compensation 
    only the count can raise a level. A level stays until the pack is unplugged. Before R is measured the voltage rule
    runs only once the count is at 40% or less, and a level it raises alone is provisional: it is re-levelled to what
    the count supports on disarm and when R is measured. The levels are raised only while the in-flight low-battery
-   failsafe is enabled ( the default ).
+   failsafe is enabled ( the default ): `fsInFlightLowBattery` guards the step out of `BATTERY_OK` ( `battery.cpp:798` ),
+   on the ground and in flight. It is the only way out of `BATTERY_OK`: the re-level of a provisional alarm runs only
+   after a guarded step. Clearing it later does not lower a level. User code switches it with
+   `Failsafe_enable / disable ( INFLIGHT_LOW_BATTERY )`; `LOW_BATTERY` has no effect ( see `Failsafe_Subsystem.md` ).
 8. **Actions per level.** Low battery: `Low_battery` flight-status flag, `BEEPER_BAT_LOW`. Critical:
    `LowBattery_inFlight` flag, `BEEPER_BAT_CRIT_LOW`, and, once confirmed ( not provisional ), the auto-land below and
    `mwArm ( )` ( `mw.cpp:611` ) refusing to arm. The flags and the

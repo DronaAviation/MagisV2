@@ -214,14 +214,25 @@ void Failsafe_enable ( failsafe_e FAILSAFE ) {
   // Determine if all failsafes need to be enabled
   bool enableAll = ( FAILSAFE == ALL );
 
-  // Enable low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically LOW_BATTERY
-  fsLowBattery = enableAll || ( FAILSAFE == LOW_BATTERY );
+  // Only ever set a flag here, never clear one: the failsafes not named keep their state
+  // ( API test T07: assigning each flag switched the other two off, and enabling CRASH
+  // removed the low-battery landing ).
 
-  // Enable in-flight low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY
-  fsInFlightLowBattery = enableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY );
+  // Set the low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically LOW_BATTERY
+  // ( no firmware path reads fsLowBattery: it is kept for API compatibility )
+  if ( enableAll || ( FAILSAFE == LOW_BATTERY ) ) {
+    fsLowBattery = true;
+  }
 
-  // Enable crash failsafe if 'enableAll' is true or if FAILSAFE is specifically CRASH
-  fsCrash = enableAll || ( FAILSAFE == CRASH );
+  // Set the in-flight low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY
+  if ( enableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY ) ) {
+    fsInFlightLowBattery = true;
+  }
+
+  // Set the crash failsafe if 'enableAll' is true or if FAILSAFE is specifically CRASH
+  if ( enableAll || ( FAILSAFE == CRASH ) ) {
+    fsCrash = true;
+  }
 }
 
 void Failsafe_disable ( failsafe_e FAILSAFE ) {

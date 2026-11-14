@@ -159,6 +159,10 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **At critical battery the firmware lands ( `LAND` ); the app must not be told "critical" while armed** — it switches
   ARM off on that status and the motors stop in the air. Low battery is reported until the landing disarms, then
   `mwArm ( )` refuses to arm until the pack is changed ( `FLIGHT_INVARIANTS.md` ).
+- **`Failsafe_enable / disable ( X )` change only X ( `ALL` all three ); `fsInFlightLowBattery` is the only way out of
+  `BATTERY_OK`, so `INFLIGHT_LOW_BATTERY` gates every battery level and the critical landing, and `LOW_BATTERY` has no
+  reader**. Before API 1.8.8 enabling one switch cleared the other two, so `Failsafe_enable ( CRASH )` silently removed the
+  low-battery landing ( `docs/API/FAILSAFE_API_WIKI.md`, `active-development/failsafe-enable-api/` ).
 - **User commands cannot replace a landing, and a landing cannot start in a flip**: `Command_TakeOff` / `Command_Flip`
   are refused while `landingInProgress ( )`, and `Command_Land` while `flipState != 0` ( flips end within 8 s ). Every
   end of a take-off goes through `endTakeOff ( )`, and a queued user take-off is dropped after 2 s of refused arming

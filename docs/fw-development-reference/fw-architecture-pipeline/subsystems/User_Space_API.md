@@ -82,6 +82,10 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   that the flip code restores, so it survives disarm, Developer Mode off and flips. It is never dropped by the
   firmware. See **Stick rates** below; wiki `docs/API/FC_CONFIG_API_WIKI.md` ( API 1.8.7 ).
 - **Battery**: `Bms_Get` has `SoC`, `Warning_Level` and `Resistance` ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
+- **Failsafe switches**: `Failsafe_enable / disable ( failsafe_e )` ( `FC-Config.h` ) change only the named switch,
+  `ALL` all three ( API 1.8.8 ); all on at power-up, held until reboot, not saved. `INFLIGHT_LOW_BATTERY` gates every
+  battery level and the critical auto-land, `CRASH` the crash disarm; `LOW_BATTERY` has no effect. Wiki
+  `docs/API/FAILSAFE_API_WIKI.md` ( API 1.8.8 ).
 - **Link drop stops user code**: `plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true. With `Rx_ESP`
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
   clears every user RC override and re-runs `onLoopStart ( )` when frames return. A Wi-Fi stall therefore

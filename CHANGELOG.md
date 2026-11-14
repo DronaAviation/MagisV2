@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.9 (API 1.8.7) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.10 (API 1.8.8) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -163,7 +163,7 @@ that removes all legacy STM32F10x support.
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
   temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values,
   3.15.7 for `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt, 3.15.9 for the
-  `setDesiredRate` stick rates.
+  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -176,6 +176,7 @@ that removes all legacy STM32F10x support.
   API 1.8.5 is behaviour only: `setDefault_PIDProfile ( )` restores the five API profiles and nothing else ( see Fixed ).
   API 1.8.6 is behaviour only: `setDesiredAngle ( AG_ROLL / AG_PITCH )` tilts the drone and holds the tilt ( see Fixed ).
   API 1.8.7 is behaviour only: `setDesiredRate ( )` holds its value and `getDesiredRate ( )` returns it ( see Fixed ).
+  API 1.8.8 is behaviour only: `Failsafe_enable ( X )` changes only the failsafe named ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -306,6 +307,18 @@ that removes all legacy STM32F10x support.
   the getter equal to the rate in use on every line, the clamp, and the value held across arm and disarm. Not
   flight-tested: the RATE-mode stick response and the restore after a flip rest on code reading and review
   ( `active-development/set-desired-rate-api/` ). API 1.8.7.
+- **`Failsafe_enable ( X )` no longer switches the other failsafes off** ( API test T07, B2 ): each call assigned all
+  three switches, so the two not named were set off. `Failsafe_enable ( CRASH )` therefore also switched off the
+  in-flight low-battery failsafe, the only gate out of the battery's OK level: no low-battery or critical status, no
+  beeper, no automatic landing at critical battery, and arming allowed on a flat pack. `Failsafe_enable ( LOW_BATTERY )`
+  or `( INFLIGHT_LOW_BATTERY )` switched the crash disarm off. It now sets only the named switch ( all three for `ALL` ),
+  as the header documented; `Failsafe_disable ( )`, `Failsafe_enable ( ALL )` and the power-up default ( all on ) are
+  unchanged, and firmware that never calls `Failsafe_enable` is byte-for-byte the same size ( the linker drops the
+  unused function ). `LOW_BATTERY` has had no effect since the battery-management rewrite and is now documented as such
+  ( kept so existing code compiles ); the `failsafe_e` comments in `FC-Config.h` are corrected. Not hardware-tested:
+  verified by a host check that compiles the real source file ( 4164 checks: every state and every sequence of up to
+  three calls; the pre-fix code fails 1468 of them, reproducing T07 ) and a trace of each switch to what it gates. New
+  `docs/API/FAILSAFE_API_WIKI.md` ( `active-development/failsafe-enable-api/` ). API 1.8.8.
 - **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
   `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
   ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
@@ -508,6 +521,12 @@ that removes all legacy STM32F10x support.
   gains with the rates in every mode ), how long a value holds, flips, saving and reloading. Both functions'
   `FC-Config.h` comments rewritten. The User_Space_API and Core_PID_Controller pipeline docs gain "Stick rates"
   sections; line references moved by this change corrected in three pipeline docs.
+- New `docs/API/FAILSAFE_API_WIKI.md` for `Failsafe_enable` / `Failsafe_disable`: what each `failsafe_e` value
+  protects and what is lost with it off, that a call changes only the named switch, how long a setting holds, the
+  one-way battery gate, `LOW_BATTERY` having no effect, examples per hook and a workaround for older firmware.
+  `BMS_API_WIKI.md` links it and names the switch. `FC-Config.h` `failsafe_e` comments rewritten. The
+  Failsafe_Subsystem pipeline doc gains the three switches and a corrected crash-detector reference, Power_BMS_Pipeline
+  names the battery gate, and User_Space_API lists the API.
 - `YAW_HEADING_API_WIKI.md` gains a "Roll and pitch tilt" section ( hold, signs, the stick sum and limit, when the
   tilt is flown and when it ends, `getDesiredAngle` ), a lean-then-level example and pitfalls. `FC-Config.h` comments
   of `setDesiredAngle` and `getDesiredAngle` rewritten. The User_Space_API pipeline doc gains "Roll / pitch

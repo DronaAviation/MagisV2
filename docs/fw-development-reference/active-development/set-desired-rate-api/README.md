@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Nov 2026, FW 3.15.9, API 1.8.7 ) |
+| **Status** | **Closed** in `3be9093` ( 15 Nov 2026, FW 3.15.9, API 1.8.7 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all targets built at commit ) |
@@ -55,7 +55,7 @@ the next call; never written to EEPROM by the API. A roll / pitch call during a 
 - Task 9 done ( 15 Nov 2026 ): stock `PlutoPilot.cpp` restored ( the test code is in [TEST_CODE.md](TEST_CODE.md) ),
   graph refreshed, all three targets built clean, FW 3.15.8 -> 3.15.9 and API 1.8.6 -> 1.8.7, `PIPELINE_UPDATE.md`
   applied to `User_Space_API.md`, `Core_PID_Controller.md` and `Power_BMS_Pipeline.md`, CHANGELOG updated, staged.
-  **Closed - pending commit**: the user commits.
+  **Closed** in `3be9093`.
 - Separate finding ( not this topic ): four abnormal flip timeouts end the flip without disarming and leave the flip
   axis at 110 with ANGLE mode off until disarm. Pre-existing, and **unreachable today**: only `BACK_FLIP` is ever
   commanded ( `flipDirection` is only written 0 ). Logged in TASKS.md decisions.

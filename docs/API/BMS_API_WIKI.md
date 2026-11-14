@@ -54,6 +54,9 @@ The table describes boards with current sensing ( PRIMUS_X2_v1, PRIMUS_V5 ). For
   back to the level the count supports.
 - The level is only raised when the in-flight low-battery failsafe is enabled ( the default ). With it disabled
   ( `Failsafe_disable` ) before any level is raised there is no low-battery level, no beeper and **no auto-land**.
+  This is `INFLIGHT_LOW_BATTERY`, and it covers the ground levels too; `LOW_BATTERY` has no effect. Before API
+  1.8.8, `Failsafe_enable` of any other failsafe also switched it off. See the
+  [Failsafe API Wiki](FAILSAFE_API_WIKI.md).
 
 ### Low-Battery Auto-Land
 

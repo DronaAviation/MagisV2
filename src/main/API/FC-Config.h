@@ -21,6 +21,8 @@
  #              	profiles, RAM only, armed and LuxFloat caveats.            #
  #  15-11-2026	AJ	setDesiredRate / getDesiredRate: range, clamp, hold,       #
  #              	where the rate acts, flip and save caveats ( T16 ).        #
+ #  15-11-2026	AJ	failsafe_e: value comments corrected: LOW_BATTERY has      #
+ #              	no effect, INFLIGHT_LOW_BATTERY covers the ground ( T07 ). #
 *******************************************************************************/
 #ifndef FC_CONFIG_H
 #define FC_CONFIG_H
@@ -42,10 +44,10 @@ typedef enum {
 } pid_profile_e;
 
 typedef enum {
-  LOW_BATTERY,             // Indicates a low battery condition, triggering actions to prevent power loss.
-  INFLIGHT_LOW_BATTERY,    // Indicates a low battery condition specifically when in flight, requiring immediate attention.
-  CRASH,                   // Represents a crash condition, prompting emergency procedures to minimize damage.
-  ALL                      // Represents all failsafe conditions, used to enable or check all failsafes simultaneously.
+  LOW_BATTERY,             // No effect: no firmware path reads it. Kept so existing code compiles; use INFLIGHT_LOW_BATTERY.
+  INFLIGHT_LOW_BATTERY,    // Every battery level, ground and flight: status, beepers, critical auto-land, arm refusal.
+  CRASH,                   // Crash disarm while armed in ANGLE mode, not in a flip: a tilt past 70 deg or a hard impact disarms.
+  ALL                      // All three of the above.
 } failsafe_e;
 
 /**
