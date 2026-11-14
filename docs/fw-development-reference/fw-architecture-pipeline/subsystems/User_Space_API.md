@@ -23,7 +23,16 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - `plutoLoop()`: The continuously executing user function. Called directly by the main control loop.
 - `Command_Arm ( )`, `Command_TakeOff ( cm )`, `Command_Land ( speed )`, `Command_Flip ( BACK_FLIP )`,
   `Command_DisArm ( )` ( `API/FC-Control.h` ): arm and fly the drone from user code. Wiki
-  `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.7.0 ).
+  `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.8.4 ).
+- `FlightStatus_Get ( )` / `FlightStatus_Check ( status )` ( `API/FC-Control.h` ): the flight status from
+  `flightIndicatorFlag`, one bit per internal `FlightStatus_e` ( `config/runtime_config.h` ); the lowest set bit is the
+  most important ( `leastSignificantBit`, `common/maths.cpp` ). The internal enum and the public `flightstatus_e` are
+  numbered differently at 2-4 ( internal Crash 2, Low_battery 3, LowBattery_inFlight 4; public FS_LOW_BATTERY 2,
+  FS_INFLIGHT_LOW_BATTERY 3, FS_CRASHED 4 ), so `FC-Control-Status.cpp` translates by name through
+  `flightStatusMap [ ]`, both ways; `MSP_FLIGHT_STATUS` ( `io/serial_msp.cpp` ) maps the same bit by name to
+  `AppFlightStatus_e`. Never reorder the internal enum: its bit order is the priority, and `MSP_STATUS` sends the raw
+  bits. Crash is cleared about 0.3 s after the crash disarm once level ( `mw.cpp` `annexCode ( )` ). Wiki section
+  "Flight status" in `docs/API/FC_CONTROL_API_WIKI.md` ( API 1.8.4 ).
 - `Estimate_Get ( Rate | Position | Velocity, axis )` ( `API/FC-Data.h`, `int16_t` ): `Rate` is the measured gyro rate
   in deg/s x10, `gyroADC [ axis ] / 1.64` rounded ( 16.4 counts per deg/s, the scale the DCM attitude integrates;
   `FC-Data-Estimate.cpp:74-91` ); X > 0 rolling right, Y > 0 nose down, Z > 0 turning left ( opposite to the heading ).

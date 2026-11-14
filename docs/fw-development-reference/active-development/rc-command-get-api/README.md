@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 5 Nov 2026, FW 3.15.5, API 1.8.3 ) |
+| **Status** | **Closed** in `e72d098` ( 5 Nov 2026, FW 3.15.5, API 1.8.3 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all targets built at commit ) |

@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.5 (API 1.8.3) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.6 (API 1.8.4) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -161,7 +161,7 @@ that removes all legacy STM32F10x support.
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
   command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
-  temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`.
+  temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -170,6 +170,7 @@ that removes all legacy STM32F10x support.
   API 1.8.1 is behaviour only: `Sensor_Get ( Barometer, Temperature )` returns deg C x100 ( see Fixed ).
   API 1.8.2 is behaviour only: `Estimate_Get ( Rate, axis )` returns the measured rotation rate ( see Fixed ).
   API 1.8.3 is behaviour only: `int16_t *RcCommand_Get ( void )` links and returns the four live commands ( see Fixed ).
+  API 1.8.4 is behaviour only: `FlightStatus_Get ( )` and `FlightStatus_Check ( )` use the documented `flightstatus_e` values ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -262,6 +263,13 @@ that removes all legacy STM32F10x support.
   PRIMUS_X2_v1: the array equalled the channel getter on all 563 records ( `active-development/rc-command-get-api/` ).
   `RcData_Get ( )` ( array ) still returns NULL and `RcCommand_Get ( RC_THROTTLE )` reads 2600-3500: known gaps,
   documented in the wiki. API 1.8.3.
+- **`FlightStatus_Get ( )` after a crash** ( API test T05 ): after a crash disarm it returned 2 ( `FS_LOW_BATTERY` )
+  instead of 4 ( `FS_CRASHED` ), and it swapped the two battery statuses ( the warning read 3, the critical level 4 ).
+  The firmware's own status list is numbered differently from `flightstatus_e` at 2-4, and the value was cast across.
+  `FlightStatus_Check ( )` had the same swap ( `FS_CRASHED` tested the critical battery ). Both now translate by name;
+  the priority order, the public values and the app status ( MSP, already mapped by name ) are unchanged.
+  Bench-validated on PRIMUS_X2_v1: two crash disarms read 4, and all 841 records matched the internal flags
+  ( `active-development/flight-status-enum-map/` ). API 1.8.4.
 - **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
   `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
   ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
@@ -455,6 +463,9 @@ that removes all legacy STM32F10x support.
 - New `docs/API/RC_INTERFACE_API_WIKI.md` ( `RcCommand_Get`, `RcData_Get`, `RcCommand_Set`: values, signs, ranges, what
   user code reads, known gaps ). `RC-Interface.h` comments of the two `RcCommand_Get` overloads, which described each
   other, rewritten; the User_Space_API pipeline doc lists `RcCommand_Get ( )`.
+- `FC_CONTROL_API_WIKI.md` gains a "Flight status" section ( the nine statuses, their priority, when each is active,
+  the about 0.3 s crash window, the read with no status right after a disarm, examples ). `FC-Control.h` comments of
+  `FlightStatus_Get` / `FlightStatus_Check` rewritten; the User_Space_API pipeline doc lists both.
 - New `docs/API/FC_CONTROL_API_WIKI.md` ( arm, take-off, land, flip; the `onLoopStart ( )` restart pitfall; after a
   landing a re-sent take-off re-arms at once ). `FC-Control.h` comments rewritten. The pipeline docs
   ( User_Space_API, Power_BMS_Pipeline, Altitude_Hold_Estimator ) and the dev-guide describe the command rules.

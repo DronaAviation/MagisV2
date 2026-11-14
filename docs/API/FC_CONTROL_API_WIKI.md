@@ -1,9 +1,10 @@
 # MagisV2 Flight Command API Wiki
 
 Arm, take off, land and flip from user code with `Command_Arm ( )`, `Command_TakeOff ( )`, `Command_Land ( )` and
-`Command_Flip ( )`. They are declared in `API/FC-Control.h` and available from `PlutoPilot.h`.
+`Command_Flip ( )`, and read the drone's state with `FlightStatus_Get ( )` and `FlightStatus_Check ( )`. They are
+declared in `API/FC-Control.h` and available from `PlutoPilot.h`.
 
-API version **1.7.0**. See "Changes in 1.7.0" for what differs from 1.6.x.
+API version **1.8.4**. See "Changes in 1.8.4" and "Changes in 1.7.0".
 
 ## Quick Start
 
@@ -68,6 +69,8 @@ Before the drone will fly this:
 | `Command_Arm ( )` | Arms the drone at once, if the ARM switch is on and arming is allowed. Returns `true` when armed. |
 | `Command_DisArm ( )` | Disarms the drone at once, in the air too: the motors stop. Returns `true` when disarmed. |
 | `Command_Flip ( BACK_FLIP )` | Starts a back flip, in MAG ( heading hold ) mode only. A flip ends after at most 8 s. |
+| `FlightStatus_Get ( )` | Returns the most important flight status that is active ( see "Flight status" ). |
+| `FlightStatus_Check ( status )` | Returns `true` if that one status is active, whatever its priority. |
 
 The commands are **queued**: each call records the request, and the firmware carries it out at the end of the
 loop. Only one command runs at a time. A `Command_Flip` replaces a take-off that is still waiting for the ARM switch,
@@ -140,6 +143,86 @@ your code can prevent this: send the take-off once per ARM switch-on, as in the 
 
 ---
 
+## Flight status
+
+```cpp
+flightstatus_e FlightStatus_Get ( void );
+bool FlightStatus_Check ( flightstatus_e status );
+```
+
+Several statuses can be active at once, for example crashed and not OK to arm. `FlightStatus_Check ( status )` tells
+whether one of them is active. `FlightStatus_Get ( )` returns the most important active one: the first in this table.
+
+| Priority | Status | Value | Active when |
+|---|---|---|---|
+| 1 | `FS_ACCEL_GYRO_CALIBRATION` | 0 | the accelerometer or gyro calibration is running |
+| 2 | `FS_MAG_CALIBARATION` | 1 | the magnetometer is not calibrated ( arming is refused ). Never with an ELRS receiver |
+| 3 | `FS_CRASHED` | 4 | the crash detector has just disarmed the drone ( see below ) |
+| 4 | `FS_LOW_BATTERY` | 2 | the battery is at the warning level |
+| 5 | `FS_INFLIGHT_LOW_BATTERY` | 3 | the battery is at the critical level ( see below ) |
+| 6 | `FS_SIGNAL_LOSS` | 5 | the RC link was lost while armed: the drone lands. Cleared once the drone is disarmed and the link is back ( about 0.2 s after the frames resume ) |
+| 7 | `FS_NOT_OK_TO_ARM` | 6 | disarmed, and at the last check with the ARM switch off the drone was not level or not calibrated ( held while the switch is on ) |
+| 8 | `FS_OK_TO_ARM` | 7 | disarmed with the RC link up. Level and calibration are checked only while the ARM switch is off |
+| 9 | `FS_ARMED` | 8 | armed |
+
+**The value is not the priority.** `FS_CRASHED` is 4 but outranks `FS_LOW_BATTERY` ( 2 ). Compare with the names, not
+with `<` or `>`.
+
+- **Crashed.** The crash detector runs while armed in ANGLE mode, not during a flip, with the crash failsafe on ( the
+  default ). It disarms the drone when it tilts past 70° or takes a hard impact, and sets `FS_CRASHED`. The status is
+  cleared **about 0.3 s after the disarm, as soon as the drone is level**, or later when it is lying on its side. Read
+  it every `plutoLoop ( )` and keep your own flag if you need it longer ( see the example ).
+- **Battery.** Both battery statuses need the in-flight low-battery failsafe on ( the default ). Once the critical
+  level is confirmed, the drone lands, and `FS_INFLIGHT_LOW_BATTERY` is reported again after the landing until the
+  battery is changed; arming is refused until then. A provisional critical, before the pack resistance has been
+  measured, does not land the drone and can clear when it is disarmed.
+- **Armed or not.** `FS_ARMED` loses to every status above it: with a low battery, `FlightStatus_Get ( )` returns
+  `FS_LOW_BATTERY` while armed. Use `FlightStatus_Check ( FS_ARMED )` to test arming.
+- **OK to arm is not a full check.** With the ARM switch on, `FS_OK_TO_ARM` can be active on a drone that is not level
+  ( for example lying on its side after a crash ), and `FS_NOT_OK_TO_ARM` can stay active from the last ARM-off check.
+  Arming does not use these two statuses: the firmware applies its own checks ( calibration, battery, and the level
+  check made with the ARM switch off ).
+- **Signal loss.** User code runs only while the RC link is live. It sees `FS_SIGNAL_LOSS` when the link comes back
+  during the RC-loss landing ( until the disarm ), or for about 0.2 s when the link comes back after it.
+- **The app.** It shows the same status, except that while armed it is told low battery instead of critical ( the app
+  would switch ARM off on critical ).
+- **Right after a disarm** ( a landing, `Command_DisArm ( )` ) with the ARM switch still on, one read can find no status
+  active: `FlightStatus_Get ( )` then returns 0xFFFF, which matches no `FS_` value. Treat it as not armed.
+  `FlightStatus_Check ( )` returns `false` for a value that is not a `flightstatus_e`.
+
+### Read the status every loop ( `plutoLoop` )
+
+```cpp
+void plutoLoop ( void ) {
+  flightstatus_e status = FlightStatus_Get ( );
+  if ( status == FS_INFLIGHT_LOW_BATTERY ) {
+    Monitor_Println ( "Battery critical" );
+  }
+}
+```
+
+### Remember a crash until the next arm ( `plutoLoop` )
+
+```cpp
+static bool crashed = false;
+
+void plutoLoop ( void ) {
+  if ( FlightStatus_Check ( FS_CRASHED ) ) {    // active for about 0.3 s once the drone is level
+    crashed = true;
+  }
+  if ( FlightStatus_Check ( FS_ARMED ) ) {
+    crashed = false;
+  }
+  if ( crashed ) {
+    Monitor_Println ( "Crashed: check the drone before arming" );
+  }
+}
+```
+
+`crashed` is a static outside the hooks, so it survives `onLoopStart ( )` re-runs after a Wi-Fi hiccup.
+
+---
+
 ## Examples
 
 ### Arm first, then take off
@@ -186,6 +269,17 @@ DesiredPosition_setRelative ( Z, 50 );    // 50 cm higher
   height to fly to. Fly these commands with ALT HOLD on.
 
 ---
+
+## Changes in 1.8.4
+
+- **Fixed:** `FlightStatus_Get ( )` returned the wrong value for three statuses: a crash read 2 ( `FS_LOW_BATTERY` ),
+  the battery warning 3 ( `FS_INFLIGHT_LOW_BATTERY` ) and the critical battery 4 ( `FS_CRASHED` ). The firmware's own
+  status list is numbered differently from `flightstatus_e`, and the value was passed through unchanged. It is now
+  translated by name. The app was not affected.
+- **Fixed:** `FlightStatus_Check ( )` had the same swap: `FlightStatus_Check ( FS_CRASHED )` tested the critical
+  battery, `FS_LOW_BATTERY` tested the crash and `FS_INFLIGHT_LOW_BATTERY` tested the battery warning. Code that
+  worked around the old values must be changed back to the names.
+- The other six statuses, the priority order and the values in `flightstatus_e` are unchanged.
 
 ## Changes in 1.7.0
 
