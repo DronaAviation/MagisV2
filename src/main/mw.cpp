@@ -11,7 +11,7 @@
  #  Created Date: Wed, 31st Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Tue, 27th Oct 2026                                          #
+ #  Last Modified: Sat, 14th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -26,6 +26,7 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-10-19	AJ	Object avoidance: X1Ranging's core in a VL53L1X build     #
  #  2026-10-19	AJ	OA and laser polls by run-time laser family ( t15 )       #
  #  2026-10-27	AJ	Stick-low I-term reset: frozen instead while airborne     #
+ #  2026-11-14	AJ	User roll / pitch tilt cleared at dev-off and disarm      #
 *******************************************************************************/
 
 #include <stdbool.h>
@@ -180,6 +181,12 @@ bool TakeOffFlag = false;
 
 // True once throttle rose above mincheck since arming ( airborne ): blocks the ground re-zero in mwArm ( ).
 static bool throttleRaisedSinceArm = false;
+
+// Accessor for userAngleTarget ( ) ( API-Utils.cpp ), which pairs it with a height check: a user roll /
+// pitch tilt must not be commanded while the craft is still on its skids, or a take-off would pivot on a leg.
+bool throttleRaisedInFlight ( void ) {
+  return throttleRaisedSinceArm;
+}
 
 enum { ALIGN_GYRO  = 0,
        ALIGN_ACCEL = 1,
@@ -1251,6 +1258,19 @@ void userCode ( ) {
     isUserHeadingRelative = false;
     userHeadingStale      = false;
     magHold               = heading;
+  }
+
+  // The user roll / pitch tilt ( setDesiredAngle on AG_ROLL / AG_PITCH, flown by pidRewrite ( ) through
+  // userAngleTarget ( ) ) follows the same rules as the yaw target: it survives a Wi-Fi flicker ( where it
+  // is suppressed, not dropped ), and is dropped at a real dev mode switch-off ( the craft levels ) and on
+  // the disarm edge, so the next flight cannot start on a stale tilt from the last one. The edge, not the
+  // level, so a tilt set on the ground before arming survives to takeoff; userAngleTarget ( ) holds it off
+  // until the craft is off the ground, so it is not commanded while the craft sits on its skids.
+  if ( ! devSwitchOn || disarmed ) {
+    for ( uint8_t axis = FD_ROLL; axis <= FD_PITCH; axis++ ) {
+      isUserDesiredAngle [ axis ] = false;
+      userDesiredAngle [ axis ]   = 0;
+    }
   }
 
 #ifdef MAG

@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 15th Oct 2026                                          #
+ #  Last Modified: Sat, 14th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -88,12 +88,14 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle ) {
   // Use a switch statement to determine which angle value should be set based on the specified angle type
   switch ( ANGLE ) {
     case AG_ROLL:
-      // If the angle is roll, set the roll inclination in deci-degrees
-      inclination.values.rollDeciDegrees = angle;
-      break;
     case AG_PITCH:
-      // If the angle is pitch, set the pitch inclination in deci-degrees
-      inclination.values.pitchDeciDegrees = angle;
+      // Roll / pitch: hold the user's angle target ( deci-degrees ) until it is replaced. pidRewrite ( )
+      // adds it to the ANGLE-mode stick target and limits the sum to max_angle_inclination. This used
+      // to write the measured attitude ( inclination ), which the next imuUpdate ( ) overwrote, so the
+      // value was read back once and the drone never tilted ( API test T11 / B4 ). The +/-180 deg bound
+      // only keeps the later sum in range; the real limit is the controller's clamp.
+      userDesiredAngle [ ANGLE ]   = constrain ( angle, -1800, 1800 );
+      isUserDesiredAngle [ ANGLE ] = true;
       break;
     case AG_YAW: {
       // If the angle is yaw, set the magnetic hold and user heading, then mark the user heading as set.
@@ -117,9 +119,9 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle ) {
 }
 
 void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle ) {
-  // Only yaw carries an absolute setpoint the firmware holds between loops.
-  // Roll and pitch are re-derived from the sticks on every PID iteration, so a
-  // relative offset on them would be overwritten before it could take effect.
+  // Only yaw takes a relative target: a turn measured from the nose. Roll and
+  // pitch are absolute tilts from level ( setDesiredAngle ), so a relative call
+  // on them is ignored.
   if ( ANGLE != AG_YAW ) return;
 
   // Compose against the setpoint user code has already latched so repeated

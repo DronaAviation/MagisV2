@@ -794,11 +794,17 @@ static void pidRewrite(pidProfile_t *pidProfile, controlRateConfig_t *controlRat
         } else {
             // calculate error and limit the angle to max configured inclination
 #ifdef GPS
-            desiredAngle[axis] = 2 * rcCommand[axis] + GPS_angle[axis];
+            // userAngleTarget ( ): the held setDesiredAngle roll / pitch tilt, 0 unless the craft is airborne in
+            // ANGLE mode with Developer Mode live and no flip or landing running ( API-Utils.cpp ). Added before
+            // the clamp, so the sum keeps the pilot's limit.
+            desiredAngle[axis] = 2 * rcCommand[axis] + GPS_angle[axis] + userAngleTarget((uint8_t) axis);
             errorAngle = constrain(desiredAngle[axis], -((int) max_angle_inclination), +max_angle_inclination) - inclination_generalised.raw[axis] + angleTrim->raw[axis]; // 16 bits is ok here
 #else
                     // 0.4 * rcCommand[axis] for linear mapping ;  2 for non linear
-                    desiredAngle[axis]= 2 * rcCommand[axis];
+                    // userAngleTarget ( ): the held setDesiredAngle roll / pitch tilt, 0 unless the craft is airborne in
+                    // ANGLE mode with Developer Mode live and no flip or landing running ( API-Utils.cpp ). Added before
+                    // the clamp, so the sum keeps the pilot's limit.
+                    desiredAngle[axis]= 2 * rcCommand[axis] + userAngleTarget((uint8_t) axis);
                     errorAngle = constrain( desiredAngle[axis], -((int) max_angle_inclination),
                             +max_angle_inclination) - inclination_generalised.raw[axis] + angleTrim->raw[axis];// 16 bits is ok here
 #endif

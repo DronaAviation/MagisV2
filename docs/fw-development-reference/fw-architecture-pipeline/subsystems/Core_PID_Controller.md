@@ -34,11 +34,14 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
   which `pidSetController()` maps to `pidRewrite`. In ANGLE mode its angle loop is P only
   ( `desiredRate = errorAngle * P8[PIDLEVEL] >> 4` ), so the rate I-term `errorGyroI` is the only integrator that
   holds a constant moment such as an off-centre CG or a payload.
+  In every mode the roll / pitch target is `desiredAngle = 2 * rcCommand + userAngleTarget ( axis )` ( `pid.cpp:807` ),
+  clamped to ±`max_angle_inclination` before the error is taken ( `pid.cpp:808` ); `userAngleTarget ( )` is 0 outside
+  ANGLE mode, so only ANGLE flies the user tilt. See **User roll / pitch tilt** below.
 - `pidResetErrorAngle()` / `pidResetErrorGyro()` ( `pid.cpp:88` / `:97` ): zero the angle and rate I-terms. Called
   by the stick-low reset in `processRx ( )` whenever the craft is not counted as airborne ( see below ), and by
   every arming path ( take-off, `Command_Arm`, chuck ).
 - `pidSetGyroITermFreeze ( bool )` ( `pid.cpp:108` ): while set, `pidRewrite` holds `errorGyroI` on all three axes
-  instead of integrating ( `pid.cpp:842` ); the clamp and `ITerm = errorGyroI >> 13` still run, so the held value
+  instead of integrating ( `pid.cpp:848` ); the clamp and `ITerm = errorGyroI >> 13` still run, so the held value
   keeps acting. Set by `processRx ( )`, cleared there and in `mwDisarm ( )`. Main loop only.
 - `applyGyroData()`: Injects the raw IMU data into the PID logic.
 - `updateMagHold()` ( `mw.cpp` ): heading hold, run every loop before the PID while a magnetometer is present. In MAG
@@ -48,7 +51,7 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
 
 ## Data Flow & Boundaries
 - **P-Term Limit**: The Proportional correction is usually clamped to prevent an instantaneous massive error (like a prop strike) from commanding 100% motor output instantly.
-- **I-Term Windup**: `pidRewrite` clamps `errorGyroI` to ±`GYRO_I_MAX` 256 motor counts ( `pid.cpp:848` ). On the
+- **I-Term Windup**: `pidRewrite` clamps `errorGyroI` to ±`GYRO_I_MAX` 256 motor counts ( `pid.cpp:854` ). On the
   ground the stick-low reset keeps it from integrating against the floor; airborne it is frozen instead of reset
   ( see *Stick-low I-term reset and freeze* below ). Note that `pid_at_min_throttle` is 1 by default
   ( `config.cpp:331`; forced to 0 only with `retarded_arm` ), so the PID keeps acting at idle on the floor.
@@ -78,6 +81,18 @@ flowchart TD
     NextAxis -- No --> End([Output axisPID Array])
 ```
 
+## User roll / pitch tilt ( `userAngleTarget`, API-Utils.cpp )
+- `setDesiredAngle ( AG_ROLL | AG_PITCH, x )` stores a held tilt in `userDesiredAngle [ ]` ( deci-degrees, ±1800 ) and
+  `isUserDesiredAngle [ ]` ( `FC-Config-Setpoints.cpp:90-98` ). `pidRewrite` adds `userAngleTarget ( axis )`
+  ( `API-Utils.cpp:209` ) to its stick target ( `pid.cpp:807` ), before the clamp, so the pilot's stick adds on top and
+  the sum keeps `max_angle_inclination`. The helper returns 0, keeping the tilt held, unless: Developer Mode ran within
+  the last 0.6 s, ANGLE mode is on, `flipState == 0`, no landing runs ( `landingInProgress ( )` ), and the craft is
+  airborne ( `throttleRaisedInFlight ( )` and `getEstAltitude ( ) >= 20` cm ). `userCode ( )` clears it at a real Dev
+  Mode switch-off and on the disarm edge ( `mw.cpp:1269` ); it runs before `pid_controller ( )` in the same loop
+  ( `mw.cpp:1436` / `:1507` ). Only `pidRewrite` reads it. The ANGLE loop is P only, so the tilt is reached with no
+  integrator wind-up: flown at 5° it settled within 0.2-0.3 s and 1° ( log-2 of
+  `active-development/set-desired-angle-roll-pitch/` ).
+
 ## Stick-low I-term reset and freeze ( `processRx ( )`, mw.cpp )
 
 On every RX pass, `processRx ( )` computes `throttleStatus` from the raw `rcData[THROTTLE]`: THROTTLE_LOW below
@@ -99,32 +114,32 @@ descends as level as a partial one. See `active-development/payload-tilt-on-desc
 
 ```mermaid
 flowchart TD
-    Loop([loop: processRx, mw.cpp:1334]) --> Rx["calculateRxChannelsAndUpdateFailsafe ( ), mw.cpp:874"]
-    Rx --> Status["throttleStatus = calculateThrottleStatus ( ), mw.cpp:894"]
-    Status --> Airborne{"THROTTLE_LOW and ARMED and throttleRaisedSinceArm<br/>and not isThrottleStickArmed and pidRewrite?<br/>mw.cpp:901-903"}
-    Airborne -- yes --> Freeze["pidSetGyroITermFreeze ( true ), mw.cpp:904"]
-    Airborne -- no --> Thaw["pidSetGyroITermFreeze ( false ), mw.cpp:904"]
-    Thaw --> Low{"THROTTLE_LOW?<br/>mw.cpp:906"}
-    Low -- yes --> Reset["pidResetErrorAngle ( ) + pidResetErrorGyro ( ), mw.cpp:907-908"]
+    Loop([loop: processRx, mw.cpp:1354]) --> Rx["calculateRxChannelsAndUpdateFailsafe ( ), mw.cpp:881"]
+    Rx --> Status["throttleStatus = calculateThrottleStatus ( ), mw.cpp:901"]
+    Status --> Airborne{"THROTTLE_LOW and ARMED and throttleRaisedSinceArm<br/>and not isThrottleStickArmed and pidRewrite?<br/>mw.cpp:908-910"}
+    Airborne -- yes --> Freeze["pidSetGyroITermFreeze ( true ), mw.cpp:911"]
+    Airborne -- no --> Thaw["pidSetGyroITermFreeze ( false ), mw.cpp:911"]
+    Thaw --> Low{"THROTTLE_LOW?<br/>mw.cpp:913"}
+    Low -- yes --> Reset["pidResetErrorAngle ( ) + pidResetErrorGyro ( ), mw.cpp:914-915"]
     Low -- no --> Sticks
-    Reset --> Sticks["processRcStickPositions ( ), mw.cpp:950"]
+    Reset --> Sticks["processRcStickPositions ( ), mw.cpp:957"]
     Freeze --> Sticks
-    Sticks --> PID["pid_controller = pidRewrite, mw.cpp:1487 / pid.cpp:745"]
-    PID --> Gate{"gyroITermFrozen?<br/>pid.cpp:842"}
+    Sticks --> PID["pid_controller = pidRewrite, mw.cpp:1507 / pid.cpp:745"]
+    PID --> Gate{"gyroITermFrozen?<br/>pid.cpp:848"}
     Gate -- no --> Integrate[errorGyroI += rate error x I8]
     Gate -- yes --> Hold[errorGyroI held]
-    Integrate --> Clamp["clamp ±GYRO_I_MAX, ITerm = errorGyroI >> 13, pid.cpp:848-849"]
+    Integrate --> Clamp["clamp ±GYRO_I_MAX, ITerm = errorGyroI >> 13, pid.cpp:854-855"]
     Hold --> Clamp
 ```
 
-`throttleRaisedSinceArm` is set in `annexCode ( )` once the armed throttle is above `mincheck` ( `mw.cpp:405` ) and
-cleared in `mwDisarm ( )`, which also clears the freeze ( `mw.cpp:573` ). `isThrottleStickArmed` is set by an ARM-switch
+`throttleRaisedSinceArm` is set in `annexCode ( )` once the armed throttle is above `mincheck` ( `mw.cpp:412` ) and
+cleared in `mwDisarm ( )`, which also clears the freeze ( `mw.cpp:580` ). `isThrottleStickArmed` is set by an ARM-switch
 arm with the throttle low ( `rc_controls.cpp:175` ) and cleared by altitude hold when the stick goes above 1500
-( `altitudehold.cpp:612` ), by a take-off goal ( `altitudehold.cpp:1473` ) or at disarm ( `mw.cpp:587` ).
+( `altitudehold.cpp:612` ), by a take-off goal ( `altitudehold.cpp:1473` ) or at disarm ( `mw.cpp:594` ).
 
 **Known residual.** A wind-up that builds *before* the stick goes low is held, not cleared. Two ways in: a tilted
 touchdown on a partial stick lets `errorGyroI` integrate against the floor and a later full stick-down freezes it; and
-after `Command_Arm` with the app stick centred, `throttleRaisedSinceArm` is set at once on the floor ( `mw.cpp:405`,
+after `Command_Arm` with the app stick centred, `throttleRaisedSinceArm` is set at once on the floor ( `mw.cpp:412`,
 1500 > 1100 ) and `isThrottleStickArmed` is not, so a stick-down on the floor freezes any floor wind-up instead of
 clearing it ( `setTakeOffGoal ( )` does not reset either ). Not observed in flight on a level floor ( log-7 ); there
 is no touchdown detector for a stick-down landing.

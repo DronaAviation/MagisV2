@@ -173,6 +173,11 @@ Each of these has cost a flight. Full mechanism and numbers:
   engages itself while a target is held** ( MAG mode forced unless HEADFREE or no magnetometer ). Without MAG or HEADFREE,
   `updateMagHold ( )` overwrites `magHold` every loop and the target is lost. The target is dropped only at a real
   dev-mode switch-off or a disarm, never on a Wi-Fi flicker ( `active-development/relative-yaw-api/` ).
+- **User roll / pitch ( `setDesiredAngle` on `AG_ROLL` / `AG_PITCH`, deci-degrees ) is a held ANGLE-mode tilt that
+  `pidRewrite` adds to `2 * rcCommand` before the `max_angle_inclination` clamp** ( `userAngleTarget ( )` ). It is kept
+  but not flown until the craft is airborne ( throttle raised and >= 20 cm up ), nor outside ANGLE mode, in a flip or
+  landing, or after 0.6 s without Developer Mode; it is dropped at a real dev-off and on the disarm edge. Never write `inclination` from user
+  code: it is the measured attitude, and the crash detector reads it ( `active-development/set-desired-angle-roll-pitch/` ).
 
 ## Conventions
 

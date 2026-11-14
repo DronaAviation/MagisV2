@@ -95,19 +95,37 @@ void set_PIDProfile ( pid_profile_e PROFILE, PID *pid );
 void setDefault_PIDProfile ( void );
 
 /**
- * @brief Retrieves the desired angle for a given angle type.
+ * @brief Retrieves the angle the attitude controller is asked for.
+ *
+ * For AG_ROLL and AG_PITCH: the pilot's stick target plus the user tilt being
+ * flown ( setDesiredAngle ), in deci-degrees, as computed by the controller in
+ * its last loop. It is the request **before** the max_angle_inclination limit,
+ * so it can read beyond the angle the drone actually flies. For AG_YAW it
+ * returns 0: yaw is flown as a rate, not an angle.
  *
  * @param ANGLE An enumerated type specifying the angle type.
- * @return int32_t The angle value associated with the provided angle type.
+ * @return int32_t The requested angle; see above.
  */
 int32_t getDesiredAngle ( angle_e ANGLE );
 
 /**
- * @brief Sets the desired angle for a given angle type.
+ * @brief Sets the desired angle: a roll / pitch tilt, or a yaw bearing.
  *
- * This function updates the relevant angle value based on
- * the specified angle type using a switch statement. It supports
- * setting roll, pitch, and yaw angles.
+ * For AG_ROLL and AG_PITCH, the drone tilts by `angle` ( deci-degrees, 100 is
+ * 10 deg ) until Estimate_Get ( Angle, ... ) on that axis reads the value, and
+ * holds it until a new call replaces it; setDesiredAngle ( AG_ROLL, 0 ) levels
+ * it. The tilt is added to the pilot's stick, and the sum keeps the pilot's
+ * angle limit ( max_angle_inclination, 20 deg by default ). It is flown only:
+ *
+ * - in ANGLE mode, with the default PID controller;
+ * - once the drone is airborne ( throttle raised and at least 20 cm above
+ *   where it armed ), so a take-off does not pivot on a leg;
+ * - while Developer Mode runs; a Wi-Fi hiccup up to 0.6 s keeps it, a longer
+ *   stall levels the drone until the link returns;
+ * - outside a flip or a landing.
+ *
+ * When it is not flown it stays held. It is dropped when Developer Mode is
+ * switched off ( the drone levels ) and when the drone disarms.
  *
  * For AG_YAW, heading hold is engaged automatically while Developer Mode
  * is on and the target is held ( a pilot-selected HEADFREE is kept ). The
@@ -116,7 +134,8 @@ int32_t getDesiredAngle ( angle_e ANGLE );
  *
  * @param ANGLE An enumerated type specifying the angle type.
  * @param angle The angle value to be set. Deci-degrees for AG_ROLL and
- *              AG_PITCH; whole degrees ( 0..359, compass referenced ) for
+ *              AG_PITCH ( bounded to +/-1800; the flown angle is limited
+ *              as above ); whole degrees ( 0..359, compass referenced ) for
  *              AG_YAW. Other yaw values are wrapped ( 450 is 90, -90 is 270 ).
  */
 void setDesiredAngle ( angle_e ANGLE, int32_t angle );

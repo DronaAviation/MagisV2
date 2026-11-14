@@ -41,6 +41,11 @@ void handleInflightCalibrationStickPosition();
 void mwDisarm(void);
 void mwArm(void);
 
+// True once the throttle rose above mincheck since arming. Not by itself proof of being airborne: an
+// app take-off arms with the throttle stick centred, so it is true at the arm instant. userAngleTarget ( )
+// pairs it with a height check before it commands a user roll / pitch tilt.
+bool throttleRaisedInFlight(void);
+
 void loop(void);
 
 

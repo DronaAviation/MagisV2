@@ -433,7 +433,7 @@ flowchart TD
 ```
 
 <!-- Edge sources ( 19 Oct 2026, source lines; the graph predates drivers/tof_manager_l1x ):
-Task -> Drv: mw.cpp:850-858 executePeriodicTasks ( ) UPDATE_LASER_TOF_TASK calls tofManagerPollDown ( ) ( :854 ) and
+Task -> Drv: mw.cpp:859-866 executePeriodicTasks ( ) UPDATE_LASER_TOF_TASK calls tofManagerPollDown ( ) ( :863 ) and
   tofL1xPollDown ( ) ( :857 ) on every pass.
 Est -> Tick: altitudehold.cpp:968-969 ( if ( altLaserFusion ( ) ) checkReading ( ) ); checkReading ( ) :1360-1366 runs
   checkReadingFor<AltTofL1x> ( ) if altLaserFusionL1x, else checkReadingFor<AltTofL0x> ( ).

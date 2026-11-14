@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.7 (API 1.8.5) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.8 (API 1.8.6) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -162,7 +162,7 @@ that removes all legacy STM32F10x support.
   command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
   temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values,
-  3.15.7 for `setDefault_PIDProfile ( )`.
+  3.15.7 for `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -173,6 +173,7 @@ that removes all legacy STM32F10x support.
   API 1.8.3 is behaviour only: `int16_t *RcCommand_Get ( void )` links and returns the four live commands ( see Fixed ).
   API 1.8.4 is behaviour only: `FlightStatus_Get ( )` and `FlightStatus_Check ( )` use the documented `flightstatus_e` values ( see Fixed ).
   API 1.8.5 is behaviour only: `setDefault_PIDProfile ( )` restores the five API profiles and nothing else ( see Fixed ).
+  API 1.8.6 is behaviour only: `setDesiredAngle ( AG_ROLL / AG_PITCH )` tilts the drone and holds the tilt ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -281,6 +282,17 @@ that removes all legacy STM32F10x support.
   `resetPidProfile ( )` into `pidProfileDefaultGains ( )` ( `flight/pid_defaults.cpp` ). Still RAM only. Verified with
   a host simulation of the real code ( `tools/sim/`, ASan and UBSan, 103 checks ), which also fails on the old code
   ( `active-development/set-default-pid-profile/` ). API 1.8.5.
+- **`setDesiredAngle ( AG_ROLL / AG_PITCH )` now tilts the drone** ( API test T11, B4 ): it wrote the measured attitude
+  `inclination` instead of a target, so `Estimate_Get ( Angle )` read the value back once, the next sensor update
+  overwrote it, and the drone never tilted; a value above 700 could also trip the crash detector and disarm in the
+  air. The setter now holds the tilt ( deci-degrees, until replaced ) and `pidRewrite` adds it to the ANGLE-mode stick
+  target, inside the pilot's `max_angle_inclination` limit ( 20 deg ). It is flown only in ANGLE mode, once airborne
+  ( throttle raised and 20 cm up ), outside a flip or landing, and while Developer Mode runs ( 0.6 s grace for a Wi-Fi
+  flicker ); it is dropped at a Developer Mode switch-off and on disarm. Flight-tested on PRIMUS_X2_v1 against a
+  pre-fix reproduction with the same test code: roll +5, pitch +5 and pitch -5 deg reached the command within
+  0.2-0.3 s and 1 deg and held from a single call; roll -5 deg was not validated ( the drone hit an obstacle in a
+  small room ). `getDesiredAngle ( AG_ROLL / AG_PITCH )` now includes the flown tilt
+  ( `active-development/set-desired-angle-roll-pitch/` ). API 1.8.6.
 - **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
   `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
   ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
@@ -478,6 +490,10 @@ that removes all legacy STM32F10x support.
   armed changes the gains in flight, no effect on roll / pitch / yaw under the LuxFloat controller ). The
   Core_PID_Controller pipeline doc describes the default gains and the API reset. `dev-guide/BUILD_AND_VERIFY.md`
   describes the `tools/sim/` host harness.
+- `YAW_HEADING_API_WIKI.md` gains a "Roll and pitch tilt" section ( hold, signs, the stick sum and limit, when the
+  tilt is flown and when it ends, `getDesiredAngle` ), a lean-then-level example and pitfalls. `FC-Config.h` comments
+  of `setDesiredAngle` and `getDesiredAngle` rewritten. The User_Space_API pipeline doc gains "Roll / pitch
+  setpoints" and Core_PID_Controller the user tilt in `pidRewrite`; line references in seven pipeline docs corrected.
 - `FC_CONTROL_API_WIKI.md` gains a "Flight status" section ( the nine statuses, their priority, when each is active,
   the about 0.3 s crash window, the read with no status right after a disarm, examples ). `FC-Control.h` comments of
   `FlightStatus_Get` / `FlightStatus_Check` rewritten; the User_Space_API pipeline doc lists both.

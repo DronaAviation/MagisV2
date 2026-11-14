@@ -127,7 +127,8 @@ void FlightMode_Set ( flight_mode_e MODE ) {
 // set, so the throttle stays pinned to a frozen landThrottle and nothing disarms after touchdown.
 // current_command is checked too: it is LAND for the cycle before land ( ) first sets isLanding. It
 // stays LAND after the landing ( nothing resets it ), so only a LAND that land ( ) would still run counts.
-static bool landingInProgress ( void ) {
+// Also read by userAngleTarget ( ) ( API-Utils.cpp ): a user roll / pitch tilt is not flown during a landing.
+bool landingInProgress ( void ) {
   return isLanding || ( current_command == LAND && command_status != FINISHED );
 }
 

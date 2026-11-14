@@ -16,7 +16,7 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - `Flight_State_e`: Enumeration that the API uses to determine if the drone is Armed, in Failsafe, or Grounded.
 - `current_command` / `command_status` ( `command/command.h` ): the one-slot command queue. `Command_TakeOff`,
   `Command_Land` and `Command_Flip` write it, and `executeCommand ( )` runs it at the end of the loop
-  ( `mw.cpp:1509` ). The app's `MSP_SET_COMMAND` writes the same slot.
+  ( `mw.cpp:1540` ). The app's `MSP_SET_COMMAND` writes the same slot.
 
 ## Primary Functions
 - `plutoInit()`: Called once during boot by `init()` ( main.cpp:524 ), after `SYSTEM_STATE_READY` and before the motor timers and the laser start-up. Used by the developer to configure GPIOs, external sensors, or set up API timers. `XRanging` and `X1Ranging` calls here only record requests; the laser family is chosen and the lasers start after `plutoInit()` returns.
@@ -59,21 +59,25 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - **Override Priority**: If the Failsafe mechanism activates, the firmware explicitly ignores `rcCommand` overrides originating from `plutoLoop()`. Failsafe takes ultimate precedence over the API.
 - **Rate Limiting**: To prevent API logic from running unnecessarily fast (e.g., polling an ultrasonic sensor 1000 times a second), developers use the `Monitor.timer` API to schedule tasks sequentially.
 - **Landing owns the throttle and the command slot**: while any `LAND` runs ( `Command_Land`, RX loss or the
-  critical-battery auto-land ), the landing throttle is re-applied after user code ( `mw.cpp:390`, `:1410` ), so a
+  critical-battery auto-land ), the landing throttle is re-applied after user code ( `mw.cpp:398`, `:1441` ), so a
   throttle `RcCommand_Set` has no effect. `Command_TakeOff` and `Command_Flip` are refused until the landing has
-  disarmed ( `landingInProgress ( )`, `FC-Control-Command.cpp:130` ). The battery auto-land also re-asserts `LAND` as
-  a backstop. `Command_Land` is refused while a flip runs ( `FC-Control-Command.cpp:157` ), and a flip ends after at
+  disarmed ( `landingInProgress ( )`, `FC-Control-Command.cpp:131` ). The battery auto-land also re-asserts `LAND` as
+  a backstop. `Command_Land` is refused while a flip runs ( `FC-Control-Command.cpp:158` ), and a flip ends after at
   most 8 s ( `acrobats.cpp:84` ).
 - **Take-off**: `Command_TakeOff` is queued. From disarmed it arms once the ARM switch is on and the throttle is
   centred ( `altHoldStickCentred ( )`, alt-hold deadband ), and sets the climb goal. On a drone that is already armed
   it sets the goal once per arm, within 3 s of `arm_time` or at the ARM-switch ground idle, which it releases first
   ( `takeOff ( )`, `command.cpp:152` ). A queued take-off is dropped after 2 s of refused arming
   ( `takeOffRefusedTick ( )`, `command.cpp:143` ). A user-code take-off is also dropped at a real Dev Mode switch-off
-  ( `dropUserTakeOff ( )`, `mw.cpp:1235` ). With the battery OK, arming is allowed again right after a landing, so a
+  ( `dropUserTakeOff ( )`, `mw.cpp:1253` ). With the battery OK, arming is allowed again right after a landing, so a
   re-sent take-off re-arms and climbs.
 - **User yaw is heading hold**: `setDesiredAngle ( AG_YAW, bearing )` and `DesiredAngle_setRelative ( AG_YAW, turn )`
   set the heading-hold target `magHold`. While one is held, the firmware engages MAG mode itself, so no app switch is
-  needed. See **Yaw setpoints** below; wiki `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.6.0 ).
+  needed. See **Yaw setpoints** below; wiki `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.8.6 ).
+- **User roll / pitch is an ANGLE-mode tilt**: `setDesiredAngle ( AG_ROLL | AG_PITCH, deci-degrees )` holds a tilt
+  that `pidRewrite ( )` adds to the pilot's stick target. It is held until replaced and is not flown on the ground,
+  outside ANGLE mode, in a flip, in a landing or in an RC stall. See **Roll / pitch setpoints** below; wiki
+  `docs/API/YAW_HEADING_API_WIKI.md` ( API 1.8.6 ).
 - **Battery**: `Bms_Get` has `SoC`, `Warning_Level` and `Resistance` ( API 1.4.0 ); wiki `docs/API/BMS_API_WIKI.md`.
 - **Link drop stops user code**: `plutoLoop ( )` runs only while `rxIsReceivingSignal ( )` is true. With `Rx_ESP`
   that is false **200 ms after the last `MSP_SET_RAW_RC` frame**. The firmware then runs `onLoopFinish ( )`,
@@ -129,7 +133,7 @@ flowchart TD
 ## Yaw setpoints ( heading hold )
 
 User code steers yaw by giving heading hold a target. It does not set a yaw rate. Full reference:
-[YAW_HEADING_API_WIKI.md](../../../API/YAW_HEADING_API_WIKI.md) ( API 1.6.0 ).
+[YAW_HEADING_API_WIKI.md](../../../API/YAW_HEADING_API_WIKI.md) ( API 1.8.6 ).
 
 | Call | Target | Repeated calls | After a pilot yaw |
 |---|---|---|---|
@@ -160,8 +164,9 @@ Rules:
   turns a stall over 600 ms into a switch-off ), so the target **survives a Wi-Fi flicker**, and also a long RC loss: heading hold keeps flying it through a
   failsafe `LAND` ( yaw only ). A target set while disarmed survives until takeoff.
 - **Units.** Yaw is in whole degrees, and both setters wrap their value into 0..359. Roll and pitch in
-  `setDesiredAngle` are in deci-degrees. The relative setter ignores `AG_ROLL` and `AG_PITCH`. `updateMagHold ( )`
-  corrects the heading error by 360 only once, so an unwrapped target of 720 or more would never settle.
+  `setDesiredAngle` are in deci-degrees and are a tilt, not a heading ( see **Roll / pitch setpoints** ). The relative
+  setter ignores `AG_ROLL` and `AG_PITCH`. `updateMagHold ( )` corrects the heading error by 360 only once, so an
+  unwrapped target of 720 or more would never settle.
 
 ```mermaid
 flowchart TD
@@ -177,6 +182,56 @@ flowchart TD
     MH -- "release: relative re-base<br/>userHeading = heading" --> T
     Off([dev switch-off / disarm edge]) --> Drop["drop target<br/>magHold = heading"]
     Drop --> T
+```
+
+## Roll / pitch setpoints ( ANGLE tilt )
+
+`setDesiredAngle ( AG_ROLL | AG_PITCH, angle )` tilts the craft by `angle` deci-degrees and holds the tilt until the
+next call replaces it. Full reference: [YAW_HEADING_API_WIKI.md](../../../API/YAW_HEADING_API_WIKI.md), section "Roll
+and pitch tilt" ( API 1.8.6 ).
+
+- **Stored, not flown, by the setter.** The setter writes `userDesiredAngle [ axis ]`, bounded to ±1800, and sets
+  `isUserDesiredAngle [ axis ]` ( `FC-Config-Setpoints.cpp:90-98` ). Before FW 3.15.8 it wrote the measured attitude
+  `inclination` instead: `Estimate_Get ( Angle )` read the value back once, the next `imuUpdate ( )` overwrote it, the
+  craft never tilted, and a value above 700 could trip the crash detector in the air ( API test T11 / B4,
+  `active-development/set-desired-angle-roll-pitch/` ). User code must never write `inclination`.
+- **Flown by `pidRewrite ( )`.** `desiredAngle [ axis ] = 2 * rcCommand [ axis ] + userAngleTarget ( axis )`
+  ( `pid.cpp:807` ), then the existing clamp to ±`max_angle_inclination` ( 200, 20°; `pid.cpp:808`, `config.cpp:420` ).
+  The pilot's stick adds to the tilt and the sum keeps the pilot's limit. The other PID controllers ignore it.
+- **Gated by `userAngleTarget ( )`** ( `API-Utils.cpp:209-220` ), which returns the held tilt, or 0 while it is kept but
+  not flown:
+
+| Not flown while | Test | Why |
+|---|---|---|
+| No tilt held, or not roll / pitch | `! isUserDesiredAngle [ axis ]`, `axis > FD_PITCH` | |
+| Developer Mode stopped for more than 0.6 s | `millis ( ) - last devmode > USER_ANGLE_LINK_GRACE_MS` ( `API-Utils.h:73` ) | `devmode` falls 200 ms after the last RC frame. A normal Wi-Fi flicker keeps the tilt; a longer stall levels the craft, whose sticks have centred, instead of flying it away until the failsafe landing. |
+| Not ANGLE mode | `! FLIGHT_MODE ( ANGLE_MODE )` | ACRO / HORIZON fly rates. |
+| A flip runs | `flipState != 0` | The flip owns roll and pitch. |
+| A landing runs | `landingInProgress ( )` ( `FC-Control-Command.cpp:131` ) | User, MSP, RC-loss and battery landings; a tilt would drift the descent. |
+| Not airborne | `! throttleRaisedInFlight ( )` ( `mw.cpp:187` ) or `getEstAltitude ( ) < USER_ANGLE_MIN_ALT_CM` ( 20 cm, `API-Utils.h:78` ) | A tilt on the skids would pivot the take-off. Throttle-raised alone is true at the arm instant of an app take-off. |
+
+- **Dropped** at a real Developer Mode switch-off and on the armed → disarmed edge, next to the yaw clear
+  ( `mw.cpp:1269` ). `devSwitchOn` holds through an RC loss, so a flicker does not drop it; a tilt set while disarmed
+  survives to take-off and waits for the airborne test.
+- **Frame.** The tilt is added after the HEADFREE rotation of `rcCommand` in `annexCode ( )` ( `mw.cpp:430` ), so it is
+  relative to the craft's nose, not to the headfree heading.
+- **`getDesiredAngle ( AG_ROLL | AG_PITCH )`** returns `desiredAngle [ axis ]`, the stick plus the flown tilt **before**
+  the clamp ( `FC-Config-Setpoints.cpp:84` ). `desiredAngle [ YAW ]` is never written, so yaw reads 0.
+
+```mermaid
+flowchart TD
+    UC([plutoLoop]) --> SA["setDesiredAngle ( AG_ROLL / AG_PITCH )<br/>FC-Config-Setpoints.cpp:90-98"]
+    SA --> T[("userDesiredAngle [ axis ]<br/>isUserDesiredAngle [ axis ]")]
+    T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:209"]
+    DM["devmode<br/>userCode ( ), mw.cpp:1179 / 1183"] --> G
+    FS["flipState<br/>acrobats.h:44"] --> G
+    LD["landingInProgress ( )<br/>FC-Control-Command.cpp:131"] --> G
+    AB["throttleRaisedInFlight ( ), mw.cpp:187<br/>getEstAltitude ( ), altitudehold.cpp:1510"] --> G
+    G --> PR["pidRewrite ( )<br/>desiredAngle = 2 x rcCommand + userAngleTarget<br/>pid.cpp:807"]
+    ST([pilot stick: rcCommand]) --> PR
+    PR --> CL["clamp to ±max_angle_inclination<br/>errorAngle, pid.cpp:808"]
+    Off([dev switch-off / disarm edge]) --> Clr["clear flag and value<br/>mw.cpp:1269"]
+    Clr --> T
 ```
 
 ## Laser ranging ( XRanging, X1Ranging ) and object avoidance

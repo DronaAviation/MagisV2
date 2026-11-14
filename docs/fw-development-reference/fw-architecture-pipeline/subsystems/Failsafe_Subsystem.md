@@ -81,7 +81,7 @@ flowchart TD
 ## Crash Detector ( `failsafeOnCrash ( )` )
 
 `failsafeOnCrash ( )` ( [failsafe.cpp:362](../../../../src/main/flight/failsafe.cpp#L362) ) runs once per control loop
-( 3.5 ms, called from [mw.cpp:1424](../../../../src/main/mw.cpp#L1424) ). It is active only while **armed, `fsCrash` on
+( 3.5 ms, called from [mw.cpp:1536](../../../../src/main/mw.cpp#L1536) ). It is active only while **armed, `fsCrash` on
 and in ANGLE mode**. `fsCrash` is on by default; user code can switch it with `Failsafe_enable / disable ( CRASH )`. It
 disarms on **one sample** in which any of these terms is true:
 
@@ -100,7 +100,7 @@ disarms on **one sample** in which any of these terms is true:
 - **On a trip:** `set_FSI ( Crash )` then `mwDisarm ( )`. The craft disarms; it does not land and does not halt the
   board.
 - **Flag clear:** about 300 ms after the trip, once the craft is level ( `SMALL_ANGLE` ), `Crash` is cleared
-  ( [mw.cpp:484-494](../../../../src/main/mw.cpp#L484) ) and the craft can be armed again. While `Crash` is set,
+  ( [mw.cpp:496-506](../../../../src/main/mw.cpp#L496) ) and the craft can be armed again. While `Crash` is set,
   arming by gesture is blocked ( [rc_controls.cpp:183](../../../../src/main/io/rc_controls.cpp#L183) ).
 - **Not detected:**
   - a craft pinned upright against a wall;
