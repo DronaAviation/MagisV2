@@ -108,6 +108,7 @@ void pidSetController(pidControllerType_e type);
 void pidResetErrorAngle(void);
 void pidResetErrorGyro(void);
 void pidSetGyroITermFreeze(bool freeze);    // pidRewrite holds its rate I-term while set ( mw.cpp, airborne stick-down )
+void pidProfileDefaultGains ( pidProfile_t *pidProfile );    // firmware default P8 / I8 / D8, every slot ( flight/pid_defaults.cpp )
 
 
 

@@ -11,16 +11,18 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 23rd Mar 2026                                          #
+ #  Last Modified: Sat, 14th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  14-11-2026	AJ	setDefault_PIDProfile ( ): restore the five API profiles   #
+ #              	from pidProfileDefaultGains ( ); the old loop read past    #
+ #              	its tables and overwrote the hidden gains.                 #
 *******************************************************************************/
 
-#include <stdint.h>
-
+#include <stddef.h>
 #include <stdint.h>
 
 #include "platform.h"
@@ -142,27 +144,26 @@ void set_PIDProfile(pid_profile_e PROFILE, PID *pid) {
 
 
 /**
- * @brief Initializes the PID profiles with default gain values for all axes.
+ * @brief Restores the firmware default gains of the five API profiles.
+ *
+ * Only the slots get_PIDProfile ( ) / set_PIDProfile ( ) expose are written
+ * ( PIDROLL, PIDPITCH, PIDYAW, PIDALT, PIDUSER ); the hidden gains ( PIDLEVEL,
+ * PIDVEL, PIDPOS, PIDPOSR, PIDNAVR, PIDMAG ) are left as they are. The values
+ * come from pidProfileDefaultGains ( ), the same source as a config reset, so
+ * they cannot drift from the firmware defaults. RAM only: nothing is saved.
  */
-void setDefault_PIDProfile(void) {
-    // Define default PID proportional gain values for each axis/profile
-    static const int defaultP8[] = {40, 40, 150, 100, 0};
-    
-    // Define default PID integral gain values for each axis/profile
-    static const int defaultI8[] = {10, 10, 70, 0, 0};
-    
-    // Define default PID derivative gain values for each axis/profile
-    static const int defaultD8[] = {30, 30, 50, 30, 0};
+void setDefault_PIDProfile ( void ) {
+  // The API profiles, in pid_profile_e order.
+  static const pidIndex_e apiSlot [] = { PIDROLL, PIDPITCH, PIDYAW, PIDALT, PIDUSER };
 
-    // Iterate over each profile index from ROLL to PIDUSER
-    for (int i = ROLL; i <= PIDUSER; ++i) {
-        // Assign default proportional gain value to the current profile
-        currentProfile->pidProfile.P8[i] = defaultP8[i];
-        
-        // Assign default integral gain value to the current profile
-        currentProfile->pidProfile.I8[i] = defaultI8[i];
-        
-        // Assign default derivative gain value to the current profile
-        currentProfile->pidProfile.D8[i] = defaultD8[i];
-    }
+  pidProfile_t defaults = { };    // 88 B on the stack, called from user code, not the control path
+  pidProfileDefaultGains ( &defaults );
+
+  for ( size_t n = 0; n < sizeof ( apiSlot ) / sizeof ( apiSlot [ 0 ] ); n++ ) {
+    const pidIndex_e slot = apiSlot [ n ];
+
+    currentProfile->pidProfile.P8 [ slot ] = defaults.P8 [ slot ];
+    currentProfile->pidProfile.I8 [ slot ] = defaults.I8 [ slot ];
+    currentProfile->pidProfile.D8 [ slot ] = defaults.D8 [ slot ];
+  }
 }

@@ -45,6 +45,15 @@ is not part of any current workflow. The working verification path for a change 
 **build**: confirm it compiles clean and fits in flash/RAM for the working target, and for all targets
 before committing. Don't try to revive these tests unless explicitly asked.
 
+`tools/sim/` is unrelated to it: a standalone host harness that compiles a few real firmware files for the
+PC against stub headers in `tools/sim/stub/`, so a pure-logic function can be checked without hardware.
+`tools/sim/run.sh` builds with clang++ and `-fsanitize=address,undefined -fno-sanitize-recover=all`
+(g++ as the fallback) and exits non-zero on failure; `PID_API_SRC=<file>` swaps in another revision of
+the file under test, which is how a fix is shown to fail before and pass after. It covers
+`setDefault_PIDProfile ( )` today (`active-development/set-default-pid-profile/`). It is a convenience
+for logic that needs no hardware, not a replacement for the build gate or flight validation, and nothing
+under `tools/` is ever added to a Makefile source group.
+
 ## Warning gate: the compiler is the static analyser
 
 A clean `PRIMUS_X2_v1` build emits ~2674 warnings, ~1712 of them from vendored `lib/` — so a warning

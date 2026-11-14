@@ -28,8 +28,8 @@ FORKNAME	=	MAGISV2
 TARGET	?=	
 BUILD_TYPE	?= BIN
 PROJECT ?= DEFAULT
-FW_Version	=	3.15.6
-API_Version	=	1.8.4
+FW_Version	=	3.15.7
+API_Version	=	1.8.5
 # Flash size (KB).  Some low-end chips actually have more flash than advertised, use this to override.
 FLASH_SIZE	?=
 RAM_SIZE 	?=
@@ -175,6 +175,7 @@ MAIN_COMMON = common/maths.cpp \
 MAIN_FLIGHT = flight/altitudehold.cpp \
 		   				flight/failsafe.cpp \
 		   				flight/pid.cpp \
+		   				flight/pid_defaults.cpp \
 		   				flight/imu.cpp \
 		   				flight/mixer.cpp \
 		   				flight/lowpass.cpp \

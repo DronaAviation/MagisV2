@@ -11,12 +11,14 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 15th Oct 2026                                          #
+ #  Last Modified: Sat, 14th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  14-11-2026	AJ	setDefault_PIDProfile ( ): documented the five restored    #
+ #              	profiles, RAM only, armed and LuxFloat caveats.            #
 *******************************************************************************/
 #ifndef FC_CONFIG_H
 #define FC_CONFIG_H
@@ -71,7 +73,24 @@ void get_PIDProfile ( pid_profile_e PROFILE, PID *pid );
 void set_PIDProfile ( pid_profile_e PROFILE, PID *pid );
 
 /**
- * @brief Initializes the PID profiles with default gain values for all axes.
+ * @brief Restores the firmware default gains of the five PID profiles above.
+ *
+ * Restores PID_ROLL and PID_PITCH to 40 / 10 / 30, PID_YAW to 150 / 70 / 50,
+ * PID_ALT to 128 / 0 / 30 and PID_USER to 60 / 30 / 5 ( P / I / D ). The
+ * firmware's internal gains ( level, velocity, position, navigation and
+ * heading ) are not touched.
+ *
+ * The change is made in RAM only and is not saved: a power cycle brings back
+ * the stored gains, unless something else saves the configuration first ( an
+ * app save, a stick trim, an accelerometer or compass calibration, or a
+ * profile change, which stores these gains into the profile being left ).
+ *
+ * Gains are read live every loop, so calling this while armed steps the
+ * tuning in flight. Call it from plutoInit ( ) or while disarmed.
+ *
+ * With the LuxFloat PID controller ( pidController 2, not the default ), roll,
+ * pitch and yaw use separate float gains, so the restored PID_ROLL, PID_PITCH
+ * and PID_YAW values have no effect there.
  */
 void setDefault_PIDProfile ( void );
 

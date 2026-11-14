@@ -5,14 +5,28 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
 
 ## Source Files
 - **Controller Logic**: `src/main/flight/pid.cpp`, `src/main/flight/pid.h`
+- **Default Gains**: `src/main/flight/pid_defaults.cpp` ( `pidProfileDefaultGains ( )` )
 - **Profile Config**: `src/main/config/config_profile.h`
-- **User API Hook**: `src/main/API-Src/FC-Config-PID.cpp`
+- **User API Hook**: `src/main/API-Src/FC-Config-PID.cpp` ( `get_PIDProfile`, `set_PIDProfile`, `setDefault_PIDProfile` )
 
 ## Key Data Structures
 - `rcCommand[3]`: The target rates commanded by the user/GCS.
 - `gyroADC[3]`: The current actual rotation rates in degrees per second.
 - `axisPID[3]`: The final computed correction (-1000 to +1000) for Roll, Pitch, and Yaw.
 - `pidProfile_t`: Holds the tuned P, I, and D multipliers.
+
+## Default gains and the API reset
+- `pidProfileDefaultGains ( pidProfile_t * )` ( `pid_defaults.cpp:38`, declared `pid.h:111` ) is the single source of the
+  default `P8` / `I8` / `D8` for all eleven `pidIndex_e` slots. `resetPidProfile ( )` ( `config.cpp:175` ) calls it on a
+  config reset ( `config.cpp:179` ) and sets the rest of the profile itself: `pidController`, the float gains, the cut
+  frequencies, `A_level` / `H_level` / `H_sensitivity` and the GTUNE limits.
+- `setDefault_PIDProfile ( )` ( `FC-Config-PID.cpp:155` ) restores only the five slots the PID API exposes,
+  `apiSlot [] = { PIDROLL, PIDPITCH, PIDYAW, PIDALT, PIDUSER }` ( `FC-Config-PID.cpp:157` ), from a stack copy filled
+  by `pidProfileDefaultGains ( )`. `PIDPOS`, `PIDPOSR`, `PIDNAVR`, `PIDLEVEL`, `PIDMAG` and `PIDVEL` are never
+  written. The change is RAM only, and gains are read live every loop, so a call while armed steps the tuning in flight
+  ( header comment, `FC-Config.h:95` ). Before FW 3.15.7 the function looped over all eleven slots with five-entry
+  tables: it set ALT P8 to a stale 100 and overwrote the hidden gains, `PIDLEVEL` and `PIDVEL` included
+  ( `active-development/set-default-pid-profile/` ).
 
 ## Primary Functions
 - `pidController()`: The core execution loop. It iterates through the Roll, Pitch, and Yaw axes, computing the error and multiplying by the PID gains.
@@ -37,7 +51,7 @@ The PID (Proportional, Integral, Derivative) controller is the stabilizing brain
 - **I-Term Windup**: `pidRewrite` clamps `errorGyroI` to ±`GYRO_I_MAX` 256 motor counts ( `pid.cpp:848` ). On the
   ground the stick-low reset keeps it from integrating against the floor; airborne it is frozen instead of reset
   ( see *Stick-low I-term reset and freeze* below ). Note that `pid_at_min_throttle` is 1 by default
-  ( `config.cpp:369`; forced to 0 only with `retarded_arm` ), so the PID keeps acting at idle on the floor.
+  ( `config.cpp:331`; forced to 0 only with `retarded_arm` ), so the PID keeps acting at idle on the floor.
 - **D-Term Filtering**: The Derivative term calculates the *rate of change* of the error. Because differentiation amplifies high-frequency noise, the D-term operates on heavily filtered gyro data or error deltas to prevent motor smoking.
 
 ```mermaid

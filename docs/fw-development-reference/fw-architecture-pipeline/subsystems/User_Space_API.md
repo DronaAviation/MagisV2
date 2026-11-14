@@ -156,7 +156,7 @@ Rules:
   keeps the latch set, and the target is then never flown.
 - **When the target is dropped.** On a real Developer Mode switch-off, and on the armed → disarmed edge, the target is
   dropped and `magHold = heading` is set, so the craft holds where it points. AUX channels hold their value through an
-  RC loss ( `RX_FAILSAFE_MODE_HOLD`, the default for AUX, config.cpp:479; an `rxfail` SET value outside the dev range
+  RC loss ( `RX_FAILSAFE_MODE_HOLD`, the default for AUX, config.cpp:441; an `rxfail` SET value outside the dev range
   turns a stall over 600 ms into a switch-off ), so the target **survives a Wi-Fi flicker**, and also a long RC loss: heading hold keeps flying it through a
   failsafe `LAND` ( yaw only ). A target set while disarmed survives until takeoff.
 - **Units.** Yaw is in whole degrees, and both setters wrap their value into 0..359. Roll and pitch in
