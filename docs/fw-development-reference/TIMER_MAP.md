@@ -42,7 +42,7 @@ STM32F303xC has **10 timers + the Cortex SysTick**. All timer kernel clocks run 
 |--------|-------------------|-------------|
 | TIM1   | Driver + USER API | motor/PWM output CH1 (PA8); user `PWM_1` |
 | TIM2   | **Driver (full)** | 4 motor PWM outputs M1–M4 |
-| TIM3   | USER API (opt)    | user `PWM_8` (CH1) — otherwise free |
+| TIM3   | USER API (opt)    | user `PWM_8` (CH1, PB4), RGB slot `RGB_6` (CH1, PB4), Motor API `M1` (CH1, PA6) / `M2` (CH2, PA7) at 20 kHz |
 | TIM4   | USER API (opt)    | user `PWM_2/PWM_3/PWM_6` |
 | TIM6   | **FREE**          | — (basic timer, no pins) |
 | TIM7   | **FREE**          | — (basic timer, no pins) |
@@ -103,18 +103,19 @@ The full LUT is `pwmConfig[]` in [Peripheral-PWM.cpp:49-61](../../src/main/API-S
 | `PWM_5`  | TIM15_CH1 | PB14 | AF1  | **PB14 = ADC_3** (ADC4_IN4) |
 | `PWM_6`  | TIM4_CH3  | PA13 | AF10 | **PA13 = SWDIO (debug)** |
 | `PWM_7`  | TIM8_CH2  | PA14 | AF5  | **PA14 = SWCLK (debug)** |
-| `PWM_8`  | TIM3_CH1  | PB4  | AF2  | free pin ✅ |
-| `PWM_9`  | TIM17_CH1 | PB5  | AF10 | free pin ✅ |
+| `PWM_8`  | TIM3_CH1  | PB4  | AF2  | free pin, but TIM3_CH1 is also Motor API `M1` (PA6) |
+| `PWM_9`  | TIM17_CH1 | PB5  | AF10 | **PB5 = SPI API chip select** |
 | `PWM_10` | TIM8_CH1  | PA15 | AF2  | **same as WS2811 LED strip (TIM8_CH1/PA15)** |
 
 Notes:
-- The "free pin ✅" rows (`PWM_2/3/8/9` on PB6/PB7/PB4/PB5) are the safe user-PWM outputs.
+- The "free pin ✅" rows (`PWM_2/3` on PB6/PB7) are the safe user-PWM outputs. `PWM_8` clashes with the Motor API
+  ( TIM3 ), `PWM_9` with the SPI API chip select ( PB5 ).
 - `PWM_4/PWM_5` and the ADC pins they overlap are mutually exclusive — use one or the other.
 - `PWM_6/PWM_7` repurpose the SWD debug pins; using them blocks the debugger.
 - `PWM_1` shares TIM1_CH1/PA8 with the firmware's 5th PWM output; `PWM_10` shares TIM8_CH1/PA15
   with the LED strip — don't init these alongside those features.
-- Because channels share a time-base, `PWM_2` and `PWM_3` (both TIM4) **run at the same
-  frequency**; likewise `PWM_4`+`PWM_5` (TIM15). The `pwmRate` of the last init wins per timer.
+- Because channels share a time-base, `PWM_2`, `PWM_3` and `PWM_6` (TIM4) **run at the same
+  frequency**; likewise `PWM_4`+`PWM_5` (TIM15) and `PWM_7`+`PWM_10` (TIM8). The `pwmRate` of the last init wins per timer.
 
 ---
 
@@ -132,8 +133,8 @@ TIM6 and TIM7 are **basic timers with no output pins** — ideal for a free-runn
 a periodic interrupt, or pacing a DMA stream (they can trigger DMA via `TIMx_UP`). TIM16 is
 a real general-purpose timer with one output channel.
 
-**TIM16 candidate pins** (DS9118 AF table), restricted to the genuinely-free board pins
-(PA8, PB3, PB4, PB5, PB6, PB7):
+**TIM16 candidate pins** (DS9118 AF table), restricted to the board pins without a fixed owner
+(PA8, PB4, PB6, PB7; PB3 is the ESP Wi-Fi enable and PB5 the SPI API chip select):
 
 | Signal | Pin | AF |
 |--------|-----|----|
@@ -153,9 +154,9 @@ live with that shared period.
 | Timer  | Used channel(s) | Free channel(s) | Reachable free pin(s) |
 |--------|-----------------|-----------------|------------------------|
 | TIM1   | CH1 (PA8, motor/PWM) | CH2, CH3, CH4 | none on the free pin set (TIM1_CH2/3/4 = PA9/PA10/PA11) |
-| TIM3   | CH1 (PB4, only if `PWM_8`) | CH2, CH3, CH4 | **PB5 = TIM3_CH2 (AF2)** |
+| TIM3   | CH1 (PB4 `PWM_8` / `RGB_6`, PA6 Motor `M1`), CH2 (PA7 Motor `M2`) | CH3, CH4 | none on the free set ( PB5 = TIM3_CH2 is Motor `M2`'s channel ) |
 | TIM4   | CH1/CH2/CH3 (PWM_2/3/6) | CH4 | none on the free set (TIM4_CH4 = PB9) |
-| TIM8   | CH1 (LED), CH2 (PWM_7) | CH3, CH4 | **PB5 = TIM8_CH3 (AF10)** |
+| TIM8   | CH1 (LED), CH2 (PWM_7) | CH3, CH4 | none ( PB5 reaches only TIM8_CH3N, and PB5 is the SPI API chip select ) |
 | TIM17  | CH1 (PB5, only if `PWM_9`) | — (single channel) | — |
 
 > ⚠️ TIM1 and TIM8 are advanced timers shared with motor/LED output — sharing their
@@ -168,7 +169,7 @@ live with that shared period.
 
 - Need a **periodic interrupt or a time-base / DMA pacer** → use **TIM6 or TIM7** (no pins consumed).
 - Need **one extra PWM / capture pin** → use **TIM16** on **PB4** (or the safe user API outputs
-  `PWM_2/PWM_3/PWM_8/PWM_9` on PB6/PB7/PB4/PB5).
+  `PWM_2/PWM_3` on PB6/PB7; `PWM_8` only without the Motor API, `PWM_9` only without the SPI API).
 - **Never touch TIM2** (all four motors) and avoid adding load to **TIM1/TIM8** time-bases.
 - Remember a timer = one frequency across all its channels.
 

@@ -101,7 +101,9 @@ Tooling backlog: `.claude/TOOLING_BACKLOG.md`.
   `plutoLoop`, `onLoopFinish`; everything it needs comes from `PlutoPilot.h`).
 - **Two-layer API:** public headers in `src/main/API/`, implementations in `src/main/API-Src/`. Keep the
   public headers stable. When a public API signature or behaviour changes, update the matching wiki in
-  `docs/API/` and bump `FW_Version`/`API_Version` in the Makefile.
+  `docs/API/` and bump `FW_Version`/`API_Version` in the Makefile. The public GitHub wiki is a separate repo cloned
+  at `MagisV2.wiki/` ( not tracked here ): its page rules, the example compile check `wiki_check.py` and the known API
+  defects ( `FINDINGS.md` ) are in `active-development/api-wiki-sync/`.
 - **Every new `.c`/`.cpp` module must be added to its Makefile group** (`COMMON_SRC`, `MAIN_*`,
   `DRONA_*`, `PRIMUSX2_DRIVERS`) — there is no source glob. Gate hardware-specific code on the target
   header `#define`s (`BARO`, `SONAR`, `GPS`, `UWB`, `ENABLE_ACROBAT`, `PRIMUSX2`, …).

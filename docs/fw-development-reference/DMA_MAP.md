@@ -126,7 +126,7 @@ PA14, PB4, PB5, PA5, PB3, PA15, PA3, PA2`. Pins already assigned on this board:
 | ADC inputs (claimed when inited) | PB2 (ADC_1), PA4 (ADC_6), PA5 (ADC_7), PA3 (ADC_8), PA2 (ADC_9), PB15 (ADC_2), PB14 (ADC_3), PB13 (ADC_4), PB12 (ADC_5) |
 | WS2811 LED strip | PA15 (TIM8_CH1) |
 | **SWD debug — do not repurpose** | PA13 (SWDIO), PA14 (SWCLK) |
-| **Genuinely free** ✅ | **PA8, PB3, PB4, PB5, PB6, PB7** |
+| **No fixed owner** ✅ | **PA8, PB4, PB6, PB7** ( PB3 is the ESP Wi-Fi enable, PB5 the SPI API chip select ) |
 
 Which free channel each free pin can reach:
 

@@ -600,6 +600,20 @@ that removes all legacy STM32F10x support.
   line each left in *Flight invariants*.
 - `PIN_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: one down-laser at 0x29 on I2C1; VL53L0X and VL53L1X
   are mutually exclusive.
+- GitHub wiki ( `MagisV2.wiki`, its own repo ) brought up to API 1.8.10 / FW 3.15.12 ( `active-development/api-wiki-sync/` ).
+  - Every page was checked against `src/main/API/` and `API-Src/`, and every example compiles and links
+    warning-free with the firmware flags.
+  - Unsafe examples were replaced: land / disarm in `onLoopFinish`, I2C writes to the flight IMU, a fly-away
+    localisation example.
+  - New `X1Ranging` page; the `API-Utils` page and the `Specifiers` links are removed.
+  - 19 code defects found while checking are listed in that topic's `FINDINGS.md`, among them
+    `FlightMode_Set ( ATLTITUDEHOLD )` and a 0 ms `Scheduler_Add` interval that stops the flight loop.
+- `PIN_MAP.md`, `TIMER_MAP.md`, `DMA_MAP.md`, `WS2812_RGB.md`:
+  - PB3 is the ESP Wi-Fi enable, and PB5 the SPI API chip select;
+  - the Motor API's `M1` / `M2` are on PA6 / PA7 ( TIM3 ) with direction pins PB0 / PB1;
+  - TIM3 is shared with `PWM_8` / `RGB_6`;
+  - the RGB strip has 64 LEDs, and `RGB_Init ( )` must come before an ADC pin on the same DMA channel;
+  - the down-laser is at 0x30 after start-up.
 
 ## [v3.0.0] - 2026-02-10
 

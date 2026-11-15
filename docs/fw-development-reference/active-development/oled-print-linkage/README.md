@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Nov 2026, FW 3.15.12, API 1.8.10 ) |
+| **Status** | **Closed** in `9e6f555` ( 15 Nov 2026, FW 3.15.12, API 1.8.10 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all targets built at commit ) |
@@ -58,4 +58,4 @@ and the linked image is unchanged because nothing in the firmware calls it. Deta
 
 ## Next action
 
-None: closed pending commit, which `pluto-commit` stages. The user commits.
+None: closed in `9e6f555`.
