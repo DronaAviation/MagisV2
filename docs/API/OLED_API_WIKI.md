@@ -156,6 +156,10 @@ For power users who need full control over external buffers or direct grid print
   Oled_Print(0, 2, "SYSTEM ARMED");
 ```
 
+It does nothing unless the OLED is in `System` mode, and it ignores a NULL string, `col` above 20 and `row` outside
+1 to 6 ( rows 0 and 7 are the status rows ). **It can only be called from user code from API 1.8.10 / FW 3.15.12
+on**: before that it was declared with C++ linkage while its body is compiled as C, so the call did not link.
+
 ### External Framebuffers
 
 For colour-controlled text into your own buffer, use `Oled_DrawTextColor(screen, x, y, "text", on)` — `on = true` sets glyph pixels (white), `on = false` clears them (black). `Oled_DrawText(...)` is the white-only shorthand.
@@ -194,6 +198,14 @@ draws straight to the panel.
 
 The 2 s start-up splash page still writes the panel directly; it runs only at
 power-on, before arming.
+
+---
+
+## Changes in 1.8.10
+
+| | 1.8.9 and earlier | 1.8.10 |
+|---|---|---|
+| `Oled_Print` from user code | did not link: `undefined reference to Oled_Print(unsigned char, unsigned char, char const*)`. Declared with C++ linkage in `API/Oled.h`, defined in the C file `io/oled_display.c`. Nothing in the firmware calls it, so no firmware build caught it. | links and works. The declaration is `extern "C"`; no signature or behaviour change, and the flashed image is unchanged |
 
 ---
 

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Nov 2026, FW 3.15.11, API 1.8.9 ) |
+| **Status** | **Closed** in `1f8e78e` ( 15 Nov 2026, FW 3.15.11, API 1.8.9 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all targets built at commit ) |
@@ -57,7 +57,7 @@ Debugging API wiki; API 1.8.9. Details: [INVESTIGATION.md](INVESTIGATION.md), ta
 - Task 9 done ( 15 Nov 2026 ): graph refreshed and labelled; all three targets built clean ( `PRIMUS_X2_v1` 121.5 KB /
   20.5 KB, `PRIMUSX2` 121.3 KB / 20.7 KB, `PRIMUS_V5` 121.5 KB / 20.5 KB ); FW 3.15.10 -> 3.15.11 and API 1.8.8 ->
   1.8.9; `PIPELINE_UPDATE.md` applied to `User_Space_API.md` and CLAUDE.md; CHANGELOG updated; staged.
-  **Closed - pending commit**: the user commits.
+  **Closed** in `1f8e78e`.
 - Observations, out of scope ( neither caused by the print code, each worth its own `check` topic ): two ~23 ms
   `cycleTime` samples against a 3.5 ms loop; and, in the first run, the drone bumping the ground at touchdown on low
   battery and taking off again before the disarm.

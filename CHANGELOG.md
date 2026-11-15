@@ -163,7 +163,8 @@ that removes all legacy STM32F10x support.
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
   temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values,
   3.15.7 for `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt, 3.15.9 for the
-  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`, 3.15.11 for the `Monitor_Print` decimals.
+  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`, 3.15.11 for the `Monitor_Print` decimals, 3.15.12 for the `Oled_Print ( )`
+  linkage fix.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -251,6 +252,13 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
+- **OLED text from user code**: `Oled_Print ( col, row, text )` could not be called from `PlutoPilot.cpp`: the link
+  failed with `undefined reference to Oled_Print(unsigned char, unsigned char, char const*)`. `API/Oled.h` is a C++
+  header, so the declaration had C++ linkage, while the body is in the C file `io/oled_display.c` and exports the
+  plain symbol. It is the only `Oled.h` function whose body is not a C++ wrapper in `API-Src/Oled.cpp`, and no
+  firmware code calls it, so no firmware build ever caught it. The declaration is now `extern "C"`. No signature or
+  behaviour change and the flashed image is unchanged; it stays `System` mode only, with `col` 0-20 and `row` 1-6
+  ( rows 0 and 7 are the status rows ). ( `active-development/oled-print-linkage/` ). API 1.8.10.
 - **Barometer temperature in the user API**: `Sensor_Get ( Barometer, Temperature )` returned whole degrees ( `32` for
   32.70 C ), although `FC-Data.h` documents deg C x100: the float temperature was truncated to an integer and never
   scaled. It now returns deg C x100 rounded to the nearest 0.01 C ( `3270` ), the same value altitude hold uses.

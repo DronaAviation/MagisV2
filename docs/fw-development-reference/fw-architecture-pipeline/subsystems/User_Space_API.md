@@ -97,7 +97,10 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - **OLED is deferred**: `Oled_Update ( )` / `Oled_display_Update ( )` only queue the frame. The firmware sends the
   changed bytes to the panel at most 16 per loop, so a full screen appears in ~0.25 s. A buffer passed to
   `Oled_display_Update ( )` must stay valid ( `static` or global ). `Oled_Update ( )` works in `User` mode only, and
-  `Oled_Mode ( )` starts from a blank frame. Wiki: `docs/API/OLED_API_WIKI.md`.
+  `Oled_Mode ( )` starts from a blank frame. `Oled_Print ( col, row, text )` is the one `Oled.h` function whose body
+  is in a C file ( `io/oled_display.c` ), so its declaration is `extern "C"`; before FW 3.15.12 it was declared with
+  C++ linkage and user code calling it could not link. It draws on the 21 x 8 text grid of the `System` screen and
+  does nothing in `User` mode or outside `col` 0-20 / `row` 1-6. Wiki: `docs/API/OLED_API_WIKI.md`.
 - **Debug output**: `Monitor_Print / Monitor_Println ( msg )`, `( tag, int )` and `( tag, double, precision )`
   ( `API/Debugging.h` ) send a `$D` frame to the app through `serialize8Debug ( )`, which writes into the
   same 256-byte TX ring as the MSP replies with no room check. A `Print` is one frame; a `Println` adds a second,
