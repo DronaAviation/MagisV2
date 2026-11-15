@@ -98,6 +98,15 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   changed bytes to the panel at most 16 per loop, so a full screen appears in ~0.25 s. A buffer passed to
   `Oled_display_Update ( )` must stay valid ( `static` or global ). `Oled_Update ( )` works in `User` mode only, and
   `Oled_Mode ( )` starts from a blank frame. Wiki: `docs/API/OLED_API_WIKI.md`.
+- **Debug output**: `Monitor_Print / Monitor_Println ( msg )`, `( tag, int )` and `( tag, double, precision )`
+  ( `API/Debugging.h` ) send a `$D` frame to the app through `serialize8Debug ( )`, which writes into the
+  same 256-byte TX ring as the MSP replies with no room check. A `Print` is one frame; a `Println` adds a second,
+  5-byte `"\n"` frame. `precision` is 0 to 4 ( more prints 4 ), rounded half
+  away from zero; beyond +/-4294967040 the number prints as `overflow`, NaN as `not a number`, infinity as `infinite`.
+  A frame carries at most 255 payload bytes: the tag is cut so the number fits ( API 1.8.9; before, the double
+  overload printed 0 after the first decimal, a 256-character string hung the main loop, and `INT_MIN` printed
+  garbage ). Keep one `plutoLoop ( )` under ~130 bytes with the app connected. Wiki `docs/API/DEBUGGING_API_WIKI.md`
+  ( API 1.8.9 ).
 - **Laser ranging**: `XRanging` ( VL53L0X ) and `X1Ranging` ( VL53L1X ) requests are made in `plutoInit ( )` and
   fixed at boot. The API that enables lasers chooses the laser family; enabling lasers through both refuses both.
   Reads return cached values. Starting lasers switches SPI2 off. See **Laser ranging** below; wikis

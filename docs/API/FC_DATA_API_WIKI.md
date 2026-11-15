@@ -44,8 +44,9 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
 - **Fallback.** Any `_sensor` other than `Barometer`, or an unknown `_data`, returns 0. Before the first barometer
   reading after power-up both values are 0.
 - **To get degrees with decimals,** divide as float with an explicit cast: `( float ) Sensor_Get ( Barometer, Temperature ) / 100.0f` ( without the cast
-  `-Wconversion` warns about int32 to float ). To print it, print
-  the integer x100 value: the `Monitor_Print` double overload prints only the first decimal correctly.
+  `-Wconversion` warns about int32 to float ). To print it with decimals, store it in a `float degC` and call
+  `Monitor_Println ( "degC:", ( double ) degC, 2 )` ( see `DEBUGGING_API_WIKI.md`; before API 1.8.9 only the first
+  decimal printed correctly ).
 
 ## Accelerometer, gyroscope, magnetometer: `Sensor_Get ( sensor, axis )`
 

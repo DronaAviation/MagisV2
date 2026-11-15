@@ -150,7 +150,7 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.10 (API 1.8.8) over this release: 3.5.0 for
+- **Firmware version** bumped to 3.15.11 (API 1.8.9) over this release: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
   shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
@@ -163,7 +163,7 @@ that removes all legacy STM32F10x support.
   laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
   temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values,
   3.15.7 for `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt, 3.15.9 for the
-  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`.
+  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`, 3.15.11 for the `Monitor_Print` decimals.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
@@ -177,6 +177,8 @@ that removes all legacy STM32F10x support.
   API 1.8.6 is behaviour only: `setDesiredAngle ( AG_ROLL / AG_PITCH )` tilts the drone and holds the tilt ( see Fixed ).
   API 1.8.7 is behaviour only: `setDesiredRate ( )` holds its value and `getDesiredRate ( )` returns it ( see Fixed ).
   API 1.8.8 is behaviour only: `Failsafe_enable ( X )` changes only the failsafe named ( see Fixed ).
+  API 1.8.9 is behaviour only: `Monitor_Print / Monitor_Println` print every decimal, `precision` is 0 to 4, and texts
+  are cut at 255 characters ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -319,6 +321,18 @@ that removes all legacy STM32F10x support.
   verified by a host check that compiles the real source file ( 4164 checks: every state and every sequence of up to
   three calls; the pre-fix code fails 1468 of them, reproducing T07 ) and a trace of each switch to what it gates. New
   `docs/API/FAILSAFE_API_WIKI.md` ( `active-development/failsafe-enable-api/` ). API 1.8.8.
+- **`Monitor_Print / Monitor_Println ( tag, double, precision )` print every decimal** ( API audit B9, test T01 ): the
+  fraction loop turned each digit into its character before taking it off the remainder, so it subtracted 48 + d,
+  the remainder went negative, and the conversion to a digit returned 0 from then on: 3.14159 at 3 digits printed
+  `3.100`. It now prints `3.142` ( rounded half away from zero ). `precision` is now 0 to 4 ( it was 0 to 7 ); more
+  prints 4. The same review of every `Debugging.h` print fixed four more defects: a text or tag of 256 characters or
+  more never ended its print loop and stalled the main loop; a tag and number longer than 255 bytes wrapped the length
+  byte; `INT_MIN` printed as garbage characters; and the not-a-number and infinity messages had a length byte one
+  short. Texts are now cut at 255, the tag cut so the number always fits, and a `NULL` text counts as empty. No
+  signature change, and the frames for ordinary values are unchanged. Verified by a host check of the real source
+  file ( 86 / 86; the pre-fix file reproduces every defect ) and on hardware in a bench table and an 85 s hover
+  ( 0 wrong rows; 633 / 633 decimal values exact; no app disconnect ). New `docs/API/DEBUGGING_API_WIKI.md`
+  ( `active-development/monitor-print-double-precision/` ). API 1.8.9.
 - **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
   `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
   ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
@@ -527,6 +541,12 @@ that removes all legacy STM32F10x support.
   `BMS_API_WIKI.md` links it and names the switch. `FC-Config.h` `failsafe_e` comments rewritten. The
   Failsafe_Subsystem pipeline doc gains the three switches and a corrected crash-detector reference, Power_BMS_Pipeline
   names the battery gate, and User_Space_API lists the API.
+- New `docs/API/DEBUGGING_API_WIKI.md` for `Monitor_Print` / `Monitor_Println`: the six functions with an example per
+  hook, precision and rounding, the overflow / not-a-number / infinity output, how PlutoMonitor shows each call, bytes
+  per call against the ~130 B per loop budget, the 255-character limit, and pitfalls ( a decimal passed without a
+  precision prints as a whole number ). `Debugging.h` comments state the limits. `FC_DATA_API_WIKI.md` drops its
+  print-the-x100-integer workaround, `FLIGHT_INVARIANTS.md` drops the old digit warning, and the User_Space_API
+  pipeline doc lists the API.
 - `YAW_HEADING_API_WIKI.md` gains a "Roll and pitch tilt" section ( hold, signs, the stick sum and limit, when the
   tilt is flown and when it ends, `getDesiredAngle` ), a lean-then-level example and pitfalls. `FC-Config.h` comments
   of `setDesiredAngle` and `getDesiredAngle` rewritten. The User_Space_API pipeline doc gains "Roll / pitch

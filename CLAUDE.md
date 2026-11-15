@@ -131,7 +131,8 @@ Each of these has cost a flight. Full mechanism and numbers:
   masks the descent and touchdown is never detected.
 - **Keep `Monitor_Print` under ~130 bytes per tick with the app connected** — `uartWrite()` does not
   check the 256-byte TX ring for full; an overrun corrupts the app's MSP replies and it disconnects.
-  The double overload prints 0 for every digit after the first decimal.
+  A `Print` is one frame of at most 255 payload bytes ( the tag is cut ), a `Println` adds a 5-byte `"\n"` frame;
+  `precision` 0..4 ( `docs/API/DEBUGGING_API_WIKI.md`, `active-development/monitor-print-double-precision/` ).
 - **During a flip, altitude hold is bypassed, not switched off** — BARO_MODE stays on and altitude hold
   flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
   (`FLIGHT_INVARIANTS.md`).

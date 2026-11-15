@@ -53,7 +53,11 @@ does not check for full, so an overrun overwrites unsent bytes: the start of the
 in `tof-althold-fusion`, apparently the app's own MSP replies, and the app disconnects (~180 B/tick
 did; 115-135 B/tick ran clean; the exact limit is not measured).
 
-Also: the double overload prints 0 for every digit after the first decimal.
+A `Monitor_Print` is one frame of at most 255 payload bytes ( the tag is cut so the number fits ), and a
+`Monitor_Println` adds a second, 5-byte `"\n"` frame, so even a single maximum-length call ( 259 bytes ) cannot fit
+the 256-byte ring. Byte counts per call:
+`docs/API/DEBUGGING_API_WIKI.md`. ( Until API 1.8.9 the double overload printed 0 for every digit after the first
+decimal; fixed in `active-development/monitor-print-double-precision/`. )
 
 ## During a flip, altitude hold is bypassed, not switched off
 

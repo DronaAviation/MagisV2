@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed - pending commit** ( 15 Nov 2026, FW 3.15.10, API 1.8.8 ) |
+| **Status** | **Closed** in `c344387` ( 15 Nov 2026, FW 3.15.10, API 1.8.8 ) |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` ( all targets built at commit ) |
@@ -57,7 +57,7 @@ re-runs T07 on hardware afterwards.
 - Task 6 done ( 15 Nov 2026 ): graph refreshed ( `tools/graph_labels.py` needed the backlog #13 workaround ), all three
   targets built clean ( no warnings in the touched files ), FW 3.15.9 -> 3.15.10 and API 1.8.7 -> 1.8.8,
   `PIPELINE_UPDATE.md` applied to `Failsafe_Subsystem.md`, `Power_BMS_Pipeline.md` and `User_Space_API.md`, CHANGELOG
-  and CLAUDE.md updated, staged. **Closed - pending commit**: the user commits.
+  and CLAUDE.md updated, staged. **Closed** in `c344387`.
 - Not hardware-tested by this topic: the testing team re-runs T07. It must call `Failsafe_enable ( )` **before** the pack
   runs low, or even the pre-fix firmware passes ( the battery gate only guards the step out of `BATTERY_OK` ).
 - Out of scope, recorded: `LOW_BATTERY` has had no reader since `88f594f`; giving it a function again would be a
@@ -65,5 +65,4 @@ re-runs T07 on hardware afterwards.
 
 ## Next action
 
-None: staged with `.git/MAGISV2_COMMIT_MSG.txt`; the user commits, and the next `pluto-commit` / `pluto-grill` run fills
-in the hash.
+None: committed in `c344387`.
