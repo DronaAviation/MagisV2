@@ -8,12 +8,13 @@
  #  Created Date: Thu, 18th Dec 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 14th Oct 2026                                          #
+ #  Last Modified: Sat, 15th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-11-15	AJ	Oled_Print ( ) declared extern "C" ( defined in a C file )  #
  *******************************************************************************/
 
 #ifndef OLED_API_H
@@ -86,12 +87,16 @@ void Oled_Update ( void );
  * Drawn into the system framebuffer and sent by the non-blocking flush.
  * This function is intended for `System` mode only.
  *
- * @param col Target text column (0–20).
- * @param row Target text row (1–6; rows 0 and 7 are reserved for status).
+ * @param col Target text column (0 to 20).
+ * @param row Target text row (1 to 6; rows 0 and 7 are reserved for status).
  * @param text The null-terminated string to print.
+ *
+ * @note Declared with C linkage because its definition is compiled as C.
+ * Without that, a call from user code asks the linker for a C++ mangled name
+ * that no object exports and fails to link.
  */
 
-void Oled_Print ( uint8_t col, uint8_t row, const char *text );
+extern "C" void Oled_Print ( uint8_t col, uint8_t row, const char *text );
 
 /**
  * @brief Draws text at a specific pixel position.

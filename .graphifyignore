@@ -9,3 +9,12 @@ LICENSE
 .clang-format
 inav-9.1.0/*
 android-app-dev_br_login/*
+lib/test/*
+.claude/*
+.github/*
+.agent/*
+tools/*
+graphify-out/*
+CHANGELOG.md
+README.md
+CLAUDE.md

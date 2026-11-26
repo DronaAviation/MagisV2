@@ -65,6 +65,23 @@ extern "C" {
  * which re-assert every 100 ms.                                             */
 #define USER_RC_HOLD_MIN_US       250000
 
+/* A user roll / pitch tilt ( setDesiredAngle on AG_ROLL / AG_PITCH ) is suppressed after this long
+ * without Developer Mode running. devmode falls 200 ms after the last RC frame ( DELAY_5_HZ ), and
+ * Wi-Fi stalls of one or two frames are normal, so a short flicker must not level the craft and then
+ * step the tilt back. This window is the pilot's own stick hold ( MAX_INVALID_PULS_TIME, 600 ms ):
+ * past it nothing is steering, and a held tilt would fly the craft away until the failsafe landing. */
+#define USER_ANGLE_LINK_GRACE_MS  600
+
+/* Height above the arm reference at which a user tilt starts to be flown. Below it the craft may still
+ * be on its skids ( an app take-off arms with the throttle stick centred, so "throttle raised" is true
+ * at the arm instant ), and a commanded tilt would pivot the take-off on a leg. */
+#define USER_ANGLE_MIN_ALT_CM     20
+
+/* Roll / pitch rate the firmware rests at when user code has not called setDesiredRate ( ): the
+ * value flip ( false ) has always written on every disarmed loop, and every flip exit restores.
+ * The config default is 0, so this, not the stored profile, is the stock rate on every craft. */
+#define STOCK_ROLL_PITCH_RATE     75
+
 extern uint8_t resetCounter;
 extern uint8_t intLogCounter;
 extern uint8_t floatLogCounter;
@@ -120,6 +137,20 @@ extern bool isUserSetVelocity;
 extern bool isUserHeadFreeHoldSet;
 
 void userEnabledLand ( );
+bool landingInProgress ( void );    // FC-Control-Command.cpp: user, RC-loss or battery landing running
+
+// User roll / pitch tilt ( setDesiredAngle on AG_ROLL / AG_PITCH ), deci-degrees, for pidRewrite ( ) to add
+// to its ANGLE-mode stick target: the held userDesiredAngle [ axis ], or 0 when none is held, ANGLE mode is
+// off, a flip or a landing runs, the craft is not airborne yet, or Developer Mode has been stopped longer
+// than USER_ANGLE_LINK_GRACE_MS. axis is FD_ROLL / FD_PITCH; anything else returns 0. Full rules at the
+// definition ( API-Utils.cpp ).
+int32_t userAngleTarget ( uint8_t axis );
+
+// Roll / pitch rate the flip code restores outside a flip ( flip ( false ) on every disarmed loop and the
+// flip exits in acrobats.cpp ): the held setDesiredRate value ( clamped to 0-100 by the setter ), or
+// STOCK_ROLL_PITCH_RATE when none is held. axis is FD_ROLL / FD_PITCH; anything else returns the stock rate.
+uint8_t userRollPitchRate ( uint8_t axis );
+
 void resetUserRCflag ( void );
 void userRCassert ( uint8_t channel, float pilotAuthority );
 void userRCrelease ( uint8_t channel );

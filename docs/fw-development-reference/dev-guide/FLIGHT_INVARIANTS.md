@@ -53,7 +53,11 @@ does not check for full, so an overrun overwrites unsent bytes: the start of the
 in `tof-althold-fusion`, apparently the app's own MSP replies, and the app disconnects (~180 B/tick
 did; 115-135 B/tick ran clean; the exact limit is not measured).
 
-Also: the double overload prints 0 for every digit after the first decimal.
+A `Monitor_Print` is one frame of at most 255 payload bytes ( the tag is cut so the number fits ), and a
+`Monitor_Println` adds a second, 5-byte `"\n"` frame, so even a single maximum-length call ( 259 bytes ) cannot fit
+the 256-byte ring. Byte counts per call:
+`docs/API/DEBUGGING_API_WIKI.md`. ( Until API 1.8.9 the double overload printed 0 for every digit after the first
+decimal; fixed in `active-development/monitor-print-double-precision/`. )
 
 ## During a flip, altitude hold is bypassed, not switched off
 
@@ -171,3 +175,23 @@ See [`Failsafe_Subsystem.md`](../fw-architecture-pipeline/subsystems/Failsafe_Su
 
 See [`../active-development/takeoff-land-command-fix/`](../active-development/takeoff-land-command-fix/) and
 [`docs/API/FC_CONTROL_API_WIKI.md`](../../API/FC_CONTROL_API_WIKI.md).
+
+## A stick-down in an ALT_HOLD flight does not zero the attitude I-terms
+
+- **Mechanism.** In ANGLE mode under `pidRewrite` the rate I-term `errorGyroI` is the only integrator holding a CG
+  offset; the angle loop is P only. With the throttle stick below `mincheck` 1100, `processRx ( )` used to call
+  `pidResetErrorAngle ( )` / `pidResetErrorGyro ( )` on every RX frame, armed or not.
+- **What broke.** A full app stick-down ( about 1004 ) zeroed the trim in flight, and the craft leaned toward a payload
+  ( about 10 deg with a 9 g servo ) for the whole ALT_HOLD descent. The reset shipped since at least `v3.0.0`; the
+  30 cm/s shaped descent of `2a8d59a` made the lean last long enough to see
+  ( [`../active-development/cg-offset-takeoff-tilt/`](../active-development/cg-offset-takeoff-tilt/) ).
+- **Rules.**
+  - The reset is skipped while `altHoldKeepRateITerm ( )` holds: armed, BARO mode, not at ARM-switch ground idle,
+    `EstAlt` >= 20 cm, and no stick-descent touchdown latched ( `updateStickTouchdown ( )` ). The I-term keeps
+    integrating there. Everywhere else ( disarmed, THROTTLE mode, ground idle, below 20 cm, after a touchdown ) the reset
+    runs as before.
+  - Both ground tests are needed: `EstAlt` is relative to the arm point and can read 10-20 cm on the floor after a warm
+    flight, and a table is above it; the touchdown latch knows neither.
+  - Do not change `calculateThrottleStatus ( )` or `throttleStatus` to fix a stick-low behaviour: stick-arm, switch
+    disarm and the beeper read it.
+  - A new reason to reset the attitude I-terms must say why the craft cannot be in an ALT_HOLD flight at that point.

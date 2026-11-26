@@ -19,6 +19,13 @@ The Failsafe module acts as an autonomous safety net. It runs continuously to mo
   firmware never uses more than 22.
 - `failsafe_off_delay`, `failsafe_throttle`: stored and settable, but **not used**. `failsafeActivate ( )`,
   which would apply them, is never called.
+- `fsLowBattery`, `fsInFlightLowBattery`, `fsCrash` ( `API-Src/API-Utils.cpp:122-124`, `bool`, all `true` at
+  power-up, not saved ): the user-code switches, written only by `Failsafe_enable ( )` / `Failsafe_disable ( )`
+  ( `API-Src/FC-Config-Setpoints.cpp` ). Each call changes only the named flag, `ALL` all three ( API 1.8.8; before,
+  `Failsafe_enable` cleared the two it did not name, API test T07 ). Not reset on disarm or at Developer Mode off.
+  `fsCrash` gates `failsafeOnCrash ( )` ( below ); `fsInFlightLowBattery` gates the step out of `BATTERY_OK` in
+  `updateBatteryState ( )` ( `battery.cpp:798`, see `Power_BMS_Pipeline.md` ); `fsLowBattery` has no reader since the
+  battery-management rewrite ( `88f594f` ). All readers and writers run in the main loop.
 
 ## Primary Functions
 - `failsafeOnValidDataReceived ( )` / `failsafeOnValidDataFailed ( )`: called by
@@ -80,9 +87,10 @@ flowchart TD
 
 ## Crash Detector ( `failsafeOnCrash ( )` )
 
-`failsafeOnCrash ( )` ( [failsafe.cpp:362](../../../../src/main/flight/failsafe.cpp#L362) ) runs once per control loop
-( 3.5 ms, called from [mw.cpp:1424](../../../../src/main/mw.cpp#L1424) ). It is active only while **armed, `fsCrash` on
-and in ANGLE mode**. `fsCrash` is on by default; user code can switch it with `Failsafe_enable / disable ( CRASH )`. It
+`failsafeOnCrash ( )` ( [failsafe.cpp:363](../../../../src/main/flight/failsafe.cpp#L363) ) runs once per control loop
+( 3.5 ms, called from [mw.cpp:1529](../../../../src/main/mw.cpp#L1529) ). It is active only while **armed, `fsCrash` on
+and in ANGLE mode** ( the check at `failsafe.cpp:365` ). `fsCrash` is on by default; user code can switch it with
+`Failsafe_enable / disable ( CRASH )`, and from API 1.8.8 no other failsafe call changes it ( see Key Data Structures ). It
 disarms on **one sample** in which any of these terms is true:
 
 | Term | Limit | In g / degrees |
@@ -100,7 +108,7 @@ disarms on **one sample** in which any of these terms is true:
 - **On a trip:** `set_FSI ( Crash )` then `mwDisarm ( )`. The craft disarms; it does not land and does not halt the
   board.
 - **Flag clear:** about 300 ms after the trip, once the craft is level ( `SMALL_ANGLE` ), `Crash` is cleared
-  ( [mw.cpp:484-494](../../../../src/main/mw.cpp#L484) ) and the craft can be armed again. While `Crash` is set,
+  ( [mw.cpp:496-506](../../../../src/main/mw.cpp#L496) ) and the craft can be armed again. While `Crash` is set,
   arming by gesture is blocked ( [rc_controls.cpp:183](../../../../src/main/io/rc_controls.cpp#L183) ).
 - **Not detected:**
   - a craft pinned upright against a wall;

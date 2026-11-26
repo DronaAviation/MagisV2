@@ -57,6 +57,7 @@
 #include "config/config_profile.h"
 #include "config/config_master.h"
 #include "acrobats.h"
+#include "API/API-Utils.h"
 
 
 uint8_t flipDirection = 0;
@@ -75,6 +76,15 @@ bool isRollStabelised  = false;
                                        // time in SLOWDOWN; measured flips take about 2.5 s
 #define FLIP_UPRIGHT_MAX_DECI 700     // hand back within 70 deg on both axes: the crash detector's angle limit
 
+// Hands roll / pitch back to normal flight at the end of a flip and on every disarmed loop: the setDesiredRate
+// value when user code holds one, else the stock 75 these exits have always written ( userRollPitchRate ( ),
+// API test T16 / B30 ). The rates the flip flies with ( 75 in ASCEND / HOLD / HOLDPOS, 110 on the flip axis )
+// are not this; they stay as they are.
+static void restoreRestRates ( void ) {
+  currentControlRateProfile->rates [ FD_PITCH ] = userRollPitchRate ( FD_PITCH );
+  currentControlRateProfile->rates [ FD_ROLL ]  = userRollPitchRate ( FD_ROLL );
+}
+
 void flip ( bool doFlip ) {
   if ( doFlip ) {
     // SLOWDOWNANDEXIT has no exit for some attitudes ( pitch below 0, or a large roll ), so a flip could
@@ -82,10 +92,9 @@ void flip ( bool doFlip ) {
     // Upright: hand back to level flight as a finished flip does. Beyond the crash detector's 70 deg ( it would
     // disarm the drone in the same loop ) or inverted: disarm, as the other stuck-flip timeouts below do.
     if ( ( millis ( ) - flipStartTime ) > FLIP_WATCHDOG_MS ) {
-      flipState                                     = 0;
-      stateon                                       = 0;
-      currentControlRateProfile->rates [ FD_PITCH ] = 75;
-      currentControlRateProfile->rates [ FD_ROLL ]  = 75;
+      flipState = 0;
+      stateon   = 0;
+      restoreRestRates ( );
       if ( ABS ( inclination.values.rollDeciDegrees ) <= FLIP_UPRIGHT_MAX_DECI && ABS ( inclination.values.pitchDeciDegrees ) <= FLIP_UPRIGHT_MAX_DECI ) {
         ACTIVATE_RC_MODE ( BOXBARO );
         ENABLE_FLIGHT_MODE ( ANGLE_MODE );
@@ -109,6 +118,7 @@ void flip ( bool doFlip ) {
           ACTIVATE_RC_MODE ( BOXBARO );
           flipState = 0;
           ENABLE_FLIGHT_MODE ( ANGLE_MODE );
+          restoreRestRates ( );
 
           return;
         }
@@ -251,6 +261,7 @@ void flip ( bool doFlip ) {
           //  Althold.setRelativeAltholdHeight(-150);
           flipState = 0;
           stateon   = 0;
+          restoreRestRates ( );
         }
         break;
 
@@ -336,16 +347,16 @@ void flip ( bool doFlip ) {
           //    Althold.setRelativeAltholdHeight(-150);
           flipState = 0;
           stateon   = 0;
+          restoreRestRates ( );
           // flipState = 0;
         }
         break;
     }
   } else {
 
-    flipState                                     = 0;
-    stateon                                       = 0;
-    currentControlRateProfile->rates [ FD_PITCH ] = 75;
-    currentControlRateProfile->rates [ FD_ROLL ]  = 75;
+    flipState = 0;
+    stateon   = 0;
+    restoreRestRates ( );
   }
 }
 

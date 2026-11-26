@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Wed, 8th Jul 2026                                           #
+ #  Last Modified: Tue, 3rd Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -76,6 +76,11 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, axis_e _axis ) {
   }
 }
 
+// Round a float to the nearest int32_t, away from zero at .5 ( no <math.h>: flight/pid.h re-defines its M_PI )
+static int32_t roundToInt32 ( float value ) {
+  return ( int32_t ) ( value + ( value >= 0.0f ? 0.5f : -0.5f ) );
+}
+
 int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data ) {
   // Ensure the sensor is a barometer before proceeding
   if ( _sensor != Barometer ) return 0;
@@ -83,11 +88,11 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data ) {
   // Retrieve barometer data based on the request type
   switch ( _data ) {
     case Pressure:
-      // Return barometric pressure in units of 100*millibar
-      return getBaroPressure ( );
+      // Barometric pressure in Pa ( = mbar x100 ); the driver value is a float, rounded to nearest
+      return roundToInt32 ( getBaroPressure ( ) );
     case Temperature:
-      // Return barometric temperature in units of 100*degreeCelsius
-      return getBaroTemperature ( );
+      // Barometric temperature in deg C x100 ( 3270 = 32.70 C ); getBaroTemperature ( ) is deg C
+      return roundToInt32 ( getBaroTemperature ( ) * 100.0f );
     default:
       // Return 0 as a fallback for unsupported data types
       return 0;

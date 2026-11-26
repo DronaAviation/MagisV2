@@ -58,6 +58,7 @@
 #include "io/gimbal.h"
 #include "io/gps.h"
 #include "io/ledstrip.h"
+#include "io/oled_display.h"    // devmode: Developer Mode running ( userAngleTarget )
 #include "io/serial.h"
 #include "io/serial_cli.h"
 #include "io/serial_msp.h"
@@ -182,6 +183,53 @@ void userRCrelease ( uint8_t channel ) {
 
   RC_ARRAY [ channel ]   = 0;
   userRCflag [ channel ] = false;
+}
+
+/**
+ * @brief The user's roll / pitch tilt for pidRewrite ( ), deci-degrees.
+ *
+ * setDesiredAngle ( AG_ROLL / AG_PITCH ) holds a tilt until it is replaced; pidRewrite ( ) adds this to
+ * its ANGLE-mode stick target ( 2 * rcCommand ) before the max_angle_inclination clamp, so the pilot's
+ * stick adds on top and the sum keeps the pilot's limit. It is not flown, but stays held, while:
+ *
+ * - ANGLE mode is off ( ACRO / HORIZON );
+ * - a flip runs ( it owns roll and pitch );
+ * - a landing runs ( user, RC-loss or battery: a held tilt would drift the descent );
+ * - the craft is not airborne yet: the throttle has not been raised since arming, or the craft is below
+ *   USER_ANGLE_MIN_ALT_CM above the arm reference. An app take-off arms with the throttle stick centred,
+ *   so "throttle raised" is already true on the skids, and a commanded tilt would pivot the take-off on
+ *   a leg;
+ * - Developer Mode has not run for USER_ANGLE_LINK_GRACE_MS. A normal Wi-Fi flicker is shorter and keeps
+ *   flying the tilt, so the craft does not level and step back; a real stall suppresses it, because user
+ *   code has stopped and the pilot's sticks have fallen back to centre, and a held tilt would fly the
+ *   craft away for the ~2.5 s until the failsafe landing.
+ *
+ * userCode ( ) clears it at a real Developer Mode switch-off and on the disarm edge.
+ */
+int32_t userAngleTarget ( uint8_t axis ) {
+  // Tracked on every call, before the gates, so the window measures the link and not the gates.
+  static uint32_t lastDevModeMs = 0;
+  uint32_t        now           = millis ( );
+  if ( devmode ) lastDevModeMs = now;
+
+  if ( axis > FD_PITCH || ! isUserDesiredAngle [ axis ] ) return 0;
+  if ( ( now - lastDevModeMs ) > USER_ANGLE_LINK_GRACE_MS ) return 0;
+  if ( ! FLIGHT_MODE ( ANGLE_MODE ) || flipState != 0 || landingInProgress ( ) ) return 0;
+  if ( ! throttleRaisedInFlight ( ) || getEstAltitude ( ) < USER_ANGLE_MIN_ALT_CM ) return 0;
+  return userDesiredAngle [ axis ];
+}
+
+/**
+ * @brief Roll / pitch rate to rest at outside a flip.
+ *
+ * setDesiredRate ( ) holds its value in userDesiredRate [ ] until reboot or the next call. flip ( false )
+ * runs on every disarmed loop and the flip exits hand roll / pitch back to normal flight; both wrote a
+ * fixed 75 and so wiped the user value ( API test T16 / B30 ), and call this instead. The flip's own
+ * 75 / 110 while flipping are not affected.
+ */
+uint8_t userRollPitchRate ( uint8_t axis ) {
+  if ( axis > FD_PITCH || ! isUserDesiredRate [ axis ] ) return STOCK_ROLL_PITCH_RATE;
+  return ( uint8_t ) userDesiredRate [ axis ];    // 0-100, clamped by setDesiredRate ( )
 }
 
 /**

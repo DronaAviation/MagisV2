@@ -11,7 +11,7 @@
  #  Created Date: Sun, 24th Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 15th Oct 2026                                          #
+ #  Last Modified: Sun, 15th Nov 2026                                          #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -78,6 +78,7 @@
 
 #include "API/API-Utils.h"
 #include "API/FC-Config.h"
+#include "flight/acrobats.h"    // flipState: setDesiredRate ( ) leaves a running flip's rates alone
 
 int32_t getDesiredAngle ( angle_e ANGLE ) {
   // Return the desired angle value from the desiredAngle array based on the specified angle type
@@ -88,12 +89,14 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle ) {
   // Use a switch statement to determine which angle value should be set based on the specified angle type
   switch ( ANGLE ) {
     case AG_ROLL:
-      // If the angle is roll, set the roll inclination in deci-degrees
-      inclination.values.rollDeciDegrees = angle;
-      break;
     case AG_PITCH:
-      // If the angle is pitch, set the pitch inclination in deci-degrees
-      inclination.values.pitchDeciDegrees = angle;
+      // Roll / pitch: hold the user's angle target ( deci-degrees ) until it is replaced. pidRewrite ( )
+      // adds it to the ANGLE-mode stick target and limits the sum to max_angle_inclination. This used
+      // to write the measured attitude ( inclination ), which the next imuUpdate ( ) overwrote, so the
+      // value was read back once and the drone never tilted ( API test T11 / B4 ). The +/-180 deg bound
+      // only keeps the later sum in range; the real limit is the controller's clamp.
+      userDesiredAngle [ ANGLE ]   = constrain ( angle, -1800, 1800 );
+      isUserDesiredAngle [ ANGLE ] = true;
       break;
     case AG_YAW: {
       // If the angle is yaw, set the magnetic hold and user heading, then mark the user heading as set.
@@ -117,9 +120,9 @@ void setDesiredAngle ( angle_e ANGLE, int32_t angle ) {
 }
 
 void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle ) {
-  // Only yaw carries an absolute setpoint the firmware holds between loops.
-  // Roll and pitch are re-derived from the sticks on every PID iteration, so a
-  // relative offset on them would be overwritten before it could take effect.
+  // Only yaw takes a relative target: a turn measured from the nose. Roll and
+  // pitch are absolute tilts from level ( setDesiredAngle ), so a relative call
+  // on them is ignored.
   if ( ANGLE != AG_YAW ) return;
 
   // Compose against the setpoint user code has already latched so repeated
@@ -145,29 +148,40 @@ void DesiredAngle_setRelative ( angle_e ANGLE, int32_t angle ) {
 }
 
 int32_t getDesiredRate ( angle_e ANGLE ) {
-  // Return the desired rate value from the desiredRate array based on the specified angle type
-  return desiredRate [ ANGLE ];
+  // The rate setDesiredRate ( ) holds, or the rate in use when none was set ( roll / pitch 75 in practice ).
+  // AG_ROLL / AG_PITCH / AG_YAW share their index with FD_ROLL / FD_PITCH / FD_YAW.
+  if ( ANGLE > AG_YAW ) return 0;
+  if ( isUserDesiredRate [ ANGLE ] ) return userDesiredRate [ ANGLE ];
+  return currentControlRateProfile->rates [ ANGLE ];
 }
 
 void setDesiredRate ( angle_e ANGLE, int32_t rate ) {
-  // Use a switch statement to determine which control rate should be set based on the specified angle
+  // Cleanflight rate ( 0-100 roll / pitch, 0-255 yaw ), clamped to the limits MSP_SET_RC_TUNING uses. Held in
+  // userDesiredRate [ ] until reboot or the next call, so the flip code restores it instead of the stock 75
+  // ( userRollPitchRate ( ) ), and written to the live profile so it acts at once. Never saved to EEPROM here.
+  // Exception: roll / pitch during a flip are held but not applied. userCode ( ) runs after flip ( true ) and before
+  // the PID, and the flip sets its spin rate only once, so a live write would replace it; a low rate could stall the
+  // flip into its 2 s PITCHING timeout, which disarms in the air. The flip's exit ( restoreRestRates ( ) ) applies the
+  // held value instead. Yaw is never touched by the flip and always applies at once.
+  int maxRate;
   switch ( ANGLE ) {
     case AG_ROLL:
-      // If the angle is roll, set the roll rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_ROLL ] = rate;
-      break;
     case AG_PITCH:
-      // If the angle is pitch, set the pitch rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_PITCH ] = rate;
+      maxRate = CONTROL_RATE_CONFIG_ROLL_PITCH_RATE_MAX;
       break;
     case AG_YAW:
-      // If the angle is yaw, set the yaw rate in the current control rate profile
-      currentControlRateProfile->rates [ FD_YAW ] = rate;
+      maxRate = CONTROL_RATE_CONFIG_YAW_RATE_MAX;
       break;
     default:
-      // Default case to handle any unspecified angles; no action needed
-      break;
+      return;
   }
+
+  int clamped                 = constrain ( ( int ) rate, 0, maxRate );
+  userDesiredRate [ ANGLE ]   = clamped;
+  isUserDesiredRate [ ANGLE ] = true;
+
+  if ( ANGLE != AG_YAW && flipState != 0 ) return;    // held; the flip's exit applies it
+  currentControlRateProfile->rates [ ANGLE ] = ( uint8_t ) clamped;
 }
 
 int32_t getDesiredPositions ( axis_e AXIS ) {
@@ -200,14 +214,25 @@ void Failsafe_enable ( failsafe_e FAILSAFE ) {
   // Determine if all failsafes need to be enabled
   bool enableAll = ( FAILSAFE == ALL );
 
-  // Enable low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically LOW_BATTERY
-  fsLowBattery = enableAll || ( FAILSAFE == LOW_BATTERY );
+  // Only ever set a flag here, never clear one: the failsafes not named keep their state
+  // ( API test T07: assigning each flag switched the other two off, and enabling CRASH
+  // removed the low-battery landing ).
 
-  // Enable in-flight low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY
-  fsInFlightLowBattery = enableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY );
+  // Set the low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically LOW_BATTERY
+  // ( no firmware path reads fsLowBattery: it is kept for API compatibility )
+  if ( enableAll || ( FAILSAFE == LOW_BATTERY ) ) {
+    fsLowBattery = true;
+  }
 
-  // Enable crash failsafe if 'enableAll' is true or if FAILSAFE is specifically CRASH
-  fsCrash = enableAll || ( FAILSAFE == CRASH );
+  // Set the in-flight low battery failsafe if 'enableAll' is true or if FAILSAFE is specifically INFLIGHT_LOW_BATTERY
+  if ( enableAll || ( FAILSAFE == INFLIGHT_LOW_BATTERY ) ) {
+    fsInFlightLowBattery = true;
+  }
+
+  // Set the crash failsafe if 'enableAll' is true or if FAILSAFE is specifically CRASH
+  if ( enableAll || ( FAILSAFE == CRASH ) ) {
+    fsCrash = true;
+  }
 }
 
 void Failsafe_disable ( failsafe_e FAILSAFE ) {

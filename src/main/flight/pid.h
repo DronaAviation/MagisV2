@@ -107,6 +107,7 @@ extern  int16_t lastGyroReadings[3];
 void pidSetController(pidControllerType_e type);
 void pidResetErrorAngle(void);
 void pidResetErrorGyro(void);
+void pidProfileDefaultGains ( pidProfile_t *pidProfile );    // firmware default P8 / I8 / D8, every slot ( flight/pid_defaults.cpp )
 
 // Diagnostics ( read-only ): the rate integrator errorGyroI[axis] in axisPID units ( ±GYRO_I_MAX;
 // meaningful for pidRewrite, the default controller, only: the others keep it on another scale, and

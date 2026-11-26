@@ -28,16 +28,16 @@ Rev 14; API/ownership facts are from the codebase.
 |----------|------|-----|-----|----------------|-----|-------|
 | **PA2**  | GPIO_18 | ADC_9 (ADC1_IN3) | — | USART2_TX (AF7) | alloc: DMA1_Ch1 (ADC1, if ADC_9) | free: TIM2_CH3 |
 | **PA3**  | GPIO_17 | ADC_8 (ADC1_IN4) | — | USART2_RX (AF7) | alloc: DMA1_Ch1 (ADC1, if ADC_8) | free: TIM2_CH4 |
-| **PA4**  | GPIO_9  | ADC_6 (ADC2_IN1) | — | — | alloc: DMA2_Ch1 (ADC2, if ADC_6) | free: TIM3_CH2 |
+| **PA4**  | GPIO_9  | ADC_6 (ADC2_IN1) | — | — | alloc: DMA2_Ch1 (ADC2, if ADC_6) | (TIM3_CH2 AF, but TIM3_CH2 is Motor API `M2`) |
 | **PA5**  | GPIO_14 | ADC_7 (ADC2_IN2) | — | (SPI1_SCK / DAC_OUT2) | alloc: DMA2_Ch1 (ADC2, if ADC_7) | free: TIM2_CH1 |
 | **PA8**  | GPIO_1  | — | PWM_1 (TIM1_CH1) | — | free: DMA1_Ch2 (via TIM1_CH1) | ⚠ alloc: TIM1_CH1 (5th motor out **+** PWM_1) |
 | **PA13** | GPIO_10 | — | PWM_6 (TIM4_CH3) | — | — | ⚠ alloc: TIM4_CH3 — **SWDIO debug pin** |
 | **PA14** | GPIO_11 | — | PWM_7 (TIM8_CH2) | — | — | ⚠ alloc: TIM8_CH2 — **SWCLK debug pin** |
 | **PA15** | GPIO_16 | — | PWM_10 (TIM8_CH1) | — | ⚠ alloc: DMA2_Ch3 (WS2811) | ⚠ alloc: TIM8_CH1 (WS2811 LED **+** PWM_10) |
 | **PB2**  | GPIO_2  | ADC_1 (ADC2_IN12) | — | — | alloc: DMA2_Ch1 (ADC2, if ADC_1) | — (no usable timer AF) |
-| **PB3**  | GPIO_15 | — | — | (SPI1_SCK / USART2_TX, no API) | free: DMA1_Ch7 (USART2_TX) | free: TIM2_CH2 / TIM3_CH1 |
+| **PB3**  | GPIO_15 | - | - | ⚠ **ESP Wi-Fi enable** (push-pull output set up at boot, LOW = Wi-Fi on: `STM_PB3_ESP_IO14_Init ( )` [RxConfig.cpp:291](../../src/main/API-Src/RxConfig.cpp#L291), called at [main.cpp:203](../../src/main/main.cpp#L203)) · (SPI1_SCK / USART2_TX, no API) | (free: DMA1_Ch7, but the pin is taken) | (TIM2_CH2 / TIM3_CH1 AF, but the pin is taken) |
 | **PB4**  | GPIO_12 | — | PWM_8 (TIM3_CH1) | (SPI1_MISO / USART2_RX, no API) | free: DMA1_Ch2 (SPI1_RX) / Ch3 (TIM16_CH1) / Ch6 (USART2_RX) | alloc: TIM3_CH1 (PWM_8) · free: TIM16_CH1 |
-| **PB5**  | GPIO_13 | — | PWM_9 (TIM17_CH1) | (SPI1_MOSI, no API) | free: DMA1_Ch3 (SPI1_TX) | alloc: TIM17_CH1 (PWM_9) · free: TIM3_CH2 / TIM8_CH3 |
+| **PB5**  | GPIO_13 | - | PWM_9 (TIM17_CH1) | ⚠ **SPI API chip select** (`SPI_Read` / `SPI_Write` drive it low / high, [Serial-IO-SPI.cpp:30-31](../../src/main/API-Src/Serial-IO-SPI.cpp#L30); user code sets it up with `Peripheral_Init ( GPIO_13, OUTPUT )`) · (SPI1_MOSI, no API) | free: DMA1_Ch3 (SPI1_TX) | alloc: TIM17_CH1 (PWM_9) · free: TIM8_CH3N, complementary output (TIM3_CH2 AF is reachable, but TIM3_CH2 is Motor API `M2`) |
 | **PB6**  | GPIO_3  | — | PWM_2 (TIM4_CH1) | (I2C1_SCL alt / USART1_TX, no API) | free: DMA1_Ch6 (I2C1_TX) | alloc: TIM4_CH1 (PWM_2) · free: TIM16_CH1N |
 | **PB7**  | GPIO_4  | — | PWM_3 (TIM4_CH2) | (I2C1_SDA alt / USART1_RX, no API) | free: DMA1_Ch5 (USART1_RX) / Ch7 (I2C1_RX) | alloc: TIM4_CH2 (PWM_3) · free: TIM17_CH1N |
 | **PB12** | GPIO_8  | ADC_5 (ADC4_IN3) | — | ⚠ SPI2_NSS / flash CS | alloc: DMA2_Ch2 (ADC4, if ADC_5) | — |
@@ -71,7 +71,13 @@ Notes:
   public `Peripheral_Init` / `Peripheral_Write` and its ADC / PWM alias are refused, and no LED write
   reaches it ( FRONT then has no LED ). Every fitted side laser must be enabled: one left awake at 0x29
   makes the start-up refuse the others ( `BUS_BUSY` ). Wiki: [XRANGING_API_WIKI.md](../API/XRANGING_API_WIKI.md).
-- The SPI API (`SPI_Init`/`SPI_Read`/`SPI_Write`) targets **SPI2 on PB12–PB15**.
+- The SPI API (`SPI_Init`/`SPI_Read`/`SPI_Write`) targets **SPI2 on PB13-PB15**, with its chip select on **PB5**
+  ( `GPIO_13` ); PB12 is the onboard flash's chip select.
+- **XRanging BACK's XSHUT is `GPIO_15` = PB3**, the ESP Wi-Fi enable line ( row above ). Whether the header pad and
+  the ESP enable are one net on every board is open ( api-wiki-sync finding F12 ).
+- **RGB LED strip slots** ( `RGB_Init ( )`, one per power cycle ): `RGB_1` PA8, `RGB_2` PB6, `RGB_3` PB14, `RGB_4`
+  PA13, `RGB_5` PA14, `RGB_6` PB4, `RGB_7` PB5, `RGB_8` PA15. Each takes the pin, its whole timer and one DMA channel:
+  [WS2812_RGB.md](WS2812_RGB.md) §3.
 
 ---
 
@@ -79,13 +85,18 @@ Notes:
 
 | Physical | Function | Timer / DMA |
 |----------|----------|-------------|
-| PA0  | Motor **M1** | TIM2_CH1 |
-| PA1  | Motor **M2** | TIM2_CH2 |
-| PB10 | Motor **M3** | TIM2_CH3 |
-| PB11 | Motor **M4** | TIM2_CH4 |
+| PA0  | Flight motor **1** ( Cleanflight M1, not the API's `M1` ) | TIM2_CH1 |
+| PA1  | Flight motor **2** | TIM2_CH2 |
+| PB10 | Flight motor **3** | TIM2_CH3 |
+| PB11 | Flight motor **4** | TIM2_CH4 |
+| PA6  | Motor API **`M1`** speed, set up by `Motor_Init ( M1 )` ( [Motor.cpp:94](../../src/main/API-Src/Motor.cpp#L94) ) | TIM3_CH1, 20 kHz |
+| PA7  | Motor API **`M2`** speed, set up by `Motor_Init ( M2 )` ( [Motor.cpp:113](../../src/main/API-Src/Motor.cpp#L113) ) | TIM3_CH2, 20 kHz |
+| PB0  | Motor API **`M1`** direction, starts LOW ( [Motor.cpp:95-104](../../src/main/API-Src/Motor.cpp#L95) ) | - |
+| PB1  | Motor API **`M2`** direction, starts HIGH ( [Motor.cpp:114-122](../../src/main/API-Src/Motor.cpp#L114) ) | - |
+| PB3  | ESP Wi-Fi enable ( also `GPIO_15`, see §1 ) | - |
 | PA9  | USART1_TX (ESP receiver) | DMA1_Ch4 (TX DMA) |
 | PA10 | USART1_RX (ESP receiver) | — |
-| PB8 / PB9 | I2C1 (also the onboard sensor bus, and the lasers: VL53L0X down at 0x30 and side at 0x2A + n after start-up; or a VL53L1X down-laser at 0x29) | — |
+| PB8 / PB9 | I2C1 (also the onboard sensor bus, and the lasers: VL53L0X down at 0x30 and side at 0x2A + n after start-up; the VL53L1X down-laser also at 0x30) | — |
 | PC13 / PC14 / PC15 | Status LEDs (R/G/B) | — |
 | — | System timebase | **SysTick** (millis/micros) |
 
@@ -107,17 +118,20 @@ Notes:
    GPIO keep their setup.
 2. **PA8** — `PWM_1` (TIM1_CH1) is the *same channel/pin* as the firmware's 5th PWM output
    (`timerHardware[4]`). Don't drive both.
-3. **PA15** — `PWM_10` (TIM8_CH1) is the *same channel/pin* as the **WS2811 LED strip**
-   (which also owns DMA2_Channel3). Don't use `PWM_10` if the LED strip is enabled.
+3. **PA15**: `PWM_10` (TIM8_CH1) is the *same channel/pin* as the RGB strip's default slot `RGB_8`
+   (which also owns DMA2_Channel3) and the XRanging FRONT XSHUT. Don't use `PWM_10` with `RGB_Init ( RGB_8, ... )`.
 4. **PA13 / PA14** — `PWM_6` / `PWM_7` repurpose the **SWDIO / SWCLK** debug pins; using
    them blocks SWD debugging.
 5. **PA2 / PA3** — `ADC_9` / `ADC_8` share pins with **USART2 TX/RX**. If you use UART2
    (`Uart_Init(UART2, …)`), you cannot also use ADC_8/ADC_9, and vice-versa. (UART2 is used
    when `localisationType == UWB`.)
-6. **Same-timer frequency coupling:** `PWM_2`+`PWM_3` (both TIM4) share one frequency;
-   `PWM_4`+`PWM_5` (both TIM15) share one frequency. Last `pwmRate` per timer wins.
+6. **Same-timer frequency coupling:** `PWM_2`+`PWM_3`+`PWM_6` (TIM4), `PWM_4`+`PWM_5` (TIM15) and
+   `PWM_7`+`PWM_10` (TIM8) each share one frequency. Last `pwmRate` per timer wins.
 7. **SPI2 has no free full-duplex DMA:** SPI2_RX request is on DMA1_Channel4, already owned
    by USART1 TX — so a DMA-driven SPI2 could only do TX (DMA1_Ch5).
+8. **TIM3 is shared by `PWM_8` ( PB4, CH1 ), `RGB_6` ( PB4, CH1 ) and the Motor API `M1` ( PA6, CH1 ) / `M2`
+   ( PA7, CH2 ).** `M1` and `PWM_8` / `RGB_6` drive the same compare channel; use only one of them.
+9. **PB5 is the SPI API chip select.** With the SPI API in use, `GPIO_13`, `PWM_9` and `RGB_7` are not available.
 
 ---
 
@@ -127,7 +141,7 @@ Notes:
 |----------|-----|
 | Spare digital I/O | any GPIO_n not currently used for its other role |
 | Extra ADC input | `ADC_1` (PB2), `ADC_6/7` (PA4/PA5), `ADC_8/9` (PA2/PA3) — avoid ADC_2–5 if flash/blackbox is active |
-| Extra PWM output | `PWM_2/PWM_3` (PB6/PB7) or `PWM_8/PWM_9` (PB4/PB5) — the conflict-free ones |
+| Extra PWM output | `PWM_2/PWM_3` (PB6/PB7); `PWM_8` (PB4) only without the Motor API, `PWM_9` (PB5) only without the SPI API |
 | A DMA-driven SPI device | SPI1 on **PB3/PB4/PB5** → DMA1_Ch2 (RX) + Ch3 (TX), both free (see DMA_MAP §4) |
 | A timer / DMA pacer with no pin | **TIM6 / TIM7** (see TIMER_MAP §4) |
 | A free DMA channel with no contender | **DMA2_Channel4** |

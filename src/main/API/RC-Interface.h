@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Thu, 18th Sep 2025                                          #
+ #  Last Modified: Thu, 5th Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -63,25 +63,39 @@ int16_t *RcData_Get ( void );
 int16_t RcData_Get ( rc_channel_e CHANNEL );
 
 /**
- * @brief Gets a channel's offset value from rcCommand.
+ * @brief Gets the four primary commands ( roll, pitch, yaw, throttle ) as one array.
  *
- * Returns the value at `CHANNEL` index in `rcCommand`, offset by 1500,
- * if `CHANNEL` is valid. Otherwise, returns 0.
+ * Copies the flight controller's current `rcCommand` into a static four-element array
+ * and returns a pointer to it, indexed by `RC_ROLL`, `RC_PITCH`, `RC_YAW`, `RC_THROTTLE`:
+ *   - [ RC_ROLL ], [ RC_PITCH ], [ RC_YAW ]: 1500 + `rcCommand`, about 1000 to 2000
+ *     ( 1500 = centred; in HEADFREE roll and pitch can reach about 860 to 2140 ),
+ *     the same values as `RcCommand_Get ( channel )`.
+ *   - [ RC_THROTTLE ]: `rcCommand [ THROTTLE ]` as is, 1100 to 2000: `rcData [ THROTTLE ]`
+ *     through the throttle curve. Normally the throttle stick; during a landing the landing
+ *     throttle, at most 1500 above the altitude limit, 1200 in failsafe, and it can show your
+ *     own throttle override. Altitude hold replaces it only after user code has run, so in
+ *     altitude hold this is not the hover throttle.
  *
- * @param CHANNEL The `rc_channel_e` type channel index.
+ * The array is refreshed on every call and shared by all callers: read it, or copy it,
+ * before calling `RcCommand_Get ( )` again. Do not write to it.
  *
- * @return Offset value from `rcCommand` or 0 if invalid.
+ * @return Pointer to the four values ( never NULL ).
  */
 
 int16_t *RcCommand_Get ( void );
 
 /**
- * @brief Copies first four elements of the global rcCommand array.
+ * @brief Gets one channel's value from rcCommand, offset by 1500.
  *
- * Copies values from `rcCommand` to a local array.
- * Returning this local array's address causes undefined behavior.
+ * Returns 1500 + `rcCommand [ CHANNEL ]` for `RC_ROLL`..`RC_THROTTLE`
+ * ( about 1000 to 2000 for roll, pitch and yaw, wider in HEADFREE ), and 0 for any other channel.
  *
- * @return Pointer to an `int16_t` array, leading to undefined behavior.
+ * @param CHANNEL The `rc_channel_e` type channel index.
+ *
+ * @return Offset value from `rcCommand`, or 0 if the channel is not one of the four.
+ *
+ * @warning For `RC_THROTTLE` this adds 1500 to a throttle that is already 1100 to 2000,
+ *          so it reads 2600 to 3500. Use `RcCommand_Get ( ) [ RC_THROTTLE ]` instead.
  */
 
 int16_t RcCommand_Get ( rc_channel_e CHANNEL );

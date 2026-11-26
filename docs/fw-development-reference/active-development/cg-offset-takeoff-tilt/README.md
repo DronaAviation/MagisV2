@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Active** ( opened 19 Oct 2026 ) |
+| **Status** | **Active** ( opened 19 Oct 2026 ). Task 4 ( `de9eef7` ) shipped in v3.9.0 / v3.9.1 and v4.0.0; tasks 5-12 are open. The freeze of [payload-tilt-on-descent](../payload-tilt-on-descent/README.md) ( `a7f398d` ) is not in v4.0.0. |
 | **Mode** | `fix` |
 | **Branch** | `BugFix-June26-cg-tilt` ( from `BugFix-June26` at `a81c180` ) |
 | **Target** | `PRIMUS_X2_v1` ( all targets at commit ) |
@@ -46,4 +46,5 @@ phases now last several seconds instead of about one, so the drift grows roughly
 4. ~~Task 4 ( no stick-low reset in an ALT_HOLD flight )~~. Done: guarded by ground idle, a 20 cm floor and a
    stick-descent touchdown latch. Next: the hover-snapshot seed ( task 5 ). Task 12 ( a pre-existing ground-idle
    motor cut in the air ) needs the user's scope decision.
-5. The test `PlutoPilot.cpp` and the task 2 log line are temporary: remove them before release.
+5. ~~The test `PlutoPilot.cpp` and the task 2 log line are temporary: remove them before release.~~ Done in `60da0d3`
+   ( v3.9.0 ): `PlutoPilot.cpp` is the template again; the task 2 getters stay as read-only diagnostics.

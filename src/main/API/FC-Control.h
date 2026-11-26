@@ -11,12 +11,13 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Fri, 16th Oct 2026                                          #
+ #  Last Modified: Thu, 5th Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
  #  ----------	---	---------------------------------------------------------  #
+ #  2026-11-05	AJ	Flight status order and values documented ( API 1.8.4 )    #
  #  2026-10-16	AJ	Take-off / land / flip rules documented ( API 1.7.0 )      #
 *******************************************************************************/
 #ifndef FC_CONTROL_H
@@ -51,21 +52,37 @@ typedef enum {
 } flip_direction_e;
 
 /**
- * @brief Gets the current flight status.
+ * @brief Gets the current flight status: the most important of the statuses that are active.
  *
- * Extracts the least significant bit from `flightIndicatorFlag` and casts to `flightstatus_e`.
+ * Several statuses can be active at once ( for example crashed and OK to arm ); this returns the first
+ * active one in this order:
+ *   1. FS_ACCEL_GYRO_CALIBRATION, FS_MAG_CALIBARATION
+ *   2. FS_CRASHED: set when the crash detector disarms ( crash failsafe on, the default; armed in ANGLE
+ *      mode, not during a flip; tilt over 70 degrees or an impact ).
+ *      Cleared about 0.3 s after the disarm once the drone is level, so read it every loop.
+ *   3. FS_LOW_BATTERY ( warning level ), then FS_INFLIGHT_LOW_BATTERY ( critical level ). Both only with
+ *      the in-flight low-battery failsafe on, the default. Once critical is confirmed the drone lands, and
+ *      the status is reported again after the landing until the battery is changed. A provisional critical,
+ *      before the pack resistance is measured, does not land and can clear when disarmed.
+ *   4. FS_SIGNAL_LOSS
+ *   5. FS_NOT_OK_TO_ARM / FS_OK_TO_ARM, then FS_ARMED
  *
- * @return Current `flightstatus_e`.
+ * The same status the app receives, except that the app is told FS_LOW_BATTERY instead of
+ * FS_INFLIGHT_LOW_BATTERY while armed.
+ *
+ * @return Current `flightstatus_e`. Right after a disarm with the ARM switch still on, one read can
+ *         find no status active: the value is then 0xFFFF, which matches no FS_ value ( not armed ).
  */
 flightstatus_e FlightStatus_Get ( void );
 
 /**
- * @brief Evaluates a flight status.
+ * @brief Checks whether one flight status is active, whatever its priority.
  *
- * Casts the input to `FlightStatus_e` and uses `status_FSI` to check validity.
+ * For example FlightStatus_Check ( FS_ARMED ) is true while armed even when FlightStatus_Get ( )
+ * returns FS_LOW_BATTERY.
  *
  * @param status Flight status of type `flightstatus_e`.
- * @return True if the status meets criteria, otherwise false.
+ * @return True if that status is active; false if not, or if `status` is not a `flightstatus_e` value.
  */
 bool FlightStatus_Check ( flightstatus_e status );
 

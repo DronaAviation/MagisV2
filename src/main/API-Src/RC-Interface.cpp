@@ -11,7 +11,7 @@
  #  Created Date: Sat, 23rd Aug 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 23rd Mar 2026                                          #
+ #  Last Modified: Thu, 5th Nov 2026                                           #
  #  Modified By: AJ                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
@@ -97,17 +97,19 @@ int16_t RcData_Get ( rc_channel_e CHANNEL ) {
   return rcData [ CHANNEL ];
 }
 
-// Function to get a copy of the rcCommand array
-int16_t *RcCommand_get ( void ) {
-  int16_t rcCommandArray [ 4 ];    // Temporary array to store copied command data
+// Snapshot of the four primary commands for RcCommand_Get ( ): file-static, so the returned pointer stays valid
+// after the call ( a local array was returned before, which GCC compiled to return NULL )
+static int16_t rcCommandSnapshot [ 4 ];
 
-  // Copy elements from global rcCommand to local rcCommandArray
-  for ( int i = 0; i < 4; i++ ) {
-    rcCommandArray [ i ] = rcCommand [ i ];
-  }
+// Function to get a copy of the four primary commands, indexed by rc_channel_e:
+// roll / pitch / yaw as 1500 + rcCommand ( the RcCommand_Get ( channel ) scale ), throttle as rcCommand [ THROTTLE ]
+int16_t *RcCommand_Get ( void ) {
+  rcCommandSnapshot [ RC_ROLL ]     = ( int16_t ) ( 1500 + rcCommand [ ROLL ] );
+  rcCommandSnapshot [ RC_PITCH ]    = ( int16_t ) ( 1500 + rcCommand [ PITCH ] );
+  rcCommandSnapshot [ RC_YAW ]      = ( int16_t ) ( 1500 + rcCommand [ YAW ] );
+  rcCommandSnapshot [ RC_THROTTLE ] = rcCommand [ THROTTLE ];
 
-  // Returning the address of a local array will lead to undefined behavior
-  return rcCommandArray;
+  return rcCommandSnapshot;
 }
 
 // Function to get a specific channel value from rcCommand with an offset

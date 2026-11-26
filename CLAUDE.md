@@ -101,7 +101,9 @@ Tooling backlog: `.claude/TOOLING_BACKLOG.md`.
   `plutoLoop`, `onLoopFinish`; everything it needs comes from `PlutoPilot.h`).
 - **Two-layer API:** public headers in `src/main/API/`, implementations in `src/main/API-Src/`. Keep the
   public headers stable. When a public API signature or behaviour changes, update the matching wiki in
-  `docs/API/` and bump `FW_Version`/`API_Version` in the Makefile.
+  `docs/API/` and bump `FW_Version`/`API_Version` in the Makefile. The public GitHub wiki is a separate repo cloned
+  at `MagisV2.wiki/` ( not tracked here ): its page rules, the example compile check `wiki_check.py` and the known API
+  defects ( `FINDINGS.md` ) are in `active-development/api-wiki-sync/`.
 - **Every new `.c`/`.cpp` module must be added to its Makefile group** (`COMMON_SRC`, `MAIN_*`,
   `DRONA_*`, `PRIMUSX2_DRIVERS`) — there is no source glob. Gate hardware-specific code on the target
   header `#define`s (`BARO`, `SONAR`, `GPS`, `UWB`, `ENABLE_ACROBAT`, `PRIMUSX2`, …).
@@ -131,7 +133,8 @@ Each of these has cost a flight. Full mechanism and numbers:
   masks the descent and touchdown is never detected.
 - **Keep `Monitor_Print` under ~130 bytes per tick with the app connected** — `uartWrite()` does not
   check the 256-byte TX ring for full; an overrun corrupts the app's MSP replies and it disconnects.
-  The double overload prints 0 for every digit after the first decimal.
+  A `Print` is one frame of at most 255 payload bytes ( the tag is cut ), a `Println` adds a 5-byte `"\n"` frame;
+  `precision` 0..4 ( `docs/API/DEBUGGING_API_WIKI.md`, `active-development/monitor-print-double-precision/` ).
 - **During a flip, altitude hold is bypassed, not switched off** — BARO_MODE stays on and altitude hold
   flies the flip's raw throttle rate, then flies back to the pre-flip height (if ≥ 20 cm) as a goal
   (`FLIGHT_INVARIANTS.md`).
@@ -159,16 +162,35 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **At critical battery the firmware lands ( `LAND` ); the app must not be told "critical" while armed** — it switches
   ARM off on that status and the motors stop in the air. Low battery is reported until the landing disarms, then
   `mwArm ( )` refuses to arm until the pack is changed ( `FLIGHT_INVARIANTS.md` ).
+- **`Failsafe_enable / disable ( X )` change only X ( `ALL` all three ); `fsInFlightLowBattery` is the only way out of
+  `BATTERY_OK`, so `INFLIGHT_LOW_BATTERY` gates every battery level and the critical landing, and `LOW_BATTERY` has no
+  reader**. Before API 2.0.0 ( development build 1.8.8 ) enabling one switch cleared the other two, so `Failsafe_enable ( CRASH )` silently removed the
+  low-battery landing ( `docs/API/FAILSAFE_API_WIKI.md`, `active-development/failsafe-enable-api/` ).
 - **User commands cannot replace a landing, and a landing cannot start in a flip**: `Command_TakeOff` / `Command_Flip`
   are refused while `landingInProgress ( )`, and `Command_Land` while `flipState != 0` ( flips end within 8 s ). Every
   end of a take-off goes through `endTakeOff ( )`, and a queued user take-off is dropped after 2 s of refused arming
   or at a real Dev Mode off. With the battery OK, arming is allowed again right after a landing
   ( `docs/API/FC_CONTROL_API_WIKI.md`, `active-development/takeoff-land-command-fix/` ).
 - **RC link loss lands ~2.5 s after the last frame** ( Wi-Fi / MSP; ~2.4 s on ELRS / PPM; `failsafe_delay` 15, capped at 22 ): Wi-Fi stalls of 1-2 s are normal. Extend tolerance only through `failsafe_delay`, never through the 600 ms stick hold ( `MAX_INVALID_PULS_TIME` ) or `DELAY_5_HZ` ( `FLIGHT_INVARIANTS.md` ).
+- **In an ALT_HOLD flight a full stick-down does not zero the attitude I-terms**: `processRx ( )` skips the stick-low
+  reset while `altHoldKeepRateITerm ( )` holds ( armed, BARO mode, not at ground idle, `EstAlt` >= 20 cm, no stick-descent
+  touchdown latched ) and the I-term keeps integrating; elsewhere ( THROTTLE mode, ground, ground idle, after a touchdown )
+  it resets as before. Zeroing it in flight leaned the craft toward a payload ( `FLIGHT_INVARIANTS.md`,
+  `active-development/cg-offset-takeoff-tilt/` ).
 - **User yaw ( `setDesiredAngle` / `DesiredAngle_setRelative` on `AG_YAW` ) is heading hold, which `userCode ( )`
   engages itself while a target is held** ( MAG mode forced unless HEADFREE or no magnetometer ). Without MAG or HEADFREE,
   `updateMagHold ( )` overwrites `magHold` every loop and the target is lost. The target is dropped only at a real
   dev-mode switch-off or a disarm, never on a Wi-Fi flicker ( `active-development/relative-yaw-api/` ).
+- **User roll / pitch ( `setDesiredAngle` on `AG_ROLL` / `AG_PITCH`, deci-degrees ) is a held ANGLE-mode tilt that
+  `pidRewrite` adds to `2 * rcCommand` before the `max_angle_inclination` clamp** ( `userAngleTarget ( )` ). It is kept
+  but not flown until the craft is airborne ( throttle raised and >= 20 cm up ), nor outside ANGLE mode, in a flip or
+  landing, or after 0.6 s without Developer Mode; it is dropped at a real dev-off and on the disarm edge. Never write `inclination` from user
+  code: it is the measured attitude, and the crash detector reads it ( `active-development/set-desired-angle-roll-pitch/` ).
+- **User stick rates ( `setDesiredRate` ) hold until reboot; roll / pitch default to 75, not the stored 0**: `flip ( false )`
+  writes `userRollPitchRate ( )` on every disarmed loop and the flip's normal exits restore it, so a value set from
+  user code survives disarm, Dev Mode off and flips. A roll / pitch call during a flip is held and applied at the
+  flip's exit, never mid-flip: a low rate there stalls the flip into its 2 s timeout, which disarms in the air
+  ( `active-development/set-desired-rate-api/` ).
 
 ## Conventions
 

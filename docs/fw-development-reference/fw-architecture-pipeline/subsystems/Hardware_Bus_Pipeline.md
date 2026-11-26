@@ -42,7 +42,7 @@ The Hardware Bus abstraction layer acts as the physical communication bridge bet
 - **Shared I2C1 budget**: the IMU ( ICM-20948 ), barometer, magnetometer, INA219, the OLED ( 0x3C ) and the lasers
   ( VL53L0X or VL53L1X, one family per boot ) share I2C1 inside the gated loop.
   The OLED never writes the panel from the loop directly. Drawing goes to a 1 KB RAM framebuffer, and
-  `oledFlushStep ( )` ( called from `OledDisplayData ( )`, `mw.cpp:1168` ) sends at most **one run of up to 16 changed
+  `oledFlushStep ( )` ( called from `OledDisplayData ( )`, `mw.cpp:1179` ) sends at most **one run of up to 16 changed
   bytes per loop** ( ~0.6 ms ), and only while the frame differs from what the panel shows. The old per-byte
   writes ( ~630 transactions, 45-60 ms every 200 ms ) made the drone twitch at 5 Hz
   ( [oled-flight-wobble](../../active-development/oled-flight-wobble/README.md) ).
@@ -59,7 +59,7 @@ The Hardware Bus abstraction layer acts as the physical communication bridge bet
   see a VL53L1X, and the VL53L1X probe's 16-bit index would write a register of a VL53L0X. User code that enables
   lasers through both APIs gets no laser at all ( `RANGING_BOTH` ). A user I2C device must not use 0x29-0x2E or 0x30
   while lasers are fitted.
-- **Laser I2C load**: `UPDATE_LASER_TOF_TASK` calls both managers on every pass ( `mw.cpp:850-858` ). The manager of
+- **Laser I2C load**: `UPDATE_LASER_TOF_TASK` calls both managers on every pass ( `mw.cpp:858-865` ). The manager of
   the family that is not latched has no laser up and returns without I2C.
   - **VL53L0X:** the down-laser every 33 ms ( start + read ), and one side laser per 10 ms: a data-ready read, plus the
     result read and the interrupt clear only when a sample is ready. The worst laser-task call measured 1.9-2.2 ms
