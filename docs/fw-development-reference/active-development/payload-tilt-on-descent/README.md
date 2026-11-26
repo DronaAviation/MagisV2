@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Status** | **Closed** in `a7f398d` ( 27 Oct 2026, FW 3.15.2, API 1.8.0 ) |
+| **Status** | **Closed** in `a7f398d` ( 27 Oct 2026, FW 3.15.2, API 1.8.0 ). **Not in v4.0.0**: the release merged `BugFix-June26` into `BugFix-June26-cg-tilt` and kept cg-tilt's stick-low reset skip in ALT_HOLD ( `de9eef7`, [cg-offset-takeoff-tilt](../cg-offset-takeoff-tilt/README.md) ) instead of this freeze. |
 | **Branch** | `BugFix-June26` |
 | **Target** | `PRIMUS_X2_v1` |
 | **Last updated** | 27 Oct 2026 |

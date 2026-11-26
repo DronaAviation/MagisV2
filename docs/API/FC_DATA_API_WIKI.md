@@ -7,7 +7,7 @@ Sensor readings and flight estimates for user code, all from `API/FC-Data.h`:
 - `Estimate_Get` ( two overloads, `int16_t` ): the rotation rate, position and velocity per axis, and the roll, pitch
   and heading angles.
 
-API version **1.8.2**. See "Changes in 1.8.2" and "Changes in 1.8.1" for what differs from earlier versions.
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.2, a development build released in 2.0.0 ). See "Changes in 1.8.2" and "Changes in 1.8.1" for what differs from earlier versions.
 
 ## Quick Start
 
@@ -45,7 +45,7 @@ int32_t Sensor_Get ( FC_Sensors_e _sensor, BARO_Data_e _data );
   reading after power-up both values are 0.
 - **To get degrees with decimals,** divide as float with an explicit cast: `( float ) Sensor_Get ( Barometer, Temperature ) / 100.0f` ( without the cast
   `-Wconversion` warns about int32 to float ). To print it with decimals, store it in a `float degC` and call
-  `Monitor_Println ( "degC:", ( double ) degC, 2 )` ( see `DEBUGGING_API_WIKI.md`; before API 1.8.9 only the first
+  `Monitor_Println ( "degC:", ( double ) degC, 2 )` ( see `DEBUGGING_API_WIKI.md`; before API 2.0.0 ( FW 4.0.0 ) only the first
   decimal printed correctly ).
 
 ## Accelerometer, gyroscope, magnetometer: `Sensor_Get ( sensor, axis )`

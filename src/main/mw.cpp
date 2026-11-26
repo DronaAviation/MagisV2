@@ -25,7 +25,7 @@ OD	Added CRSF battery telemetry update in main loop           #
  #  2026-10-19	AJ	VL53L1X polls via tof_manager_l1x ( X1Ranging )           #
  #  2026-10-19	AJ	Object avoidance: X1Ranging's core in a VL53L1X build     #
  #  2026-10-19	AJ	OA and laser polls by run-time laser family ( t15 )       #
- #  2026-10-27	AJ	Stick-low I-term reset: frozen instead while airborne     #
+ #  2026-10-19	AJ	Stick-low I-term reset skipped in an ALT_HOLD flight      #
  #  2026-11-14	AJ	User roll / pitch tilt cleared at dev-off and disarm      #
 *******************************************************************************/
 
@@ -577,7 +577,6 @@ void mwDisarm ( void ) {
   isTookOff          = false;
   isTakeOffHeightSet = false;
   throttleRaisedSinceArm = false;
-  pidSetGyroITermFreeze ( false );
   takeOffThrottle    = 950;
   takeOffHeight      = 120;
   landThrottle       = 1300;    //! new change
@@ -901,16 +900,10 @@ void processRx ( void ) {
   throttleStatus_e throttleStatus = calculateThrottleStatus (
             &masterConfig.rxConfig, masterConfig.flight3DConfig.deadband3d_throttle );
 
-  // Stick at the bottom ( raw throttle below mincheck ): on the ground, at arming and in ground idle the
-  // attitude I-terms are reset ( anti wind-up ). Airborne, that reset drops the trim that holds an off-centre
-  // CG and the craft leans toward it, so pidRewrite freezes its rate I-term instead
-  // ( active-development/payload-tilt-on-descent ). throttleStatus itself is unchanged.
-  const bool freezeGyroITerm = throttleStatus == THROTTLE_LOW && ARMING_FLAG ( ARMED ) && throttleRaisedSinceArm
-                               && ! isThrottleStickArmed
-                               && ( pidControllerType_e ) currentProfile->pidProfile.pidController == PID_CONTROLLER_REWRITE;
-  pidSetGyroITermFreeze ( freezeGyroITerm );
-
-  if ( throttleStatus == THROTTLE_LOW && ! freezeGyroITerm ) {
+  // A low stick means "on the ground" to Cleanflight, which zeroes the rate integrators here. In an ALT_HOLD
+  // flight it is a descent, and the integrators hold an off-centre payload level: zeroing them leaned the
+  // craft toward it for the whole descent ( cg-offset-takeoff-tilt ). The reset stays on the ground.
+  if ( throttleStatus == THROTTLE_LOW && ! altHoldKeepRateITerm ( ) ) {
     pidResetErrorAngle ( );
     pidResetErrorGyro ( );
   }

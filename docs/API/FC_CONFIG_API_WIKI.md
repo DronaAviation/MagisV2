@@ -4,7 +4,7 @@ Change how fast the drone turns at full stick with `setDesiredRate ( )`, and rea
 `getDesiredRate ( )`. Both are declared in `API/FC-Config.h` and available from `PlutoPilot.h`. This page covers only
 these two functions.
 
-API version **1.8.7**. See "Changes in 1.8.7".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.7, a development build released in 2.0.0 ). See "Changes in 1.8.7".
 
 ## Quick Start
 

@@ -91,7 +91,7 @@ holds the voltage values, a stale current is treated as 0 A in the compensation 
    `Failsafe_enable / disable ( INFLIGHT_LOW_BATTERY )`; `LOW_BATTERY` has no effect ( see `Failsafe_Subsystem.md` ).
 8. **Actions per level.** Low battery: `Low_battery` flight-status flag, `BEEPER_BAT_LOW`. Critical:
    `LowBattery_inFlight` flag, `BEEPER_BAT_CRIT_LOW`, and, once confirmed ( not provisional ), the auto-land below and
-   `mwArm ( )` ( `mw.cpp:611` ) refusing to arm. The flags and the
+   `mwArm ( )` ( `mw.cpp:610` ) refusing to arm. The flags and the
    beeper are re-asserted on every update.
 
 **Without current sensing** ( `INA219_Current` not defined: PRIMUSX2, or the current feature off ): SoC is the curve
@@ -101,7 +101,7 @@ not used for any decision.
 
 ## Low-Battery Auto-Land
 
-`batteryCriticalAutoLand ( )` ( `mw.cpp:1306`, called at `mw.cpp:1538` just before `executeCommand ( )` ) starts the
+`batteryCriticalAutoLand ( )` ( `mw.cpp:1299`, called at `mw.cpp:1531` just before `executeCommand ( )` ) starts the
 `LAND` command when the level is a confirmed critical ( `batteryCriticalConfirmed ( )`: critical and not provisional )
 and the craft is armed, the same way the RX-loss failsafe does. A provisional critical sounds the beeper but does not
 land the craft.
@@ -111,7 +111,7 @@ land the craft.
   least 1 s** ( `LAND_CONFIRM_MIN_MS`, `command.cpp:235` ). From 1300 that is 2.8 s at the earliest, unchanged. It also
   disarms on a firm vertical contact, or after a 30 s timeout. The crash detector can also end it at touchdown. The
   1 s floor matters for `Command_Land ( speed )`, whose default speed 105 starts at 1200.
-- Only the throttle is taken over ( `mw.cpp:398`, and again after user code at `mw.cpp:1441` ). Roll, pitch and yaw
+- Only the throttle is taken over ( `mw.cpp:398`, and again after user code at `mw.cpp:1434` ). Roll, pitch and yaw
   stay on the sticks.
 - It cannot be cancelled. `MSP_SET_COMMAND` is ignored while landing. `Command_TakeOff` and `Command_Flip` are
   refused while a landing runs ( `landingInProgress ( )`, `FC-Control-Command.cpp:131` ). This function also
@@ -213,10 +213,10 @@ Every edge, with its source line:
 | `BMS_Update` → `updateBatteryState` | `battery.cpp:1046` |
 | `updateBatteryState` → `set_FSI ( Low_battery )`, beeper | `battery.cpp:800-801`, `:823-824` |
 | `updateBatteryState` → `set_FSI ( LowBattery_inFlight )`, beeper | `battery.cpp:806-808`, `:818-820`, `:831-832` |
-| `loop` → `batteryCriticalAutoLand` | `mw.cpp:1538` |
-| `batteryCriticalAutoLand` → `batteryCriticalConfirmed` | `mw.cpp:1308` |
-| `batteryCriticalAutoLand` → `current_command = LAND` | `mw.cpp:1322` |
-| `loop` → `executeCommand` → `land` | `mw.cpp:1540`, `command.cpp:313` |
+| `loop` → `batteryCriticalAutoLand` | `mw.cpp:1531` |
+| `batteryCriticalAutoLand` → `batteryCriticalConfirmed` | `mw.cpp:1301` |
+| `batteryCriticalAutoLand` → `current_command = LAND` | `mw.cpp:1315` |
+| `loop` → `executeCommand` → `land` | `mw.cpp:1533`, `command.cpp:313` |
 | `land` → `mwDisarm` ( `finishLanding` ) | `command.cpp:243-247`, called at `:283`, `:289`, `:305` |
 | `mAhRemain`, `soc_Fused`, `vBatComp` → `MSP_ANALOG` | `serial_msp.cpp:999-1007` |
 | flight-status flags → `MSP_FLIGHT_STATUS` | `serial_msp.cpp:886-896` |

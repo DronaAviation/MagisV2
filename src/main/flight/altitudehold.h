@@ -53,6 +53,11 @@ void AltRst(void);
 void altHoldReleaseGroundIdle(void);
 // Throttle stick inside the alt-hold deadband ( no climb or descent request ).
 bool altHoldStickCentred(void);
+// Flying in ALT_HOLD ( armed, not at ground idle, 20 cm or higher ): a low stick must not zero the rate integrators.
+bool altHoldKeepRateITerm(void);
+// A full stick-down in ALT_HOLD has not moved the craft down yet, or has touched down: it may be on a surface,
+// so userAngleTarget ( ) must not fly a held user roll / pitch tilt.
+bool altHoldStickDownMayBeLanded(void);
 
 
 

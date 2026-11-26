@@ -7,7 +7,7 @@ Reading the pilot's stick commands and overriding them from user code, from `API
 - `RcData_Get` ( two overloads ): the raw channel values, 1000-2000, including the AUX channels.
 - `RcCommand_Set` ( two overloads ): override roll, pitch, yaw or throttle.
 
-API version **1.8.3**. See "Changes in 1.8.3".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.3, a development build released in 2.0.0 ). See "Changes in 1.8.3".
 
 ## Quick Start
 

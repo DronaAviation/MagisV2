@@ -202,7 +202,11 @@ void userRCrelease ( uint8_t channel ) {
  * - Developer Mode has not run for USER_ANGLE_LINK_GRACE_MS. A normal Wi-Fi flicker is shorter and keeps
  *   flying the tilt, so the craft does not level and step back; a real stall suppresses it, because user
  *   code has stopped and the pilot's sticks have fallen back to centre, and a held tilt would fly the
- *   craft away for the ~2.5 s until the failsafe landing.
+ *   craft away for the ~2.5 s until the failsafe landing;
+ * - a full throttle stick-down in ALT_HOLD has not moved the craft down yet, or has touched down
+ *   ( altHoldStickDownMayBeLanded ( ) ). The craft may be standing on a surface 20 cm or more above the
+ *   arm point, where the airborne test above passes and altHoldKeepRateITerm ( ) keeps the rate
+ *   integrators: a tilt there would wind them up against the surface and kick the next lift-off.
  *
  * userCode ( ) clears it at a real Developer Mode switch-off and on the disarm edge.
  */
@@ -216,6 +220,7 @@ int32_t userAngleTarget ( uint8_t axis ) {
   if ( ( now - lastDevModeMs ) > USER_ANGLE_LINK_GRACE_MS ) return 0;
   if ( ! FLIGHT_MODE ( ANGLE_MODE ) || flipState != 0 || landingInProgress ( ) ) return 0;
   if ( ! throttleRaisedInFlight ( ) || getEstAltitude ( ) < USER_ANGLE_MIN_ALT_CM ) return 0;
+  if ( altHoldStickDownMayBeLanded ( ) ) return 0;
   return userDesiredAngle [ axis ];
 }
 

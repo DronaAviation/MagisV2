@@ -16,7 +16,7 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - `Flight_State_e`: Enumeration that the API uses to determine if the drone is Armed, in Failsafe, or Grounded.
 - `current_command` / `command_status` ( `command/command.h` ): the one-slot command queue. `Command_TakeOff`,
   `Command_Land` and `Command_Flip` write it, and `executeCommand ( )` runs it at the end of the loop
-  ( `mw.cpp:1540` ). The app's `MSP_SET_COMMAND` writes the same slot.
+  ( `mw.cpp:1533` ). The app's `MSP_SET_COMMAND` writes the same slot.
 
 ## Primary Functions
 - `plutoInit()`: Called once during boot by `init()` ( main.cpp:524 ), after `SYSTEM_STATE_READY` and before the motor timers and the laser start-up. Used by the developer to configure GPIOs, external sensors, or set up API timers. `XRanging` and `X1Ranging` calls here only record requests; the laser family is chosen and the lasers start after `plutoInit()` returns.
@@ -59,7 +59,7 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
 - **Override Priority**: If the Failsafe mechanism activates, the firmware explicitly ignores `rcCommand` overrides originating from `plutoLoop()`. Failsafe takes ultimate precedence over the API.
 - **Rate Limiting**: To prevent API logic from running unnecessarily fast (e.g., polling an ultrasonic sensor 1000 times a second), developers use the `Monitor.timer` API to schedule tasks sequentially.
 - **Landing owns the throttle and the command slot**: while any `LAND` runs ( `Command_Land`, RX loss or the
-  critical-battery auto-land ), the landing throttle is re-applied after user code ( `mw.cpp:398`, `:1441` ), so a
+  critical-battery auto-land ), the landing throttle is re-applied after user code ( `mw.cpp:398`, `:1434` ), so a
   throttle `RcCommand_Set` has no effect. `Command_TakeOff` and `Command_Flip` are refused until the landing has
   disarmed ( `landingInProgress ( )`, `FC-Control-Command.cpp:131` ). The battery auto-land also re-asserts `LAND` as
   a backstop. `Command_Land` is refused while a flip runs ( `FC-Control-Command.cpp:158` ), and a flip ends after at
@@ -69,7 +69,7 @@ The `PlutoPilot` developer sandbox allows custom user C++ code to intercept the 
   it sets the goal once per arm, within 3 s of `arm_time` or at the ARM-switch ground idle, which it releases first
   ( `takeOff ( )`, `command.cpp:152` ). A queued take-off is dropped after 2 s of refused arming
   ( `takeOffRefusedTick ( )`, `command.cpp:143` ). A user-code take-off is also dropped at a real Dev Mode switch-off
-  ( `dropUserTakeOff ( )`, `mw.cpp:1253` ). With the battery OK, arming is allowed again right after a landing, so a
+  ( `dropUserTakeOff ( )`, `mw.cpp:1246` ). With the battery OK, arming is allowed again right after a landing, so a
   re-sent take-off re-arms and climbs.
 - **User yaw is heading hold**: `setDesiredAngle ( AG_YAW, bearing )` and `DesiredAngle_setRelative ( AG_YAW, turn )`
   set the heading-hold target `magHold`. While one is held, the firmware engages MAG mode itself, so no app switch is
@@ -215,9 +215,9 @@ and pitch tilt" ( API 1.8.6 ).
   craft never tilted, and a value above 700 could trip the crash detector in the air ( API test T11 / B4,
   `active-development/set-desired-angle-roll-pitch/` ). User code must never write `inclination`.
 - **Flown by `pidRewrite ( )`.** `desiredAngle [ axis ] = 2 * rcCommand [ axis ] + userAngleTarget ( axis )`
-  ( `pid.cpp:807` ), then the existing clamp to ±`max_angle_inclination` ( 200, 20°; `pid.cpp:808`, `config.cpp:420` ).
+  ( `pid.cpp:813` ), then the existing clamp to ±`max_angle_inclination` ( 200, 20°; `pid.cpp:814`, `config.cpp:420` ).
   The pilot's stick adds to the tilt and the sum keeps the pilot's limit. The other PID controllers ignore it.
-- **Gated by `userAngleTarget ( )`** ( `API-Utils.cpp:209-220` ), which returns the held tilt, or 0 while it is kept but
+- **Gated by `userAngleTarget ( )`** ( `API-Utils.cpp:213-225` ), which returns the held tilt, or 0 while it is kept but
   not flown:
 
 | Not flown while | Test | Why |
@@ -228,9 +228,10 @@ and pitch tilt" ( API 1.8.6 ).
 | A flip runs | `flipState != 0` | The flip owns roll and pitch. |
 | A landing runs | `landingInProgress ( )` ( `FC-Control-Command.cpp:131` ) | User, MSP, RC-loss and battery landings; a tilt would drift the descent. |
 | Not airborne | `! throttleRaisedInFlight ( )` ( `mw.cpp:187` ) or `getEstAltitude ( ) < USER_ANGLE_MIN_ALT_CM` ( 20 cm, `API-Utils.h:78` ) | A tilt on the skids would pivot the take-off. Throttle-raised alone is true at the arm instant of an app take-off. |
+| A full stick-down in ALT_HOLD may have set it down | `altHoldStickDownMayBeLanded ( )` ( `altitudehold.cpp:1545` ): armed, BARO mode, not at ground idle, a descent request of 15 cm/s or more, and either no descent seen yet ( `VelocityZ` above -8 cm/s ) or the touchdown latch set | The craft may stand on a surface 20 cm or more above the arm point, where the airborne test passes and `altHoldKeepRateITerm ( )` keeps the rate I-term: a tilt would wind it to ±256 and kick the next lift-off. In the air the tilt pauses only until the descent shows. Not covered with `alt_hold_fast_change` 1. |
 
 - **Dropped** at a real Developer Mode switch-off and on the armed → disarmed edge, next to the yaw clear
-  ( `mw.cpp:1269` ). `devSwitchOn` holds through an RC loss, so a flicker does not drop it; a tilt set while disarmed
+  ( `mw.cpp:1262` ). `devSwitchOn` holds through an RC loss, so a flicker does not drop it; a tilt set while disarmed
   survives to take-off and waits for the airborne test.
 - **Frame.** The tilt is added after the HEADFREE rotation of `rcCommand` in `annexCode ( )` ( `mw.cpp:430` ), so it is
   relative to the craft's nose, not to the headfree heading.
@@ -241,15 +242,16 @@ and pitch tilt" ( API 1.8.6 ).
 flowchart TD
     UC([plutoLoop]) --> SA["setDesiredAngle ( AG_ROLL / AG_PITCH )<br/>FC-Config-Setpoints.cpp:91-99"]
     SA --> T[("userDesiredAngle [ axis ]<br/>isUserDesiredAngle [ axis ]")]
-    T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:209"]
-    DM["devmode<br/>userCode ( ), mw.cpp:1179 / 1183"] --> G
+    T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:213"]
+    DM["devmode<br/>userCode ( ), mw.cpp:1172 / 1176"] --> G
     FS["flipState<br/>acrobats.h:44"] --> G
     LD["landingInProgress ( )<br/>FC-Control-Command.cpp:131"] --> G
-    AB["throttleRaisedInFlight ( ), mw.cpp:187<br/>getEstAltitude ( ), altitudehold.cpp:1510"] --> G
-    G --> PR["pidRewrite ( )<br/>desiredAngle = 2 x rcCommand + userAngleTarget<br/>pid.cpp:807"]
+    AB["throttleRaisedInFlight ( ), mw.cpp:187<br/>getEstAltitude ( ), altitudehold.cpp:1577"] --> G
+    SD["altHoldStickDownMayBeLanded ( )<br/>altitudehold.cpp:1545"] --> G
+    G --> PR["pidRewrite ( )<br/>desiredAngle = 2 x rcCommand + userAngleTarget<br/>pid.cpp:813"]
     ST([pilot stick: rcCommand]) --> PR
-    PR --> CL["clamp to ±max_angle_inclination<br/>errorAngle, pid.cpp:808"]
-    Off([dev switch-off / disarm edge]) --> Clr["clear flag and value<br/>mw.cpp:1269"]
+    PR --> CL["clamp to ±max_angle_inclination<br/>errorAngle, pid.cpp:814"]
+    Off([dev switch-off / disarm edge]) --> Clr["clear flag and value<br/>mw.cpp:1262"]
     Clr --> T
 ```
 
@@ -267,15 +269,15 @@ rate units ) scale the stick into a turn rate in `pidRewrite ( )`. User code set
   rates** below.
   An unknown `angle_e` is ignored. `AG_*` and `FD_*` share their index ( `common/axis.h` ).
 - **The flip sets its own roll / pitch rates and hands them back.** On all three targets ( `ENABLE_ACROBAT` ) `mw.cpp`
-  calls `flip ( false )` on every disarmed loop ( `mw.cpp:1411` ) and `flip ( true )` while armed with a flip running
-  ( `:1407` ), both before `userCode ( )` ( `:1436` ). The flip flies its own rates: 75 / 75 in ASCEND, HOLD and HOLDPOS
+  calls `flip ( false )` on every disarmed loop ( `mw.cpp:1404` ) and `flip ( true )` while armed with a flip running
+  ( `:1400` ), both before `userCode ( )` ( `:1429` ). The flip flies its own rates: 75 / 75 in ASCEND, HOLD and HOLDPOS
   ( `acrobats.cpp:126-127`, `:250-251`, `:340-341` ) and 110 on the flip axis ( `:135-150` ). Where it hands roll /
   pitch back to normal flight it calls `restoreRestRates ( )` ( `acrobats.cpp:83` ), which writes
-  `userRollPitchRate ( axis )` ( `API-Utils.cpp:230` ): the held user value, or `STOCK_ROLL_PITCH_RATE` 75
+  `userRollPitchRate ( axis )` ( `API-Utils.cpp:235` ): the held user value, or `STOCK_ROLL_PITCH_RATE` 75
   ( `API-Utils.h:83` ) when none is held. Callers: the 8 s watchdog ( `:97` ), the ASCEND 2.2 s timeout ( `:121` ), the
   HOLD end ( `:264` ), the HOLDPOS end ( `:350` ) and `flip ( false )` ( `:359` ).
-- **A running flip keeps its rates.** `userCode ( )` ( `mw.cpp:1436` ) runs after `flip ( true )` ( `:1407` ) and
-  before `pid_controller ( )` ( `:1507` ), and the flip writes 110 only once, at the ASCEND transition
+- **A running flip keeps its rates.** `userCode ( )` ( `mw.cpp:1429` ) runs after `flip ( true )` ( `:1400` ) and
+  before `pid_controller ( )` ( `:1500` ), and the flip writes 110 only once, at the ASCEND transition
   ( `acrobats.cpp:135-150` ); PITCHING and SLOWDOWNANDEXIT never rewrite it. A live write from user code during a flip
   would therefore replace the flip's spin rate, and a low one could trip the PITCHING 2 s timeout, which calls
   `mwDisarm ( )` in the air ( `acrobats.cpp:182-185` ) on `BACK_FLIP`, the API's only direction. So the setter holds a
@@ -284,8 +286,8 @@ rate units ) scale the stick into a turn rate in `pidRewrite ( )`. User code set
   flip never touches it. Before API 1.8.7 the setter wrote through unguarded.
 - **Only `pidRewrite` ignores the rates in ANGLE mode.** `annexCode ( )` scales `dynP8 / dynI8 / dynD8` by
   `100 - rates [ axis ] * stick / 500` ( `mw.cpp:359 / 372 / 376-378` ) in every mode, and `pidMultiWii`,
-  `pidMultiWii23`, `pidMultiWiiHybrid` and `pidHarakiri` read those ( `pid.cpp:299 / 317`, `:396 / 414`, `:525 / 542`,
-  `:656 / 667` ). Under a non-default `pidController` ( CLI `serial_cli.cpp:487`, `MSP_SET_PID_CONTROLLER`
+  `pidMultiWii23`, `pidMultiWiiHybrid` and `pidHarakiri` read those ( `pid.cpp:305 / 323`, `:402 / 420`, `:531 / 548`,
+  `:662 / 673` ). Under a non-default `pidController` ( CLI `serial_cli.cpp:487`, `MSP_SET_PID_CONTROLLER`
   `serial_msp.cpp:1437` ) a user rate therefore weakens the gains at full stick even in ANGLE mode.
 - **Stock roll / pitch rate is 75, not the stored profile.** The config default is 0 ( `config.cpp:319` ), but
   `flip ( false )` writes 75 from the first disarmed loop, so 75 is the effective rate on every craft unless user code
@@ -316,15 +318,15 @@ flowchart TD
     FST["flipState<br/>acrobats.h:44"] --> SR
     SR --> UR[("userDesiredRate [ axis ]<br/>isUserDesiredRate [ axis ]<br/>API-Utils.cpp:140 / 145")]
     SR -->|"yaw always; roll / pitch only if flipState == 0<br/>FC-Config-Setpoints.cpp:183-184"| RT[("rates [ axis ]<br/>currentControlRateProfile")]
-    UR --> URP["userRollPitchRate ( axis )<br/>user value or 75<br/>API-Utils.cpp:230"]
+    UR --> URP["userRollPitchRate ( axis )<br/>user value or 75<br/>API-Utils.cpp:235"]
     URP --> RR["restoreRestRates ( )<br/>acrobats.cpp:83"]
-    FF["flip ( false ), every disarmed loop<br/>mw.cpp:1411, acrobats.cpp:359"] --> RR
+    FF["flip ( false ), every disarmed loop<br/>mw.cpp:1404, acrobats.cpp:359"] --> RR
     FX["flip exits: watchdog :97, ASCEND timeout :121<br/>HOLD end :264, HOLDPOS end :350"] --> RR
     RR --> RT
     FS["flip states: 75 / 75, flip axis 110<br/>acrobats.cpp:126-150, :250, :340"] --> RT
-    RT --> PR["pidRewrite ( )<br/>pid.cpp:788"]
-    PR --> YW["yaw, every mode<br/>pid.cpp:793"]
-    PR --> RP["roll / pitch outside ANGLE<br/>pid.cpp:812-813"]
+    RT --> PR["pidRewrite ( )<br/>pid.cpp:794"]
+    PR --> YW["yaw, every mode<br/>pid.cpp:799"]
+    PR --> RP["roll / pitch outside ANGLE<br/>pid.cpp:818-819"]
     UR --> GR["getDesiredRate ( axis )<br/>FC-Config-Setpoints.cpp:150"]
     RT --> GR
 ```

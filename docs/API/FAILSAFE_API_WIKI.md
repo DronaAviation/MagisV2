@@ -4,7 +4,7 @@ Switch the firmware's built-in protections on and off from user code with `Fails
 `Failsafe_disable ( )`. Both are declared in `API/FC-Config.h` and available from `PlutoPilot.h`. This page covers only
 these two functions and the `failsafe_e` values they take.
 
-API version **1.8.8**. See "Changes in 1.8.8".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.8, a development build released in 2.0.0 ). See "Changes in 1.8.8".
 
 ## Quick Start
 
@@ -116,7 +116,7 @@ void onLoopFinish ( void ) {
 - **The setting stays after Developer Mode is off.** Put it back in `onLoopFinish ( )` if the pilot should not keep it.
 - **The crash detector acts only in ANGLE mode and not during a flip.** Switching `CRASH` on does not add crash
   detection in other modes.
-- **Firmware older than 1.8.8:** `Failsafe_enable ( X )` also switched the other two failsafes off ( see below ). On
+- **Firmware older than 4.0.0 ( API 2.0.0; development build 1.8.8 ):** `Failsafe_enable ( X )` also switched the other two failsafes off ( see below ). On
   such firmware call `Failsafe_enable ( ALL )` and then `Failsafe_disable ( )` for the ones you do not want.
 
 ---

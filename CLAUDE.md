@@ -164,7 +164,7 @@ Each of these has cost a flight. Full mechanism and numbers:
   `mwArm ( )` refuses to arm until the pack is changed ( `FLIGHT_INVARIANTS.md` ).
 - **`Failsafe_enable / disable ( X )` change only X ( `ALL` all three ); `fsInFlightLowBattery` is the only way out of
   `BATTERY_OK`, so `INFLIGHT_LOW_BATTERY` gates every battery level and the critical landing, and `LOW_BATTERY` has no
-  reader**. Before API 1.8.8 enabling one switch cleared the other two, so `Failsafe_enable ( CRASH )` silently removed the
+  reader**. Before API 2.0.0 ( development build 1.8.8 ) enabling one switch cleared the other two, so `Failsafe_enable ( CRASH )` silently removed the
   low-battery landing ( `docs/API/FAILSAFE_API_WIKI.md`, `active-development/failsafe-enable-api/` ).
 - **User commands cannot replace a landing, and a landing cannot start in a flip**: `Command_TakeOff` / `Command_Flip`
   are refused while `landingInProgress ( )`, and `Command_Land` while `flipState != 0` ( flips end within 8 s ). Every
@@ -172,10 +172,11 @@ Each of these has cost a flight. Full mechanism and numbers:
   or at a real Dev Mode off. With the battery OK, arming is allowed again right after a landing
   ( `docs/API/FC_CONTROL_API_WIKI.md`, `active-development/takeoff-land-command-fix/` ).
 - **RC link loss lands ~2.5 s after the last frame** ( Wi-Fi / MSP; ~2.4 s on ELRS / PPM; `failsafe_delay` 15, capped at 22 ): Wi-Fi stalls of 1-2 s are normal. Extend tolerance only through `failsafe_delay`, never through the 600 ms stick hold ( `MAX_INVALID_PULS_TIME` ) or `DELAY_5_HZ` ( `FLIGHT_INVARIANTS.md` ).
-- **A full stick-down in flight does not zero the attitude I-term**: below `mincheck` 1100 the `pidRewrite` rate I-term
-  is frozen while airborne ( `ARMED && throttleRaisedSinceArm && !isThrottleStickArmed`: app take-off, or ALT_HOLD after
-  an ARM-switch arm ) and reset otherwise ( ground, arming, ground idle, THROTTLE mode after an ARM-switch arm ).
-  Zeroing it in flight leaned the craft 2-7 deg toward a payload ( `FLIGHT_INVARIANTS.md` ).
+- **In an ALT_HOLD flight a full stick-down does not zero the attitude I-terms**: `processRx ( )` skips the stick-low
+  reset while `altHoldKeepRateITerm ( )` holds ( armed, BARO mode, not at ground idle, `EstAlt` >= 20 cm, no stick-descent
+  touchdown latched ) and the I-term keeps integrating; elsewhere ( THROTTLE mode, ground, ground idle, after a touchdown )
+  it resets as before. Zeroing it in flight leaned the craft toward a payload ( `FLIGHT_INVARIANTS.md`,
+  `active-development/cg-offset-takeoff-tilt/` ).
 - **User yaw ( `setDesiredAngle` / `DesiredAngle_setRelative` on `AG_YAW` ) is heading hold, which `userCode ( )`
   engages itself while a target is held** ( MAG mode forced unless HEADFREE or no magnetometer ). Without MAG or HEADFREE,
   `updateMagHold ( )` overwrites `magHold` every loop and the target is lost. The target is dropped only at a real
@@ -183,7 +184,9 @@ Each of these has cost a flight. Full mechanism and numbers:
 - **User roll / pitch ( `setDesiredAngle` on `AG_ROLL` / `AG_PITCH`, deci-degrees ) is a held ANGLE-mode tilt that
   `pidRewrite` adds to `2 * rcCommand` before the `max_angle_inclination` clamp** ( `userAngleTarget ( )` ). It is kept
   but not flown until the craft is airborne ( throttle raised and >= 20 cm up ), nor outside ANGLE mode, in a flip or
-  landing, or after 0.6 s without Developer Mode; it is dropped at a real dev-off and on the disarm edge. Never write `inclination` from user
+  landing, after 0.6 s without Developer Mode, or while a full stick-down in ALT_HOLD may have set the craft down
+  ( `altHoldStickDownMayBeLanded ( )`: no descent seen yet, or touched down; on a surface the kept rate I-term would wind
+  up ); it is dropped at a real dev-off and on the disarm edge. Never write `inclination` from user
   code: it is the measured attitude, and the crash detector reads it ( `active-development/set-desired-angle-roll-pitch/` ).
 - **User stick rates ( `setDesiredRate` ) hold until reboot; roll / pitch default to 75, not the stored 0**: `flip ( false )`
   writes `userRollPitchRate ( )` on every disarmed loop and the flip's normal exits restore it, so a value set from

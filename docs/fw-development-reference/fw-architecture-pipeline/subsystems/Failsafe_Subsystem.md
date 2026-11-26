@@ -88,7 +88,7 @@ flowchart TD
 ## Crash Detector ( `failsafeOnCrash ( )` )
 
 `failsafeOnCrash ( )` ( [failsafe.cpp:363](../../../../src/main/flight/failsafe.cpp#L363) ) runs once per control loop
-( 3.5 ms, called from [mw.cpp:1536](../../../../src/main/mw.cpp#L1536) ). It is active only while **armed, `fsCrash` on
+( 3.5 ms, called from [mw.cpp:1529](../../../../src/main/mw.cpp#L1529) ). It is active only while **armed, `fsCrash` on
 and in ANGLE mode** ( the check at `failsafe.cpp:365` ). `fsCrash` is on by default; user code can switch it with
 `Failsafe_enable / disable ( CRASH )`, and from API 1.8.8 no other failsafe call changes it ( see Key Data Structures ). It
 disarms on **one sample** in which any of these terms is true:

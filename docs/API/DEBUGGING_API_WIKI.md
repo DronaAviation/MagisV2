@@ -4,7 +4,7 @@ Print text and numbers from user code to the PlutoMonitor window of the Pluto ap
 `Monitor_Println ( )`. Both are declared in `API/Debugging.h` and available from `PlutoPilot.h`. This page covers the
 six print functions.
 
-API version **1.8.9**. See "Changes in 1.8.9".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.9, a development build released in 2.0.0 ). See "Changes in 1.8.9".
 
 ## Quick Start
 

@@ -4,7 +4,7 @@ Arm, take off, land and flip from user code with `Command_Arm ( )`, `Command_Tak
 `Command_Flip ( )`, and read the drone's state with `FlightStatus_Get ( )` and `FlightStatus_Check ( )`. They are
 declared in `API/FC-Control.h` and available from `PlutoPilot.h`.
 
-API version **1.8.4**. See "Changes in 1.8.4" and "Changes in 1.7.0".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.4, a development build released in 2.0.0 ). See "Changes in 1.8.4" and "Changes in 1.7.0".
 
 ## Quick Start
 

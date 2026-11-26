@@ -4,7 +4,7 @@ Point the drone's nose from user code: at a compass bearing with `setDesiredAngl
 relative to where it points with `DesiredAngle_setRelative ( AG_YAW, … )`. Both are declared in `API/FC-Config.h` and
 available from `PlutoPilot.h`. `setDesiredAngle` also tilts the drone on roll and pitch: see "Roll and pitch tilt".
 
-API version **1.8.6**. See "Changes in 1.8.6" and "Changes in 1.6.0".
+API version **2.0.0** ( FW 4.0.0; developed as 1.8.6, a development build released in 2.0.0 ). See "Changes in 1.8.6" and "Changes in 1.6.0".
 
 ## Quick Start
 
@@ -131,6 +131,7 @@ your code had levelled it. Nothing needs undoing in `onLoopFinish`: switching De
 | Developer Mode is running, or stopped for no more than 0.6 s | A normal Wi-Fi hiccup keeps the tilt. In a longer stall your code is not running and the pilot's sticks have centred, so the drone levels instead of flying away; the tilt comes back with the link. |
 | No flip is running | A flip owns roll and pitch. The tilt comes back when the flip ends. |
 | No landing is running ( `Command_Land`, the app, RC loss or low battery ) | A tilt would drift the descent. The landing ends in a disarm, which drops the tilt. |
+| In ALT_HOLD with the throttle stick fully down: the drone has been seen moving down and has not touched down | With the stick fully down the drone may already be standing on a table or the floor, where a tilt cannot be flown and would make the next take-off kick. In the air the tilt pauses only until the descent shows, and comes back when the stick comes up. |
 
 - **When it ends.** The tilt is dropped when Developer Mode is switched **off** ( the drone levels ) and when the drone
   **disarms**, so the next flight never starts on an old tilt. A tilt set while disarmed is kept until take-off.

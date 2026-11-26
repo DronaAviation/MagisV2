@@ -5,7 +5,187 @@ All notable changes to MagisV2 firmware are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v4.0.0] - 2026-07-21
+## [v4.0.0] - 2026-11-26
+
+Builds on v3.9.1 ( `BugFix-June26-cg-tilt` ) with ten user-API fixes from `BugFix-June26`, found by the API
+test campaign. The flight control is v3.9.1's, including its stick-low I-term keep in ALT_HOLD ( `de9eef7` );
+the alternative I-term freeze developed on `BugFix-June26` ( `a7f398d` ) is not part of this release.
+
+### Changed
+
+- **Firmware version** 4.0.0 (API 2.0.0). The API takes a major step because several functions now return what their
+  headers document instead of what user code may have relied on ( see *User code to check* ). The fixes were
+  developed on `BugFix-June26` as builds 3.15.3 to 3.15.12 ( API 1.8.1 to 1.8.10 ), never released; their numbers
+  stay in the commit history and topic docs: 3.15.3 for the barometer temperature in `Sensor_Get`, 3.15.4 for the
+  measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values, 3.15.7 for
+  `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt, 3.15.9 for the `setDesiredRate`
+  stick rates, 3.15.10 for `Failsafe_enable ( )`, 3.15.11 for the `Monitor_Print` decimals, 3.15.12 for the
+  `Oled_Print ( )` linkage fix.
+  API 1.8.1 is behaviour only: `Sensor_Get ( Barometer, Temperature )` returns deg C x100 ( see Fixed ).
+  API 1.8.2 is behaviour only: `Estimate_Get ( Rate, axis )` returns the measured rotation rate ( see Fixed ).
+  API 1.8.3 is behaviour only: `int16_t *RcCommand_Get ( void )` links and returns the four live commands ( see Fixed ).
+  API 1.8.4 is behaviour only: `FlightStatus_Get ( )` and `FlightStatus_Check ( )` use the documented `flightstatus_e` values ( see Fixed ).
+  API 1.8.5 is behaviour only: `setDefault_PIDProfile ( )` restores the five API profiles and nothing else ( see Fixed ).
+  API 1.8.6 is behaviour only: `setDesiredAngle ( AG_ROLL / AG_PITCH )` tilts the drone and holds the tilt ( see Fixed ).
+  API 1.8.7 is behaviour only: `setDesiredRate ( )` holds its value and `getDesiredRate ( )` returns it ( see Fixed ).
+  API 1.8.8 is behaviour only: `Failsafe_enable ( X )` changes only the failsafe named ( see Fixed ).
+  API 1.8.9 is behaviour only: `Monitor_Print / Monitor_Println` print every decimal, `precision` is 0 to 4, and texts are cut at 255 characters ( see Fixed ).
+  API 1.8.10 is behaviour only: `Oled_Print ( )` links from user code ( see Fixed ).
+- **User code to check** ( API 2.0.0 ): `Sensor_Get ( Barometer, Temperature )` returns deg C x100, so code that
+  expected whole degrees must divide by 100; `Estimate_Get ( Rate, axis )` returns the measured rate in deg/s x10
+  instead of the constant 75; `FlightStatus_Get ( )` returns 4 after a crash, and the two battery statuses are no
+  longer swapped; `getDesiredRate ( )` returns the set rate, not the PID setpoint; `setDesiredAngle ( AG_ROLL /
+  AG_PITCH )` now tilts the drone; `Monitor_Print ( tag, double, precision )` accepts precision 0 to 4 ( was 0 to 7 ).
+  No function signature changed.
+
+### Fixed
+
+- **OLED text from user code**: `Oled_Print ( col, row, text )` could not be called from `PlutoPilot.cpp`: the link
+  failed with `undefined reference to Oled_Print(unsigned char, unsigned char, char const*)`. `API/Oled.h` is a C++
+  header, so the declaration had C++ linkage, while the body is in the C file `io/oled_display.c` and exports the
+  plain symbol. It is the only `Oled.h` function whose body is not a C++ wrapper in `API-Src/Oled.cpp`, and no
+  firmware code calls it, so no firmware build ever caught it. The declaration is now `extern "C"`. No signature or
+  behaviour change and the flashed image is unchanged; it stays `System` mode only, with `col` 0-20 and `row` 1-6
+  ( rows 0 and 7 are the status rows ). ( `active-development/oled-print-linkage/` ). API 1.8.10.
+- **Barometer temperature in the user API**: `Sensor_Get ( Barometer, Temperature )` returned whole degrees ( `32` for
+  32.70 C ), although `FC-Data.h` documents deg C x100: the float temperature was truncated to an integer and never
+  scaled. It now returns deg C x100 rounded to the nearest 0.01 C ( `3270` ), the same value altitude hold uses.
+  `Sensor_Get ( Barometer, Pressure )` keeps its unit, Pa ( = mbar x100 ), and is rounded instead of truncated.
+  **User code that expected whole degrees must divide by 100.** Bench-validated on PRIMUS_X2_v1
+  ( `active-development/baro-temperature-api/` ). API 1.8.1.
+- **Rotation rate in the user API**: `Estimate_Get ( Rate, X | Y | Z )` returned the stored stick-rate setting of the
+  rate profile ( `75` on every axis, whatever the drone did ) instead of a measurement. It now returns the measured
+  rotation rate in deg/s x10 from the gyro, rounded ( `gyroADC / 1.64`, 16.4 counts per deg/s ), the value the rate
+  loop uses. Rolling right and pitching nose down read positive; **turning right reads negative**, opposite to the
+  heading. Bench-validated on PRIMUS_X2_v1: one hand turn per axis integrated to 354-387 deg, rest within 0.5 deg/s
+  ( `active-development/estimate-get-rate-api/` ). API 1.8.2.
+- **`RcCommand_Get ( )` in the user API**: calling `int16_t *RcCommand_Get ( void )` from user code failed to link
+  ( undefined reference: the source defined `RcCommand_get` ), and under that name it returned the address of a local
+  array, which the compiler turned into NULL, so the array read unrelated numbers. It now links and returns a static
+  array refreshed on each call: roll, pitch and yaw as 1500 + `rcCommand` ( the same as `RcCommand_Get ( channel )` ),
+  throttle as `rcCommand [ THROTTLE ]` ( 1100-2000 ). Yaw stick right reads below 1500. Bench-validated on
+  PRIMUS_X2_v1: the array equalled the channel getter on all 563 records ( `active-development/rc-command-get-api/` ).
+  `RcData_Get ( )` ( array ) still returns NULL and `RcCommand_Get ( RC_THROTTLE )` reads 2600-3500: known gaps,
+  documented in the wiki. API 1.8.3.
+- **`FlightStatus_Get ( )` after a crash** ( API test T05 ): after a crash disarm it returned 2 ( `FS_LOW_BATTERY` )
+  instead of 4 ( `FS_CRASHED` ), and it swapped the two battery statuses ( the warning read 3, the critical level 4 ).
+  The firmware's own status list is numbered differently from `flightstatus_e` at 2-4, and the value was cast across.
+  `FlightStatus_Check ( )` had the same swap ( `FS_CRASHED` tested the critical battery ). Both now translate by name;
+  the priority order, the public values and the app status ( MSP, already mapped by name ) are unchanged.
+  Bench-validated on PRIMUS_X2_v1: two crash disarms read 4, and all 841 records matched the internal flags
+  ( `active-development/flight-status-enum-map/` ). API 1.8.4.
+- **`setDefault_PIDProfile ( )` no longer overwrites the hidden PID gains** ( API test T06 ): it looped over all eleven
+  internal PID slots with five-entry tables, so it read past them and wrote whatever followed into the level ( angle
+  loop ), velocity ( inner altitude hold ), position, navigation and heading gains; `PID_ALT` came back 100 instead of
+  the firmware's 128, and `PID_USER` 0 / 0 / 40 instead of 60 / 30 / 5. It now restores exactly the five profiles the
+  API exposes ( `PID_ROLL`, `PID_PITCH` 40 / 10 / 30, `PID_YAW` 150 / 70 / 50, `PID_ALT` 128 / 0 / 30, `PID_USER`
+  60 / 30 / 5 ), taken from the same source as a configuration reset: the default gains moved, unchanged, from
+  `resetPidProfile ( )` into `pidProfileDefaultGains ( )` ( `flight/pid_defaults.cpp` ). Still RAM only. Verified with
+  a host simulation of the real code ( `tools/sim/`, ASan and UBSan, 103 checks ), which also fails on the old code
+  ( `active-development/set-default-pid-profile/` ). API 1.8.5.
+- **`setDesiredAngle ( AG_ROLL / AG_PITCH )` now tilts the drone** ( API test T11, B4 ): it wrote the measured attitude
+  `inclination` instead of a target, so `Estimate_Get ( Angle )` read the value back once, the next sensor update
+  overwrote it, and the drone never tilted; a value above 700 could also trip the crash detector and disarm in the
+  air. The setter now holds the tilt ( deci-degrees, until replaced ) and `pidRewrite` adds it to the ANGLE-mode stick
+  target, inside the pilot's `max_angle_inclination` limit ( 20 deg ). It is flown only in ANGLE mode, once airborne
+  ( throttle raised and 20 cm up ), outside a flip or landing, and while Developer Mode runs ( 0.6 s grace for a Wi-Fi
+  flicker ), and not while a full stick-down in ALT_HOLD may have set the drone down ( no descent seen yet, or touched
+  down ), where the kept rate I-term would wind up against the surface; it is dropped at a Developer Mode switch-off
+  and on disarm. Flight-tested on PRIMUS_X2_v1 against a
+  pre-fix reproduction with the same test code: roll +5, pitch +5 and pitch -5 deg reached the command within
+  0.2-0.3 s and 1 deg and held from a single call; roll -5 deg was not validated ( the drone hit an obstacle in a
+  small room ). `getDesiredAngle ( AG_ROLL / AG_PITCH )` now includes the flown tilt
+  ( `active-development/set-desired-angle-roll-pitch/` ). API 1.8.6.
+- **`setDesiredRate ( )` keeps its value, and `getDesiredRate ( )` reads it back** ( API test T16, B30 ): the flip
+  code reset the roll and pitch rates to 75 on every disarmed loop ( `flip ( false )` ) and at the end of every flip,
+  so a set value never stuck, and `getDesiredRate ( )` returned the PID's rate setpoint, not the setting. The setter
+  now clamps ( 0-100 roll / pitch, 0-255 yaw; it used to wrap, so yaw 400 became 144 ) and holds the value until reboot
+  or the next call, and the flip code restores it instead of 75 ( still 75 with no call, so nothing changes for code
+  that does not use the API ). A roll / pitch call made during a flip is held and applied when the flip ends: before,
+  it replaced the flip's spin rate, and a low value could stall the flip into its 2 s timeout and disarm the drone in
+  the air. The flip's own rates are unchanged. Bench-tested on PRIMUS_X2_v1, props off: no 75 on any of 790 log lines,
+  the getter equal to the rate in use on every line, the clamp, and the value held across arm and disarm. Not
+  flight-tested: the RATE-mode stick response and the restore after a flip rest on code reading and review
+  ( `active-development/set-desired-rate-api/` ). API 1.8.7.
+- **`Failsafe_enable ( X )` no longer switches the other failsafes off** ( API test T07, B2 ): each call assigned all
+  three switches, so the two not named were set off. `Failsafe_enable ( CRASH )` therefore also switched off the
+  in-flight low-battery failsafe, the only gate out of the battery's OK level: no low-battery or critical status, no
+  beeper, no automatic landing at critical battery, and arming allowed on a flat pack. `Failsafe_enable ( LOW_BATTERY )`
+  or `( INFLIGHT_LOW_BATTERY )` switched the crash disarm off. It now sets only the named switch ( all three for `ALL` ),
+  as the header documented; `Failsafe_disable ( )`, `Failsafe_enable ( ALL )` and the power-up default ( all on ) are
+  unchanged, and firmware that never calls `Failsafe_enable` is byte-for-byte the same size ( the linker drops the
+  unused function ). `LOW_BATTERY` has had no effect since the battery-management rewrite and is now documented as such
+  ( kept so existing code compiles ); the `failsafe_e` comments in `FC-Config.h` are corrected. Not hardware-tested:
+  verified by a host check that compiles the real source file ( 4164 checks: every state and every sequence of up to
+  three calls; the pre-fix code fails 1468 of them, reproducing T07 ) and a trace of each switch to what it gates. New
+  `docs/API/FAILSAFE_API_WIKI.md` ( `active-development/failsafe-enable-api/` ). API 1.8.8.
+- **`Monitor_Print / Monitor_Println ( tag, double, precision )` print every decimal** ( API audit B9, test T01 ): the
+  fraction loop turned each digit into its character before taking it off the remainder, so it subtracted 48 + d,
+  the remainder went negative, and the conversion to a digit returned 0 from then on: 3.14159 at 3 digits printed
+  `3.100`. It now prints `3.142` ( rounded half away from zero ). `precision` is now 0 to 4 ( it was 0 to 7 ); more
+  prints 4. The same review of every `Debugging.h` print fixed four more defects: a text or tag of 256 characters or
+  more never ended its print loop and stalled the main loop; a tag and number longer than 255 bytes wrapped the length
+  byte; `INT_MIN` printed as garbage characters; and the not-a-number and infinity messages had a length byte one
+  short. Texts are now cut at 255, the tag cut so the number always fits, and a `NULL` text counts as empty. No
+  signature change, and the frames for ordinary values are unchanged. Verified by a host check of the real source
+  file ( 86 / 86; the pre-fix file reproduces every defect ) and on hardware in a bench table and an 85 s hover
+  ( 0 wrong rows; 633 / 633 decimal values exact; no app disconnect ). New `docs/API/DEBUGGING_API_WIKI.md`
+  ( `active-development/monitor-print-double-precision/` ). API 1.8.9.
+
+### Documentation
+
+- New `docs/API/FC_DATA_API_WIKI.md` ( `Sensor_Get`: barometer units, accelerometer axes in cm/s^2, `Net_Acc` as the
+  squared magnitude, the gyro / magnetometer gaps ). `FC-Data.h` documents the barometer units; the User_Space_API
+  pipeline doc lists `Sensor_Get`. In 1.8.2 the wiki adds `Estimate_Get` ( rate, position, velocity and angle units,
+  the sign of each axis, examples ) and documents `Sensor_Get ( Gyroscope )` as deg/s x10; `FC-Data.h` gives every
+  `Estimate_Get` unit and sign and its `int16_t` return.
+- New `docs/API/RC_INTERFACE_API_WIKI.md` ( `RcCommand_Get`, `RcData_Get`, `RcCommand_Set`: values, signs, ranges, what
+  user code reads, known gaps ). `RC-Interface.h` comments of the two `RcCommand_Get` overloads, which described each
+  other, rewritten; the User_Space_API pipeline doc lists `RcCommand_Get ( )`.
+- `FC-Config.h` comment of `setDefault_PIDProfile ( )` rewritten ( the five values it restores, RAM only, a call while
+  armed changes the gains in flight, no effect on roll / pitch / yaw under the LuxFloat controller ). The
+  Core_PID_Controller pipeline doc describes the default gains and the API reset. `dev-guide/BUILD_AND_VERIFY.md`
+  describes the `tools/sim/` host harness.
+- New `docs/API/FC_CONFIG_API_WIKI.md` for `setDesiredRate` / `getDesiredRate`: range and clamp, where each axis acts
+  ( roll / pitch have no effect in ANGLE mode with the default PID controller; the other controllers scale their
+  gains with the rates in every mode ), how long a value holds, flips, saving and reloading. Both functions'
+  `FC-Config.h` comments rewritten. The User_Space_API and Core_PID_Controller pipeline docs gain "Stick rates"
+  sections; line references moved by this change corrected in three pipeline docs.
+- New `docs/API/FAILSAFE_API_WIKI.md` for `Failsafe_enable` / `Failsafe_disable`: what each `failsafe_e` value
+  protects and what is lost with it off, that a call changes only the named switch, how long a setting holds, the
+  one-way battery gate, `LOW_BATTERY` having no effect, examples per hook and a workaround for older firmware.
+  `BMS_API_WIKI.md` links it and names the switch. `FC-Config.h` `failsafe_e` comments rewritten. The
+  Failsafe_Subsystem pipeline doc gains the three switches and a corrected crash-detector reference, Power_BMS_Pipeline
+  names the battery gate, and User_Space_API lists the API.
+- New `docs/API/DEBUGGING_API_WIKI.md` for `Monitor_Print` / `Monitor_Println`: the six functions with an example per
+  hook, precision and rounding, the overflow / not-a-number / infinity output, how PlutoMonitor shows each call, bytes
+  per call against the ~130 B per loop budget, the 255-character limit, and pitfalls ( a decimal passed without a
+  precision prints as a whole number ). `Debugging.h` comments state the limits. `FC_DATA_API_WIKI.md` drops its
+  print-the-x100-integer workaround, `FLIGHT_INVARIANTS.md` drops the old digit warning, and the User_Space_API
+  pipeline doc lists the API.
+- `YAW_HEADING_API_WIKI.md` gains a "Roll and pitch tilt" section ( hold, signs, the stick sum and limit, when the
+  tilt is flown and when it ends, `getDesiredAngle` ), a lean-then-level example and pitfalls. `FC-Config.h` comments
+  of `setDesiredAngle` and `getDesiredAngle` rewritten. The User_Space_API pipeline doc gains "Roll / pitch
+  setpoints" and Core_PID_Controller the user tilt in `pidRewrite`; line references in seven pipeline docs corrected.
+- `FC_CONTROL_API_WIKI.md` gains a "Flight status" section ( the nine statuses, their priority, when each is active,
+  the about 0.3 s crash window, the read with no status right after a disarm, examples ). `FC-Control.h` comments of
+  `FlightStatus_Get` / `FlightStatus_Check` rewritten; the User_Space_API pipeline doc lists both.
+- GitHub wiki ( `MagisV2.wiki`, its own repo ) brought up to API 1.8.10 / FW 3.15.12 ( `active-development/api-wiki-sync/` ).
+  - Every page was checked against `src/main/API/` and `API-Src/`, and every example compiles and links
+    warning-free with the firmware flags.
+  - Unsafe examples were replaced: land / disarm in `onLoopFinish`, I2C writes to the flight IMU, a fly-away
+    localisation example.
+  - New `X1Ranging` page; the `API-Utils` page and the `Specifiers` links are removed.
+  - 19 code defects found while checking are listed in that topic's `FINDINGS.md`, among them
+    `FlightMode_Set ( ATLTITUDEHOLD )` and a 0 ms `Scheduler_Add` interval that stops the flight loop.
+- `PIN_MAP.md`, `TIMER_MAP.md`, `DMA_MAP.md`, `WS2812_RGB.md`:
+  - PB3 is the ESP Wi-Fi enable, and PB5 the SPI API chip select;
+  - the Motor API's `M1` / `M2` are on PA6 / PA7 ( TIM3 ) with direction pins PB0 / PB1;
+  - TIM3 is shared with `PWM_8` / `RGB_6`;
+  - the RGB strip has 64 LEDs, and `RGB_Init ( )` must come before an ADC pin on the same DMA channel;
+  - the down-laser is at 0x30 after start-up.
+
+## [v3.9.1] - 2026-11-03
 
 Consolidates all work merged into `main` since `v3.0.0`. Highlights: a unified
 non-blocking OLED subsystem, a WS2812B RGB LED API on a selectable data pin,
@@ -150,36 +330,23 @@ that removes all legacy STM32F10x support.
   ( alt-hold deadband, 1460-1540 ), and waits otherwise. It sets the climb height once per arm. A queued take-off
   is dropped after 2 s of refused arming ( calibrating, critical battery ) and, for user code, at a real Developer
   Mode switch-off. `Command_Land` is ignored while a flip runs. Wiki: `docs/API/FC_CONTROL_API_WIKI.md`.
-- **Firmware version** bumped to 3.15.11 (API 1.8.9) over this release: 3.5.0 for
+- **Firmware version** released as 3.9.1 (API 1.8.0). The development builds of this release were
+  numbered up to 3.15.1 and are superseded by it: 3.5.0 for
   the RC pilot override, 3.6.0 for the landing fix, 3.7.0 for the barometer
   compensation and altitude-hold fixes, 3.8.0 for altitude-hold setpoint
-  shaping, 3.8.1 for the flip fix under setpoint shaping, 3.9.0 for the laser
+  shaping, 3.8.1 for the flip fix under setpoint shaping, development 3.9.0 for the laser
   ( VL53L0X ) altitude-hold fusion, 3.10.0 for the VL53L1X ( `LASER_TOF_L1x` )
   altitude-hold fusion, 3.11.0 for the Pluto Fuel Gauge and Low-Battery Auto-Land,
   3.11.1 for the crash-detection limits, 3.11.2 for the RC link-loss failsafe delay,
   3.11.3 for the OLED flight fix, 3.12.0 for the single ToF pipeline ( `XRanging.initAlt` ),
   3.13.0 for the relative yaw API and automatic heading hold for user yaw, 3.14.0 for the take-off / land / flip
   command fixes, 3.15.0 for X1Ranging ( VL53L1X user API, laser family chosen at run time ), 3.15.1 for the VL53L1X
-  laser / baro handover at 190 / 170 cm, 3.15.2 for the stick-down I-term freeze, 3.15.3 for the barometer
-  temperature in `Sensor_Get`, 3.15.4 for the measured rate in `Estimate_Get`, 3.15.5 for `RcCommand_Get ( )`, 3.15.6 for the flight status values,
-  3.15.7 for `setDefault_PIDProfile ( )`, 3.15.8 for the `setDesiredAngle` roll / pitch tilt, 3.15.9 for the
-  `setDesiredRate` stick rates, 3.15.10 for `Failsafe_enable ( )`, 3.15.11 for the `Monitor_Print` decimals, 3.15.12 for the `Oled_Print ( )`
-  linkage fix.
+  laser / baro handover at 190 / 170 cm.
   API 1.4.1 is behaviour only: `Oled_Update` / `Oled_display_Update` now queue the frame.
   API 1.6.0 adds `DesiredAngle_setRelative` and changes how a user yaw target is held ( see Added / Fixed ).
   API 1.7.0 changes when `Command_TakeOff`, `Command_Land` and `Command_Flip` act ( see Changed / Fixed ).
   API 1.8.0 adds `X1Ranging`; using XRanging and X1Ranging together refuses both; object avoidance releases an
   out-of-range side after ~0.3 s ( both APIs ); the `initObjectAvoidance` unused-laser default is `DOWN`.
-  API 1.8.1 is behaviour only: `Sensor_Get ( Barometer, Temperature )` returns deg C x100 ( see Fixed ).
-  API 1.8.2 is behaviour only: `Estimate_Get ( Rate, axis )` returns the measured rotation rate ( see Fixed ).
-  API 1.8.3 is behaviour only: `int16_t *RcCommand_Get ( void )` links and returns the four live commands ( see Fixed ).
-  API 1.8.4 is behaviour only: `FlightStatus_Get ( )` and `FlightStatus_Check ( )` use the documented `flightstatus_e` values ( see Fixed ).
-  API 1.8.5 is behaviour only: `setDefault_PIDProfile ( )` restores the five API profiles and nothing else ( see Fixed ).
-  API 1.8.6 is behaviour only: `setDesiredAngle ( AG_ROLL / AG_PITCH )` tilts the drone and holds the tilt ( see Fixed ).
-  API 1.8.7 is behaviour only: `setDesiredRate ( )` holds its value and `getDesiredRate ( )` returns it ( see Fixed ).
-  API 1.8.8 is behaviour only: `Failsafe_enable ( X )` changes only the failsafe named ( see Fixed ).
-  API 1.8.9 is behaviour only: `Monitor_Print / Monitor_Println` print every decimal, `precision` is 0 to 4, and texts
-  are cut at 255 characters ( see Fixed ).
   The API patch bumps reflect behaviour changes only: 1.3.1 for
   `RcCommand_Set`'s pilot override, 1.3.2 for Z setpoints
   (`DesiredPosition_set*`, take-off) now being flown at the bounded climb /
@@ -252,101 +419,14 @@ that removes all legacy STM32F10x support.
 
 ### Fixed
 
-- **OLED text from user code**: `Oled_Print ( col, row, text )` could not be called from `PlutoPilot.cpp`: the link
-  failed with `undefined reference to Oled_Print(unsigned char, unsigned char, char const*)`. `API/Oled.h` is a C++
-  header, so the declaration had C++ linkage, while the body is in the C file `io/oled_display.c` and exports the
-  plain symbol. It is the only `Oled.h` function whose body is not a C++ wrapper in `API-Src/Oled.cpp`, and no
-  firmware code calls it, so no firmware build ever caught it. The declaration is now `extern "C"`. No signature or
-  behaviour change and the flashed image is unchanged; it stays `System` mode only, with `col` 0-20 and `row` 1-6
-  ( rows 0 and 7 are the status rows ). ( `active-development/oled-print-linkage/` ). API 1.8.10.
-- **Barometer temperature in the user API**: `Sensor_Get ( Barometer, Temperature )` returned whole degrees ( `32` for
-  32.70 C ), although `FC-Data.h` documents deg C x100: the float temperature was truncated to an integer and never
-  scaled. It now returns deg C x100 rounded to the nearest 0.01 C ( `3270` ), the same value altitude hold uses.
-  `Sensor_Get ( Barometer, Pressure )` keeps its unit, Pa ( = mbar x100 ), and is rounded instead of truncated.
-  **User code that expected whole degrees must divide by 100.** Bench-validated on PRIMUS_X2_v1
-  ( `active-development/baro-temperature-api/` ). API 1.8.1.
-- **Rotation rate in the user API**: `Estimate_Get ( Rate, X | Y | Z )` returned the stored stick-rate setting of the
-  rate profile ( `75` on every axis, whatever the drone did ) instead of a measurement. It now returns the measured
-  rotation rate in deg/s x10 from the gyro, rounded ( `gyroADC / 1.64`, 16.4 counts per deg/s ), the value the rate
-  loop uses. Rolling right and pitching nose down read positive; **turning right reads negative**, opposite to the
-  heading. Bench-validated on PRIMUS_X2_v1: one hand turn per axis integrated to 354-387 deg, rest within 0.5 deg/s
-  ( `active-development/estimate-get-rate-api/` ). API 1.8.2.
-- **`RcCommand_Get ( )` in the user API**: calling `int16_t *RcCommand_Get ( void )` from user code failed to link
-  ( undefined reference: the source defined `RcCommand_get` ), and under that name it returned the address of a local
-  array, which the compiler turned into NULL, so the array read unrelated numbers. It now links and returns a static
-  array refreshed on each call: roll, pitch and yaw as 1500 + `rcCommand` ( the same as `RcCommand_Get ( channel )` ),
-  throttle as `rcCommand [ THROTTLE ]` ( 1100-2000 ). Yaw stick right reads below 1500. Bench-validated on
-  PRIMUS_X2_v1: the array equalled the channel getter on all 563 records ( `active-development/rc-command-get-api/` ).
-  `RcData_Get ( )` ( array ) still returns NULL and `RcCommand_Get ( RC_THROTTLE )` reads 2600-3500: known gaps,
-  documented in the wiki. API 1.8.3.
-- **`FlightStatus_Get ( )` after a crash** ( API test T05 ): after a crash disarm it returned 2 ( `FS_LOW_BATTERY` )
-  instead of 4 ( `FS_CRASHED` ), and it swapped the two battery statuses ( the warning read 3, the critical level 4 ).
-  The firmware's own status list is numbered differently from `flightstatus_e` at 2-4, and the value was cast across.
-  `FlightStatus_Check ( )` had the same swap ( `FS_CRASHED` tested the critical battery ). Both now translate by name;
-  the priority order, the public values and the app status ( MSP, already mapped by name ) are unchanged.
-  Bench-validated on PRIMUS_X2_v1: two crash disarms read 4, and all 841 records matched the internal flags
-  ( `active-development/flight-status-enum-map/` ). API 1.8.4.
-- **`setDefault_PIDProfile ( )` no longer overwrites the hidden PID gains** ( API test T06 ): it looped over all eleven
-  internal PID slots with five-entry tables, so it read past them and wrote whatever followed into the level ( angle
-  loop ), velocity ( inner altitude hold ), position, navigation and heading gains; `PID_ALT` came back 100 instead of
-  the firmware's 128, and `PID_USER` 0 / 0 / 40 instead of 60 / 30 / 5. It now restores exactly the five profiles the
-  API exposes ( `PID_ROLL`, `PID_PITCH` 40 / 10 / 30, `PID_YAW` 150 / 70 / 50, `PID_ALT` 128 / 0 / 30, `PID_USER`
-  60 / 30 / 5 ), taken from the same source as a configuration reset: the default gains moved, unchanged, from
-  `resetPidProfile ( )` into `pidProfileDefaultGains ( )` ( `flight/pid_defaults.cpp` ). Still RAM only. Verified with
-  a host simulation of the real code ( `tools/sim/`, ASan and UBSan, 103 checks ), which also fails on the old code
-  ( `active-development/set-default-pid-profile/` ). API 1.8.5.
-- **`setDesiredAngle ( AG_ROLL / AG_PITCH )` now tilts the drone** ( API test T11, B4 ): it wrote the measured attitude
-  `inclination` instead of a target, so `Estimate_Get ( Angle )` read the value back once, the next sensor update
-  overwrote it, and the drone never tilted; a value above 700 could also trip the crash detector and disarm in the
-  air. The setter now holds the tilt ( deci-degrees, until replaced ) and `pidRewrite` adds it to the ANGLE-mode stick
-  target, inside the pilot's `max_angle_inclination` limit ( 20 deg ). It is flown only in ANGLE mode, once airborne
-  ( throttle raised and 20 cm up ), outside a flip or landing, and while Developer Mode runs ( 0.6 s grace for a Wi-Fi
-  flicker ); it is dropped at a Developer Mode switch-off and on disarm. Flight-tested on PRIMUS_X2_v1 against a
-  pre-fix reproduction with the same test code: roll +5, pitch +5 and pitch -5 deg reached the command within
-  0.2-0.3 s and 1 deg and held from a single call; roll -5 deg was not validated ( the drone hit an obstacle in a
-  small room ). `getDesiredAngle ( AG_ROLL / AG_PITCH )` now includes the flown tilt
-  ( `active-development/set-desired-angle-roll-pitch/` ). API 1.8.6.
-- **`setDesiredRate ( )` keeps its value, and `getDesiredRate ( )` reads it back** ( API test T16, B30 ): the flip
-  code reset the roll and pitch rates to 75 on every disarmed loop ( `flip ( false )` ) and at the end of every flip,
-  so a set value never stuck, and `getDesiredRate ( )` returned the PID's rate setpoint, not the setting. The setter
-  now clamps ( 0-100 roll / pitch, 0-255 yaw; it used to wrap, so yaw 400 became 144 ) and holds the value until reboot
-  or the next call, and the flip code restores it instead of 75 ( still 75 with no call, so nothing changes for code
-  that does not use the API ). A roll / pitch call made during a flip is held and applied when the flip ends: before,
-  it replaced the flip's spin rate, and a low value could stall the flip into its 2 s timeout and disarm the drone in
-  the air. The flip's own rates are unchanged. Bench-tested on PRIMUS_X2_v1, props off: no 75 on any of 790 log lines,
-  the getter equal to the rate in use on every line, the clamp, and the value held across arm and disarm. Not
-  flight-tested: the RATE-mode stick response and the restore after a flip rest on code reading and review
-  ( `active-development/set-desired-rate-api/` ). API 1.8.7.
-- **`Failsafe_enable ( X )` no longer switches the other failsafes off** ( API test T07, B2 ): each call assigned all
-  three switches, so the two not named were set off. `Failsafe_enable ( CRASH )` therefore also switched off the
-  in-flight low-battery failsafe, the only gate out of the battery's OK level: no low-battery or critical status, no
-  beeper, no automatic landing at critical battery, and arming allowed on a flat pack. `Failsafe_enable ( LOW_BATTERY )`
-  or `( INFLIGHT_LOW_BATTERY )` switched the crash disarm off. It now sets only the named switch ( all three for `ALL` ),
-  as the header documented; `Failsafe_disable ( )`, `Failsafe_enable ( ALL )` and the power-up default ( all on ) are
-  unchanged, and firmware that never calls `Failsafe_enable` is byte-for-byte the same size ( the linker drops the
-  unused function ). `LOW_BATTERY` has had no effect since the battery-management rewrite and is now documented as such
-  ( kept so existing code compiles ); the `failsafe_e` comments in `FC-Config.h` are corrected. Not hardware-tested:
-  verified by a host check that compiles the real source file ( 4164 checks: every state and every sequence of up to
-  three calls; the pre-fix code fails 1468 of them, reproducing T07 ) and a trace of each switch to what it gates. New
-  `docs/API/FAILSAFE_API_WIKI.md` ( `active-development/failsafe-enable-api/` ). API 1.8.8.
-- **`Monitor_Print / Monitor_Println ( tag, double, precision )` print every decimal** ( API audit B9, test T01 ): the
-  fraction loop turned each digit into its character before taking it off the remainder, so it subtracted 48 + d,
-  the remainder went negative, and the conversion to a digit returned 0 from then on: 3.14159 at 3 digits printed
-  `3.100`. It now prints `3.142` ( rounded half away from zero ). `precision` is now 0 to 4 ( it was 0 to 7 ); more
-  prints 4. The same review of every `Debugging.h` print fixed four more defects: a text or tag of 256 characters or
-  more never ended its print loop and stalled the main loop; a tag and number longer than 255 bytes wrapped the length
-  byte; `INT_MIN` printed as garbage characters; and the not-a-number and infinity messages had a length byte one
-  short. Texts are now cut at 255, the tag cut so the number always fits, and a `NULL` text counts as empty. No
-  signature change, and the frames for ordinary values are unchanged. Verified by a host check of the real source
-  file ( 86 / 86; the pre-fix file reproduces every defect ) and on hardware in a bench table and an 85 s hover
-  ( 0 wrong rows; 633 / 633 decimal values exact; no app disconnect ). New `docs/API/DEBUGGING_API_WIKI.md`
-  ( `active-development/monitor-print-double-precision/` ). API 1.8.9.
-- **Stick-down in flight no longer leans the craft**: a full throttle stick-down in flight ( raw throttle below
-  `mincheck` 1100 ) no longer zeroes the `pidRewrite` rate I-term: it is frozen while airborne ( app take-off, or
-  ALT_HOLD after an ARM-switch arm ) and reset only on the ground, at arming, in ground idle and in THROTTLE mode
-  after an ARM-switch arm. The reset shipped since at least v3.0.0 and leaned the craft 2-7 deg toward an off-centre
-  payload ( 2-3 deg toward its own trim ) for as long as the stick stayed down; the 30 cm/s shaped descent made it
-  visible. Flight-validated on PRIMUS_X2_v1 ( `active-development/payload-tilt-on-descent/` ). No public API change.
+- **A full stick-down in an ALT_HOLD flight no longer leans the craft** ( `de9eef7` ): with the throttle stick below
+  `mincheck` 1100, `processRx ( )` zeroed the rate I-term on every RX frame, even in flight, so a craft with an
+  off-centre payload ( a 9 g servo ) leaned about 10 deg toward it for a whole full-stick descent. The reset is now
+  skipped while armed in ALT_HOLD, off the ARM-switch ground idle, at 20 cm or more and before a stick-descent
+  touchdown ( a descent request of at least 15 cm/s seen moving, then arrested for 300 ms ); THROTTLE mode, the ground
+  idle and the floor keep the reset. New read-only diagnostics `pidGetGyroITerm ( axis )` and `pidGetGyroResetCount ( )`
+  in `flight/pid.h`. Not flight-validated at release ( `active-development/cg-offset-takeoff-tilt/` ). No public API
+  change.
 - **Object avoidance ( XRanging and X1Ranging )**: a side laser that went out of range kept its last near
   distance, so a removed obstacle stayed "seen" and the push / brake repeated until a valid far sample came. It
   now counts as "no obstacle" after 3 out-of-range ticks ( ~0.3 s; a shorter dropout keeps the push, because the
@@ -526,42 +606,6 @@ that removes all legacy STM32F10x support.
 
 ### Documentation
 
-- New `docs/API/FC_DATA_API_WIKI.md` ( `Sensor_Get`: barometer units, accelerometer axes in cm/s^2, `Net_Acc` as the
-  squared magnitude, the gyro / magnetometer gaps ). `FC-Data.h` documents the barometer units; the User_Space_API
-  pipeline doc lists `Sensor_Get`. In 1.8.2 the wiki adds `Estimate_Get` ( rate, position, velocity and angle units,
-  the sign of each axis, examples ) and documents `Sensor_Get ( Gyroscope )` as deg/s x10; `FC-Data.h` gives every
-  `Estimate_Get` unit and sign and its `int16_t` return.
-- New `docs/API/RC_INTERFACE_API_WIKI.md` ( `RcCommand_Get`, `RcData_Get`, `RcCommand_Set`: values, signs, ranges, what
-  user code reads, known gaps ). `RC-Interface.h` comments of the two `RcCommand_Get` overloads, which described each
-  other, rewritten; the User_Space_API pipeline doc lists `RcCommand_Get ( )`.
-- `FC-Config.h` comment of `setDefault_PIDProfile ( )` rewritten ( the five values it restores, RAM only, a call while
-  armed changes the gains in flight, no effect on roll / pitch / yaw under the LuxFloat controller ). The
-  Core_PID_Controller pipeline doc describes the default gains and the API reset. `dev-guide/BUILD_AND_VERIFY.md`
-  describes the `tools/sim/` host harness.
-- New `docs/API/FC_CONFIG_API_WIKI.md` for `setDesiredRate` / `getDesiredRate`: range and clamp, where each axis acts
-  ( roll / pitch have no effect in ANGLE mode with the default PID controller; the other controllers scale their
-  gains with the rates in every mode ), how long a value holds, flips, saving and reloading. Both functions'
-  `FC-Config.h` comments rewritten. The User_Space_API and Core_PID_Controller pipeline docs gain "Stick rates"
-  sections; line references moved by this change corrected in three pipeline docs.
-- New `docs/API/FAILSAFE_API_WIKI.md` for `Failsafe_enable` / `Failsafe_disable`: what each `failsafe_e` value
-  protects and what is lost with it off, that a call changes only the named switch, how long a setting holds, the
-  one-way battery gate, `LOW_BATTERY` having no effect, examples per hook and a workaround for older firmware.
-  `BMS_API_WIKI.md` links it and names the switch. `FC-Config.h` `failsafe_e` comments rewritten. The
-  Failsafe_Subsystem pipeline doc gains the three switches and a corrected crash-detector reference, Power_BMS_Pipeline
-  names the battery gate, and User_Space_API lists the API.
-- New `docs/API/DEBUGGING_API_WIKI.md` for `Monitor_Print` / `Monitor_Println`: the six functions with an example per
-  hook, precision and rounding, the overflow / not-a-number / infinity output, how PlutoMonitor shows each call, bytes
-  per call against the ~130 B per loop budget, the 255-character limit, and pitfalls ( a decimal passed without a
-  precision prints as a whole number ). `Debugging.h` comments state the limits. `FC_DATA_API_WIKI.md` drops its
-  print-the-x100-integer workaround, `FLIGHT_INVARIANTS.md` drops the old digit warning, and the User_Space_API
-  pipeline doc lists the API.
-- `YAW_HEADING_API_WIKI.md` gains a "Roll and pitch tilt" section ( hold, signs, the stick sum and limit, when the
-  tilt is flown and when it ends, `getDesiredAngle` ), a lean-then-level example and pitfalls. `FC-Config.h` comments
-  of `setDesiredAngle` and `getDesiredAngle` rewritten. The User_Space_API pipeline doc gains "Roll / pitch
-  setpoints" and Core_PID_Controller the user tilt in `pidRewrite`; line references in seven pipeline docs corrected.
-- `FC_CONTROL_API_WIKI.md` gains a "Flight status" section ( the nine statuses, their priority, when each is active,
-  the about 0.3 s crash window, the read with no status right after a disarm, examples ). `FC-Control.h` comments of
-  `FlightStatus_Get` / `FlightStatus_Check` rewritten; the User_Space_API pipeline doc lists both.
 - New `docs/API/FC_CONTROL_API_WIKI.md` ( arm, take-off, land, flip; the `onLoopStart ( )` restart pitfall; after a
   landing a re-sent take-off re-arms at once ). `FC-Control.h` comments rewritten. The pipeline docs
   ( User_Space_API, Power_BMS_Pipeline, Altitude_Hold_Estimator ) and the dev-guide describe the command rules.
@@ -600,20 +644,6 @@ that removes all legacy STM32F10x support.
   line each left in *Flight invariants*.
 - `PIN_MAP.md`, `dev-guide/HARDWARE_RESOURCES.md`: one down-laser at 0x29 on I2C1; VL53L0X and VL53L1X
   are mutually exclusive.
-- GitHub wiki ( `MagisV2.wiki`, its own repo ) brought up to API 1.8.10 / FW 3.15.12 ( `active-development/api-wiki-sync/` ).
-  - Every page was checked against `src/main/API/` and `API-Src/`, and every example compiles and links
-    warning-free with the firmware flags.
-  - Unsafe examples were replaced: land / disarm in `onLoopFinish`, I2C writes to the flight IMU, a fly-away
-    localisation example.
-  - New `X1Ranging` page; the `API-Utils` page and the `Specifiers` links are removed.
-  - 19 code defects found while checking are listed in that topic's `FINDINGS.md`, among them
-    `FlightMode_Set ( ATLTITUDEHOLD )` and a 0 ms `Scheduler_Add` interval that stops the flight loop.
-- `PIN_MAP.md`, `TIMER_MAP.md`, `DMA_MAP.md`, `WS2812_RGB.md`:
-  - PB3 is the ESP Wi-Fi enable, and PB5 the SPI API chip select;
-  - the Motor API's `M1` / `M2` are on PA6 / PA7 ( TIM3 ) with direction pins PB0 / PB1;
-  - TIM3 is shared with `PWM_8` / `RGB_6`;
-  - the RGB strip has 64 LEDs, and `RGB_Init ( )` must come before an ADC pin on the same DMA channel;
-  - the down-laser is at 0x30 after start-up.
 
 ## [v3.0.0] - 2026-02-10
 
@@ -719,7 +749,8 @@ Initial tagged baseline of the MagisV2 fork from the PrimusX2 codebase.
 - **Motor**: Resolved DRV8212 sleep/wakeup issue: arm-motor boost (1650) for
   100 ms then idle (1100).
 
-[v4.0.0]: https://github.com/DronaAviation/MagisV2/compare/v3.0.0...v4.0.0
+[v4.0.0]: https://github.com/DronaAviation/MagisV2/compare/v3.9.1...v4.0.0
+[v3.9.1]: https://github.com/DronaAviation/MagisV2/compare/v3.0.0...v3.9.1
 [v3.0.0]: https://github.com/DronaAviation/MagisV2/compare/v2.2.0...v3.0.0
 [v2.2.0]: https://github.com/DronaAviation/MagisV2/compare/v2.0.0...v2.2.0
 [v2.0.0]: https://github.com/DronaAviation/MagisV2/compare/v1.1.2...v2.0.0
