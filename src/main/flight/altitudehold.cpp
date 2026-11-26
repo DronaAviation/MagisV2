@@ -11,8 +11,8 @@
  #  Created Date: Sat, 22nd Feb 2025                                           #
  #  Brief:                                                                     #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
- #  Last Modified: Mon, 19th Oct 2026                                          #
- #  Modified By: AJ                                                            #
+ #  Last Modified: Thu, 26th Nov 2026                                          #
+ #  Modified By: OD                                                            #
  #  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  #
  #  HISTORY:                                                                   #
  #  Date      	By	Comments                                                   #
@@ -26,6 +26,7 @@
  #  19-10-2026	AJ	Two compiled fusion copies ( VL53L0X / VL53L1X ), picked at boot ( t17 ). #
  #  19-10-2026	AJ	altHoldKeepRateITerm ( ): no stick-low I reset in flight.   #
  #  19-10-2026	AJ	Stick-descent touchdown latch ( updateStickTouchdown ).    #
+ #  26-11-2026	OD	altHoldStickDownMayBeLanded ( ) for the user tilt gate.     #
 *******************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
@@ -455,6 +456,7 @@ static float altGoal           = 0.0f;     // commanded altitude the target is t
 static bool altGoalActive      = false;
 static bool altHoldGroundIdle  = false;    // armed on the throttle stick, motors held at idle
 static bool altStickTouchdown  = false;    // a fast stick descent was stopped by a surface ( updateStickTouchdown )
+static bool altStickDescentSeen = false;   // the current fast stick descent request has moved the craft down
 static int32_t altPreFlipAltHold = 0;      // AltHold when a flip was sent, flown back to after it, cm
 
 // Drop all setpoint shaping state and pin the target to the current estimate.
@@ -551,29 +553,28 @@ static void offloadHoverTrim ( void ) {
 #define ALT_TOUCHDOWN_VEL_CMS     ( -8 )  // cm/s, slower descent counts as arrested ( land ( )'s LAND_VEL_STOP )
 #define ALT_TOUCHDOWN_MS          300     // ms, an arrest must last this long ( land ( )'s LAND_SETTLE_MS )
 
-// Touchdown under a stick descent, for altHoldKeepRateITerm ( ): a fast descent is asked for, the craft
-// was seen moving down, and then it stopped for ALT_TOUCHDOWN_MS. Only a fast request is watched ( the
-// stick-low band asks 23-30 cm/s ), so a slow partial descent cannot latch it in the air; the moving
-// check keeps the lag at the start of a descent from looking like an arrest. Latched until the request
-// ends, so noise on the floor cannot release it. With alt_hold_fast_change 1 ( not the default ) the
-// stick never sets setVelocity, so this never latches and only the 20 cm floor guards the reset.
+// Touchdown under a stick descent, for altHoldKeepRateITerm ( ) and altHoldStickDownMayBeLanded ( ): a fast
+// descent is asked for, the craft was seen moving down, and then it stopped for ALT_TOUCHDOWN_MS. Only a
+// fast request is watched ( the stick-low band asks 23-30 cm/s ), so a slow partial descent cannot latch it
+// in the air; the moving check keeps the lag at the start of a descent from looking like an arrest. Latched
+// until the request ends, so noise on the floor cannot release it. With alt_hold_fast_change 1 ( not the
+// default ) the stick never sets setVelocity, so this never latches and only the 20 cm floor guards the reset.
 static void updateStickTouchdown ( void ) {
-  static bool descentSeen       = false;
   static uint32_t arrestStartMs = 0;
 
   if ( ! ARMING_FLAG ( ARMED ) || altHoldGroundIdle || setVelocity > -ALT_TOUCHDOWN_MIN_REQ_CMS ) {
-    descentSeen       = false;
-    arrestStartMs     = 0;
-    altStickTouchdown = false;
+    altStickDescentSeen = false;
+    arrestStartMs       = 0;
+    altStickTouchdown   = false;
     return;
   }
   if ( altStickTouchdown ) {
     return;
   }
   if ( VelocityZ <= ALT_TOUCHDOWN_VEL_CMS ) {
-    descentSeen   = true;
-    arrestStartMs = 0;
-  } else if ( descentSeen ) {
+    altStickDescentSeen = true;
+    arrestStartMs       = 0;
+  } else if ( altStickDescentSeen ) {
     if ( arrestStartMs == 0 ) {
       arrestStartMs = millis ( );
     } else if ( ( millis ( ) - arrestStartMs ) >= ALT_TOUCHDOWN_MS ) {
@@ -1532,6 +1533,18 @@ bool altHoldStickCentred ( void ) {
 bool altHoldKeepRateITerm ( void ) {
   return ARMING_FLAG ( ARMED ) && FLIGHT_MODE ( BARO_MODE ) && ! altHoldGroundIdle && ! altStickTouchdown
          && EstAlt >= ALT_ITERM_KEEP_MIN_CM;
+}
+
+// For userAngleTarget ( ): a fast stick descent request ( ALT_TOUCHDOWN_MIN_REQ_CMS or more ) that has not
+// moved the craft down yet, or that has touched down. Either way the craft may be standing on a surface,
+// where a held user roll / pitch tilt cannot be flown: with altHoldKeepRateITerm ( ) keeping the rate
+// integrators above 20 cm, it would wind them to GYRO_I_MAX against the surface and kick the next lift-off.
+// The case the touchdown latch misses is a craft set down with a partial stick ( a request under the watched
+// rate ) and then given a full stick: no descent is ever seen. In the air the tilt pauses only until the
+// descent shows in VelocityZ. Reads updateStickTouchdown ( )'s state, which only runs with altitude hold.
+bool altHoldStickDownMayBeLanded ( void ) {
+  return ARMING_FLAG ( ARMED ) && FLIGHT_MODE ( BARO_MODE ) && ! altHoldGroundIdle
+         && setVelocity <= -ALT_TOUCHDOWN_MIN_REQ_CMS && ( ! altStickDescentSeen || altStickTouchdown );
 }
 
 void AltRst ( void ) {

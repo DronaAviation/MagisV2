@@ -194,4 +194,7 @@ See [`../active-development/takeoff-land-command-fix/`](../active-development/ta
     flight, and a table is above it; the touchdown latch knows neither.
   - Do not change `calculateThrottleStatus ( )` or `throttleStatus` to fix a stick-low behaviour: stick-arm, switch
     disarm and the beeper read it.
+  - A held user roll / pitch tilt is not flown while `altHoldStickDownMayBeLanded ( )` holds ( a full stick-down that has
+    not moved the craft down yet, or has touched down ): on a surface above 20 cm it would wind the kept I-term to its
+    clamp and kick the next lift-off. Any other new user setpoint flown through `pidRewrite` needs the same gate.
   - A new reason to reset the attitude I-terms must say why the craft cannot be in an ALT_HOLD flight at that point.

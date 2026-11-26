@@ -89,7 +89,9 @@ the alternative I-term freeze developed on `BugFix-June26` ( `a7f398d` ) is not 
   air. The setter now holds the tilt ( deci-degrees, until replaced ) and `pidRewrite` adds it to the ANGLE-mode stick
   target, inside the pilot's `max_angle_inclination` limit ( 20 deg ). It is flown only in ANGLE mode, once airborne
   ( throttle raised and 20 cm up ), outside a flip or landing, and while Developer Mode runs ( 0.6 s grace for a Wi-Fi
-  flicker ); it is dropped at a Developer Mode switch-off and on disarm. Flight-tested on PRIMUS_X2_v1 against a
+  flicker ), and not while a full stick-down in ALT_HOLD may have set the drone down ( no descent seen yet, or touched
+  down ), where the kept rate I-term would wind up against the surface; it is dropped at a Developer Mode switch-off
+  and on disarm. Flight-tested on PRIMUS_X2_v1 against a
   pre-fix reproduction with the same test code: roll +5, pitch +5 and pitch -5 deg reached the command within
   0.2-0.3 s and 1 deg and held from a single call; roll -5 deg was not validated ( the drone hit an obstacle in a
   small room ). `getDesiredAngle ( AG_ROLL / AG_PITCH )` now includes the flown tilt

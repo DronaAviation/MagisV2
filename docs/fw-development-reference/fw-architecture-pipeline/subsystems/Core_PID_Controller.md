@@ -87,10 +87,11 @@ flowchart TD
 ## User roll / pitch tilt ( `userAngleTarget`, API-Utils.cpp )
 - `setDesiredAngle ( AG_ROLL | AG_PITCH, x )` stores a held tilt in `userDesiredAngle [ ]` ( deci-degrees, ±1800 ) and
   `isUserDesiredAngle [ ]` ( `FC-Config-Setpoints.cpp:91-99` ). `pidRewrite` adds `userAngleTarget ( axis )`
-  ( `API-Utils.cpp:209` ) to its stick target ( `pid.cpp:813` ), before the clamp, so the pilot's stick adds on top and
+  ( `API-Utils.cpp:213` ) to its stick target ( `pid.cpp:813` ), before the clamp, so the pilot's stick adds on top and
   the sum keeps `max_angle_inclination`. The helper returns 0, keeping the tilt held, unless: Developer Mode ran within
   the last 0.6 s, ANGLE mode is on, `flipState == 0`, no landing runs ( `landingInProgress ( )` ), and the craft is
-  airborne ( `throttleRaisedInFlight ( )` and `getEstAltitude ( ) >= 20` cm ). `userCode ( )` clears it at a real Dev
+  airborne ( `throttleRaisedInFlight ( )` and `getEstAltitude ( ) >= 20` cm ), and no full stick-down in ALT_HOLD may
+  have set it down ( `altHoldStickDownMayBeLanded ( )`, `altitudehold.cpp:1545`; see *Stick-low I-term reset* ). `userCode ( )` clears it at a real Dev
   Mode switch-off and on the disarm edge ( `mw.cpp:1262` ); it runs before `pid_controller ( )` in the same loop
   ( `mw.cpp:1429` / `:1500` ). Only `pidRewrite` reads it. The ANGLE loop is P only, so the tilt is reached with no
   integrator wind-up: flown at 5° it settled within 0.2-0.3 s and 1° ( log-2 of
@@ -107,7 +108,7 @@ flowchart TD
   while a flip runs ), the app
   ( MSP_SET_RC_TUNING, `serial_msp.cpp:1516` ), in-flight adjustments ( `rc_controls.cpp:445-459` ) and the CLI
   ( `serial_cli.cpp:450-452` ).
-- `restoreRestRates ( )` ( `acrobats.cpp:83` ) writes `userRollPitchRate ( )` ( `API-Utils.cpp:230` ): the
+- `restoreRestRates ( )` ( `acrobats.cpp:83` ) writes `userRollPitchRate ( )` ( `API-Utils.cpp:235` ): the
   `setDesiredRate` value when one is held, else 75 ( `STOCK_ROLL_PITCH_RATE`, `API-Utils.h:83` ). With no user rate
   this is the same 75 the flip code always wrote, so the effective roll / pitch rate is 75 on every craft ( the config
   default of 0, `config.cpp:319`, never survives the first disarmed loop ). Four abnormal 2 s flip timeouts would
@@ -120,14 +121,14 @@ On every RX pass, `processRx ( )` computes `throttleStatus` from the raw `rcData
 `mincheck` 1100 ( `rc_controls.cpp:131-139` ). At that point `rcData` was just rewritten from the receiver, so it is
 the pilot's value ( equal to `rcDataPilot` ), except during the 600 ms invalid-pulse hold ( `rx.cpp:528` keeps the
 previous `rcData`, which LAND or user code may have written ). With THROTTLE_LOW the angle and rate I-terms are zeroed
-( `mw.cpp:906-908` ) unless `altHoldKeepRateITerm ( )` ( `altitudehold.cpp:1532` ) reports an ALT_HOLD flight:
+( `mw.cpp:906-908` ) unless `altHoldKeepRateITerm ( )` ( `altitudehold.cpp:1533` ) reports an ALT_HOLD flight:
 
 | State | Condition | I-terms |
 |---|---|---|
 | ALT_HOLD flight | `ARMED && BARO_MODE && !altHoldGroundIdle && !altStickTouchdown && EstAlt >= 20 cm` ( `ALT_ITERM_KEEP_MIN_CM` ) | **kept**, and still integrating ( they hold the payload trim ) |
 | Anything else: disarmed, THROTTLE mode, ARM-switch ground idle, below 20 cm, after a stick-descent touchdown | - | **reset** to 0 ( anti wind-up ) |
 
-The touchdown latch is `updateStickTouchdown ( )` ( `altitudehold.cpp:560`, run every alt-hold pass at `:654` ). It sets
+The touchdown latch is `updateStickTouchdown ( )` ( `altitudehold.cpp:562`, run every alt-hold pass at `:655` ). It sets
 `altStickTouchdown` once a descent request of at least 15 cm/s ( `ALT_TOUCHDOWN_MIN_REQ_CMS` ) has been seen moving
 below -8 cm/s and then stays arrested for 300 ms ( `ALT_TOUCHDOWN_VEL_CMS`, `ALT_TOUCHDOWN_MS`: the same test `land ( )`
 uses ), and clears it when the request ends, at disarm or at ground idle. Only a fast request is watched ( the
@@ -148,7 +149,7 @@ flowchart TD
     Rx --> Status["throttleStatus = calculateThrottleStatus ( ), mw.cpp:900"]
     Status --> Low{"THROTTLE_LOW?<br/>mw.cpp:906"}
     Low -- no --> Sticks
-    Low -- yes --> Keep{"altHoldKeepRateITerm ( )?<br/>altitudehold.cpp:1532"}
+    Low -- yes --> Keep{"altHoldKeepRateITerm ( )?<br/>altitudehold.cpp:1533"}
     Keep -- "yes: ALT_HOLD flight" --> Sticks
     Keep -- no --> Reset["pidResetErrorAngle ( ) + pidResetErrorGyro ( ), mw.cpp:907-908"]
     Reset --> Sticks["processRcStickPositions ( ), mw.cpp:950"]
@@ -163,9 +164,10 @@ fires at any height. It never fires in two cases, and then the I-term winds unti
 disarms whenever `EstAlt` reads 20 cm or more ( a table above the arm point, or the 10-20 cm the baro reads high after a
 warm flight ): the stick went fully down only after the craft had stopped ( set down with a partial stick, whose request
 is under the 15 cm/s watch threshold, or nudged up after a touchdown, which clears the latch ), or `alt_hold_fast_change`
-is 1. Against a surface the integrator reaches its ±`GYRO_I_MAX` clamp within about 1 s, and a roll / pitch tilt held
-by user code ( `userAngleTarget ( )`, which also only checks `EstAlt` ) is still commanded there, which makes the
-wind-up larger. THROTTLE mode still resets on a stick-down and leans. The `cg-offset-takeoff-tilt` topic logged the
+is 1. Against a surface the integrator reaches its ±`GYRO_I_MAX` clamp within about 1 s. A roll / pitch tilt held by
+user code is not flown in the first case: `userAngleTarget ( )` returns 0 while `altHoldStickDownMayBeLanded ( )`
+( `altitudehold.cpp:1545` ) holds, so only the small error of a level craft on a surface winds the I-term; with
+`alt_hold_fast_change` 1 the tilt is still flown. THROTTLE mode still resets on a stick-down and leans. The `cg-offset-takeoff-tilt` topic logged the
 cause but no validation flight of this change ( its task 8 ), and its take-off items ( hover-snapshot seed, take-off
 I boost, tasks 5-6 ) are not implemented.
 

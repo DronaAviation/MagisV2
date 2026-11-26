@@ -217,7 +217,7 @@ and pitch tilt" ( API 1.8.6 ).
 - **Flown by `pidRewrite ( )`.** `desiredAngle [ axis ] = 2 * rcCommand [ axis ] + userAngleTarget ( axis )`
   ( `pid.cpp:813` ), then the existing clamp to ±`max_angle_inclination` ( 200, 20°; `pid.cpp:814`, `config.cpp:420` ).
   The pilot's stick adds to the tilt and the sum keeps the pilot's limit. The other PID controllers ignore it.
-- **Gated by `userAngleTarget ( )`** ( `API-Utils.cpp:209-220` ), which returns the held tilt, or 0 while it is kept but
+- **Gated by `userAngleTarget ( )`** ( `API-Utils.cpp:213-225` ), which returns the held tilt, or 0 while it is kept but
   not flown:
 
 | Not flown while | Test | Why |
@@ -228,6 +228,7 @@ and pitch tilt" ( API 1.8.6 ).
 | A flip runs | `flipState != 0` | The flip owns roll and pitch. |
 | A landing runs | `landingInProgress ( )` ( `FC-Control-Command.cpp:131` ) | User, MSP, RC-loss and battery landings; a tilt would drift the descent. |
 | Not airborne | `! throttleRaisedInFlight ( )` ( `mw.cpp:187` ) or `getEstAltitude ( ) < USER_ANGLE_MIN_ALT_CM` ( 20 cm, `API-Utils.h:78` ) | A tilt on the skids would pivot the take-off. Throttle-raised alone is true at the arm instant of an app take-off. |
+| A full stick-down in ALT_HOLD may have set it down | `altHoldStickDownMayBeLanded ( )` ( `altitudehold.cpp:1545` ): armed, BARO mode, not at ground idle, a descent request of 15 cm/s or more, and either no descent seen yet ( `VelocityZ` above -8 cm/s ) or the touchdown latch set | The craft may stand on a surface 20 cm or more above the arm point, where the airborne test passes and `altHoldKeepRateITerm ( )` keeps the rate I-term: a tilt would wind it to ±256 and kick the next lift-off. In the air the tilt pauses only until the descent shows. Not covered with `alt_hold_fast_change` 1. |
 
 - **Dropped** at a real Developer Mode switch-off and on the armed → disarmed edge, next to the yaw clear
   ( `mw.cpp:1262` ). `devSwitchOn` holds through an RC loss, so a flicker does not drop it; a tilt set while disarmed
@@ -241,11 +242,12 @@ and pitch tilt" ( API 1.8.6 ).
 flowchart TD
     UC([plutoLoop]) --> SA["setDesiredAngle ( AG_ROLL / AG_PITCH )<br/>FC-Config-Setpoints.cpp:91-99"]
     SA --> T[("userDesiredAngle [ axis ]<br/>isUserDesiredAngle [ axis ]")]
-    T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:209"]
+    T --> G["userAngleTarget ( axis )<br/>API-Utils.cpp:213"]
     DM["devmode<br/>userCode ( ), mw.cpp:1172 / 1176"] --> G
     FS["flipState<br/>acrobats.h:44"] --> G
     LD["landingInProgress ( )<br/>FC-Control-Command.cpp:131"] --> G
-    AB["throttleRaisedInFlight ( ), mw.cpp:187<br/>getEstAltitude ( ), altitudehold.cpp:1564"] --> G
+    AB["throttleRaisedInFlight ( ), mw.cpp:187<br/>getEstAltitude ( ), altitudehold.cpp:1577"] --> G
+    SD["altHoldStickDownMayBeLanded ( )<br/>altitudehold.cpp:1545"] --> G
     G --> PR["pidRewrite ( )<br/>desiredAngle = 2 x rcCommand + userAngleTarget<br/>pid.cpp:813"]
     ST([pilot stick: rcCommand]) --> PR
     PR --> CL["clamp to ±max_angle_inclination<br/>errorAngle, pid.cpp:814"]
@@ -271,7 +273,7 @@ rate units ) scale the stick into a turn rate in `pidRewrite ( )`. User code set
   ( `:1400` ), both before `userCode ( )` ( `:1429` ). The flip flies its own rates: 75 / 75 in ASCEND, HOLD and HOLDPOS
   ( `acrobats.cpp:126-127`, `:250-251`, `:340-341` ) and 110 on the flip axis ( `:135-150` ). Where it hands roll /
   pitch back to normal flight it calls `restoreRestRates ( )` ( `acrobats.cpp:83` ), which writes
-  `userRollPitchRate ( axis )` ( `API-Utils.cpp:230` ): the held user value, or `STOCK_ROLL_PITCH_RATE` 75
+  `userRollPitchRate ( axis )` ( `API-Utils.cpp:235` ): the held user value, or `STOCK_ROLL_PITCH_RATE` 75
   ( `API-Utils.h:83` ) when none is held. Callers: the 8 s watchdog ( `:97` ), the ASCEND 2.2 s timeout ( `:121` ), the
   HOLD end ( `:264` ), the HOLDPOS end ( `:350` ) and `flip ( false )` ( `:359` ).
 - **A running flip keeps its rates.** `userCode ( )` ( `mw.cpp:1429` ) runs after `flip ( true )` ( `:1400` ) and
@@ -316,7 +318,7 @@ flowchart TD
     FST["flipState<br/>acrobats.h:44"] --> SR
     SR --> UR[("userDesiredRate [ axis ]<br/>isUserDesiredRate [ axis ]<br/>API-Utils.cpp:140 / 145")]
     SR -->|"yaw always; roll / pitch only if flipState == 0<br/>FC-Config-Setpoints.cpp:183-184"| RT[("rates [ axis ]<br/>currentControlRateProfile")]
-    UR --> URP["userRollPitchRate ( axis )<br/>user value or 75<br/>API-Utils.cpp:230"]
+    UR --> URP["userRollPitchRate ( axis )<br/>user value or 75<br/>API-Utils.cpp:235"]
     URP --> RR["restoreRestRates ( )<br/>acrobats.cpp:83"]
     FF["flip ( false ), every disarmed loop<br/>mw.cpp:1404, acrobats.cpp:359"] --> RR
     FX["flip exits: watchdog :97, ASCEND timeout :121<br/>HOLD end :264, HOLDPOS end :350"] --> RR

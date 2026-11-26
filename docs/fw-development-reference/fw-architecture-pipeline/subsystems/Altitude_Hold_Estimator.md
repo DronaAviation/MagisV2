@@ -81,9 +81,9 @@ The legacy flow, the full comparison and the reasoning are in [althold-setpoint-
 | **Flip** (`flipActive()`) | Not shaped. `(rcData[THROTTLE] − 1500) / 4` fed straight to the velocity loop, see *Flip interaction* | `ALT_FLIP_MAX_CLIMB_CMS` 120 / `ALT_FLIP_MAX_DESCENT_CMS` 100, no ramp, slew or leash |
 
 A take-off on a drone at the ARM-switch ground idle first calls `altHoldReleaseGroundIdle ( )`
-( `altitudehold.cpp:1512` ). It clears `isThrottleStickArmed` and `altHoldGroundIdle` together, because the controller
+( `altitudehold.cpp:1513` ). It clears `isThrottleStickArmed` and `altHoldGroundIdle` together, because the controller
 runs at the top of the loop, before `applyAltHold ( )` recomputes the idle. A stale idle would reset the setpoint and
-wipe the goal. The goal is set only while `altHoldStickCentred ( )` holds ( `altitudehold.cpp:1519` ), the same test as the stick-rate
+wipe the goal. The goal is set only while `altHoldStickCentred ( )` holds ( `altitudehold.cpp:1520` ), the same test as the stick-rate
 branch, so a stick request cannot cancel it on the next cycle.
 
 Each 10 ms tick:
@@ -178,7 +178,7 @@ laser then ends BOOT_FAILED: no answer, a failed init step, or 0x29 busy at its 
 the DOWN entry only.
 
 **Sensor interface.** The body reads the sensor only through its traits struct, `AltTofL0x` or `AltTofL1x`
-( `altitudehold.cpp:195-258` ). Each has the per-sensor constants as `static constexpr` members, six `always_inline`
+( `altitudehold.cpp:196-259` ). Each has the per-sensor constants as `static constexpr` members, six `always_inline`
 accessors and the switch `RETURN_GUARD`. The range accessors return mm; the body divides by 10 before the tilt
 correction ( `( float ) T::tofFiltMm ( ) / 10.0f` ).
 
@@ -430,19 +430,19 @@ flowchart TD
 <!-- Edge sources ( 19 Oct 2026, source lines; the graph predates drivers/tof_manager_l1x ):
 Task -> Drv: mw.cpp:858-865 executePeriodicTasks ( ) UPDATE_LASER_TOF_TASK calls tofManagerPollDown ( ) ( :862 ) and
   tofL1xPollDown ( ) ( :865 ) on every pass.
-Est -> Tick: altitudehold.cpp:1011-1012 ( if ( altLaserFusion ( ) ) checkReading ( ) ); checkReading ( ) :1403-1409 runs
+Est -> Tick: altitudehold.cpp:1012-1013 ( if ( altLaserFusion ( ) ) checkReading ( ) ); checkReading ( ) :1404-1410 runs
   checkReadingFor<AltTofL1x> ( ) if altLaserFusionL1x, else checkReadingFor<AltTofL0x> ( ).
 Drv -.-> Tick: tof_manager.cpp:161-179 sets the DOWN entry's newSample / rawMm / outOfRange and the IIR, read via the
-  AltTofL0x accessors altitudehold.cpp:253-258 -> tof_manager.cpp:218-240; tof_manager_l1x.cpp:199-206
+  AltTofL0x accessors altitudehold.cpp:254-259 -> tof_manager.cpp:218-240; tof_manager_l1x.cpp:199-206
   ( tofL1xReadResult ) and :212-217 ( stale ) set the DOWN entry and downValidMm, read via the AltTofL1x accessors
-  altitudehold.cpp:228-233 -> tof_manager_l1x.cpp:444-461.
-Tick -> New: altitudehold.cpp:1174.  New -> Rej: :1179-1181.  New -> Raw: :1182-1185.  Raw -> Win: :1209 tofWindowMismatch<T> ( ).
-Win -> Sus: :1219-1225 ( suspect ), :1267-1268 ( step ).  Sus -> Hold: :1269.  Hold -> Laser ( cancel ): :1293-1294.
-Hold -> Rebase: :1297-1306 altShiftFrame<T> ( ) :1303.  Sus -> Coast / Band -> Coast: :1391-1395.  Band -> Laser: :1393.
-Band -> BaroP: :1364-1369 ( handover ), :1398 correctedWithBaro ( ).  BaroP -> Guard: :1326-1327 ( only in the copy with
-RETURN_GUARD, :1316; AltTofL1x :221, AltTofL0x :252 ).  Guard -> BaroP: :1371-1372 ( returnHeld resets the count ).
-Guard -> Ret ( steady exit ): :1328-1338.  Guard -> Cnt -> Ret: :1373-1378.  Ret -> Laser: :1380.
-Rebase -> Laser: :1309 ( altStepPending cleared ), then :1391-1393. -->
+  altitudehold.cpp:229-234 -> tof_manager_l1x.cpp:444-461.
+Tick -> New: altitudehold.cpp:1175.  New -> Rej: :1180-1182.  New -> Raw: :1183-1186.  Raw -> Win: :1210 tofWindowMismatch<T> ( ).
+Win -> Sus: :1220-1226 ( suspect ), :1268-1269 ( step ).  Sus -> Hold: :1270.  Hold -> Laser ( cancel ): :1294-1295.
+Hold -> Rebase: :1298-1307 altShiftFrame<T> ( ) :1304.  Sus -> Coast / Band -> Coast: :1392-1396.  Band -> Laser: :1394.
+Band -> BaroP: :1365-1370 ( handover ), :1399 correctedWithBaro ( ).  BaroP -> Guard: :1327-1328 ( only in the copy with
+RETURN_GUARD, :1317; AltTofL1x :222, AltTofL0x :253 ).  Guard -> BaroP: :1372-1373 ( returnHeld resets the count ).
+Guard -> Ret ( steady exit ): :1329-1339.  Guard -> Cnt -> Ret: :1374-1379.  Ret -> Laser: :1381.
+Rebase -> Laser: :1310 ( altStepPending cleared ), then :1392-1394. -->
 
 ## Flip interaction (`flight/acrobats.cpp`)
 
@@ -553,7 +553,7 @@ flowchart TD
     Mix --> End
 ```
 
-<!-- Edge sources at the source decision ( 19 Oct 2026 ): Start -> Src: altitudehold.cpp:1011. Src -> LF: :1012 checkReading ( ),
-which runs checkReadingFor<AltTofL0x / AltTofL1x> ( ) ( :1403-1409 ). Src -> Baro: :1014 checkBaro ( ) ( :1411 ).
-LF -> ToF: :1393 correctedWithTof ( ). LF -> Baro: :1398 correctedWithBaro ( Baro_Height - baro_offset ). LF -> CF: :1395
+<!-- Edge sources at the source decision ( 19 Oct 2026 ): Start -> Src: altitudehold.cpp:1012. Src -> LF: :1013 checkReading ( ),
+which runs checkReadingFor<AltTofL0x / AltTofL1x> ( ) ( :1404-1410 ). Src -> Baro: :1015 checkBaro ( ) ( :1412 ).
+LF -> ToF: :1394 correctedWithTof ( ). LF -> Baro: :1399 correctedWithBaro ( Baro_Height - baro_offset ). LF -> CF: :1396
 ( no correction ). The other edges are unchanged. -->
